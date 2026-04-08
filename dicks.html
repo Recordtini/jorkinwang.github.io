@@ -1,184 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Discord & Social Media Embed Preview Tags -->
-    <meta property="og:title" content="Watch live dicks at jorkin.wang!">
-    <meta property="og:description" content="Watch live dicks at jorkin.wang!">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#FFA500"> <!-- Gives the Discord embed an orange border -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeopardy Quiz</title>
+  <style>
+    :root {
+      --bg: #060ce9;
+      --panel: #10167c;
+      --gold: #f5c542;
+      --text: #ffffff;
+      --muted: #c8ccff;
+      --correct: #1f9d55;
+      --wrong: #bf1f2f;
+    }
 
-    <title>Live Camera Multiview</title>
-    
-    <!-- Include HLS.js to play m3u8 files in the browser -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
+    * { box-sizing: border-box; }
 
-        /* Toolbar */
-        #toolbar {
-            flex: 0 0 auto;
-            background-color: #111;
-            padding: 8px;
-            text-align: center;
-            border-bottom: 1px solid #333;
-        }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1723c9, #040950 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 18px;
+    }
 
-        button {
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #444;
-            color: white;
-            border: 1px solid #666;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
 
-        button:hover {
-            background-color: #666;
-        }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
 
-        /* 3x3 Grid Layout */
-        #grid-container {
-            flex: 1 1 auto;
-            min-height: 0; 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-            padding: 2px;
-            box-sizing: border-box;
-        }
+    .score {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
 
-        .video-wrapper {
-            position: relative;
-            background-color: #000;
-            width: 100%;
-            height: 100%;
-            min-width: 0;  
-            min-height: 0; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 700;
+      background: #2532e2;
+      color: white;
+    }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; 
-        }
+    button:hover { filter: brightness(1.08); }
 
-        /* Camera Labels */
-        .cam-label {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: bold;
-            pointer-events: none; 
-            transition: opacity 0.2s;
-            z-index: 10;
-        }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap: 8px;
+    }
 
-        .hidden {
-            opacity: 0 !important;
-        }
-    </style>
+    .cat {
+      background: var(--panel);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 90px repeat(5, 68px);
+    }
+
+    .cat-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      line-height: 1.15;
+      color: white;
+      text-transform: uppercase;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .cell {
+      width: 100%;
+      border: 0;
+      border-radius: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--gold);
+      background: linear-gradient(180deg, #10167c, #0b115f);
+    }
+
+    .cell:last-child { border-bottom: 0; }
+    .cell:disabled { opacity: 0.25; cursor: default; }
+
+    .status {
+      color: var(--muted);
+      font-size: 0.95rem;
+      min-height: 1.2rem;
+    }
+
+    dialog {
+      border: 0;
+      border-radius: 12px;
+      width: min(760px, calc(100vw - 24px));
+      background: #0e146e;
+      color: white;
+      padding: 0;
+    }
+
+    dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
+
+    .modal {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .value {
+      color: var(--gold);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .clue {
+      font-size: 1.25rem;
+      line-height: 1.45;
+    }
+
+    .prefix {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .answers {
+      display: grid;
+      gap: 10px;
+    }
+
+    .answer-btn {
+      text-align: left;
+      background: #2b38e7;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .answer-btn.correct { background: var(--correct); }
+    .answer-btn.wrong { background: var(--wrong); }
+
+    .result { min-height: 1.2rem; font-weight: 700; }
+
+    .final-wrap {
+      background: rgba(0,0,0,0.25);
+      border-radius: 10px;
+      padding: 12px;
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
-
-    <div id="toolbar">
-        <button id="toggle-labels-btn" onclick="toggleLabels()">Hide Labels</button>
+  <div class="container">
+    <div class="hud">
+      <div class="score">Score: <span id="score">$0</span></div>
+      <div>
+        <button id="new-board">New Board</button>
+      </div>
     </div>
 
-    <div id="grid-container">
-        <!-- Videos injected here -->
+    <div class="status" id="status">Loading clues from content.txt...</div>
+
+    <div class="board" id="board"></div>
+
+    <div class="final-wrap">
+      <div>
+        <strong>Final Jeopardy</strong>
+        <div id="final-info" class="status">No final clue in this board.</div>
+      </div>
+      <button id="final-btn" disabled>Play Final Jeopardy ($1000)</button>
     </div>
+  </div>
 
-    <script>
-        const streams = [
-            { name: "KENT", url: "https://s69.ipcamlive.com/streams/45gclvvpjytradw6h/stream.m3u8" },
-            { name: "WALLINGFORD", url: "https://s28.ipcamlive.com/streams/1ch8gypljnfovjusq/stream.m3u8" },
-            { name: "BROADWAY", url: "https://s37.ipcamlive.com/streams/25unvk3tfdi2jg4a6/stream.m3u8" },
-            { name: "HOLMAN ROAD", url: "https://s37.ipcamlive.com/streams/25f8g4i2hjxrjdq1g/stream.m3u8" },
-            { name: "LAKE CITY", url: "https://s67.ipcamlive.com/streams/43wljjyd5921hvtqo/stream.m3u8" },
-            { name: "QUEENE ANNE", url: "https://s109.ipcamlive.com/streams/6dg9kqdny1u3vthrp/stream.m3u8" },
-            { name: "EDMONDS", url: "https://s60.ipcamlive.com/streams/3c2ncaelbxoj4bhzr/stream.m3u8" },
-            { name: "CROSSROADS", url: "https://s37.ipcamlive.com/streams/25k9m1jyanmtflign/stream.m3u8" },
-            { name: "EVERETT", url: "https://s73.ipcamlive.com/streams/49swte6mw2vo0uin9/stream.m3u8" }
-        ];
+  <dialog id="clue-dialog">
+    <div class="modal">
+      <div class="value" id="modal-value"></div>
+      <div class="clue" id="modal-clue"></div>
+      <div class="prefix" id="modal-prefix"></div>
+      <div class="answers" id="modal-answers"></div>
+      <div class="result" id="modal-result"></div>
+      <div>
+        <button id="close-modal" disabled>Close</button>
+      </div>
+    </div>
+  </dialog>
 
-        const gridContainer = document.getElementById('grid-container');
+  <script>
+    const scoreEl = document.getElementById('score');
+    const statusEl = document.getElementById('status');
+    const boardEl = document.getElementById('board');
+    const finalInfoEl = document.getElementById('final-info');
+    const finalBtn = document.getElementById('final-btn');
+    const dialog = document.getElementById('clue-dialog');
+    const modalValue = document.getElementById('modal-value');
+    const modalClue = document.getElementById('modal-clue');
+    const modalPrefix = document.getElementById('modal-prefix');
+    const modalAnswers = document.getElementById('modal-answers');
+    const modalResult = document.getElementById('modal-result');
+    const closeModalBtn = document.getElementById('close-modal');
 
-        streams.forEach((stream, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'video-wrapper';
+    let score = 0;
+    let allCategories = [];
+    let boardCategories = [];
+    let finalClues = [];
+    let activeClue = null;
+    const usedClues = new Set();
 
-            const video = document.createElement('video');
-            video.id = `video-${index}`;
-            video.muted = true; 
-            video.autoplay = true;
-            video.playsInline = true;
+    function formatMoney(value) {
+      return `${value < 0 ? '-' : ''}$${Math.abs(value)}`;
+    }
 
-            const label = document.createElement('div');
-            label.className = 'cam-label';
-            label.innerText = stream.name;
+    function updateScore(delta = 0) {
+      score += delta;
+      scoreEl.textContent = formatMoney(score);
+    }
 
-            wrapper.appendChild(video);
-            wrapper.appendChild(label);
-            gridContainer.appendChild(wrapper);
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
 
-            if (Hls.isSupported()) {
-                const hls = new Hls({ lowLatencyMode: true });
-                hls.loadSource(stream.url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play().catch(e => console.log("Autoplay blocked", e));
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = stream.url;
-                video.addEventListener('loadedmetadata', function () {
-                    video.play();
-                });
-            }
+    function parseContent(text) {
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const categories = [];
+      let i = 0;
+
+      while (i < lines.length) {
+        const catParts = [];
+        while (i < lines.length && !lines[i].includes('|')) {
+          catParts.push(lines[i]);
+          i += 1;
+        }
+
+        const clueLines = [];
+        while (i < lines.length && lines[i].includes('|')) {
+          clueLines.push(lines[i]);
+          i += 1;
+        }
+
+        if (!catParts.length || !clueLines.length) continue;
+
+        const categoryName = catParts.join(' ').replace(/\s+/g, ' ').trim();
+        const clues = clueLines.map((line, idx) => {
+          const [question, responsePrefix, correct, ...wrong] = line.split('|').map(p => p.trim());
+          return {
+            id: `${categoryName}-${idx}-${question.slice(0, 16)}`,
+            category: categoryName,
+            question,
+            responsePrefix,
+            correct,
+            options: [correct, ...wrong],
+            row: idx
+          };
         });
 
-        let labelsVisible = true;
-        function toggleLabels() {
-            const labels = document.querySelectorAll('.cam-label');
-            const btn = document.getElementById('toggle-labels-btn');
-            
-            labelsVisible = !labelsVisible;
-            
-            labels.forEach(label => {
-                if (labelsVisible) {
-                    label.classList.remove('hidden');
-                } else {
-                    label.classList.add('hidden');
-                }
-            });
+        categories.push({ name: categoryName, clues });
+      }
 
-            btn.innerText = labelsVisible ? "Hide Labels" : "Show Labels";
+      return categories;
+    }
+
+    function clueValue(category, rowIndex) {
+      if (category.clues.length >= 5) {
+        return [200, 400, 600, 800, 1000][rowIndex] || 1000;
+      }
+      return 1000;
+    }
+
+    function buildBoard() {
+      usedClues.clear();
+      boardEl.innerHTML = '';
+      modalResult.textContent = '';
+      closeModalBtn.disabled = true;
+      activeClue = null;
+
+      const playable = allCategories.filter(c => c.clues.length >= 5);
+      const finals = allCategories.filter(c => c.clues.length === 1);
+
+      boardCategories = shuffle(playable).slice(0, 6).map(c => ({ ...c, clues: c.clues.slice(0, 5) }));
+      finalClues = shuffle(finals);
+
+      boardCategories.forEach((category, catIndex) => {
+        const catEl = document.createElement('div');
+        catEl.className = 'cat';
+
+        const title = document.createElement('div');
+        title.className = 'cat-title';
+        title.textContent = category.name;
+        catEl.appendChild(title);
+
+        for (let row = 0; row < 5; row += 1) {
+          const clue = category.clues[row];
+          const btn = document.createElement('button');
+          btn.className = 'cell';
+          btn.textContent = `$${clueValue(category, row)}`;
+          btn.disabled = !clue;
+
+          if (clue) {
+            const clueKey = `${catIndex}-${row}`;
+            btn.dataset.clueKey = clueKey;
+            btn.addEventListener('click', () => openClue(clue, clueValue(category, row), clueKey, btn));
+          }
+
+          catEl.appendChild(btn);
         }
-    </script>
 
+        boardEl.appendChild(catEl);
+      });
+
+      if (finalClues.length) {
+        finalInfoEl.textContent = `${finalClues[0].category} is available.`;
+        finalBtn.disabled = false;
+      } else {
+        finalInfoEl.textContent = 'No final clue in this board.';
+        finalBtn.disabled = true;
+      }
+
+      statusEl.textContent = 'Round 1 ready. Choose a clue.';
+    }
+
+    function openClue(clue, value, clueKey, sourceButton) {
+      if (usedClues.has(clueKey)) return;
+      activeClue = { clue, value, clueKey, sourceButton };
+
+      modalValue.textContent = `${clue.category} • ${formatMoney(value)}`;
+      modalClue.textContent = clue.question;
+      modalPrefix.textContent = `Response format: ${clue.responsePrefix}`;
+      modalResult.textContent = '';
+      closeModalBtn.disabled = true;
+
+      modalAnswers.innerHTML = '';
+      const shuffledOptions = shuffle(clue.options);
+      shuffledOptions.forEach(opt => {
+        const answerBtn = document.createElement('button');
+        answerBtn.className = 'answer-btn';
+        answerBtn.textContent = opt;
+        answerBtn.addEventListener('click', () => handleAnswer(answerBtn, opt));
+        modalAnswers.appendChild(answerBtn);
+      });
+
+      dialog.showModal();
+    }
+
+    function handleAnswer(button, selected) {
+      if (!activeClue) return;
+      const { clue, value, clueKey, sourceButton } = activeClue;
+
+      const answerButtons = [...modalAnswers.querySelectorAll('button')];
+      answerButtons.forEach(b => {
+        b.disabled = true;
+        if (b.textContent === clue.correct) b.classList.add('correct');
+      });
+
+      const correct = selected === clue.correct;
+      if (!correct) button.classList.add('wrong');
+
+      updateScore(correct ? value : -value);
+      modalResult.textContent = correct
+        ? `Correct! ${clue.responsePrefix} ${clue.correct}. (+${formatMoney(value)})`
+        : `Nope. ${clue.responsePrefix} ${clue.correct}. (-${formatMoney(value)})`;
+
+      usedClues.add(clueKey);
+      if (sourceButton) sourceButton.disabled = true;
+      closeModalBtn.disabled = false;
+    }
+
+    closeModalBtn.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('cancel', (event) => {
+      if (closeModalBtn.disabled) event.preventDefault();
+    });
+
+    document.getElementById('new-board').addEventListener('click', () => {
+      score = 0;
+      scoreEl.textContent = '$0';
+      buildBoard();
+    });
+
+    finalBtn.addEventListener('click', () => {
+      if (!finalClues.length) return;
+      openClue(finalClues[0].clues[0], 1000, 'final-0', null);
+      finalBtn.disabled = true;
+      finalInfoEl.textContent = 'Final Jeopardy has been played.';
+    });
+
+    async function init() {
+      try {
+        const response = await fetch('content.txt', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        allCategories = parseContent(text);
+
+        if (!allCategories.length) {
+          statusEl.textContent = 'No categories were parsed from content.txt.';
+          return;
+        }
+
+        buildBoard();
+      } catch (error) {
+        statusEl.textContent = `Failed to load content.txt: ${error.message}`;
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
