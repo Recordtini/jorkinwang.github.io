@@ -1,184 +1,362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Discord & Social Media Embed Preview Tags -->
-    <meta property="og:title" content="Watch live dicks at jorkin.wang!">
-    <meta property="og:description" content="Watch live dicks at jorkin.wang!">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#FFA500"> <!-- Gives the Discord embed an orange border -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Jeopardy Quiz</title>
+  <style>
+    :root {
+      --bg: #050a5b;
+      --panel: #0f1a8f;
+      --panel-2: #111a72;
+      --gold: #f8c94a;
+      --text: #fff;
+      --muted: #d4dcff;
+      --ok: #14965c;
+      --bad: #ba2432;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1825ca 0%, #030642 60%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      padding: 10px;
+    }
+    #app { max-width: 1200px; margin: 0 auto; }
+    .hud {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+      padding: 10px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.25);
+      margin-bottom: 10px;
+    }
+    .score { color: var(--gold); font-weight: 800; font-size: 1.15rem; }
+    button {
+      border: 0; border-radius: 8px; background: #2939e2; color: white; font-weight: 700;
+      min-height: 44px; padding: 8px 12px; cursor: pointer;
+    }
+    button:disabled { opacity: 0.45; cursor: default; }
+    .status { color: var(--muted); margin-bottom: 8px; min-height: 1.2em; }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 6px;
+    }
+    .cat {
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel);
+      display: grid;
+      grid-template-rows: 80px repeat(5, 64px);
+    }
+    .cat-title {
+      font-weight: 800; text-align: center; text-transform: uppercase;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6px; font-size: 0.95rem; line-height: 1.15;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+    .cell {
+      border-radius: 0; border-bottom: 1px solid rgba(255,255,255,0.2);
+      font-size: 1.35rem; color: var(--gold); background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    }
+    .cell:last-child { border-bottom: 0; }
 
-    <title>Live Camera Multiview</title>
-    
-    <!-- Include HLS.js to play m3u8 files in the browser -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
+    .final {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.25);
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+    }
 
-        /* Toolbar */
-        #toolbar {
-            flex: 0 0 auto;
-            background-color: #111;
-            padding: 8px;
-            text-align: center;
-            border-bottom: 1px solid #333;
-        }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+      display: grid; place-items: center; z-index: 1000;
+      padding: 8px;
+    }
+    .modal {
+      width: min(760px, 100%);
+      max-height: 95vh;
+      overflow: auto;
+      border-radius: 12px;
+      background: var(--panel);
+      border: 2px solid rgba(255,255,255,0.25);
+      padding: 12px;
+      display: grid; gap: 10px;
+    }
+    .value { color: var(--gold); font-weight: 800; }
+    .clue { font-size: 1.2rem; line-height: 1.4; }
+    .prefix { color: var(--muted); font-weight: 700; }
+    .answers { display: grid; gap: 8px; }
+    .answer { text-align: left; border: 2px solid rgba(255,255,255,0.2); }
+    .answer.ok { background: var(--ok); }
+    .answer.bad { background: var(--bad); }
+    .result { min-height: 1.2em; font-weight: 800; }
 
-        button {
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #444;
-            color: white;
-            border: 1px solid #666;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
+    .load-help {
+      margin-top: 10px; padding: 10px;
+      border: 2px solid rgba(255,255,255,0.15); border-radius: 10px;
+      background: rgba(0,0,0,0.2); display: grid; gap: 8px;
+    }
 
-        button:hover {
-            background-color: #666;
-        }
-
-        /* 3x3 Grid Layout */
-        #grid-container {
-            flex: 1 1 auto;
-            min-height: 0; 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-            padding: 2px;
-            box-sizing: border-box;
-        }
-
-        .video-wrapper {
-            position: relative;
-            background-color: #000;
-            width: 100%;
-            height: 100%;
-            min-width: 0;  
-            min-height: 0; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; 
-        }
-
-        /* Camera Labels */
-        .cam-label {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: bold;
-            pointer-events: none; 
-            transition: opacity 0.2s;
-            z-index: 10;
-        }
-
-        .hidden {
-            opacity: 0 !important;
-        }
-    </style>
+    @media (max-width: 900px) {
+      .board { grid-template-columns: repeat(3, minmax(100px, 1fr)); }
+      .cat { grid-template-rows: 68px repeat(5, 56px); }
+      .cell { font-size: 1.15rem; }
+    }
+    @media (max-width: 640px) {
+      body { padding: 6px; }
+      .board { grid-template-columns: 1fr; }
+      .cat { grid-template-rows: 60px repeat(5, 50px); }
+      .cat-title { font-size: 0.78rem; }
+      .cell { font-size: 1rem; min-height: 50px; }
+      .clue { font-size: 1rem; }
+      .score { font-size: 1rem; }
+    }
+    .mobile-nav {
+      display: none;
+      margin-bottom: 8px;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mobile-nav .label {
+      font-weight: 700;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    @media (max-width: 640px) {
+      .mobile-nav { display: flex; }
+    }
+  </style>
 </head>
 <body>
+  <div id="app"></div>
 
-    <div id="toolbar">
-        <button id="toggle-labels-btn" onclick="toggleLabels()">Hide Labels</button>
-    </div>
+  <script type="module">
+    import { h, render } from 'https://esm.sh/preact@10.26.4';
+    import { useState, useEffect } from 'https://esm.sh/preact@10.26.4/hooks';
 
-    <div id="grid-container">
-        <!-- Videos injected here -->
-    </div>
+    const MONEY = [200, 400, 600, 800, 1000];
 
-    <script>
-        const streams = [
-            { name: "KENT", url: "https://s69.ipcamlive.com/streams/45gclvvpjytradw6h/stream.m3u8" },
-            { name: "WALLINGFORD", url: "https://s28.ipcamlive.com/streams/1ch8gypljnfovjusq/stream.m3u8" },
-            { name: "BROADWAY", url: "https://s37.ipcamlive.com/streams/25unvk3tfdi2jg4a6/stream.m3u8" },
-            { name: "HOLMAN ROAD", url: "https://s37.ipcamlive.com/streams/25f8g4i2hjxrjdq1g/stream.m3u8" },
-            { name: "LAKE CITY", url: "https://s67.ipcamlive.com/streams/43wljjyd5921hvtqo/stream.m3u8" },
-            { name: "QUEENE ANNE", url: "https://s109.ipcamlive.com/streams/6dg9kqdny1u3vthrp/stream.m3u8" },
-            { name: "EDMONDS", url: "https://s60.ipcamlive.com/streams/3c2ncaelbxoj4bhzr/stream.m3u8" },
-            { name: "CROSSROADS", url: "https://s37.ipcamlive.com/streams/25k9m1jyanmtflign/stream.m3u8" },
-            { name: "EVERETT", url: "https://s73.ipcamlive.com/streams/49swte6mw2vo0uin9/stream.m3u8" }
-        ];
+    const fmtMoney = (n) => `${n < 0 ? '-' : ''}$${Math.abs(n)}`;
 
-        const gridContainer = document.getElementById('grid-container');
+    const shuffle = (arr) => {
+      const out = [...arr];
+      for (let i = out.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    };
 
-        streams.forEach((stream, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'video-wrapper';
-
-            const video = document.createElement('video');
-            video.id = `video-${index}`;
-            video.muted = true; 
-            video.autoplay = true;
-            video.playsInline = true;
-
-            const label = document.createElement('div');
-            label.className = 'cam-label';
-            label.innerText = stream.name;
-
-            wrapper.appendChild(video);
-            wrapper.appendChild(label);
-            gridContainer.appendChild(wrapper);
-
-            if (Hls.isSupported()) {
-                const hls = new Hls({ lowLatencyMode: true });
-                hls.loadSource(stream.url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play().catch(e => console.log("Autoplay blocked", e));
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = stream.url;
-                video.addEventListener('loadedmetadata', function () {
-                    video.play();
-                });
-            }
-        });
-
-        let labelsVisible = true;
-        function toggleLabels() {
-            const labels = document.querySelectorAll('.cam-label');
-            const btn = document.getElementById('toggle-labels-btn');
-            
-            labelsVisible = !labelsVisible;
-            
-            labels.forEach(label => {
-                if (labelsVisible) {
-                    label.classList.remove('hidden');
-                } else {
-                    label.classList.add('hidden');
-                }
-            });
-
-            btn.innerText = labelsVisible ? "Hide Labels" : "Show Labels";
+    function parseContent(text) {
+      const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const categories = [];
+      let i = 0;
+      while (i < lines.length) {
+        const catParts = [];
+        while (i < lines.length && !lines[i].includes('|')) {
+          catParts.push(lines[i]);
+          i += 1;
         }
-    </script>
+        const clueLines = [];
+        while (i < lines.length && lines[i].includes('|')) {
+          clueLines.push(lines[i]);
+          i += 1;
+        }
+        if (!catParts.length || !clueLines.length) continue;
+        const name = catParts.join(' ').replace(/\s+/g, ' ').trim();
+        const clues = clueLines.map((line, idx) => {
+          const [question, responsePrefix, correct, ...wrong] = line.split('|').map((x) => x.trim());
+          return { question, responsePrefix, correct, options: [correct, ...wrong], row: idx, category: name };
+        });
+        categories.push({ name, clues });
+      }
+      return categories;
+    }
 
+    function buildBoardData(categories) {
+      const playable = categories.filter((c) => c.clues.length >= 5);
+      const finals = categories.filter((c) => c.clues.length === 1);
+      return {
+        board: shuffle(playable).slice(0, 6).map((c) => ({ ...c, clues: c.clues.slice(0, 5) })),
+        final: finals.length ? shuffle(finals)[0] : null,
+      };
+    }
+
+    function App() {
+      const [allCategories, setAllCategories] = useState([]);
+      const [score, setScore] = useState(0);
+      const [status, setStatus] = useState('Loading content.txt...');
+      const [boardData, setBoardData] = useState({ board: [], final: null });
+      const [used, setUsed] = useState({});
+      const [active, setActive] = useState(null);
+      const [result, setResult] = useState('');
+      const [finalPlayed, setFinalPlayed] = useState(false);
+      const [loadError, setLoadError] = useState(false);
+      const [isNarrow, setIsNarrow] = useState(window.innerWidth <= 640);
+      const [mobileCategoryIndex, setMobileCategoryIndex] = useState(0);
+
+      useEffect(() => {
+        (async () => {
+          try {
+            const res = await fetch('content.txt', { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            const categories = parseContent(text);
+            if (!categories.length) throw new Error('No categories parsed');
+            setAllCategories(categories);
+            setBoardData(buildBoardData(categories));
+            setStatus('Round 1 ready. Pick a clue.');
+          } catch (err) {
+            setLoadError(true);
+            setStatus('Could not auto-load content.txt. Upload it below to play.');
+          }
+        })();
+      }, []);
+
+      useEffect(() => {
+        const onResize = () => setIsNarrow(window.innerWidth <= 640);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+      }, []);
+
+      const newBoard = () => {
+        if (!allCategories.length) return;
+        setScore(0);
+        setUsed({});
+        setFinalPlayed(false);
+        setResult('');
+        setActive(null);
+        setMobileCategoryIndex(0);
+        setBoardData(buildBoardData(allCategories));
+        setStatus('Round 1 ready. Pick a clue.');
+      };
+
+      const chooseClue = (clue, value, key) => {
+        if (used[key]) return;
+        setResult('');
+        setActive({ clue, value, key, options: shuffle(clue.options), locked: false });
+      };
+
+      const answer = (choice) => {
+        if (!active || active.locked) return;
+        const isRight = choice === active.clue.correct;
+        setScore((s) => s + (isRight ? active.value : -active.value));
+        setUsed((u) => ({ ...u, [active.key]: true }));
+        setResult(isRight
+          ? `Correct! ${active.clue.responsePrefix} ${active.clue.correct}. (+${fmtMoney(active.value)})`
+          : `Nope. ${active.clue.responsePrefix} ${active.clue.correct}. (-${fmtMoney(active.value)})`);
+        setActive((a) => ({ ...a, locked: true }));
+      };
+
+      const closeModal = () => {
+        if (!active?.locked) return;
+        setActive(null);
+      };
+
+      const onUpload = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const text = await file.text();
+        const categories = parseContent(text);
+        setAllCategories(categories);
+        setUsed({});
+        setScore(0);
+        setFinalPlayed(false);
+        setBoardData(buildBoardData(categories));
+        setMobileCategoryIndex(0);
+        setLoadError(false);
+        setStatus('Loaded from uploaded file. Round 1 ready.');
+      };
+
+      const categoriesToRender = isNarrow
+        ? (boardData.board[mobileCategoryIndex] ? [{ cat: boardData.board[mobileCategoryIndex], idx: mobileCategoryIndex }] : [])
+        : boardData.board.map((cat, idx) => ({ cat, idx }));
+
+      return h('div', {}, [
+        h('div', { class: 'hud' }, [
+          h('div', { class: 'score' }, `Score: ${fmtMoney(score)}`),
+          h('button', { onClick: newBoard, disabled: !allCategories.length }, 'New Board')
+        ]),
+
+        h('div', { class: 'status' }, status),
+
+        isNarrow && h('div', { class: 'mobile-nav' }, [
+          h('button', {
+            disabled: mobileCategoryIndex <= 0,
+            onClick: () => setMobileCategoryIndex((n) => Math.max(0, n - 1))
+          }, 'Prev Category'),
+          h('div', { class: 'label' }, boardData.board.length
+            ? `Category ${mobileCategoryIndex + 1} of ${boardData.board.length}`
+            : 'No categories'),
+          h('button', {
+            disabled: mobileCategoryIndex >= Math.max(0, boardData.board.length - 1),
+            onClick: () => setMobileCategoryIndex((n) => Math.min(boardData.board.length - 1, n + 1))
+          }, 'Next Category')
+        ]),
+
+        h('div', { class: 'board' }, categoriesToRender.map(({ cat, idx: cIdx }) =>
+          h('div', { class: 'cat' }, [
+            h('div', { class: 'cat-title' }, cat.name),
+            ...cat.clues.map((clue, rIdx) => {
+              const key = `${cIdx}-${rIdx}`;
+              return h('button', {
+                class: 'cell',
+                disabled: !!used[key],
+                onClick: () => chooseClue(clue, MONEY[rIdx] || 1000, key)
+              }, `$${MONEY[rIdx] || 1000}`);
+            })
+          ])
+        )),
+
+        h('div', { class: 'final' }, [
+          h('div', {}, [
+            h('strong', {}, 'Final Jeopardy'),
+            h('div', { class: 'status' }, boardData.final
+              ? `${boardData.final.name} is available. (Fixed $1000, no wagering yet)`
+              : 'No Final Jeopardy clue in this board.')
+          ]),
+          h('button', {
+            disabled: !boardData.final || finalPlayed,
+            onClick: () => {
+              if (!boardData.final || finalPlayed) return;
+              chooseClue(boardData.final.clues[0], 1000, 'final');
+              setFinalPlayed(true);
+            }
+          }, 'Play Final Jeopardy ($1000)')
+        ]),
+
+        loadError && h('div', { class: 'load-help' }, [
+          h('div', {}, 'Tip: if you opened this as a local file on mobile, fetch can be blocked. Upload content.txt here:'),
+          h('input', { type: 'file', accept: '.txt,text/plain', onChange: onUpload })
+        ]),
+
+        active && h('div', { class: 'overlay' },
+          h('div', { class: 'modal' }, [
+            h('div', { class: 'value' }, `${active.clue.category} • ${fmtMoney(active.value)}`),
+            h('div', { class: 'clue' }, active.clue.question),
+            h('div', { class: 'prefix' }, `Response format: ${active.clue.responsePrefix}`),
+            h('div', { class: 'answers' }, active.options.map((opt) => {
+              const classes = ['answer'];
+              if (active.locked && opt === active.clue.correct) classes.push('ok');
+              return h('button', {
+                class: classes.join(' '),
+                disabled: active.locked,
+                onClick: () => answer(opt)
+              }, opt);
+            })),
+            h('div', { class: 'result' }, result),
+            h('button', { disabled: !active.locked, onClick: closeModal }, 'Close')
+          ])
+        )
+      ]);
+    }
+
+    render(h(App), document.getElementById('app'));
+  </script>
 </body>
 </html>
