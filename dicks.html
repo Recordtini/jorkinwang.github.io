@@ -2,318 +2,435 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jeopardy Quiz</title>
   <style>
     :root {
-      --bg: #050a5b;
-      --panel: #0f1a8f;
-      --panel-2: #111a72;
-      --gold: #f8c94a;
-      --text: #fff;
-      --muted: #d4dcff;
-      --ok: #14965c;
-      --bad: #ba2432;
+      --bg: #060ce9;
+      --panel: #10167c;
+      --gold: #f5c542;
+      --text: #ffffff;
+      --muted: #c8ccff;
+      --correct: #1f9d55;
+      --wrong: #bf1f2f;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #1825ca 0%, #030642 60%);
-      color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
+      background: radial-gradient(circle at top, #1723c9, #040950 60%);
+      color: var(--text);
       min-height: 100vh;
-      padding: 10px;
+      padding: 18px;
     }
-    #app { max-width: 1200px; margin: 0 auto; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
     .hud {
-      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
-      padding: 10px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.25);
-      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 10px 14px;
     }
-    .score { color: var(--gold); font-weight: 800; font-size: 1.15rem; }
+
+    .score {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
     button {
-      border: 0; border-radius: 8px; background: #2939e2; color: white; font-weight: 700;
-      min-height: 44px; padding: 8px 12px; cursor: pointer;
+      cursor: pointer;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 700;
+      background: #2532e2;
+      color: white;
     }
-    button:disabled { opacity: 0.45; cursor: default; }
-    .status { color: var(--muted); margin-bottom: 8px; min-height: 1.2em; }
+
+    button:hover { filter: brightness(1.08); }
+
     .board {
       display: grid;
-      grid-template-columns: repeat(6, minmax(120px, 1fr));
-      gap: 6px;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap: 8px;
     }
+
     .cat {
-      border: 2px solid rgba(255,255,255,0.2);
+      background: var(--panel);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 8px;
       overflow: hidden;
-      background: var(--panel);
       display: grid;
-      grid-template-rows: 80px repeat(5, 64px);
+      grid-template-rows: 90px repeat(5, 68px);
     }
+
     .cat-title {
-      font-weight: 800; text-align: center; text-transform: uppercase;
-      display: flex; align-items: center; justify-content: center;
-      padding: 6px; font-size: 0.95rem; line-height: 1.15;
-      border-bottom: 2px solid rgba(255,255,255,0.2);
-    }
-    .cell {
-      border-radius: 0; border-bottom: 1px solid rgba(255,255,255,0.2);
-      font-size: 1.35rem; color: var(--gold); background: linear-gradient(180deg, var(--panel), var(--panel-2));
-    }
-    .cell:last-child { border-bottom: 0; }
-
-    .final {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 12px;
-      border: 2px solid rgba(255,255,255,0.15);
-      background: rgba(0,0,0,0.25);
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
-    }
-
-    .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.72);
-      display: grid; place-items: center; z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       padding: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      line-height: 1.15;
+      color: white;
+      text-transform: uppercase;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     }
-    .modal {
-      width: min(760px, 100%);
-      max-height: 95vh;
-      overflow: auto;
+
+    .cell {
+      width: 100%;
+      border: 0;
+      border-radius: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--gold);
+      background: linear-gradient(180deg, #10167c, #0b115f);
+    }
+
+    .cell:last-child { border-bottom: 0; }
+    .cell:disabled { opacity: 0.25; cursor: default; }
+
+    .status {
+      color: var(--muted);
+      font-size: 0.95rem;
+      min-height: 1.2rem;
+    }
+
+    dialog {
+      border: 0;
       border-radius: 12px;
-      background: var(--panel);
-      border: 2px solid rgba(255,255,255,0.25);
+      width: min(760px, calc(100vw - 24px));
+      background: #0e146e;
+      color: white;
+      padding: 0;
+    }
+
+    dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
+
+    .modal {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .value {
+      color: var(--gold);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .clue {
+      font-size: 1.25rem;
+      line-height: 1.45;
+    }
+
+    .prefix {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .answers {
+      display: grid;
+      gap: 10px;
+    }
+
+    .answer-btn {
+      text-align: left;
+      background: #2b38e7;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .answer-btn.correct { background: var(--correct); }
+    .answer-btn.wrong { background: var(--wrong); }
+
+    .result { min-height: 1.2rem; font-weight: 700; }
+
+    .final-wrap {
+      background: rgba(0,0,0,0.25);
+      border-radius: 10px;
       padding: 12px;
-      display: grid; gap: 10px;
-    }
-    .value { color: var(--gold); font-weight: 800; }
-    .clue { font-size: 1.2rem; line-height: 1.4; }
-    .prefix { color: var(--muted); font-weight: 700; }
-    .answers { display: grid; gap: 8px; }
-    .answer { text-align: left; border: 2px solid rgba(255,255,255,0.2); }
-    .answer.ok { background: var(--ok); }
-    .answer.bad { background: var(--bad); }
-    .result { min-height: 1.2em; font-weight: 800; }
-
-    .load-help {
-      margin-top: 10px; padding: 10px;
-      border: 2px solid rgba(255,255,255,0.15); border-radius: 10px;
-      background: rgba(0,0,0,0.2); display: grid; gap: 8px;
-    }
-
-    @media (max-width: 900px) {
-      .board { grid-template-columns: repeat(3, minmax(100px, 1fr)); }
-      .cat { grid-template-rows: 68px repeat(5, 56px); }
-      .cell { font-size: 1.15rem; }
-    }
-    @media (max-width: 640px) {
-      body { padding: 6px; }
-      .board { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-      .cat { grid-template-rows: 60px repeat(5, 50px); }
-      .cat-title { font-size: 0.78rem; }
-      .cell { font-size: 1rem; min-height: 50px; }
-      .clue { font-size: 1rem; }
-      .score { font-size: 1rem; }
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
   </style>
 </head>
 <body>
-  <div id="app"></div>
+  <div class="container">
+    <div class="hud">
+      <div class="score">Score: <span id="score">$0</span></div>
+      <div>
+        <button id="new-board">New Board</button>
+      </div>
+    </div>
 
-  <script type="module">
-    import { h, render } from 'https://esm.sh/preact@10.26.4';
-    import { useState, useEffect } from 'https://esm.sh/preact@10.26.4/hooks';
+    <div class="status" id="status">Loading clues from content.txt...</div>
 
-    const MONEY = [200, 400, 600, 800, 1000];
+    <div class="board" id="board"></div>
 
-    const fmtMoney = (n) => `${n < 0 ? '-' : ''}$${Math.abs(n)}`;
+    <div class="final-wrap">
+      <div>
+        <strong>Final Jeopardy</strong>
+        <div id="final-info" class="status">No final clue in this board.</div>
+      </div>
+      <button id="final-btn" disabled>Play Final Jeopardy ($1000)</button>
+    </div>
+  </div>
 
-    const shuffle = (arr) => {
-      const out = [...arr];
-      for (let i = out.length - 1; i > 0; i -= 1) {
+  <dialog id="clue-dialog">
+    <div class="modal">
+      <div class="value" id="modal-value"></div>
+      <div class="clue" id="modal-clue"></div>
+      <div class="prefix" id="modal-prefix"></div>
+      <div class="answers" id="modal-answers"></div>
+      <div class="result" id="modal-result"></div>
+      <div>
+        <button id="close-modal" disabled>Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const scoreEl = document.getElementById('score');
+    const statusEl = document.getElementById('status');
+    const boardEl = document.getElementById('board');
+    const finalInfoEl = document.getElementById('final-info');
+    const finalBtn = document.getElementById('final-btn');
+    const dialog = document.getElementById('clue-dialog');
+    const modalValue = document.getElementById('modal-value');
+    const modalClue = document.getElementById('modal-clue');
+    const modalPrefix = document.getElementById('modal-prefix');
+    const modalAnswers = document.getElementById('modal-answers');
+    const modalResult = document.getElementById('modal-result');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    let score = 0;
+    let allCategories = [];
+    let boardCategories = [];
+    let finalClues = [];
+    let activeClue = null;
+    const usedClues = new Set();
+
+    function formatMoney(value) {
+      return `${value < 0 ? '-' : ''}$${Math.abs(value)}`;
+    }
+
+    function updateScore(delta = 0) {
+      score += delta;
+      scoreEl.textContent = formatMoney(score);
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
-        [out[i], out[j]] = [out[j], out[i]];
+        [copy[i], copy[j]] = [copy[j], copy[i]];
       }
-      return out;
-    };
+      return copy;
+    }
 
     function parseContent(text) {
-      const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       const categories = [];
       let i = 0;
+
       while (i < lines.length) {
         const catParts = [];
         while (i < lines.length && !lines[i].includes('|')) {
           catParts.push(lines[i]);
           i += 1;
         }
+
         const clueLines = [];
         while (i < lines.length && lines[i].includes('|')) {
           clueLines.push(lines[i]);
           i += 1;
         }
+
         if (!catParts.length || !clueLines.length) continue;
-        const name = catParts.join(' ').replace(/\s+/g, ' ').trim();
+
+        const categoryName = catParts.join(' ').replace(/\s+/g, ' ').trim();
         const clues = clueLines.map((line, idx) => {
-          const [question, responsePrefix, correct, ...wrong] = line.split('|').map((x) => x.trim());
-          return { question, responsePrefix, correct, options: [correct, ...wrong], row: idx, category: name };
+          const [question, responsePrefix, correct, ...wrong] = line.split('|').map(p => p.trim());
+          return {
+            id: `${categoryName}-${idx}-${question.slice(0, 16)}`,
+            category: categoryName,
+            question,
+            responsePrefix,
+            correct,
+            options: [correct, ...wrong],
+            row: idx
+          };
         });
-        categories.push({ name, clues });
+
+        categories.push({ name: categoryName, clues });
       }
+
       return categories;
     }
 
-    function buildBoardData(categories) {
-      const playable = categories.filter((c) => c.clues.length >= 5);
-      const finals = categories.filter((c) => c.clues.length === 1);
-      return {
-        board: shuffle(playable).slice(0, 6).map((c) => ({ ...c, clues: c.clues.slice(0, 5) })),
-        final: finals.length ? shuffle(finals)[0] : null,
-      };
+    function clueValue(category, rowIndex) {
+      if (category.clues.length >= 5) {
+        return [200, 400, 600, 800, 1000][rowIndex] || 1000;
+      }
+      return 1000;
     }
 
-    function App() {
-      const [allCategories, setAllCategories] = useState([]);
-      const [score, setScore] = useState(0);
-      const [status, setStatus] = useState('Loading content.txt...');
-      const [boardData, setBoardData] = useState({ board: [], final: null });
-      const [used, setUsed] = useState({});
-      const [active, setActive] = useState(null);
-      const [result, setResult] = useState('');
-      const [finalPlayed, setFinalPlayed] = useState(false);
-      const [loadError, setLoadError] = useState(false);
+    function buildBoard() {
+      usedClues.clear();
+      boardEl.innerHTML = '';
+      modalResult.textContent = '';
+      closeModalBtn.disabled = true;
+      activeClue = null;
 
-      useEffect(() => {
-        (async () => {
-          try {
-            const res = await fetch('content.txt', { cache: 'no-store' });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const text = await res.text();
-            const categories = parseContent(text);
-            if (!categories.length) throw new Error('No categories parsed');
-            setAllCategories(categories);
-            setBoardData(buildBoardData(categories));
-            setStatus('Round 1 ready. Pick a clue.');
-          } catch (err) {
-            setLoadError(true);
-            setStatus('Could not auto-load content.txt. Upload it below to play.');
+      const playable = allCategories.filter(c => c.clues.length >= 5);
+      const finals = allCategories.filter(c => c.clues.length === 1);
+
+      boardCategories = shuffle(playable).slice(0, 6).map(c => ({ ...c, clues: c.clues.slice(0, 5) }));
+      finalClues = shuffle(finals);
+
+      boardCategories.forEach((category, catIndex) => {
+        const catEl = document.createElement('div');
+        catEl.className = 'cat';
+
+        const title = document.createElement('div');
+        title.className = 'cat-title';
+        title.textContent = category.name;
+        catEl.appendChild(title);
+
+        for (let row = 0; row < 5; row += 1) {
+          const clue = category.clues[row];
+          const btn = document.createElement('button');
+          btn.className = 'cell';
+          btn.textContent = `$${clueValue(category, row)}`;
+          btn.disabled = !clue;
+
+          if (clue) {
+            const clueKey = `${catIndex}-${row}`;
+            btn.dataset.clueKey = clueKey;
+            btn.addEventListener('click', () => openClue(clue, clueValue(category, row), clueKey, btn));
           }
-        })();
-      }, []);
 
-      const newBoard = () => {
-        if (!allCategories.length) return;
-        setScore(0);
-        setUsed({});
-        setFinalPlayed(false);
-        setResult('');
-        setActive(null);
-        setBoardData(buildBoardData(allCategories));
-        setStatus('Round 1 ready. Pick a clue.');
-      };
+          catEl.appendChild(btn);
+        }
 
-      const chooseClue = (clue, value, key) => {
-        if (used[key]) return;
-        setResult('');
-        setActive({ clue, value, key, options: shuffle(clue.options), locked: false });
-      };
+        boardEl.appendChild(catEl);
+      });
 
-      const answer = (choice) => {
-        if (!active || active.locked) return;
-        const isRight = choice === active.clue.correct;
-        setScore((s) => s + (isRight ? active.value : -active.value));
-        setUsed((u) => ({ ...u, [active.key]: true }));
-        setResult(isRight
-          ? `Correct! ${active.clue.responsePrefix} ${active.clue.correct}. (+${fmtMoney(active.value)})`
-          : `Nope. ${active.clue.responsePrefix} ${active.clue.correct}. (-${fmtMoney(active.value)})`);
-        setActive((a) => ({ ...a, locked: true }));
-      };
+      if (finalClues.length) {
+        finalInfoEl.textContent = `${finalClues[0].category} is available.`;
+        finalBtn.disabled = false;
+      } else {
+        finalInfoEl.textContent = 'No final clue in this board.';
+        finalBtn.disabled = true;
+      }
 
-      const closeModal = () => {
-        if (!active?.locked) return;
-        setActive(null);
-      };
-
-      const onUpload = async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const text = await file.text();
-        const categories = parseContent(text);
-        setAllCategories(categories);
-        setUsed({});
-        setScore(0);
-        setFinalPlayed(false);
-        setBoardData(buildBoardData(categories));
-        setLoadError(false);
-        setStatus('Loaded from uploaded file. Round 1 ready.');
-      };
-
-      return h('div', {}, [
-        h('div', { class: 'hud' }, [
-          h('div', { class: 'score' }, `Score: ${fmtMoney(score)}`),
-          h('button', { onClick: newBoard, disabled: !allCategories.length }, 'New Board')
-        ]),
-
-        h('div', { class: 'status' }, status),
-
-        h('div', { class: 'board' }, boardData.board.map((cat, cIdx) =>
-          h('div', { class: 'cat' }, [
-            h('div', { class: 'cat-title' }, cat.name),
-            ...cat.clues.map((clue, rIdx) => {
-              const key = `${cIdx}-${rIdx}`;
-              return h('button', {
-                class: 'cell',
-                disabled: !!used[key],
-                onClick: () => chooseClue(clue, MONEY[rIdx] || 1000, key)
-              }, `$${MONEY[rIdx] || 1000}`);
-            })
-          ])
-        )),
-
-        h('div', { class: 'final' }, [
-          h('div', {}, [
-            h('strong', {}, 'Final Jeopardy'),
-            h('div', { class: 'status' }, boardData.final
-              ? `${boardData.final.name} is available. (Fixed $1000, no wagering yet)`
-              : 'No Final Jeopardy clue in this board.')
-          ]),
-          h('button', {
-            disabled: !boardData.final || finalPlayed,
-            onClick: () => {
-              if (!boardData.final || finalPlayed) return;
-              chooseClue(boardData.final.clues[0], 1000, 'final');
-              setFinalPlayed(true);
-            }
-          }, 'Play Final Jeopardy ($1000)')
-        ]),
-
-        loadError && h('div', { class: 'load-help' }, [
-          h('div', {}, 'Tip: if you opened this as a local file on mobile, fetch can be blocked. Upload content.txt here:'),
-          h('input', { type: 'file', accept: '.txt,text/plain', onChange: onUpload })
-        ]),
-
-        active && h('div', { class: 'overlay' },
-          h('div', { class: 'modal' }, [
-            h('div', { class: 'value' }, `${active.clue.category} • ${fmtMoney(active.value)}`),
-            h('div', { class: 'clue' }, active.clue.question),
-            h('div', { class: 'prefix' }, `Response format: ${active.clue.responsePrefix}`),
-            h('div', { class: 'answers' }, active.options.map((opt) => {
-              const classes = ['answer'];
-              if (active.locked && opt === active.clue.correct) classes.push('ok');
-              return h('button', {
-                class: classes.join(' '),
-                disabled: active.locked,
-                onClick: () => answer(opt)
-              }, opt);
-            })),
-            h('div', { class: 'result' }, result),
-            h('button', { disabled: !active.locked, onClick: closeModal }, 'Close')
-          ])
-        )
-      ]);
+      statusEl.textContent = 'Round 1 ready. Choose a clue.';
     }
 
-    render(h(App), document.getElementById('app'));
+    function openClue(clue, value, clueKey, sourceButton) {
+      if (usedClues.has(clueKey)) return;
+      activeClue = { clue, value, clueKey, sourceButton };
+
+      modalValue.textContent = `${clue.category} • ${formatMoney(value)}`;
+      modalClue.textContent = clue.question;
+      modalPrefix.textContent = `Response format: ${clue.responsePrefix}`;
+      modalResult.textContent = '';
+      closeModalBtn.disabled = true;
+
+      modalAnswers.innerHTML = '';
+      const shuffledOptions = shuffle(clue.options);
+      shuffledOptions.forEach(opt => {
+        const answerBtn = document.createElement('button');
+        answerBtn.className = 'answer-btn';
+        answerBtn.textContent = opt;
+        answerBtn.addEventListener('click', () => handleAnswer(answerBtn, opt));
+        modalAnswers.appendChild(answerBtn);
+      });
+
+      dialog.showModal();
+    }
+
+    function handleAnswer(button, selected) {
+      if (!activeClue) return;
+      const { clue, value, clueKey, sourceButton } = activeClue;
+
+      const answerButtons = [...modalAnswers.querySelectorAll('button')];
+      answerButtons.forEach(b => {
+        b.disabled = true;
+        if (b.textContent === clue.correct) b.classList.add('correct');
+      });
+
+      const correct = selected === clue.correct;
+      if (!correct) button.classList.add('wrong');
+
+      updateScore(correct ? value : -value);
+      modalResult.textContent = correct
+        ? `Correct! ${clue.responsePrefix} ${clue.correct}. (+${formatMoney(value)})`
+        : `Nope. ${clue.responsePrefix} ${clue.correct}. (-${formatMoney(value)})`;
+
+      usedClues.add(clueKey);
+      if (sourceButton) sourceButton.disabled = true;
+      closeModalBtn.disabled = false;
+    }
+
+    closeModalBtn.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('cancel', (event) => {
+      if (closeModalBtn.disabled) event.preventDefault();
+    });
+
+    document.getElementById('new-board').addEventListener('click', () => {
+      score = 0;
+      scoreEl.textContent = '$0';
+      buildBoard();
+    });
+
+    finalBtn.addEventListener('click', () => {
+      if (!finalClues.length) return;
+      openClue(finalClues[0].clues[0], 1000, 'final-0', null);
+      finalBtn.disabled = true;
+      finalInfoEl.textContent = 'Final Jeopardy has been played.';
+    });
+
+    async function init() {
+      try {
+        const response = await fetch('content.txt', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        allCategories = parseContent(text);
+
+        if (!allCategories.length) {
+          statusEl.textContent = 'No categories were parsed from content.txt.';
+          return;
+        }
+
+        buildBoard();
+      } catch (error) {
+        statusEl.textContent = `Failed to load content.txt: ${error.message}`;
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
