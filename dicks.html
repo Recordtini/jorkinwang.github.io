@@ -173,32 +173,6 @@
       gap: 8px;
       flex-wrap: wrap;
     }
-
-    @media (max-width: 900px) {
-      body { padding: 12px; }
-      .board { grid-template-columns: repeat(3, minmax(100px, 1fr)); }
-      .cat { grid-template-rows: 72px repeat(5, 58px); }
-      .cat-title { font-size: 0.85rem; padding: 6px; }
-      .cell { font-size: 1.2rem; }
-      .clue { font-size: 1.1rem; }
-    }
-
-    @media (max-width: 640px) {
-      body { padding: 8px; }
-      .container { gap: 10px; }
-      .hud { padding: 8px 10px; }
-      .score { font-size: 1.05rem; }
-      .board { grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 6px; }
-      .cat { grid-template-rows: 64px repeat(5, 54px); }
-      .cat-title { font-size: 0.78rem; line-height: 1.1; }
-      .cell { font-size: 1.05rem; padding: 0; min-height: 54px; }
-      .final-wrap { padding: 10px; }
-      dialog { width: calc(100vw - 12px); }
-      .modal { padding: 12px; gap: 10px; }
-      .clue { font-size: 1rem; line-height: 1.35; }
-      .answer-btn { min-height: 44px; }
-    }
-
   </style>
 </head>
 <body>
@@ -364,7 +338,7 @@
       });
 
       if (finalClues.length) {
-        finalInfoEl.textContent = `${finalClues[0].name} is available.`;
+        finalInfoEl.textContent = `${finalClues[0].category} is available.`;
         finalBtn.disabled = false;
       } else {
         finalInfoEl.textContent = 'No final clue in this board.';
