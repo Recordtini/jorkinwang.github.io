@@ -1,0 +1,562 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>VideoGameSpot: Nintendo 64 Review Index</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 16px;
+    }
+
+    a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+
+    a:visited {
+      color: #cc9900;
+    }
+
+    img {
+      border: 0;
+      vertical-align: top;
+    }
+
+    .page {
+      width: 1448px;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: stretch;
+    }
+
+    @media (min-width: 1600px) {
+      .page {
+        zoom: 1.12;
+      }
+    }
+
+    @media (min-width: 2500px) {
+      .page {
+        zoom: 1.55;
+      }
+    }
+
+    @media (min-width: 3400px) {
+      .page {
+        zoom: 2;
+      }
+    }
+
+    .rail {
+      width: 130px;
+      min-height: 100vh;
+      background: #003f00 url("siteexample/VideoGameSpot_%20Review%20Index_files/edge_KvcD.gif") repeat-y left top;
+      text-align: center;
+      flex: 0 0 130px;
+    }
+
+    .rail img {
+      margin-top: 92px;
+    }
+
+    .right {
+      width: 1270px;
+      margin-left: 48px;
+      padding-top: 116px;
+      text-align: left;
+    }
+
+    .nav-art {
+      width: 600px;
+      height: 30px;
+      white-space: nowrap;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .nav-art img {
+      vertical-align: middle;
+    }
+
+    .sort-row {
+      margin-top: 28px;
+      height: 28px;
+      white-space: nowrap;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 20px;
+    }
+
+    .sort-label,
+    .sort-button {
+      display: inline-block;
+      height: 22px;
+      padding: 0 10px;
+      margin-right: 6px;
+      color: #fff;
+      background: #333;
+      border: 1px solid #999;
+      box-sizing: border-box;
+      text-align: center;
+      vertical-align: top;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 20px;
+    }
+
+    .sort-label {
+      width: 90px;
+      color: #fff;
+      background: #1b1b1b;
+      border-color: #ffcc00;
+    }
+
+    .sort-button.active {
+      position: relative;
+      border-color: #fff;
+      background: #444;
+    }
+
+    .sort-button {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .sort-button.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 0;
+      height: 0;
+      margin-left: -6px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #ffcc00;
+    }
+
+    .review-grid {
+      width: 1270px;
+      margin-top: 18px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 1px solid #00a000;
+      border-left-width: 0;
+      border-top-width: 0;
+    }
+
+    .review-grid th,
+    .review-grid td {
+      border-left: 1px solid #00a000;
+      border-top: 1px solid #00a000;
+      background: #000;
+      color: #fff;
+      vertical-align: top;
+      box-sizing: border-box;
+    }
+
+    .review-grid th {
+      padding: 7px 8px 6px;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .review-grid th.game-col,
+    .review-grid th.blurb-col {
+      text-align: left;
+    }
+
+    .review-grid td {
+      padding: 12px 12px;
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    .review-grid .game-col {
+      width: 220px;
+      border-left: 0;
+    }
+
+    .review-grid .score-col,
+    .review-grid .mini-score-col {
+      text-align: center;
+    }
+
+    .review-grid .overall-col {
+      width: 78px;
+    }
+
+    .review-grid .mini-score-col {
+      width: 80px;
+    }
+
+    .review-grid .reviewer-col {
+      width: 132px;
+    }
+
+    .review-grid .blurb-col {
+      width: 440px;
+    }
+
+    .review-grid .game-title {
+      display: block;
+      color: #ffcc00;
+      font-weight: bold;
+      line-height: 18px;
+    }
+
+    .review-grid .publisher,
+    .review-grid .date {
+      display: block;
+      color: #fff;
+      line-height: 20px;
+    }
+
+    .review-grid .score-value {
+      display: block;
+      padding-top: 2px;
+    }
+
+    .review-grid .blurb {
+      display: block;
+      max-height: 80px;
+      overflow: hidden;
+    }
+
+    .load-state {
+      width: 1270px;
+      margin-top: 30px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .footer {
+      width: 600px;
+      margin-top: 30px;
+      padding-bottom: 40px;
+      color: #fff;
+      font-size: 10px;
+      line-height: 12px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        display: block;
+        overflow-x: hidden;
+      }
+
+      .page {
+        width: 100%;
+        display: block;
+        zoom: 1 !important;
+      }
+
+      .rail {
+        width: 100%;
+        height: 92px;
+        min-height: 92px;
+        padding-left: 24px;
+        box-sizing: border-box;
+        background-repeat: repeat;
+        text-align: left;
+      }
+
+      .rail img {
+        margin-top: 18px;
+      }
+
+      .right {
+        width: auto;
+        margin-left: 0;
+        padding: 24px 12px 32px;
+      }
+
+      .nav-art {
+        width: 100%;
+        height: 30px;
+      }
+
+      .nav-art img:nth-child(2) {
+        width: calc(100% - 268px);
+        min-width: 0;
+        height: 30px;
+      }
+
+      .sort-row {
+        height: auto;
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        white-space: normal;
+      }
+
+      .sort-label,
+      .sort-button {
+        margin-right: 0;
+      }
+
+      .review-grid {
+        width: 100%;
+        display: block;
+        border: 0;
+        table-layout: auto;
+      }
+
+      .review-grid thead,
+      .review-grid tbody,
+      .review-grid tr,
+      .review-grid td {
+        display: block;
+      }
+
+      .review-grid thead {
+        display: none;
+      }
+
+      .review-grid tr {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border: 1px solid #00a000;
+        border-top: 0;
+      }
+
+      .review-grid tr:first-child {
+        border-top: 1px solid #00a000;
+      }
+
+      .review-grid td {
+        width: auto !important;
+        min-width: 0;
+        padding: 8px 6px;
+        border-left: 1px solid #00a000;
+        border-top: 1px solid #00a000;
+        font-size: 15px;
+        line-height: 18px;
+        overflow-wrap: anywhere;
+      }
+
+      .review-grid .game-col,
+      .review-grid .reviewer-col,
+      .review-grid .blurb-col {
+        grid-column: 1 / -1;
+      }
+
+      .review-grid .game-col {
+        border-left: 1px solid #00a000;
+      }
+
+      .review-grid td[data-label]::before {
+        display: block;
+        margin-bottom: 3px;
+        color: #ffcc00;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        font-weight: bold;
+        line-height: 11px;
+        text-transform: uppercase;
+        content: attr(data-label);
+      }
+
+      .review-grid .blurb {
+        max-height: none;
+      }
+
+      .load-state,
+      .footer {
+        width: auto;
+      }
+
+      .footer {
+        padding: 0 12px 28px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="rail">
+      <img src="siteexample/VideoGameSpot_%20Review%20Index_files/astro_002_KvcD.gif" width="57" height="57" alt="">
+    </aside>
+
+    <main class="right">
+      <div class="nav-art">
+        <img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_home_KvcD.gif" width="72" height="30" alt="Home"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_spacer_KvcD.gif" width="192" height="30" alt=""><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_platform_KvcD.gif" width="121" height="30" alt="Nintendo 64"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_reviews_KvcD.gif" width="75" height="30" alt="Reviews">
+      </div>
+
+      <div class="sort-row" aria-label="Sort controls">
+        <span class="sort-label">SORT BY:</span>
+        <button class="sort-button active" type="button" data-sort="date">Date</button>
+        <button class="sort-button" type="button" data-sort="genre">Genre</button>
+        <button class="sort-button" type="button" data-sort="title">Games</button>
+        <button class="sort-button" type="button" data-sort="publisher">Publisher</button>
+        <button class="sort-button" type="button" data-sort="score">Spot Score</button>
+        <button class="sort-button" type="button" data-sort="reviewer">Reviewer</button>
+      </div>
+
+      <div id="load-state" class="load-state">Loading...</div>
+      <table id="review-table" class="review-grid" style="display:none">
+        <thead>
+          <tr>
+            <th class="game-col"><span>Game</span><br><span>Publisher</span><br><span>Date</span></th>
+            <th class="overall-col score-col">Overall<br>Score</th>
+            <th class="mini-score-col">Gameplay</th>
+            <th class="mini-score-col">Graphics</th>
+            <th class="mini-score-col">Sound</th>
+            <th class="mini-score-col">Value</th>
+            <th class="mini-score-col">Tilt</th>
+            <th class="reviewer-col">Reviewer</th>
+            <th class="blurb-col">Blurb</th>
+          </tr>
+        </thead>
+        <tbody id="review-body"></tbody>
+      </table>
+
+      <div class="footer">
+        Copyright &copy; 1998 SpotMedia Communications. All rights reserved.
+        Reproduction in whole or in part in any form or in any medium without
+        express written permission of SpotMedia Communications is prohibited.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const jsonUrl = "outputs/gamespot_n64_reviews.json";
+    const reviewBody = document.getElementById("review-body");
+    const reviewTable = document.getElementById("review-table");
+    const loadState = document.getElementById("load-state");
+    const sortButtons = Array.from(document.querySelectorAll(".sort-button"));
+    let loadedGames = [];
+    let activeSort = "date";
+
+    function text(value) {
+      return value == null || value === "" ? "\u00a0" : String(value);
+    }
+
+    function score(value) {
+      return value == null || value === "" ? "\u00a0" : Number(value).toFixed(1);
+    }
+
+    function wholeScore(value) {
+      return value == null || value === "" ? "\u00a0" : String(value);
+    }
+
+    function sortDate(game) {
+      const raw = game.release_date || "";
+      const parts = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (parts) {
+        return `${parts[3]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+      }
+      const year = raw.match(/^\d{4}$/);
+      return year ? `${raw}-00-00` : raw;
+    }
+
+    function escapeHtml(value) {
+      return text(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function sortValue(game, key) {
+      if (key === "date") return sortDate(game);
+      if (key === "genre") return text(game.genre).toLowerCase();
+      if (key === "title") return text(game.title).toLowerCase();
+      if (key === "publisher") return text(game.publisher).toLowerCase();
+      if (key === "score") return game.score && game.score.gamespot != null ? Number(game.score.gamespot) : -1;
+      if (key === "reviewer") return text(game.review && game.review.reviewer).toLowerCase();
+      return "";
+    }
+
+    function sortedGames() {
+      return loadedGames.slice().sort((a, b) => {
+        const av = sortValue(a, activeSort);
+        const bv = sortValue(b, activeSort);
+        if (typeof av === "number" || typeof bv === "number") {
+          const diff = Number(bv) - Number(av);
+          if (diff !== 0) return diff;
+        } else {
+          const descending = activeSort === "date";
+          const diff = descending ? String(bv).localeCompare(String(av)) : String(av).localeCompare(String(bv));
+          if (diff !== 0) return diff;
+        }
+        return text(a.title).localeCompare(text(b.title));
+      });
+    }
+
+    function renderAll() {
+      reviewBody.innerHTML = "";
+      sortedGames().forEach(renderGame);
+    }
+
+    function renderGame(game) {
+      const row = document.createElement("tr");
+      const components = (game.score && game.score.components) || {};
+      const href = game.final_wayback_url || game.original_url || "#";
+      row.innerHTML = `
+        <td class="game-col">
+          <a class="game-title" href="${escapeHtml(href)}">${escapeHtml(game.title)}</a>
+          <span class="publisher">${escapeHtml(game.publisher)}</span>
+          <span class="date">${escapeHtml(game.release_date)}</span>
+        </td>
+        <td class="overall-col score-col" data-label="Overall"><span class="score-value">${score(game.score && game.score.gamespot)}</span></td>
+        <td class="mini-score-col" data-label="Gameplay"><span class="score-value">${wholeScore(components.gameplay)}</span></td>
+        <td class="mini-score-col" data-label="Graphics"><span class="score-value">${wholeScore(components.graphics)}</span></td>
+        <td class="mini-score-col" data-label="Sound"><span class="score-value">${wholeScore(components.sound)}</span></td>
+        <td class="mini-score-col" data-label="Value"><span class="score-value">${wholeScore(components.value)}</span></td>
+        <td class="mini-score-col" data-label="Tilt"><span class="score-value">${wholeScore(components.reviewers_tilt)}</span></td>
+        <td class="reviewer-col" data-label="Reviewer">${escapeHtml(game.review && game.review.reviewer)}</td>
+        <td class="blurb-col" data-label="Blurb"><span class="blurb">${escapeHtml(game.review && game.review.blurb)}</span></td>
+      `;
+      reviewBody.appendChild(row);
+    }
+
+    sortButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeSort = button.dataset.sort;
+        sortButtons.forEach((candidate) => candidate.classList.toggle("active", candidate === button));
+        renderAll();
+      });
+    });
+
+    fetch(jsonUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(response.statusText);
+        return response.json();
+      })
+      .then((data) => {
+        loadedGames = data.games || [];
+        renderAll();
+        loadState.style.display = "none";
+        reviewTable.style.display = "";
+      })
+      .catch(() => {
+        loadState.textContent = "Could not load review data.";
+      });
+  </script>
+</body>
+</html>
