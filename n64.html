@@ -173,14 +173,19 @@
     }
 
     .review-grid th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
       padding: 7px 8px 6px;
       color: #fff;
+      background: #000;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 11px;
       font-weight: bold;
       line-height: 12px;
       text-align: center;
       text-transform: uppercase;
+      box-shadow: 0 2px 0 #00a000;
     }
 
     .review-grid th.game-col,
@@ -415,6 +420,11 @@
         <button class="sort-button" type="button" data-sort="title">Games</button>
         <button class="sort-button" type="button" data-sort="publisher">Publisher</button>
         <button class="sort-button" type="button" data-sort="score">Spot Score</button>
+        <button class="sort-button" type="button" data-sort="gameplay">Gameplay</button>
+        <button class="sort-button" type="button" data-sort="graphics">Graphics</button>
+        <button class="sort-button" type="button" data-sort="sound">Sound</button>
+        <button class="sort-button" type="button" data-sort="value">Value</button>
+        <button class="sort-button" type="button" data-sort="tilt">Tilt</button>
         <button class="sort-button" type="button" data-sort="reviewer">Reviewer</button>
       </div>
 
@@ -489,6 +499,14 @@
       if (key === "title") return text(game.title).toLowerCase();
       if (key === "publisher") return text(game.publisher).toLowerCase();
       if (key === "score") return game.score && game.score.gamespot != null ? Number(game.score.gamespot) : -1;
+
+      const components = (game.score && game.score.components) || {};
+      if (key === "gameplay") return components.gameplay != null ? Number(components.gameplay) : -1;
+      if (key === "graphics") return components.graphics != null ? Number(components.graphics) : -1;
+      if (key === "sound") return components.sound != null ? Number(components.sound) : -1;
+      if (key === "value") return components.value != null ? Number(components.value) : -1;
+      if (key === "tilt") return components.reviewers_tilt != null ? Number(components.reviewers_tilt) : -1;
+
       if (key === "reviewer") return text(game.review && game.review.reviewer).toLowerCase();
       return "";
     }
