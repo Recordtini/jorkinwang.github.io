@@ -21,6 +21,7 @@ const ASSETS = {
         menu7: 'assets/bg/menu_0006.jpg',
         menu8: 'assets/bg/menu_0007.jpg',
         menu9: 'assets/bg/menu_0008.jpg',
+        car56: 'assets/bg/car0056.jpg',
         board1: 'assets/bg/wheel_0000.jpg',
         board2: 'assets/bg/wheel_0001.jpg',
         board3: 'assets/bg/wheel_0002.jpg',
@@ -93,6 +94,8 @@ const ASSETS = {
      */
     audio: {
         spin1: 'assets/audio/wheel_2231.wav',   // wheel sfx
+        spinLoop: 'assets/audio/spin_loop.wav', // wheel.dat #6723 spin loop
+        spinTick: 'assets/audio/spin_tick.wav', // wheel.dat #6702 spin tick
         reveal: 'assets/audio/wheel_2232.wav',
         coin: 'assets/audio/wheel_2233.wav',
         applause1: 'assets/audio/wheel_2234.wav',

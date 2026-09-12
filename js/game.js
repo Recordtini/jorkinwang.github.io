@@ -19,33 +19,55 @@ const VOWELS = ['A','E','I','O','U'];
 const CONSONANTS = 'BCDFGHJKLMNPQRSTVWXYZ'.split('');
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-// Classic early-2000s Wheel layout (values present in the binary comparator).
-const WHEEL_SEGMENTS = [
-    { label: '$500',      value: 500 },
-    { label: '$800',      value: 800 },
-    { label: 'BANKRUPT',  value: 0,  type: 'bankrupt' },
-    { label: '$350',      value: 350 },
-    { label: '$450',      value: 450 },
-    { label: '$500',      value: 500 },
-    { label: '$650',      value: 650 },
-    { label: '$400',      value: 400 },
-    { label: '$900',      value: 900 },
-    { label: '$250',      value: 250 },
-    { label: '$500',      value: 500 },
-    { label: '$550',      value: 550 },
-    { label: '$800',      value: 800 },
-    { label: '$300',      value: 300 },
-    { label: '$400',      value: 400 },
-    { label: '$350',      value: 350 },
-    { label: '$600',      value: 600 },
-    { label: 'LOSE TURN', value: 0,  type: 'loseturn' },
-    { label: '$500',      value: 500 },
-    { label: '$300',      value: 300 },
-    { label: '$700',      value: 700 },
-    { label: '$500',      value: 500 },
-    { label: '$350',      value: 350 },
-    { label: '$2500',     value: 2500 },
+// Exact machine wheel (statically RE'd: base init 0x4257C0, patches 0x425AA0).
+// 72 micro-positions; wedge w = micros [(w*3-1)%72, (w*3)%72, (w*3+1)%72].
+// Dollar encoding: (raw & 0x7FF) * 10. Specials by (raw & 0x7800).
+const WHEEL_BASE_MICRO = [
+    0x3c,0x3c,0x28,0x28,0x28,0x1e,0x1e,0x1e,0x800,0x800,0x800,
+    0x50,0x50,0x50,0x23,0x23,0x23,0x2d,0x2d,0x2d,0x46,0x46,0x46,
+    0x1e,0x1e,0x1e,0x3c,0x3c,0x3c,0x64,0x64,0x64,0x1e,0x1e,0x1e,
+    0x3c,0x3c,0x3c,0x1e,0x1e,0x1e,0x32,0x32,0x32,0x50,0x50,0x50,
+    0x37,0x37,0x37,0x28,0x28,0x28,0x1e,0x1e,0x1e,0x5a,0x5a,0x5a,
+    0x32,0x32,0x32,0x1e,0x1e,0x1e,0x5a,0x5a,0x5a,0x1800,0x1800,0x1800,0x3c
 ];
+let wheelMicro = [];
+function buildWheel() {
+    wheelMicro = WHEEL_BASE_MICRO.slice();
+    applyWheelRound(state.round || 1);
+    buildMicroSeq();
+}
+// Per-round patches, rebuilt idempotently (base + all patches <= round).
+function applyWheelRound(round) {
+    const R = Math.min(Math.max(round, 1), 4);
+    const set3 = (i, v) => { wheelMicro[i] = v; wheelMicro[i + 1] = v; wheelMicro[i + 2] = v; };
+    const dis3 = (i, on) => { for (let k = 0; k < 3; k++) wheelMicro[i + k] = on ? (wheelMicro[i + k] | 0x8000) : (wheelMicro[i + k] & ~0x8000); };
+    if (R >= 1) { set3(29, 100); dis3(62, true); }
+    if (R >= 2) { set3(29, 250); wheelMicro[38] = 0x1800; wheelMicro[39] = 0x6000; wheelMicro[40] = 0x1800; set3(14, 0x2000); dis3(62, true); }
+    if (R >= 3) { set3(29, 350); set3(38, 0x1800); set3(41, 0x4000); set3(14, 0x2000); dis3(62, false); }
+    if (R >= 4) { set3(29, 500); set3(41, 50); set3(14, 0x2000); }
+    applyMicroRound(R);
+}
+function decodeMicro(raw) {
+    if (raw & 0x8000) return { type: 'disabled', value: 0, label: '\u2014' };
+    const h = raw & 0x7800;
+    if (h === 0x1800) return { type: 'bankrupt', value: 0, label: 'BANKRUPT' };
+    if (h === 0x0800) return { type: 'loseturn', value: 0, label: 'LOSE TURN' };
+    if (h === 0x3000) return { type: 'freespin', value: 0, label: 'FREE SPIN' };
+    if (h === 0x6000) return { type: 'jackpot', value: 10000, label: 'JACKPOT' };
+    if (h === 0x2000) return { type: 'surprise', value: 0, label: 'SURPRISE' };
+    if (h === 0x4000) return { type: 'bankrupt', value: 0, label: 'BANKRUPT' };
+    const v = (raw & 0x7FF) * 10;
+    return { type: 'money', value: v, label: '$' + v };
+}
+// Game RNG: LCG state*214013+2521491, output (state>>>16)&0x7FFF (0x426430).
+// Seed source unreversed; wall-clock seed matches distribution only.
+let rngState = (Date.now() & 0xffffffff) >>> 0;
+function rng15() {
+    rngState = (Math.imul(rngState, 214013) + 2521491) >>> 0;
+    return (rngState >>> 16) & 0x7FFF;
+}
+function wedgeOfMicro(i) { return Math.floor((i + 1) / 3) % 24; }
+function wedgeCenterMicro(w) { return (w * 3) % 72; }
 
 const ROUNDS_BY_LENGTH = { short: 3, standard: 3, long: 4 };
 const BOARD_COLS = 12, BOARD_ROWS = 4;
@@ -122,8 +144,8 @@ class Sfx {
         } catch (e) { return false; }
     }
     spin() {
-        // Original wheel SFX clip when available, synthesized decel otherwise.
-        if (!this.playClip('spin1')) this.spinSound();
+        // Original spin loop (wheel.dat #6723); synthesized decel fallback.
+        if (!this.playClip('spinLoop')) this.spinSound();
     }
     tick()  { this.tone(1200, 0.03, 'square', 0.05); }
     click() { this.tone(880, 0.05, 'square', 0.08); }
@@ -235,11 +257,16 @@ let state = {
     wheelSpinning: false,
     wheelResult: null,
     wheelResultTimer: 0,
-    config: { humans: 1, length: 'standard' },
+    // Menu system (binary screen numbering): 1 map(+room), 2 exam, 3 main,
+    // 4 count, 5 length, 6 names, 7 location, 8 list, 9 help, 10 options.
+    mscreen: 3,
+    prevStack: [],
+    helpPage: 0,
+    setupFlow: null,
 };
 
-function newPlayer(name, isHuman, diff) {
-    return { name, isHuman, diff: diff || 2, score: 0, roundScore: 0 };
+function newPlayer(name, isHuman) {
+    return { name, isHuman, score: 0, roundScore: 0 };
 }
 
 /* ------------------------------------------------------------------ *
@@ -260,12 +287,95 @@ const CATEGORY_LOOKUP = {
  * ------------------------------------------------------------------ */
 function randInt(n) { return Math.floor(Math.random() * n); }
 
+const TEMPLATE_CELLS = [[105,235],[140,235],[175,235],[210,235],[245,235],[105,290],[140,290],[175,290],[210,290],[245,290],[280,290],[315,290],[350,290],[510,235],[545,235],[580,235],[615,235],[650,235],[685,235],[720,235],[755,235],[510,290],[545,290],[580,290],[615,290],[105,365],[140,365],[175,365],[210,365],[245,365],[280,365],[315,365],[105,420],[140,420],[175,420],[210,420],[245,420],[280,420],[510,365],[545,365],[580,365],[615,365],[650,365],[685,365],[720,365],[755,365],[510,420],[545,420],[580,420],[615,420],[105,235],[140,235],[175,235],[210,235],[245,235],[280,235],[315,235],[105,290],[140,290],[175,290],[210,290],[245,290],[496,215],[530,215],[564,215],[598,215],[632,215],[666,215],[700,215],[734,215],[768,215],[570,265],[605,265],[640,265],[500,305],[535,305],[570,305],[605,305],[640,305],[675,305],[710,305],[745,305],[105,365],[140,365],[175,365],[210,365],[245,365],[280,365],[315,365],[350,365],[105,420],[140,420],[175,420],[210,420],[510,365],[545,365],[580,365],[615,365],[650,365],[685,365],[505,420],[539,420],[573,420],[607,420],[641,420],[675,420],[709,420],[742,420],[775,420],[105,235],[140,235],[175,235],[210,235],[105,290],[140,290],[175,290],[210,290],[492,212],[526,212],[560,212],[594,212],[628,212],[662,212],[696,212],[730,212],[764,212],[510,285],[545,285],[580,285],[615,285],[650,285],[685,285],[720,285],[105,365],[140,365],[175,365],[210,365],[245,365],[280,365],[105,420],[140,420],[175,420],[210,420],[245,420],[280,420],[105,475],[140,475],[175,475],[210,475],[245,475],[510,365],[545,365],[580,365],[615,365],[650,365],[685,365],[485,420],[520,420],[555,420],[590,420],[625,420],[660,420],[695,420],[730,420],[765,420],[510,475],[545,475],[580,475],[615,475],[650,475],[685,475],[720,475],[105,235],[140,235],[175,235],[210,235],[245,235],[105,290],[140,290],[175,290],[210,290],[245,290],[280,290],[315,290],[510,235],[545,235],[580,235],[615,235],[650,235],[685,235],[510,290],[545,290],[580,290],[615,290],[650,290],[685,290],[105,365],[140,365],[175,365],[210,365],[245,365],[280,365],[105,420],[105,420],[140,420],[175,420],[210,420],[245,420],[280,420],[315,420],[510,365],[545,365],[580,365],[615,365],[650,365],[510,420],[545,420],[580,420],[615,420],[650,420]];
+/* Board letter art: menus.dat entry ids. A-H from the 0x4020e0 immediates
+ * (pre-push stores); I-Z shifted one slot by the push at 0x40214f, so
+ * I reads J's value 0x20175 (menus 373, genuine 17x28 I glyph), J reads
+ * 374, ..., Y reads 0x20666 (1638), Z the extra slot 0x2066d (1645).
+ * I blits at cell_x+5 (ecx=5 I-exclusive nudge). */
+const LETTER_ART = { A:286,B:287,C:312,D:329,E:330,F:344,G:357,H:358,
+    I:373,J:374,K:375,L:376,M:377,N:1465,O:1499,P:1541,Q:1544,
+    R:1545,S:1546,T:1563,U:1622,V:1624,W:1625,X:1630,Y:1638,Z:1645 };
+function letterArtURL(ch) {
+    if (!SEQ.spriteIndex) return null;
+    return SEQ.spriteIndex['m' + String(LETTER_ART[ch]).padStart(4, '0')] || null;
+}
+/* Landing anim table: micro -> wheel seq id, dumped from 0x47D070
+ * (file state = base: wedge w gets 92+w, wedge 0 shares a12=104)
+ * with the verified per-round runtime deltas. */
+let microSeq = [];
+function buildMicroSeq() {
+    microSeq = [];
+    for (let i = 0; i < 72; i++) {
+        const w = wedgeOfMicro(i);
+        microSeq.push(w === 0 ? 104 : 92 + w);
+    }
+    applyMicroRound(state.round || 1);
+}
+function applyMicroRound(round) {
+    const R = Math.min(Math.max(round, 1), 4);
+    const setM = (a, b, v) => { for (let i = a; i <= b; i++) microSeq[i] = v; };
+    if (R >= 1) setM(62, 64, 117);
+    if (R >= 2) { setM(29, 31, 119); microSeq[38] = 115; microSeq[39] = 118; microSeq[40] = 115; setM(14, 16, 123); setM(62, 64, 117); }
+    if (R >= 3) { setM(29, 31, 120); setM(38, 40, 115); setM(41, 43, 122); setM(62, 64, 113); setM(14, 16, 123); }
+    if (R >= 4) { setM(29, 31, 121); setM(41, 43, 106); setM(14, 16, 123); }
+}
+/* Board model helpers (template flow). */
 /* ------------------------------------------------------------------ *
- *  Board (puzzle) model
+ *  Board (puzzle) model: authentic template coordinates
  * ------------------------------------------------------------------ */
-function boardCells(puzzle) {
-    const s = puzzle.s.replace(/'/g, '');
-    return s.split(' ').map(word => word.split(''));
+// UI exclusion zones (turn buttons) that board flow avoids.
+const BOARD_EXCLUDE = [
+    [180, 279, 296, 395], [342, 279, 458, 395], [504, 326, 616, 438],
+];
+function cellBlocked(x, y) {
+    for (const r of BOARD_EXCLUDE) {
+        if (x + 39 > r[0] && x < r[2] && y + 28 > r[1] && y < r[3]) return true;
+    }
+    return false;
+}
+function buildBoardCells(puzzle) {
+    const s = puzzle.s.toUpperCase();
+    // Order cells by band then x; detect run breaks (x-gap > 50 or y change).
+    // Bottom band (y475) sits under the player panels: excluded from flow.
+    const pts = TEMPLATE_CELLS.filter(([x, y]) => !cellBlocked(x, y) && y <= 466);
+    pts.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+    const bounds = [];
+    for (let i = 0; i < pts.length; i++) {
+        if (i === 0) { bounds.push(true); continue; }
+        const dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1];
+        bounds.push(dy !== 0 || dx > 50);
+    }
+    // Words with string indices (letters only; spaces/apostrophes handled inline).
+    const words = [];
+    let i = 0;
+    while (i < s.length) {
+        if (s[i] === ' ') { i++; continue; }
+        const w = [];
+        while (i < s.length && s[i] !== ' ') { w.push(i); i++; }
+        words.push(w);
+    }
+    const cells = [];
+    let p = 0;
+    const nextBoundary = (from) => {
+        for (let k = from; k < pts.length; k++) if (bounds[k]) return k;
+        return pts.length;
+    };
+    for (const w of words) {
+        // Fit whole word before the next boundary if possible.
+        let run = 1;
+        while (p + run < pts.length && !bounds[p + run]) run++;
+        run = Math.min(run, Math.max(0, pts.length - p));
+        if (w.length > run) p = nextBoundary(p);
+        for (const si of w) {
+            if (p >= pts.length) break;
+            cells.push({ x: pts[p][0], y: pts[p][1], si });
+            p++;
+        }
+        // Word gap: skip one cell.
+        if (p < pts.length) p++;
+    }
+    return cells;
 }
 function boardLength(puzzle) {
     let n = 0;
@@ -274,27 +384,28 @@ function boardLength(puzzle) {
 }
 
 /* ------------------------------------------------------------------ *
- *  Wheel model
+ *  Wheel model (fixed machine order; result predetermined by RNG%72)
  * ------------------------------------------------------------------ */
-function shuffledWheel() {
-    const segs = WHEEL_SEGMENTS.slice();
-    for (let i = segs.length - 1; i > 0; i--) {
-        const j = randInt(i + 1);
-        [segs[i], segs[j]] = [segs[j], segs[i]];
-    }
-    return segs;
-}
-let currentWheel = shuffledWheel();
-
 function spinWheel(playerIdx, cb) {
     state.spinning = true; state.wheelSpinning = true;
     state.message = '';
     state.message2 = '';
     const spins = 4.2 + Math.random() * 2.2;         // full rotations
-    const segIdx = randInt(currentWheel.length);
-    const segAngle = (2 * Math.PI) / currentWheel.length;
+    let micro = rng15() % 72;                       // 0x426430 % 72, stored first
+    if (state.forceGoodSpin) {
+        // Engine re-spin loop (0x420833): re-roll until >= $250, no 0x8000.
+        state.forceGoodSpin = false;
+        for (let t = 0; t < 200; t++) {
+            const raw = wheelMicro[micro];
+            if (!(raw & 0x8000) && (raw & 0x7FF) * 10 >= 250) break;
+            micro = rng15() % 72;
+        }
+    }
+    const wedge = wedgeOfMicro(micro);
+    state.lastMicro = micro;
+    const segAngle = (2 * Math.PI) / 24;
     const base = state.wheelAngle;
-    const target = base + spins * 2 * Math.PI + (segIdx + 0.5) * segAngle;
+    const target = base + spins * 2 * Math.PI + (wedge + 0.5) * segAngle;
     state.wheelTarget = target;
     state.wheelVelocity = 0;
     sfx.spin();
@@ -308,7 +419,7 @@ function spinWheel(playerIdx, cb) {
         if (t < 1) { requestAnimationFrame(frame); return; }
         state.wheelAngle = target % (2 * Math.PI);
         state.spinning = false; state.wheelSpinning = false;
-        const seg = currentWheel[segIdx];
+        const seg = decodeMicro(wheelMicro[micro]);
         state.spinValue = seg.value;
         state.spinType = seg.type || 'money';
         state.wheelResult = seg;
@@ -329,10 +440,10 @@ function startGame(config) {
         if (i < numHuman) state.players.push(newPlayer(config.playerNames[i] || 'YOU', true));
         else {
             const aiNames = ['REX', 'MAX', 'JENNY', 'KIP', 'SAM', 'MO', 'ANN', 'RIKKI'];
-            state.players.push(newPlayer(aiNames[(i - numHuman) + Math.floor(Math.random() * 4)], false, 1 + randInt(3)));
+            state.players.push(newPlayer(aiNames[(i - numHuman) + Math.floor(Math.random() * 4)], false));
         }
     }
-    state.roundCount = ROUNDS_BY_LENGTH[config.length] || 3;
+    state.roundCount = config.rounds || ROUNDS_BY_LENGTH[config.length] || 3;
     state.round = 0;
     state.screen = 'PLAY';
     state.gameOver = false;
@@ -340,13 +451,15 @@ function startGame(config) {
     state.freeSpins = [0, 0, 0];
     state.bonusResult = null;
     state.inBonus = false;
-    currentWheel = shuffledWheel();
+    state.buyDialogSeen = false;
+    buildWheel();
     startRound();
 }
 
 function startRound() {
     state.round++;
     state.wonThisRound = false;
+    applyWheelRound(state.round);
     state.revealed = new Set();
     state.usedLetters = new Set();
     state.solveMode = false;
@@ -354,8 +467,8 @@ function startRound() {
     state.pickingLetter = false;
     state.message = `ROUND ${state.round}`;
     state.message2 = 'choose your move';
-    // Rotate start player
-    state.currentPlayer = (state.round - 1) % 3;
+    // Rotate start player (middle starts R1, right R2 per the rules text).
+    state.currentPlayer = state.round % 3;
     state.players.forEach(p => p.roundScore = 0);
     // pick a puzzle (avoid repeats)
     const p = pickPuzzle(PUZZLE_BANK, state.usedPuzzles);
@@ -363,6 +476,10 @@ function startRound() {
     else { state.puzzle = p; state.usedPuzzles.add(p.s); }
     state.wheelResult = null;
     state.mustSpin = true;
+    state.boardCells = buildBoardCells(state.puzzle);
+    state.solveCells = null;
+    state.plaqueUntil = performance.now() + 3000;
+    state.plaquePlayer = null;
     if (state.round > 1) videoBump(); // keep warm ambiance
     Vanna.play('phrase'); // "Round X!" style announcement (original voice clips)
     setTimeout(() => { if (!state.inBonus) Vanna.play('phrase'); }, 1500); // occasional follow-up call
@@ -390,42 +507,40 @@ function consumeSpinAction() {
     // A player who just spun must now pick a consonant unless they hit a special.
 }
 
-/* --- AI decision making ------------------------------------------- */
-function aiDecide(pi) {
+/* --- AI decision making (0x421b40 structure; NO skill model exists) ---- *
+ * The binary plays every CPU seat identically: deterministic first-A-Z
+ * consonant (0x41cff0) and first-A/E/I/O/U vowel (0x41d0e0) verified
+ * present-and-unguessed, correct-or-pass (never a wrong letter),
+ * vowel buys gated on score >= 250 (0xfa) or the free flag.
+ * Solve attempts happen once no hidden consonants remain (0x41d2d0);
+ * the exact solve trigger/verify path is not yet reversed. */
+function hiddenConsonants() {
+    const s = state.puzzle.s;
+    for (let i = 0; i < s.length; i++) {
+        const ch = s[i].toUpperCase();
+        if (CONSONANTS.includes(ch) && !state.revealed.has(i)) return true;
+    }
+    return false;
+}
+function aiTurnDecide(pi) {
     const p = state.players[pi];
-    const diff = p.diff;
-    const puzzleLetters = new Set();
-    for (const ch of state.puzzle.s.replace(/[^A-Z]/g, '')) puzzleLetters.add(ch);
-
-    const unpicked = CONSONANTS.filter(l => !state.usedLetters.has(l) && puzzleLetters.has(l));
-    const hasMoney = p.roundScore >= VOWEL_COST;
-    const vowelsAvailable = VOWELS.filter(l => !state.usedLetters.has(l));
-    const guessable = [...puzzleLetters].filter(l => !state.usedLetters.has(l));
-
-    // Difficulty gate: higher difficulty => smarter (favors copying original RNG gate).
-    if (guessable.length === 0) return 'solve';
-    if (state.mustSpin) return 'spin';
-
-    const roll = Math.random();
-    const wantSolve = state.revealed.size >= Math.max(4, boardLength(state.puzzle) * (0.35 + diff * 0.15));
-    if (wantSolve && roll < 0.30 * diff) return 'solve';
-
-    // Kept turn (no fresh spin behind it yet): buy a vowel now and then,
-    // otherwise spin again. Never call a bare consonant here — without a
-    // spin value the pick is rejected and the turn would stall.
-    if (hasMoney && vowelsAvailable.length && roll < 0.10 + 0.08 * diff) return 'vowel';
+    if (!hiddenConsonants()) return 'solve';
+    const upper = state.puzzle.s.toUpperCase();
+    const vowelInPuzzle = VOWELS.some(l => !state.usedLetters.has(l) && upper.includes(l));
+    if ((p.roundScore >= VOWEL_COST || state.freeSpins[pi] > 0) && vowelInPuzzle) return 'vowel';
     return 'spin';
 }
 
 function aiAutoPlay() {
     if (state.screen !== 'PLAY' || state.inBonus) return;
+    if (state.stopAnim && !state.stopAnim.done) { setTimeout(() => aiAutoPlay(), 500); return; }
     const p = currentPlayer();
     if (p.isHuman) return;
 
     setTimeout(() => {
         if (state.solveMode || state.screen !== 'PLAY') return;
-        const action = aiDecide(state.currentPlayer);
-        doPlayerAction(state.currentPlayer, action);
+        doPlayerAction(state.currentPlayer, aiTurnDecide(state.currentPlayer));
+        // (Pacing timeouts stand in for the engine's seq/speech pacing.)
     }, 700 + randInt(900));
 }
 
@@ -443,10 +558,11 @@ function doPlayerAction(pi, action) {
             state.mustSpin = false;
             state.pickingLetter = false;
             state.buyVowelMode = false;
+            state.pendingDisabled = false;
             spinWheel(pi, (seg) => onWheelResult(pi, seg));
             break;
         case 'consonant':
-            if (state.spinValue <= 0 || state.spinType !== 'money') {
+            if ((state.spinValue <= 0 || state.spinType !== 'money') && !state.pendingDisabled) {
                 // No spin behind this pick (e.g. kept turn): the AI spins
                 // again instead of stalling; a human is told to spin.
                 if (!p.isHuman) { doPlayerAction(pi, 'spin'); return; }
@@ -466,32 +582,105 @@ function doPlayerAction(pi, action) {
             else setMessage(`$${state.spinValue} \u2014 ${p.name}, pick a consonant`, 'click a letter or type it');
             break;
         case 'vowel':
-            if (p.roundScore < VOWEL_COST) {
+            // 0x41f170: score >= 250 (0xfa) or the free flag.
+            if (p.roundScore < VOWEL_COST && state.freeSpins[pi] === 0) {
                 setMessage(p.name, 'not enough money for a vowel');
                 if (!p.isHuman) { nextTurn(false, 'no money'); return; }
                 return;
             }
             state.buyVowelMode = true;
+            state.buyDialogSeen = true;
             if (!p.isHuman) aiPickVowel(pi);
             else setMessage(`${p.name}, buy a vowel \u2014 $${VOWEL_COST}`, 'click a vowel or type it');
             break;
         case 'solve':
             state.solveMode = true;
-            stateGuess = '';
+            state.solveCells = { cursor: firstHiddenCell(), guesses: {} };
             state.message = `${p.name}, solve the puzzle`;
-            state.message2 = 'type it out below';
-            if (!p.isHuman) {
-                // AI solves if it has enough letters revealed
-                const revealedCount = state.revealed.size;
-                const total = boardLength(state.puzzle);
-                if (revealedCount / total >= 0.5 + (3 - p.diff) * 0.08) aiSolve(pi);
-                else { setMessage(p.name, 'CHANGE OF MIND'); nextTurn(false, 'change'); }
-            }
+            state.message2 = 'click a tile, type letters, ENTER to submit';
+            if (!p.isHuman) aiSolve(pi);
             break;
     }
 }
 
+// Solve-by-cells (no typing box in the original): click an unrevealed
+// tile to place the cursor, type to fill, ENTER submits the assembly.
+function firstHiddenCell() {
+    if (!state.boardCells) return null;
+    for (const c of state.boardCells) {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        if (ch >= 'A' && ch <= 'Z' && !state.revealed.has(c.si)) return c;
+    }
+    return state.boardCells[0] || null;
+}
+function solveGuessAt(c) {
+    return (state.solveCells && state.solveCells.guesses[c.si]) || null;
+}
+function solveAdvance(dir) {
+    const sc = state.solveCells;
+    if (!sc || !state.boardCells) return;
+    const order = state.boardCells.filter(c => {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        return ch >= 'A' && ch <= 'Z' && !state.revealed.has(c.si);
+    });
+    if (!order.length) return;
+    let i = order.indexOf(sc.cursor);
+    i = i < 0 ? (dir > 0 ? 0 : order.length - 1) : (i + dir + order.length) % order.length;
+    sc.cursor = order[i];
+}
+function finishSolve() {
+    const sc = state.solveCells;
+    state.solveMode = false;
+    state.solveCells = null;
+    if (!sc) return;
+    let guess = '';
+    for (const c of state.boardCells) {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        if (ch < 'A' || ch > 'Z') { guess += state.puzzle.s[c.si]; continue; }
+        if (state.revealed.has(c.si)) guess += ch;
+        else if (sc.guesses[c.si]) guess += sc.guesses[c.si];
+        else { setMessage('INCOMPLETE', 'fill every letter first'); state.solveMode = true; state.solveCells = sc; return; }
+    }
+    const p = state.players[state.currentPlayer];
+    if (checkSolution(guess)) {
+        sfx.solve();
+        setMessage(p.name + ' SOLVED IT!', '+$' + p.roundScore.toLocaleString());
+        roundWon(state.currentPlayer, 'solve');
+    } else {
+        sfx.wrong();
+        setMessage('INCORRECT', 'turn passes');
+        setTimeout(() => nextTurn(true, 'wrong'), 1500);
+    }
+}
+
 function onWheelResult(pi, seg) {
+    // spinValue is live immediately (consonant picks need it); messages and
+    // turn effects wait for the stop-sequence overlay (pendingSeg).
+    // Landing anim: file-backed micro->seq table (0x47D070 + round deltas).
+    const micro = state.lastMicro === undefined ? 0 : state.lastMicro;
+    const seqId = 'w' + String(microSeq[micro] || 0).padStart(4, '0');
+    const p = new SeqPlayer(seqId);
+    p.init();
+    state.stopAnim = p;
+    const pp = new SeqPlayer('w0092');
+    pp.init();
+    state.pointerAnim = pp;
+    state.pendingSeg = { pi, seg };
+    sfx.playClip('spinTick', 0.5);
+    // Watchdog for paused render loops (background tabs): force-apply.
+    if (state.pendingTimer) clearTimeout(state.pendingTimer);
+    state.pendingTimer = setTimeout(() => {
+        state.pendingTimer = null;
+        if (state.pendingSeg) {
+            const ps = state.pendingSeg;
+            state.pendingSeg = null;
+            state.stopAnim = null;
+            state.pointerAnim = null;
+            applySegResult(ps.pi, ps.seg);
+        }
+    }, 4000);
+}
+function applySegResult(pi, seg) {
     const p = state.players[pi];
     if (seg.type === 'bankrupt') {
         p.roundScore = 0;
@@ -505,6 +694,47 @@ function onWheelResult(pi, seg) {
         setMessage('LOSE TURN', p.name + ' loses the turn');
         state.spinValue = 0; state.spinType = 'money';
         setTimeout(() => nextTurn(true), 1700);
+    } else if (seg.type === 'disabled') {
+        // Disabled wedge (0x8000): turn NOT ended. The player calls a
+        // letter; a correct call grants a token + re-enables the wedge.
+        state.pendingDisabled = true;
+        sfx.click();
+        setMessage('DISABLED WEDGE', p.name + ' — call a letter to unlock it');
+        state.spinValue = 0; state.spinType = 'money';
+        state.mustSpin = false;
+        if (!p.isHuman) setTimeout(() => doPlayerAction(pi, 'consonant'), 900 + randInt(700));
+    } else if (seg.type === 'freespin') {
+        // Help text: up to 11 free spins per puzzle. (Decode-grant of the
+        // token is unproven in code; the wedge is named frees and the
+        // disabled path is the only traced grant.)
+        if (state.freeSpins[pi] < 11) state.freeSpins[pi]++;
+        sfx.cash();
+        setMessage('FREE SPIN!', p.name + ' banks a free spin token');
+        state.spinValue = 0; state.spinType = 'money';
+        state.mustSpin = true;
+        if (!p.isHuman) setTimeout(() => doPlayerAction(pi, 'consonant'), 900 + randInt(700));
+    } else if (seg.type === 'surprise') {
+        // Surprise (0x2000): NO cash at decode. Prize resolves via Vanna
+        // ceremony + inventory (unmapped: no prize awarded). Turn continues
+        // with an engine-style guaranteed re-spin (re-roll until >= $250,
+        // no disabled). Prize teardown ($350 restore) on correct letter.
+        state.surprisePending = true;
+        sfx.cash();
+        setMessage('SURPRISE!', p.name + ' spins again free');
+        state.spinValue = 0; state.spinType = 'money';
+        state.mustSpin = true;
+        state.forceGoodSpin = true;
+        setTimeout(() => doPlayerAction(pi, 'spin'), 1400);
+    } else if (seg.type === 'jackpot') {
+        // Jackpot $10,000 (arming-conditional credit unproven: always
+        // credit). One-shot teardown (micro39 -> bankrupt) on resolution.
+        p.roundScore += seg.value;
+        state.jackpotPending = true;
+        sfx.win();
+        setMessage(`JACKPOT! +$${seg.value.toLocaleString()}`, p.name + ' picks a consonant');
+        state.spinValue = 0; state.spinType = 'money';
+        state.mustSpin = false;
+        if (!p.isHuman) setTimeout(() => doPlayerAction(pi, 'consonant'), 900 + randInt(700));
     } else {
         sfx.click();
         setMessage(`WHEEL LANDED ON $${seg.value}`, p.name + ' picks a consonant');
@@ -555,19 +785,54 @@ function resolveLetter(pi, letter) {
         const earned = state.spinValue * count;
         p.roundScore += earned;
         state.message = `${letter} x${count} = $${earned}`;
+        if (state.pendingDisabled) {
+            // Disabled-wedge unlock: token + re-enable micros 62-64.
+            state.pendingDisabled = false;
+            if (state.freeSpins[pi] < 11) state.freeSpins[pi]++;
+            for (const i of [62, 63, 64]) wheelMicro[i] &= ~0x8000;
+            microSeq[62] = microSeq[63] = microSeq[64] = 113;
+            pressFx('w0580'); pressFx('w0593');
+            state.message += ' — WEDGE UNLOCKED!';
+        }
+        if (state.surprisePending) {
+            // Surprise teardown: restore $350/a05 on a correct call.
+            state.surprisePending = false;
+            wheelMicro[14] = wheelMicro[15] = wheelMicro[16] = 0x23;
+            microSeq[14] = microSeq[15] = microSeq[16] = 97;
+        }
+        if (state.jackpotPending) {
+            // Jackpot one-shot teardown: micro39 -> bankrupt.
+            state.jackpotPending = false;
+            wheelMicro[39] = 0x1800;
+            microSeq[39] = 115;
+        }
         sfx.reveal();
         setTimeout(() => {
             revealLetter(letter);
             if (isSolved()) { roundWon(pi, 'solved'); return; }
             if (!p.isHuman) {
-                // original: reveal loop; allow continue (spin again/logic per difficulty)
+                // Turn retained after a correct letter; the AI decides again.
                 setTimeout(() => nextTurn(false, 'keep'), 1400);
             }
         }, 600);
     } else {
-        sfx.wrong();
-        state.message = `${letter} is not in the puzzle`;
-        setTimeout(() => nextTurn(true), 1500);
+        if (state.jackpotPending) {
+            state.jackpotPending = false;
+            wheelMicro[39] = 0x1800;
+            microSeq[39] = 115;
+        }
+        state.pendingDisabled = false;
+        if (state.freeSpins[pi] > 0) {
+            // Free-spin token retains the turn after a miss.
+            state.freeSpins[pi]--;
+            sfx.click();
+            setMessage(`${letter} is not in the puzzle`, `${p.name} uses a FREE SPIN`);
+            if (!p.isHuman) setTimeout(() => aiAutoPlay(), 1200);
+        } else {
+            sfx.wrong();
+            state.message = `${letter} is not in the puzzle`;
+            setTimeout(() => nextTurn(true), 1500);
+        }
     }
     state.spinValue = 0; state.spinType = 'money';
 }
@@ -575,7 +840,7 @@ function resolveLetter(pi, letter) {
 function resolveVowel(pi, letter) {
     const p = state.players[pi];
     if (!VOWELS.includes(letter)) { setMessage(letter + ' is not a vowel', 'pick A, E, I, O or U'); return; }
-    if (p.roundScore < VOWEL_COST) { setMessage(p.name, 'not enough money for a vowel'); state.buyVowelMode = false; return; }
+    if (p.roundScore < VOWEL_COST && state.freeSpins[pi] === 0) { setMessage(p.name, 'not enough money for a vowel'); state.buyVowelMode = false; return; }
     // Already called: stay in pick mode so another vowel can be chosen.
     if (state.usedLetters.has(letter)) { setMessage(p.name, letter + ' was already called'); return; }
     state.buyVowelMode = false; state.solveMode = false; state.pickingLetter = false;
@@ -634,15 +899,10 @@ function revealLetter(letter) {
     state.lastPick = letter;
 }
 function isSolved() {
-    const cells = boardCells(state.puzzle);
-    // check all letters revealed
-    let idx = 0;
-    for (const word of state.puzzle.s.replace(/'/g, '').split(' ')) {
-        for (const ch of word) {
-            if (ch !== ch.toUpperCase() || ch === ' ') { idx++; continue; }
-            if (!state.revealed.has(idx)) return false;
-            idx++;
-        }
+    if (!state.boardCells) return false;
+    for (const c of state.boardCells) {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        if (ch >= 'A' && ch <= 'Z' && !state.revealed.has(c.si)) return false;
     }
     return true;
 }
@@ -675,6 +935,7 @@ function endRound(winnerIdx) {
 function beginTurn() {
     state.spinValue = 0; state.spinType = 'money';
     state.solveMode = false; state.buyVowelMode = false; state.pickingLetter = false;
+    state.pendingDisabled = false; state.surprisePending = false; state.jackpotPending = false;
     state.mustSpin = true;
     const p = currentPlayer();
     if (p.isHuman) {
@@ -689,11 +950,12 @@ function nextTurn(lostTurn, reason) {
     if (state.wonThisRound) return;
     state.spinValue = 0; state.spinType = 'money';
     state.solveMode = false; state.buyVowelMode = false; state.pickingLetter = false;
+    state.pendingDisabled = false; state.surprisePending = false; state.jackpotPending = false;
     state.mustSpin = true;
     const next = (state.currentPlayer + 1) % 3;
     if (!lostTurn && reason === 'keep') {
         // Player kept the turn (correct consonant/vowel); they may spin again.
-        currentWheel = shuffledWheel();
+        // (Machine wheel order is fixed; no reshuffle.)
         if (!state.players[state.currentPlayer].isHuman) aiAutoPlay();
         return;
     }
@@ -714,6 +976,8 @@ function startBonusRound() {
     state.puzzle = pickPuzzle(BONUS_BANK, state.usedPuzzles) || { s: 'GRAND PRIZE', c: 'Thing' };
     state.revealed = new Set();
     state.usedLetters = new Set();
+    state.boardCells = buildBoardCells(state.puzzle);
+    state.solveCells = null;
     stateGuess = '';
     // Original rules: R, S, T, L, N, E are given up front.
     ['R', 'S', 'T', 'L', 'N', 'E'].forEach(L => { state.usedLetters.add(L); revealLetter(L); });
@@ -734,36 +998,33 @@ function startBonusRound() {
         if (p.isHuman) {
             setTimeout(() => { if (state.inBonus && state.bonusGranted < 4) autoBonusLetters(); }, 5000);
         } else {
-            // AI winner: everything automatic
+            // AI winner: everything automatic. The binary's solve-verify
+            // path is not yet reversed; the machine plays deterministic
+            // correct-or-pass everywhere, so the AI solves here.
             autoBonusLetters();
             setTimeout(() => {
-                if (state.inBonus) {
-                    const solved = boardLength(state.puzzle) > 0 &&
-                        (state.revealed.size / boardLength(state.puzzle) > 0.45 || Math.random() < 0.55);
-                    endBonusRound(solved);
-                }
+                if (state.inBonus) endBonusRound(true);
             }, 4500 + randInt(4000));
         }
     });
 }
 
 function autoBonusLetters() {
+    // Deterministic like the letter pickers (no random-pick evidence in
+    // the binary): first 3 unused consonants in the puzzle + first unused
+    // vowel, falling back to alphabetical order.
     const puzzleLetters = new Set();
     for (const ch of state.puzzle.s.replace(/[^A-Z]/g, '')) puzzleLetters.add(ch);
-    let cons = CONSONANTS.filter(l => puzzleLetters.has(l) && !state.usedLetters.has(l));
-    const picks = [];
-    while (picks.length < 3 && cons.length) {
-        picks.push(cons.splice(randInt(cons.length), 1)[0]);
-    }
-    const vowels = VOWELS.filter(l => puzzleLetters.has(l) && !state.usedLetters.has(l));
-    const vowel = vowels.length ? vowels[randInt(vowels.length)] : 'E';
-    picks.push(vowel);
+    const cons = CONSONANTS.filter(l => puzzleLetters.has(l) && !state.usedLetters.has(l));
+    const picks = cons.slice(0, 3);
+    const vowel = VOWELS.find(l => puzzleLetters.has(l) && !state.usedLetters.has(l));
     if (picks.length < 3) {
-        // fill from remaining letters
-        const all = ALPHABET.filter(l => !state.usedLetters.has(l));
-        while (picks.length < 3 && all.length) picks.push(all.splice(randInt(all.length), 1)[0]);
+        for (const l of ALPHABET) {
+            if (picks.length >= 3) break;
+            if (!VOWELS.includes(l) && !state.usedLetters.has(l) && !picks.includes(l)) picks.push(l);
+        }
     }
-    grantBonusLetters(picks.slice(0, 3), picks[3] || 'E');
+    grantBonusLetters(picks.slice(0, 3), vowel || VOWELS.find(l => !state.usedLetters.has(l)) || 'E');
 }
 
 function pickBonusLetter(letter) {
@@ -843,6 +1104,7 @@ class SeqPlayer {
         this.m = null;
         this.ready = false;
         this.done = false;
+        this.hold = false; // when true, draw() keeps showing the last slot
         this.slotIdx = 0;
         this.t = 0;
         this.byId = {};
@@ -893,8 +1155,9 @@ class SeqPlayer {
         this.fireCues(this.slotIds[this.slotIdx]);
     }
     draw(c) {
-        if (!this.ready || this.done) return;
-        const recs = this.byId[this.slotIds[this.slotIdx]];
+        if (!this.ready || (this.done && !this.hold)) return;
+        const ids = this.slotIds;
+        const recs = this.byId[ids[Math.min(this.slotIdx, ids.length - 1)]];
         for (const f of recs) {
             const url = SEQ.frameURL(this.m.file, f.sprite);
             const img = url && SEQ.frameCache[url];
@@ -958,9 +1221,54 @@ function roundRect(x, y, w, h, r) {
     ctx.closePath();
 }
 
+/* -- Stop-sequence overlay + category plaque + solve picking ------- *
+ * On a land, the wedge stop anim (absolute 800x600 coords) plays over
+ * the scene; result effects apply when it finishes (pendingSeg). */
+function drawStopOverlay() {
+    if (state.stopAnim) {
+        state.stopAnim.update(frameDt);
+        state.stopAnim.draw(ctx);
+        if (state.pointerAnim) { state.pointerAnim.update(frameDt); state.pointerAnim.draw(ctx); }
+    }
+    // No anim (e.g. disabled wedge) counts as instantly done.
+    if (state.pendingSeg && (!state.stopAnim || state.stopAnim.done)) {
+        const ps = state.pendingSeg;
+        state.pendingSeg = null;
+        state.stopAnim = null;
+        state.pointerAnim = null;
+        if (state.pendingTimer) { clearTimeout(state.pendingTimer); state.pendingTimer = null; }
+        applySegResult(ps.pi, ps.seg);
+    }
+}
+// Category plaque (mcass art + text) shown briefly at round start.
+function drawPlaque() {
+    if (!state.plaqueUntil || performance.now() > state.plaqueUntil) return;
+    if (!state.plaquePlayer) {
+        const p = new SeqPlayer('m0046');
+        p.hold = true;
+        p.init();
+        state.plaquePlayer = p;
+    }
+    state.plaquePlayer.update(frameDt);
+    state.plaquePlayer.draw(ctx);
+    ctx.fillStyle = '#1a2a5a';
+    ctx.font = 'bold 22px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(categoryName(state.puzzle.c).toUpperCase(), 403, 282);
+}
+function solveTileHit(px, py) {
+    if (!state.boardCells) return null;
+    for (const c of state.boardCells) {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        if (ch < 'A' || ch > 'Z' || state.revealed.has(c.si)) continue;
+        if (px >= c.x && px <= c.x + 39 && py >= c.y && py <= c.y + 28) return c;
+    }
+    return null;
+}
+
 /* -- Wheel drawing ---------- */
 function drawWheel(cx, cy, R) {
-    const n = currentWheel.length;
+    const n = 24;
     const seg = (2 * Math.PI) / n;
     let a = -Math.PI / 2 + Math.PI; // pointer at top
     ctx.save();
@@ -968,13 +1276,13 @@ function drawWheel(cx, cy, R) {
     ctx.rotate(state.wheelAngle);
 
     for (let i = 0; i < n; i++) {
-        const s = currentWheel[i];
+        const s = decodeMicro(wheelMicro[wedgeCenterMicro(i)]);
         const start = i * seg;
         const end = start + seg;
         let color;
         if (s.type === 'bankrupt') color = '#a02020';
-        else if (s.type === 'loseturn') color = '#202020';
-        else if (s.value >= 2500) color = '#f5c530';
+        else if (s.type === 'loseturn' || s.type === 'disabled') color = '#202020';
+        else if (s.type === 'jackpot' || s.type === 'surprise' || s.type === 'freespin') color = '#f5c530';
         else {
             const gold = s.value >= 600;
             color = gold ? '#2a6fd8' : '#2f8fc8';
@@ -1042,110 +1350,114 @@ function drawWheel(cx, cy, R) {
 
 /* -- Puzzle board ---------- */
 function drawPuzzleBoard() {
-    if (!state.puzzle) return;
-    const puzzle = state.puzzle.s;
-    const cells = boardCells(state.puzzle);
-    let totalLetters = 0;
-    cells.forEach(w => totalLetters += w.length);
-    const maxPerRow = BOARD_COLS;
-    const rows = Math.ceil(totalLetters / maxPerRow);
-    const colsUse = Math.min(maxPerRow, Math.max.apply(null, [
-        ...cells.map(w => w.length), Math.ceil(totalLetters / rows)
-    ]));
-    const cols = Math.max(colsUse, ...cells.map(w => w.length ? Math.min(w.length, maxPerRow) : 0));
-
-    const box = 46;
-    const gap = 3;
-    const boardW = cols * (box + gap) - gap;
-    const boardH = rows * (box + gap) - gap;
-    const bx = (W - boardW) / 2;
-    const by = 70 + (160 - boardH) / 2;
-
-    // header - category
-    ctx.fillStyle = '#ffd700';
-    ctx.font = 'bold 20px Verdana, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#000';
-    ctx.shadowBlur = 6;
-    ctx.fillText(categoryName(state.puzzle.c), W / 2, 46);
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.font = '18px Verdana, sans-serif';
-    ctx.fillText(`ROUND ${state.round}`, 60, 40);
-
-    // tiles
-    let idx = 0;
-    let wordIdx = 0;
+    if (!state.puzzle || !state.boardCells) return;
     ctx.save();
-    ctx.font = 'bold 26px Verdana, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    cells.forEach(word => {
-        let x = bx;
-        // center each word? center whole line; simplest: center block per word
-        const wordW = word.length * (box + gap) - gap;
-        let wx = bx + (boardW - wordW) / 2;
-        word.forEach(ch => {
-            const row = Math.floor(idx / cols);
-            const col = idx % cols;
-            const cx = wx + col * (box + gap);
-            const cy = by + row * (box + gap);
-            const empty = state.revealed.has(idx);
-            // tile
-            ctx.fillStyle = empty ? '#ffd700' : '#1a3a5a';
-            roundRect(cx, cy, box, box, 6);
-            ctx.fill();
-            ctx.strokeStyle = '#7fd8ff';
-            ctx.lineWidth = 1.5;
+    for (const c of state.boardCells) {
+        if (c.si < 0 || c.si >= state.puzzle.s.length) continue;
+        const raw = state.puzzle.s[c.si];
+        const ch = raw.toUpperCase();
+        const isLetter = ch >= 'A' && ch <= 'Z';
+        const known = state.revealed.has(c.si);
+        // Unrevealed trilon (green) / revealed bed (darker green).
+        ctx.fillStyle = known ? '#0d5a2e' : '#0e6b34';
+        roundRect(c.x, c.y, 39, 28, 3);
+        ctx.fill();
+        ctx.strokeStyle = '#083d20';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        if (!isLetter) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 15px "Courier New", monospace';
+            ctx.fillText(raw, c.x + 19.5, c.y + 15);
+        } else if (known) {
+            drawBoardLetter(ch, c);
+        }
+        // Solve cursor.
+        if (state.solveCells && state.solveCells.cursor === c && !known) {
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2.5;
+            roundRect(c.x - 1.5, c.y - 1.5, 42, 31, 4);
             ctx.stroke();
-            if (empty) {
-                ctx.fillStyle = '#1a2a5a';
-                ctx.fillText(ch, cx + box / 2, cy + box / 2 + 2);
+            const g = solveGuessAt(c);
+            if (g) {
+                ctx.fillStyle = '#ffe066';
+                ctx.font = 'bold 15px "Courier New", monospace';
+                ctx.fillText(g, c.x + 19.5, c.y + 15);
             }
-            idx++;
-        });
-        wordIdx++;
-    });
+        }
+    }
     ctx.restore();
+}
+
+// Revealed letter art, centered on the tile. The engine places the glyph
+// in a single 0x4394d0 call (no flip frames): appearance is instant.
+function drawBoardLetter(ch, c) {
+    const url = letterArtURL(ch);
+    const img = url && SEQ.frameCache[url];
+    if (!img) {
+        if (url) SEQ.loadFrame('menus.dat', LETTER_ART[ch]);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 15px "Courier New", monospace';
+        ctx.fillText(ch, c.x + 19.5, c.y + 15);
+        return;
+    }
+    ctx.drawImage(img, c.x + 19.5 - img.width / 2, c.y + 14 - img.height / 2);
 }
 
 function categoryName(cat) { return CATEGORY_LOOKUP[cat] || cat || 'Phrase'; }
 
 /* -- Player panels ---------- */
+/* -- Player panels (Courier type; fixed side tints; round starter) ---- *
+ * Per the help/rules text: middle panel starts round 1, right starts
+ * round 2 (starter = round % 3). Names shrink to fit 215px. */
+function fitFont(text, maxW, base, weight) {
+    let size = base;
+    ctx.font = `${weight} ${size}px "Courier New", monospace`;
+    while (size > 9 && ctx.measureText(text).width > maxW) {
+        size--;
+        ctx.font = `${weight} ${size}px "Courier New", monospace`;
+    }
+    return size;
+}
 function drawPlayers() {
-    const y0 = 340;
-    const pw = 240, ph = 90;
+    const y0 = 500;
+    const pw = 240, ph = 80;
     const spacing = 18;
     const totalW = 3 * pw + 2 * spacing;
     let x = (W - totalW) / 2;
+    const starter = state.round % 3;
     for (let i = 0; i < state.players.length; i++) {
         const p = state.players[i];
         const active = state.currentPlayer === i && !state.inBonus;
-        ctx.fillStyle = active ? 'rgba(0,120,255,0.30)' : 'rgba(0,0,0,0.35)';
+        let fill = 'rgba(0,0,0,0.45)';
+        if (i === 1) fill = 'rgba(120,90,10,0.45)';   // middle panel gold tint
+        if (i === 2) fill = 'rgba(10,60,120,0.45)';   // right panel blue tint
+        if (active) fill = 'rgba(0,120,255,0.30)';
+        ctx.fillStyle = fill;
         roundRect(x, y0, pw, ph, 10);
         ctx.fill();
-        ctx.strokeStyle = active ? '#ffd700' : '#335577';
-        ctx.lineWidth = active ? 3 : 1;
+        ctx.strokeStyle = (i === starter) ? '#ffd700' : (active ? '#ffd700' : '#335577');
+        ctx.lineWidth = (i === starter || active) ? 3 : 1;
         ctx.stroke();
 
         ctx.fillStyle = active ? '#ffe066' : '#aabbcc';
-        ctx.font = 'bold 16px Verdana, sans-serif';
         ctx.textAlign = 'left';
+        fitFont(p.name, 150, 16, 'bold');
         ctx.fillText(p.name, x + 12, y0 + 24);
         if (state.freeSpins[i] > 0) {
             ctx.fillStyle = '#7dff8f';
-            ctx.font = '12px Verdana, sans-serif';
-            ctx.fillText('FREE SPIN x' + state.freeSpins[i], x + pw - 90, y0 + 22);
+            ctx.font = '12px "Courier New", monospace';
+            ctx.fillText('FREE SPIN x' + state.freeSpins[i], x + pw - 96, y0 + 22);
         }
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 20px Verdana, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText('$' + p.roundScore.toLocaleString(), x + pw - 12, y0 + 56);
-        ctx.font = '13px Verdana, sans-serif';
+        fitFont('$' + p.roundScore.toLocaleString(), 200, 20, 'bold');
+        ctx.fillText('$' + p.roundScore.toLocaleString(), x + pw - 12, y0 + 54);
+        ctx.font = '13px "Courier New", monospace';
         ctx.fillStyle = '#88aacc';
-        ctx.textAlign = 'right';
-        ctx.fillText('$' + p.score.toLocaleString(), x + pw - 12, y0 + 80);
+        ctx.fillText('$' + p.score.toLocaleString(), x + pw - 12, y0 + 74);
         ctx.textAlign = 'left';
         if (!p.isHuman) {
             ctx.fillStyle = '#556688';
@@ -1156,25 +1468,37 @@ function drawPlayers() {
     }
 }
 
-/* -- Letter / action buttons ---------- */
+/* -- Turn buttons: original seq art at original rects ---------------- *
+ * SPIN idle w0836 [342,279,458,395], SOLVE idle w0832 [504,326,616,438],
+ * BUY idle w0191 [195,326,307,438] with press byein w0192/byeou w0193. */
 function drawControls() {
-    const y = 500;
-    const labels = ['SPIN', 'BUY VOWEL', 'SOLVE'];
-    const w = 150, h = 44, gap = 20;
-    const totalW = 3 * w + 2 * gap;
-    let x = (W - totalW) / 2;
-    ctx.font = 'bold 18px Verdana, sans-serif';
-    ctx.textAlign = 'center';
-    for (let i = 0; i < 3; i++) {
-        if (state.solveMode || state.buyVowelMode || state.pickingLetter) {
-            drawButton(x, y, w, h, labels[i], 'disabled');
-        } else if (i === 0 && state.spinning) {
-            drawButton(x, y, w, h, 'SPINNING...', 'disabled');
-        } else {
-            drawButton(x, y, w, h, labels[i], 'normal');
-        }
-        x += w + gap;
-    }
+    const spin = seqBtn('w0836');
+    spin.update(frameDt); spin.draw(ctx);
+    const solv = seqBtn('w0832');
+    solv.update(frameDt); solv.draw(ctx);
+    const buy = seqBtn('w0191');
+    buy.update(frameDt); buy.draw(ctx);
+    drawBuyDialog();
+}
+// Buy proposition dialog (MWProp2, menus 248): pre-shown during normal
+// play, removed on buy press (0x439740). One-shot per game.
+function drawBuyDialog() {
+    if (state.buyDialogSeen || state.buyVowelMode || state.inBonus) return;
+    const p = seqBtn('m0248');
+    p.hold = true;
+    p.update(frameDt); p.draw(ctx);
+}
+// Fire-and-forget press/flash anims (played once, drawn in render).
+function pressFx(seqId) {
+    const p = new SeqPlayer(seqId);
+    p.init();
+    if (!state.fxAnims) state.fxAnims = [];
+    state.fxAnims.push(p);
+}
+function drawFxAnims() {
+    if (!state.fxAnims) return;
+    for (const p of state.fxAnims) { p.update(frameDt); p.draw(ctx); }
+    state.fxAnims = state.fxAnims.filter(p => !p.done);
 }
 function drawButton(x, y, w, h, label, kind) {
     const g = ctx.createLinearGradient(0, y, 0, y + h);
@@ -1195,120 +1519,53 @@ function drawButton(x, y, w, h, label, kind) {
     ctx.fillText(label, x + w / 2, y + h / 2 + 6);
 }
 
-/* -- Letter picker grid (consonant / vowel) ---------- */
-function letterGridGeom() {
-    const tile = 40, gap = 6, cols = 9;
-    const gw = cols * tile + (cols - 1) * gap;
-    const gh = 3 * tile + 2 * gap;
-    return { tile, gap, cols, x0: (W - gw) / 2, y0: 190 };
-}
-function drawLetterGrid() {
-    const vowelMode = !!state.buyVowelMode;
-    const g = letterGridGeom();
-    ctx.fillStyle = 'rgba(0,0,12,0.78)';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffd700';
-    ctx.font = 'bold 24px Verdana, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(vowelMode ? `BUY A VOWEL \u2014 $${VOWEL_COST}` : `PICK A CONSONANT \u2014 $${state.spinValue}`, W / 2, 150);
-    ctx.font = 'bold 20px Verdana, sans-serif';
-    for (let i = 0; i < ALPHABET.length; i++) {
-        const letter = ALPHABET[i];
-        const r = Math.floor(i / g.cols), c = i % g.cols;
-        const x = g.x0 + c * (g.tile + g.gap);
-        const y = g.y0 + r * (g.tile + g.gap);
-        const isVowel = VOWELS.includes(letter);
-        const usable = !state.usedLetters.has(letter) && (vowelMode ? isVowel : !isVowel);
-        ctx.fillStyle = !usable ? '#1c2430' : (isVowel ? '#7a4fbf' : '#2a5fae');
-        roundRect(x, y, g.tile, g.tile, 6);
-        ctx.fill();
-        ctx.strokeStyle = !usable ? '#33404f' : '#9ad0ff';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.fillStyle = !usable ? '#4a5a6e' : '#ffffff';
-        ctx.fillText(letter, x + g.tile / 2, y + g.tile / 2 + 7);
-    }
-    ctx.fillStyle = '#8fa8c8';
-    ctx.font = '13px Verdana, sans-serif';
-    ctx.fillText('click a letter, type it, or click elsewhere to cancel', W / 2, g.y0 + 3 * (g.tile + g.gap) + 26);
-}
-function hitLetterGrid(px, py) {
-    const g = letterGridGeom();
-    for (let i = 0; i < ALPHABET.length; i++) {
-        const r = Math.floor(i / g.cols), c = i % g.cols;
-        const x = g.x0 + c * (g.tile + g.gap);
-        const y = g.y0 + r * (g.tile + g.gap);
-        if (px >= x && px <= x + g.tile && py >= y && py <= y + g.tile) return ALPHABET[i];
-    }
-    return null;
-}
-
 /* -- Used letters + spin value ---------- */
 function drawStatus() {
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 5;
+    // category + round header
+    if (state.puzzle) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 17px Verdana, sans-serif';
+        ctx.fillText(categoryName(state.puzzle.c), W / 2 - 60, 30);
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '15px Verdana, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`ROUND ${state.round}`, 24, 28);
+        ctx.textAlign = 'center';
+    }
     // spin result
     if (state.wheelResult && state.wheelResultTimer > 0) {
         ctx.fillStyle = '#ffd700';
         ctx.font = 'bold 22px Verdana, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(state.spinValue > 0 ? '$' + state.spinValue : state.spinType, W / 2, 330);
+        ctx.fillText(state.spinValue > 0 ? '$' + state.spinValue : state.spinType, W / 2 - 60, 62);
     } else if (state.spinValue > 0) {
         ctx.fillStyle = '#ffd700';
         ctx.font = 'bold 22px Verdana, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
-        ctx.fillText('$' + state.spinValue, W / 2, 326);
-        ctx.shadowBlur = 0;
+        ctx.fillText('$' + state.spinValue, W / 2 - 60, 62);
     }
 
     // message
     if (state.message) {
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 20px Verdana, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
-        ctx.fillText(state.message, W / 2, 560);
+        ctx.font = 'bold 19px Verdana, sans-serif';
+        ctx.fillText(state.message, W / 2 - 60, 92);
         if (state.message2) {
-            ctx.font = '14px Verdana, sans-serif';
+            ctx.font = '13px Verdana, sans-serif';
             ctx.fillStyle = '#aaccff';
-            ctx.fillText(state.message2, W / 2, 580);
+            ctx.fillText(state.message2, W / 2 - 60, 110);
         }
-        ctx.shadowBlur = 0;
     }
+    ctx.shadowBlur = 0;
 
     // used letters
     const used = [...state.usedLetters].sort().join(' ');
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
     ctx.font = '12px Courier, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(used, W / 2, 476);
+    ctx.fillText(used, W / 2, 594);
 }
 
 /* -- Solving input overlay ---------- */
-function drawSolveBox() {
-    if (!state.solveMode) return;
-    ctx.fillStyle = 'rgba(0,0,10,0.8)';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffd700';
-    ctx.font = 'bold 24px Verdana, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('SOLVE THE PUZZLE', W / 2, 200);
-    ctx.fillStyle = '#fff';
-    ctx.font = '20px Verdana, sans-serif';
-    ctx.fillText('Type your answer, then press ENTER', W / 2, 240);
-    if (stateGuess) {
-        ctx.fillStyle = '#aaffaa';
-        ctx.font = 'bold 22px Courier, monospace';
-        ctx.fillText(stateGuess, W / 2, 300);
-    } else {
-        ctx.fillStyle = '#556677';
-        ctx.font = '18px Courier, monospace';
-        ctx.fillText('_', W / 2, 300);
-    }
-    ctx.fillStyle = '#8888aa';
-    ctx.font = '12px Verdana, sans-serif';
-    ctx.fillText('ESC to cancel', W / 2, 340);
-}
-
 /* -- Bonus overlay ---------- */
 function drawBonusOverlay() {
     if (!state.inBonus) return;
@@ -1422,12 +1679,19 @@ function render() {
     } else if (state.screen === 'PLAY') {
         drawBackground();
         drawPuzzleBoard();
-        if (!state.inBonus) drawWheel(618, 400, 150);
+        drawPlaque();
+        if (!state.inBonus) drawWheel(650, 118, 80);
         drawPlayers();
         drawControls();
+        drawFxAnims();
+        drawStopOverlay();
         drawStatus();
-        if ((state.pickingLetter || state.buyVowelMode) && !state.inBonus) drawLetterGrid();
-        if (state.solveMode) drawSolveBox();
+        if (state.solveMode && state.solveCells) {
+            ctx.fillStyle = '#ffe066';
+            ctx.font = 'bold 15px Verdana, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('click a tile, type letters, ENTER to solve', W / 2, 592);
+        }
         if (state.inBonus) {
             // puzzle visible without wheel overlay
             drawBonusOverlay();
@@ -1435,9 +1699,7 @@ function render() {
     } else if (state.screen === 'GAMEOVER') {
         drawGameOver();
     } else if (state.screen === 'MENU') {
-        drawMenu();
-    } else if (state.screen === 'OPTIONS') {
-        drawOptions();
+        drawMenuScreen();
     }
     drawMuteButton();
 }
@@ -1453,6 +1715,19 @@ function drawMuteButton() {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 15px Verdana, sans-serif';
     ctx.fillText(GameAudio.muted ? 'SOUND: OFF' : 'SOUND: ON', x + w / 2, y + 22);
+}
+
+function drawMenuScreen() {
+    const m = state.mscreen;
+    if (m === 3) drawMain();
+    else if (m === 4) drawCount();
+    else if (m === 5) drawLength();
+    else if (m === 6) drawNames();
+    else if (m === 7) drawLocation();
+    else if (m === 8) drawList();
+    else if (m === 9) drawHelp();
+    else if (m === 10) drawOptions10();
+    else drawMenu(); // 1 map/rooms, 2 exam room
 }
 
 /* -- Menu (backstage map: original BMPs + hotspot overlays) ----------
@@ -1475,6 +1750,7 @@ function drawMenu() {
         rolAnims[hov].update(frameDt);
         rolAnims[hov].draw(ctx);
     }
+    drawGlobals();
 }
 
 /* Hotspot rects verbatim from the exe (0x40ede0 registrations). */
@@ -1519,10 +1795,9 @@ function hoverAt(px, py) {
     return null;
 }
 function menuActivate(key) {
-    if (key === 'back' || key === 'back2') { sfx.click(); setRoom(null); return; }
+    if (key === 'back' || key === 'back2') { menuBack(); return; }
     const room = (MENU_HOTSPOTS[key] || {}).room;
     if (!room) return;
-    if (room === 'control') { sfx.click(); state.screen = 'OPTIONS'; return; }
     // Clicking the Stage label while on the Stage screen starts the game
     // (exact start hotspot on the stage screen pending further RE).
     if (room === 'stage' && state.room === 'stage') { startGameFromConfig(); return; }
@@ -1531,45 +1806,278 @@ function menuActivate(key) {
 }
 
 function startGameFromConfig() {
+    // Quick-play defaults (stage room path until the stage flow is reversed).
     sfx.click();
     sfx.playClip('chime2');
-    startGame({ humans: state.config.humans, length: state.config.length, playerNames: ['YOU', 'PLAYER 2', 'PLAYER 3'] });
+    resetSetup();
+    launchGame();
 }
 
-function drawOptions() {
-    const img = bgImage('menu2');
-    if (img) {
-        ctx.drawImage(img, 0, 0, W, H);
-        ctx.fillStyle = 'rgba(0,0,10,0.55)';
-        ctx.fillRect(0, 0, W, H);
-    } else {
-        drawBackground();
+function resetSetup() {
+    state.setupFlow = {
+        humans: 1, rounds: 3, lengthIdx: 3,
+        names: ['YOU', 'PLAYER 2', 'PLAYER 3'],
+        locationIdx: 0, nameSlot: 0, nameBuf: '',
+        fromCount: false,
+    };
+    state.prevStack = [];
+    state.helpPage = 0;
+}
+function cpuName(i) {
+    const aiNames = ['REX', 'MAX', 'JENNY', 'KIP', 'SAM', 'MO', 'ANN', 'RIKKI'];
+    return aiNames[i % aiNames.length];
+}
+function launchGame() {
+    const sf = state.setupFlow;
+    const names = [];
+    for (let i = 0; i < 3; i++) names.push(sf.names[i] || cpuName(i));
+    startGame({ humans: sf.humans, playerNames: names, rounds: sf.rounds, location: sf.locationIdx });
+}
+
+/* -- Seq-driven menu buttons ---------------------------------------- */
+const seqBtnCache = {};
+function seqBtn(id) {
+    if (!seqBtnCache[id]) { const p = new SeqPlayer(id); p.init(); seqBtnCache[id] = p; }
+    return seqBtnCache[id];
+}
+function drawSeqBtn(idleId, rolId, hovered) {
+    const p = seqBtn(idleId);
+    p.update(frameDt); p.draw(ctx);
+    if (hovered && rolId) { const r = seqBtn(rolId); r.update(frameDt); r.draw(ctx); }
+}
+function btnHit(list, px, py) {
+    for (const b of list) {
+        if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
     }
+    return null;
+}
+
+/* -- Main menu (screen 3): buttons verbatim from the exe ------------- */
+const MAIN_BTNS = [
+    { k: 'nrm', x: 254, y: 212, w: 276, h: 39, idle: 'm0020', rol: 'm0025', act() { resetSetup(); state.mscreen = 4; } },
+    { k: 'sol', x: 289, y: 256, w: 207, h: 36, idle: 'm0021', rol: 'm0026', act() { resetSetup(); state.setupFlow.humans = 1; state.mscreen = 5; } },
+    { k: 'tor', x: 277, y: 298, w: 229, h: 27, idle: 'm0022', rol: 'm0027', act() { state.tourneyMsg = performance.now(); sfx.wrong(); } },
+    { k: 'cnt', x: 228, y: 339, w: 347, h: 35, idle: 'm0019', rol: 'm0024', act() { setRoom(null); state.mscreen = 1; } },
+    { k: 'car', x: 237, y: 371, w: 319, h: 44, idle: 'm0018', rol: 'm0023', act() { state.mscreen = 8; } },
+];
+function drawMain() {
+    const img = bgImage('car56');
+    if (img) ctx.drawImage(img, 0, 0, W, H);
+    else drawProceduralBg();
+    for (const b of MAIN_BTNS) drawSeqBtn(b.idle, b.rol, state.menuHover === b);
+    if (state.tourneyMsg && performance.now() - state.tourneyMsg < 2500) {
+        ctx.fillStyle = '#ff8888';
+        ctx.font = 'bold 20px Verdana, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tournament play requires saved games', W / 2, 470);
+    }
+    drawGlobals();
+}
+
+/* -- Global chrome: xyz bar + mx/my/mz + top-right BACK (all screens) */
+const GLOB_BTNS = [
+    { k: 'mx', x: 21, y: 20, w: 96, h: 23, act() { pushPrev(); state.mscreen = 10; } },
+    { k: 'my', x: 40, y: 45, w: 57, h: 22, act() { pushPrev(); state.mscreen = 9; } },
+    { k: 'mz', x: 43, y: 71, w: 48, h: 18, act() { toggleMute(); } },
+    { k: 'gback', x: 673, y: 15, w: 87, h: 52, idle: 'm0011', rol: 'm0012', act() { menuBack(); } },
+];
+function pushPrev() { state.prevStack.push({ m: state.mscreen, room: state.room }); }
+function drawGlobals() {
+    drawSeqBtn('m0266', null, false);
+    const hov = state.menuHover;
+    drawSeqBtn('m0011', 'm0012', !!(hov && hov.k === 'gback'));
+}
+function menuScreenAction(b) {
+    const m = state.mscreen;
+    if (m === 9) {
+        if (b.k === 'hback') state.helpPage = (state.helpPage + 13) % 14;
+        else if (b.k === 'hnext') state.helpPage = (state.helpPage + 1) % 14;
+        else if (b.k === 'hdone') menuBack();
+        return;
+    }
+    if (m === 5 || m === 7) {
+        // Arrows adjust, DONE advances.
+        if (b.k === 'lenL') {
+            if (m === 5) lengthAdjust(-1);
+            else { state.setupFlow.locationIdx = (state.setupFlow.locationIdx + 3) % 4; sfx.click(); }
+        } else if (b.k === 'lenR') {
+            if (m === 5) lengthAdjust(1);
+            else { state.setupFlow.locationIdx = (state.setupFlow.locationIdx + 1) % 4; sfx.click(); }
+        } else if (b.k === 'lenDone') {
+            if (m === 5) {
+                const sf = state.setupFlow;
+                sf.nameSlot = 0; sf.nameBuf = '';
+                for (let i = sf.humans; i < 3; i++) sf.names[i] = cpuName(i);
+                state.mscreen = 6;
+            } else {
+                launchGame();
+            }
+        }
+        return;
+    }
+    b.act();
+}
+function menuBack() {
+    sfx.click();
+    const m = state.mscreen;
+    if (m === 1) { if (state.room) setRoom(null); else state.mscreen = 3; }
+    else if (m === 2) { state.mscreen = 1; setRoom(null); }
+    else if (m === 4) state.mscreen = 3;
+    else if (m === 5) state.mscreen = (state.setupFlow && state.setupFlow.fromCount) ? 4 : 3;
+    else if (m === 6) state.mscreen = 5;
+    else if (m === 7) state.mscreen = 6;
+    else if (m === 8) state.mscreen = 3;
+    else if (m === 9 || m === 10) {
+        const prev = state.prevStack.pop();
+        if (prev) { state.mscreen = prev.m; if (prev.m === 1) setRoom(prev.room || null); }
+        else state.mscreen = 3;
+    }
+}
+
+/* -- Setup screens 4/5/6/7 (carousel backdrops, real button art) ----- */
+function carouselBg() {
+    const img = bgImage('car56');
+    if (img) { ctx.drawImage(img, 0, 0, W, H); return true; }
+    drawProceduralBg();
+    return false;
+}
+const COUNT_BTNS = [
+    { k: 'one', x: 47, y: 218, w: 71, h: 64, idle: 'm0247', act() { state.setupFlow.humans = 1; state.setupFlow.fromCount = true; state.mscreen = 5; } },
+    { k: 'two', x: 455, y: 217, w: 71, h: 64, idle: 'm0250', act() { state.setupFlow.humans = 2; state.setupFlow.fromCount = true; state.mscreen = 5; } },
+    { k: 'three', x: 57, y: 354, w: 71, h: 64, idle: 'm0249', act() { state.setupFlow.humans = 3; state.setupFlow.fromCount = true; state.mscreen = 5; } },
+];
+function drawCount() {
+    carouselBg();
+    for (const b of COUNT_BTNS) drawSeqBtn(b.idle, null, false);
+    drawGlobals();
+}
+const LEN_L = { k: 'lenL', x: 233, y: 251, w: 40, h: 52, idle: 'm0057' };
+const LEN_R = { k: 'lenR', x: 533, y: 251, w: 40, h: 52, idle: 'm0058' };
+const LEN_DONE = { k: 'lenDone', x: 335, y: 392, w: 133, h: 87, idle: 'm0053' };
+const LEN_BTNS = [LEN_L, LEN_R, LEN_DONE];
+function drawLength() {
+    carouselBg();
+    for (const b of LEN_BTNS) drawSeqBtn(b.idle, null, state.menuHover === b);
+    const sf = state.setupFlow;
     ctx.fillStyle = '#ffd700';
-    ctx.font = 'bold 36px Verdana, sans-serif';
+    ctx.font = 'bold 30px Verdana, sans-serif';
     ctx.textAlign = 'center';
-    ctx.shadowColor = '#000'; ctx.shadowBlur = 8;
-    ctx.fillText('OPTIONS', W / 2, 140);
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+    ctx.fillText(sf.rounds + (sf.rounds > 1 ? ' ROUNDS' : ' ROUND'), W / 2, 300);
     ctx.shadowBlur = 0;
-    drawButton(W / 2 - 170, 200, 340, 50, 'HUMAN PLAYERS: ' + state.config.humans + ' OF 3', 'normal');
-    drawButton(W / 2 - 170, 264, 340, 50, 'ROUNDS: ' + state.config.length.toUpperCase(), 'normal');
-    drawButton(W / 2 - 170, 328, 340, 50, 'SOUND: ' + (GameAudio.muted ? 'OFF' : 'ON'), 'normal');
-    drawButton(W / 2 - 170, 404, 340, 50, 'START GAME', 'normal');
-    drawButton(W / 2 - 170, 468, 340, 50, 'BACK', 'normal');
+    drawGlobals();
 }
-
-function hitOptions(px, py) {
-    const cx = W / 2;
-    const inRow = (y0) => (px > cx - 170 && px < cx + 170 && py > y0 && py < y0 + 50);
-    if (inRow(200)) { state.config.humans = state.config.humans % 3 + 1; sfx.click(); }
-    else if (inRow(264)) {
-        const order = ['short', 'standard', 'long'];
-        state.config.length = order[(order.indexOf(state.config.length) + 1) % order.length];
-        sfx.click();
+function lengthAdjust(d) {
+    const sf = state.setupFlow;
+    sf.rounds = Math.min(5, Math.max(3, sf.rounds + d));
+    sf.lengthIdx = sf.rounds;
+    sfx.click();
+}
+const NAME_SLOTS = [
+    { x: 250, y: 247, w: 262, h: 61, idle: 'm0064' },
+    { x: 250, y: 284, w: 262, h: 61, idle: 'm0065' },
+    { x: 250, y: 320, w: 262, h: 61, idle: 'm0066' },
+    { x: 250, y: 356, w: 262, h: 61, idle: 'm0067' },
+    { x: 250, y: 393, w: 262, h: 61, idle: 'm0068' },
+    { x: 250, y: 428, w: 262, h: 61, idle: 'm0069' },
+    { x: 250, y: 462, w: 262, h: 61, idle: 'm0070' },
+];
+function drawNames() {
+    carouselBg();
+    const sf = state.setupFlow;
+    ctx.textAlign = 'left';
+    for (let i = 0; i < sf.humans; i++) {
+        const s = NAME_SLOTS[i];
+        drawSeqBtn(s.idle, null, false);
+        const txt = i < sf.nameSlot ? sf.names[i] : (i === sf.nameSlot ? sf.nameBuf + '_' : '');
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Verdana, sans-serif';
+        ctx.fillText(txt, s.x + 14, s.y + 39);
     }
-    else if (inRow(328)) { toggleMute(); }
-    else if (inRow(404)) { startGameFromConfig(); }
-    else if (inRow(468)) { sfx.click(); showMenu(); }
+    ctx.fillStyle = '#8fa8c8';
+    ctx.font = '13px Verdana, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('type a name (max 8 letters), ENTER to confirm', W / 2, 560);
+    drawGlobals();
+}
+function commitName() {
+    const sf = state.setupFlow;
+    if (sf.nameBuf.trim()) sf.names[sf.nameSlot] = sf.nameBuf.trim().toUpperCase().slice(0, 8);
+    sf.nameBuf = '';
+    sf.nameSlot++;
+    sfx.click();
+    if (sf.nameSlot >= sf.humans) state.mscreen = 7;
+}
+function drawLocation() {
+    carouselBg();
+    for (const b of LEN_BTNS) drawSeqBtn(b.idle, null, state.menuHover === b);
+    const sf = state.setupFlow;
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 30px Verdana, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+    ctx.fillText('LOCATION ' + (sf.locationIdx + 1) + ' / 4', W / 2, 300);
+    ctx.shadowBlur = 0;
+    drawGlobals();
+}
+/* -- Screen 8: list viewer (menus BMP 7) ------------------------------ */
+function drawList() {
+    const img = bgImage('menu8');
+    if (img) ctx.drawImage(img, 0, 0, W, H);
+    else drawProceduralBg();
+    drawGlobals();
+}
+/* -- Screen 9: help (14 pages of original help text) ------------------ */
+let helpPages = null;
+function ensureHelp() {
+    if (helpPages) return;
+    helpPages = [];
+    fetch('assets/help_pages.json').then(r => r.json())
+        .then(j => { helpPages = j; }).catch(() => { helpPages = []; });
+}
+const HELP_BACK = { k: 'hback', x: 72, y: 263, w: 93, h: 27, idle: 'm0276', rol: 'm0277' };
+const HELP_NEXT = { k: 'hnext', x: 640, y: 264, w: 93, h: 26, idle: 'm0280', rol: 'm0281' };
+const HELP_DONE = { k: 'hdone', x: 335, y: 392, w: 133, h: 87, idle: 'm0053' };
+const HELP_BTNS = [HELP_BACK, HELP_NEXT, HELP_DONE];
+function drawHelp() {
+    carouselBg();
+    ensureHelp();
+    ctx.textAlign = 'center';
+    const pg = (helpPages && helpPages[state.helpPage]) || null;
+    if (pg) {
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 24px Verdana, sans-serif';
+        ctx.fillText(pg.title.replace(/([A-Z])/g, ' $1').trim().toUpperCase(), W / 2, 120);
+        ctx.fillStyle = '#e8f0ff';
+        ctx.font = '15px Verdana, sans-serif';
+        let y = 160;
+        for (const ln of pg.lines) {
+            ctx.fillText(ln.trim().slice(0, 72), W / 2, y);
+            y += 22;
+            if (y > 380) break;
+        }
+        ctx.fillStyle = '#8fa8c8';
+        ctx.font = '13px Verdana, sans-serif';
+        ctx.fillText(`PAGE ${state.helpPage + 1} / ${helpPages.length}`, W / 2, 545);
+    } else {
+        ctx.fillStyle = '#8fa8c8';
+        ctx.font = '15px Verdana, sans-serif';
+        ctx.fillText('loading help...', W / 2, 300);
+    }
+    for (const b of HELP_BTNS) drawSeqBtn(b.idle, b.rol, state.menuHover === b);
+    drawGlobals();
+}
+/* -- Screen 10: options (mxopta frame; SOUND toggle wired) ------------ */
+const OPT_SOUND = { k: 'optSound', x: 282, y: 118, w: 224, h: 35 };
+function drawOptions10() {
+    carouselBg();
+    const p = seqBtn('m0258');
+    p.update(frameDt); p.draw(ctx);
+    ctx.fillStyle = GameAudio.muted ? '#ff8888' : '#7dff8f';
+    ctx.font = 'bold 20px Verdana, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(GameAudio.muted ? 'OFF' : 'ON', 520, 145);
+    drawGlobals();
 }
 
 let frameDt = 0.016;
@@ -1598,20 +2106,15 @@ function resolveHit(px, py) {
         VideoPlayer.skip();
         return;
     }
-    // Solve box cancel etc.
-    if (state.solveMode) { state.solveMode = false; stateGuess = ''; return; }
-    // Letter picker: a tile click resolves the pick, anywhere else cancels.
-    if (state.pickingLetter || state.buyVowelMode) {
-        const L = hitLetterGrid(px, py);
-        if (L && !state.usedLetters.has(L)) {
-            sfx.click();
-            if (state.buyVowelMode) resolveVowel(state.currentPlayer, L);
-            else resolveLetter(state.currentPlayer, L);
-        } else {
-            state.pickingLetter = false; state.buyVowelMode = false;
-        }
+    // Solve mode: click an unrevealed tile to move the cursor there.
+    if (state.solveMode && state.solveCells) {
+        const hit = solveTileHit(px, py);
+        if (hit) { sfx.click(); state.solveCells.cursor = hit; }
         return;
     }
+    // Consonant/vowel picks are keyboard-typed in the original (help:
+    // "Simply type in a letter"). Clicks do nothing while picking.
+    if (state.pickingLetter || state.buyVowelMode) return;
     // Bonus letter picker
     if (state.inBonus && state.bonusTimerActive === false && state.bonusGranted < 4) {
         const hit = hitBonusLetter(px, py);
@@ -1624,26 +2127,57 @@ function resolveHit(px, py) {
         return;
     }
     if (state.screen === 'MENU') {
-        const hov = state.menuHover || hoverAt(px, py);
-        if (!hov) return;
-        menuActivate(hov);
-        return;
-    }
-    if (state.screen === 'OPTIONS') {
-        hitOptions(px, py);
-        return;
-    }
-    // action buttons
-    const y = 500, w = 150, h = 44, gap = 20;
-    const totalW = 3 * w + 2 * gap;
-    let x = (W - totalW) / 2;
-    for (let i = 0; i < 3; i++) {
-        if (px > x && px < x + w && py > y && py < y + h) {
-            sfx.click();
-            doPlayerAction(state.currentPlayer, ['spin', 'vowel', 'solve'][i]);
+        const m = state.mscreen;
+        if (m === 1) {
+            const hov = state.menuHover || hoverAt(px, py);
+            if (hov) menuActivate(hov);
             return;
         }
-        x += w + gap;
+        let b = null;
+        if (m === 3) b = btnHit(MAIN_BTNS, px, py);
+        else if (m === 4) b = btnHit(COUNT_BTNS, px, py);
+        else if (m === 5) b = btnHit(LEN_BTNS, px, py);
+        else if (m === 7) b = btnHit(LEN_BTNS, px, py);
+        else if (m === 9) b = btnHit(HELP_BTNS, px, py);
+        else if (m === 10) {
+            if (px >= OPT_SOUND.x && px <= OPT_SOUND.x + OPT_SOUND.w &&
+                py >= OPT_SOUND.y && py <= OPT_SOUND.y + OPT_SOUND.h) {
+                toggleMute();
+                return;
+            }
+        }
+        if (b) {
+            sfx.click();
+            menuScreenAction(b);
+            return;
+        }
+        const g = btnHit(GLOB_BTNS, px, py);
+        if (g) {
+            if (g.k === 'mz') toggleMute();
+            else { sfx.click(); g.act(); }
+        }
+        return;
+    }
+    // Turn buttons (original seq art + positions).
+    if (!state.solveMode && !state.pickingLetter && !state.buyVowelMode) {
+        if (px >= 342 && px <= 458 && py >= 279 && py <= 395) {
+            pressFx('w0837'); pressFx('w0838');
+            sfx.click();
+            doPlayerAction(state.currentPlayer, 'spin');
+            return;
+        }
+        if (px >= 504 && px <= 616 && py >= 326 && py <= 438) {
+            pressFx('w0833');
+            sfx.click();
+            doPlayerAction(state.currentPlayer, 'solve');
+            return;
+        }
+        if (px >= 195 && px <= 307 && py >= 326 && py <= 438) {
+            pressFx('w0192'); pressFx('w0193');
+            sfx.click();
+            doPlayerAction(state.currentPlayer, 'vowel');
+            return;
+        }
     }
 }
 
@@ -1675,15 +2209,29 @@ function handleKey(e) {
     sfx.ensure();
     const key = e.key.toUpperCase();
     if (key === 'M') { toggleMute(); return; }
+    // Name entry on setup screen 6 (max 8 letters per the help text).
+    if (state.screen === 'MENU' && state.mscreen === 6 && state.setupFlow) {
+        const sf = state.setupFlow;
+        if (key === 'ENTER') { commitName(); return; }
+        if (key === 'BACKSPACE') { sf.nameBuf = sf.nameBuf.slice(0, -1); return; }
+        if (/^[A-Z0-9 ]$/.test(key) && sf.nameBuf.length < 8) sf.nameBuf += key;
+        return;
+    }
     const p = state.players[state.currentPlayer];
     if (state.solveMode) {
-        if (key === 'ESCAPE') { state.solveMode = false; return; }
-        if (key === 'ENTER') {
-            finishSolve();
-            return;
+        if (key === 'ESCAPE') { state.solveMode = false; state.solveCells = null; return; }
+        if (key === 'ENTER') { finishSolve(); return; }
+        const sc = state.solveCells;
+        if (!sc || !sc.cursor) return;
+        if (/^[A-Z]$/.test(key)) {
+            sc.guesses[sc.cursor.si] = key;
+            solveAdvance(1);
+        } else if (key === 'BACKSPACE') {
+            if (sc.guesses[sc.cursor.si]) delete sc.guesses[sc.cursor.si];
+            else { solveAdvance(-1); delete sc.guesses[sc.cursor.si]; }
+        } else if (key === ' ' || key === 'ARROWRIGHT' || key === 'ARROWLEFT') {
+            solveAdvance(key === 'ARROWLEFT' ? -1 : 1);
         }
-        if (/^[A-Z ',-.?]$/.test(key)) stateGuess += key;
-        else if (key === 'BACKSPACE') stateGuess = stateGuess.slice(0, -1);
         return;
     }
     // During the bonus round timer, the player can type the answer
@@ -1716,22 +2264,6 @@ function finishBonusSolve() {
     endBonusRound(checkSolution(guess));
 }
 
-function finishSolve() {
-    const guess = stateGuess.trim();
-    stateGuess = '';
-    state.solveMode = false;
-    if (!guess) return;
-    const p = state.players[state.currentPlayer];
-    if (checkSolution(guess)) {
-        sfx.solve();
-        setMessage(p.name + ' SOLVED IT!', '+$' + p.roundScore.toLocaleString());
-        roundWon(state.currentPlayer, 'solve');
-    } else {
-        sfx.wrong();
-        setMessage('INCORRECT', 'turn passes');
-        setTimeout(() => nextTurn(true, 'wrong'), 1500);
-    }
-}
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
@@ -1826,7 +2358,9 @@ function drawCutscene() {
  * ------------------------------------------------------------------ */
 function showMenu() {
     state.screen = 'MENU';
+    state.mscreen = 3;
     setRoom(null);
+    resetSetup();
     setMessage('', '');
 }
 
@@ -1835,7 +2369,13 @@ canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const px = (e.clientX - rect.left) * (W / rect.width);
     const py = (e.clientY - rect.top) * (H / rect.height);
-    state.menuHover = hoverAt(px, py);
+    const m = state.mscreen;
+    if (m === 3) state.menuHover = btnHit(MAIN_BTNS, px, py);
+    else if (m === 4) state.menuHover = btnHit(COUNT_BTNS, px, py);
+    else if (m === 5 || m === 7) state.menuHover = btnHit(LEN_BTNS, px, py);
+    else if (m === 9) state.menuHover = btnHit(HELP_BTNS, px, py);
+    else if (m === 1) state.menuHover = hoverAt(px, py);
+    else state.menuHover = btnHit(GLOB_BTNS, px, py);
 });
 
 function playIntroSequence() {
