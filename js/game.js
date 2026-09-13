@@ -68,6 +68,8 @@ function rng15() {
 }
 function wedgeOfMicro(i) { return Math.floor((i + 1) / 3) % 24; }
 function wedgeCenterMicro(w) { return (w * 3) % 72; }
+// Spin duration (engine rotation timing unreversed; frames are authentic).
+const SPIN_MS = 3900;
 
 const ROUNDS_BY_LENGTH = { short: 3, standard: 3, long: 4 };
 const BOARD_COLS = 12, BOARD_ROWS = 4;
@@ -251,7 +253,6 @@ let state = {
     bonusActive: false,
     bonusResult: null,
     bonusTimer: 0,
-    wheelAngle: 0,
     wheelTarget: 0,
     wheelVelocity: 0,
     wheelSpinning: false,
@@ -390,7 +391,6 @@ function spinWheel(playerIdx, cb) {
     state.spinning = true; state.wheelSpinning = true;
     state.message = '';
     state.message2 = '';
-    const spins = 4.2 + Math.random() * 2.2;         // full rotations
     let micro = rng15() % 72;                       // 0x426430 % 72, stored first
     if (state.forceGoodSpin) {
         // Engine re-spin loop (0x420833): re-roll until >= $250, no 0x8000.
@@ -401,34 +401,21 @@ function spinWheel(playerIdx, cb) {
             micro = rng15() % 72;
         }
     }
-    const wedge = wedgeOfMicro(micro);
     state.lastMicro = micro;
-    const segAngle = (2 * Math.PI) / 24;
-    const base = state.wheelAngle;
-    const target = base + spins * 2 * Math.PI + (wedge + 0.5) * segAngle;
-    state.wheelTarget = target;
-    state.wheelVelocity = 0;
+    const seg = decodeMicro(wheelMicro[micro]);
     sfx.spin();
+    // The spin visual IS the result stop seq, stretched over the duration.
+    onWheelResult(playerIdx, seg);
     const animStart = performance.now();
-    const DURATION = 3900;
 
     function frame(now) {
-        const t = Math.min(1, (now - animStart) / DURATION);
-        const eased = easeOutCubic(t);
-        state.wheelAngle = base + (target - base) * eased;
+        const t = Math.min(1, (now - animStart) / SPIN_MS);
         if (t < 1) { requestAnimationFrame(frame); return; }
-        state.wheelAngle = target % (2 * Math.PI);
         state.spinning = false; state.wheelSpinning = false;
-        const seg = decodeMicro(wheelMicro[micro]);
-        state.spinValue = seg.value;
-        state.spinType = seg.type || 'money';
-        state.wheelResult = seg;
-        state.wheelResultTimer = 90;
         cb && cb(seg);
     }
     requestAnimationFrame(frame);
 }
-function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
 /* ------------------------------------------------------------------ *
  *  Game flow control
@@ -539,6 +526,7 @@ function aiAutoPlay() {
 
     setTimeout(() => {
         if (state.solveMode || state.screen !== 'PLAY') return;
+        if (state.spinning || state.pendingSeg) { setTimeout(() => aiAutoPlay(), 500); return; }
         doPlayerAction(state.currentPlayer, aiTurnDecide(state.currentPlayer));
         // (Pacing timeouts stand in for the engine's seq/speech pacing.)
     }, 700 + randInt(900));
@@ -555,11 +543,21 @@ function doPlayerAction(pi, action) {
     switch (action) {
         case 'spin':
             if (state.spinning) return;
+            if (state.pendingSeg) {
+                // Result still landing: retry shortly (AI-safe; humans re-click).
+                if (!p.isHuman) {
+                    setTimeout(() => {
+                        if (!state.spinning && !state.pendingSeg && !state.inBonus) doPlayerAction(pi, 'spin');
+                        else aiAutoPlay();
+                    }, 600);
+                }
+                return;
+            }
             state.mustSpin = false;
             state.pickingLetter = false;
             state.buyVowelMode = false;
             state.pendingDisabled = false;
-            spinWheel(pi, (seg) => onWheelResult(pi, seg));
+            spinWheel(pi, null);
             break;
         case 'consonant':
             if ((state.spinValue <= 0 || state.spinType !== 'money') && !state.pendingDisabled) {
@@ -579,7 +577,10 @@ function doPlayerAction(pi, action) {
             }
             state.pickingLetter = true;
             if (!p.isHuman) aiPickConsonant(pi);
-            else setMessage(`$${state.spinValue} \u2014 ${p.name}, pick a consonant`, 'click a letter or type it');
+            else {
+                enterPickMode();
+                setMessage(`$${state.spinValue} \u2014 ${p.name}, pick a consonant`, 'click a tile, type it');
+            }
             break;
         case 'vowel':
             // 0x41f170: score >= 250 (0xfa) or the free flag.
@@ -591,7 +592,10 @@ function doPlayerAction(pi, action) {
             state.buyVowelMode = true;
             state.buyDialogSeen = true;
             if (!p.isHuman) aiPickVowel(pi);
-            else setMessage(`${p.name}, buy a vowel \u2014 $${VOWEL_COST}`, 'click a vowel or type it');
+            else {
+                enterPickMode();
+                setMessage(`${p.name}, buy a vowel \u2014 $${VOWEL_COST}`, 'click a tile, type it');
+            }
             break;
         case 'solve':
             state.solveMode = true;
@@ -654,15 +658,20 @@ function finishSolve() {
 }
 
 function onWheelResult(pi, seg) {
-    // spinValue is live immediately (consonant picks need it); messages and
-    // turn effects wait for the stop-sequence overlay (pendingSeg).
-    // Landing anim: file-backed micro->seq table (0x47D070 + round deltas).
+    // spinValue goes live with the result effects (after the overlay), so
+    // mid-spin picks stay blocked as in the original.
+    // Landing anim: file-backed micro->seq table (0x47D070 + round deltas),
+    // stretched across the spin; pointer rides along.
     const micro = state.lastMicro === undefined ? 0 : state.lastMicro;
     const seqId = 'w' + String(microSeq[micro] || 0).padStart(4, '0');
     const p = new SeqPlayer(seqId);
+    p.once = true;
+    p.stretchMs = SPIN_MS;
     p.init();
     state.stopAnim = p;
     const pp = new SeqPlayer('w0092');
+    pp.hold = true;
+    pp.stretchMs = SPIN_MS;
     pp.init();
     state.pointerAnim = pp;
     state.pendingSeg = { pi, seg };
@@ -682,6 +691,10 @@ function onWheelResult(pi, seg) {
 }
 function applySegResult(pi, seg) {
     const p = state.players[pi];
+    state.spinValue = seg.value;
+    state.spinType = seg.type || 'money';
+    state.wheelResult = seg;
+    state.wheelResultTimer = 90;
     if (seg.type === 'bankrupt') {
         p.roundScore = 0;
         sfx.bankrupt();
@@ -775,16 +788,19 @@ function aiSolve(pi) {
 
 function resolveLetter(pi, letter) {
     const p = state.players[pi];
+    // Letter-name AV (0x424560 + pair): Vanna voices the called letter.
+    // (Bucket clip approximates; exact speech-id mapping pending RE.)
     if (VOWELS.includes(letter)) { setMessage(letter + ' is a vowel', 'buy it with BUY VOWEL instead'); return; }
-    // Already called: stay in pick mode so another letter can be chosen.
-    if (state.usedLetters.has(letter)) { setMessage(p.name, letter + ' was already called'); return; }
+    // Already called: silent ignore, turn kept, pick again (pending kept).
+    if (state.usedLetters.has(letter)) return;
     state.buyVowelMode = false; state.solveMode = false; state.pickingLetter = false;
+    state.pickEcho = null;
     state.usedLetters.add(letter);
     const count = countInPuzzle(state.puzzle.s, letter);
     if (count > 0) {
         const earned = state.spinValue * count;
         p.roundScore += earned;
-        state.message = `${letter} x${count} = $${earned}`;
+        Vanna.play('letter');
         if (state.pendingDisabled) {
             // Disabled-wedge unlock: token + re-enable micros 62-64.
             state.pendingDisabled = false;
@@ -792,7 +808,7 @@ function resolveLetter(pi, letter) {
             for (const i of [62, 63, 64]) wheelMicro[i] &= ~0x8000;
             microSeq[62] = microSeq[63] = microSeq[64] = 113;
             pressFx('w0580'); pressFx('w0593');
-            state.message += ' — WEDGE UNLOCKED!';
+            setMessage('WEDGE UNLOCKED!', p.name + ' banks a free spin');
         }
         if (state.surprisePending) {
             // Surprise teardown: restore $350/a05 on a correct call.
@@ -806,7 +822,7 @@ function resolveLetter(pi, letter) {
             wheelMicro[39] = 0x1800;
             microSeq[39] = 115;
         }
-        sfx.reveal();
+        Vanna.play('letter');
         setTimeout(() => {
             revealLetter(letter);
             if (isSolved()) { roundWon(pi, 'solved'); return; }
@@ -822,6 +838,9 @@ function resolveLetter(pi, letter) {
             microSeq[39] = 115;
         }
         state.pendingDisabled = false;
+        // Miss annunciation uses the same letter-indexed AV (no buzzer in
+        // any letter path; the only "buzzer" string is free-spin help).
+        Vanna.play('letter');
         if (state.freeSpins[pi] > 0) {
             // Free-spin token retains the turn after a miss.
             state.freeSpins[pi]--;
@@ -829,8 +848,6 @@ function resolveLetter(pi, letter) {
             setMessage(`${letter} is not in the puzzle`, `${p.name} uses a FREE SPIN`);
             if (!p.isHuman) setTimeout(() => aiAutoPlay(), 1200);
         } else {
-            sfx.wrong();
-            state.message = `${letter} is not in the puzzle`;
             setTimeout(() => nextTurn(true), 1500);
         }
     }
@@ -840,19 +857,22 @@ function resolveLetter(pi, letter) {
 function resolveVowel(pi, letter) {
     const p = state.players[pi];
     if (!VOWELS.includes(letter)) { setMessage(letter + ' is not a vowel', 'pick A, E, I, O or U'); return; }
-    if (p.roundScore < VOWEL_COST && state.freeSpins[pi] === 0) { setMessage(p.name, 'not enough money for a vowel'); state.buyVowelMode = false; return; }
-    // Already called: stay in pick mode so another vowel can be chosen.
-    if (state.usedLetters.has(letter)) { setMessage(p.name, letter + ' was already called'); return; }
+    if (p.roundScore < VOWEL_COST && state.freeSpins[pi] === 0) {
+        Vanna.play('phrase'); // unaffordable-vowel guard speech
+        setMessage(p.name, 'not enough money for a vowel');
+        state.buyVowelMode = false;
+        return;
+    }
+    // Already called: silent ignore (vowel-slot loop skips tried slots).
+    if (state.usedLetters.has(letter)) return;
     state.buyVowelMode = false; state.solveMode = false; state.pickingLetter = false;
-    p.roundScore -= VOWEL_COST;
+    state.pickEcho = null;
+    p.roundScore -= VOWEL_COST; // silent subtract: no deduction display found
     state.usedLetters.add(letter);
     const count = countInPuzzle(state.puzzle.s, letter);
-    sfx.tick();
-    sfx.playClip('coin'); // cash-register for the $250 vowel buy
+    Vanna.play('letter');
     setTimeout(() => {
         revealLetter(letter);
-        if (count === 0) setMessage(`${letter} is not in the puzzle`, `you paid $${VOWEL_COST}`);
-        else setMessage(`${letter} appears ${count} time${count > 1 ? 's' : ''}`, `$${VOWEL_COST} deducted`);
         if (isSolved()) { roundWon(pi, 'solved'); return; }
         setTimeout(() => nextTurn(false, 'keep'), 1400);
     }, 400);
@@ -1105,6 +1125,9 @@ class SeqPlayer {
         this.ready = false;
         this.done = false;
         this.hold = false; // when true, draw() keeps showing the last slot
+        this.once = false; // when true, play through once then done (no loop)
+        this.stretchMs = 0; // when set, spread slots over wall time
+        this.t0 = 0;
         this.slotIdx = 0;
         this.t = 0;
         this.byId = {};
@@ -1138,6 +1161,17 @@ class SeqPlayer {
     }
     update(dt) {
         if (!this.ready || this.done) return;
+        if (this.stretchMs) {
+            if (!this.t0) this.t0 = performance.now();
+            const k = Math.min(1, (performance.now() - this.t0) / this.stretchMs);
+            const idx = Math.min(this.slotIds.length - 1, Math.floor(k * this.slotIds.length));
+            if (idx !== this.slotIdx) {
+                this.slotIdx = idx;
+                this.fireCues(this.slotIds[idx]);
+            }
+            if (k >= 1) this.done = true;
+            return;
+        }
         this.t += dt;
         const step = 1 / SEQ_FPS;
         let adv = Math.floor(this.t / step);
@@ -1147,12 +1181,12 @@ class SeqPlayer {
     }
     advance() {
         if (this.slotIdx >= this.slotIds.length - 1) {
-            if (this.m.mode === 2) this.slotIdx = 0;
-            else { this.done = true; return; }
+            if (this.once || this.m.mode !== 2) this.done = true;
+            else this.slotIdx = 0;
         } else {
             this.slotIdx++;
         }
-        this.fireCues(this.slotIds[this.slotIdx]);
+        if (!this.done) this.fireCues(this.slotIds[this.slotIdx]);
     }
     draw(c) {
         if (!this.ready || (this.done && !this.hold)) return;
@@ -1266,89 +1300,6 @@ function solveTileHit(px, py) {
     return null;
 }
 
-/* -- Wheel drawing ---------- */
-function drawWheel(cx, cy, R) {
-    const n = 24;
-    const seg = (2 * Math.PI) / n;
-    let a = -Math.PI / 2 + Math.PI; // pointer at top
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(state.wheelAngle);
-
-    for (let i = 0; i < n; i++) {
-        const s = decodeMicro(wheelMicro[wedgeCenterMicro(i)]);
-        const start = i * seg;
-        const end = start + seg;
-        let color;
-        if (s.type === 'bankrupt') color = '#a02020';
-        else if (s.type === 'loseturn' || s.type === 'disabled') color = '#202020';
-        else if (s.type === 'jackpot' || s.type === 'surprise' || s.type === 'freespin') color = '#f5c530';
-        else {
-            const gold = s.value >= 600;
-            color = gold ? '#2a6fd8' : '#2f8fc8';
-        }
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, R, start, end);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = '#0a0a14';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Label
-        ctx.save();
-        ctx.rotate(start + seg / 2);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 13px Verdana, sans-serif';
-        if (s.type) {
-            ctx.save();
-            ctx.rotate(-(start + seg / 2));
-            ctx.rotate(-Math.PI / 2);
-            ctx.translate(0, -R + 22);
-            ctx.fillText(s.label, 0, 0);
-            ctx.restore();
-            ctx.restore();
-        } else {
-            ctx.font = 'bold 15px Verdana, sans-serif';
-            ctx.fillText(s.label.replace('$', ''), 0, -R + 16);
-            ctx.restore();
-        }
-    }
-    // hub
-    const hub = spriteImage('wheelCenter');
-    if (hub) {
-        ctx.drawImage(hub, -R * 0.32, -R * 0.32, R * 0.64, R * 0.64);
-    } else {
-        ctx.beginPath();
-        ctx.arc(0, 0, R * 0.16, 0, Math.PI * 2);
-        ctx.fillStyle = '#c0a040';
-        ctx.fill();
-        ctx.strokeStyle = '#7a6210';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-    }
-    ctx.restore();
-
-    // Pointer
-    ctx.save();
-    ctx.translate(cx, cy - R - 18);
-    ctx.fillStyle = '#f0e0c0';
-    roundRect(-12, -6, 24, 30, 4);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(-12, -6); ctx.lineTo(0, -24); ctx.lineTo(12, -6);
-    ctx.closePath();
-    ctx.fillStyle = '#ffd700';
-    ctx.fill();
-    ctx.strokeStyle = '#7a5a00';
-    ctx.stroke();
-    ctx.restore();
-}
-
-/* -- Puzzle board ---------- */
 function drawPuzzleBoard() {
     if (!state.puzzle || !state.boardCells) return;
     ctx.save();
@@ -1387,12 +1338,14 @@ function drawPuzzleBoard() {
                 ctx.fillText(g, c.x + 19.5, c.y + 15);
             }
         }
+        // Pick cursor + keystroke echo.
+        if ((state.pickingLetter || state.buyVowelMode) && !known && state.pickCursor === c) {
+            drawPickCursor();
+        }
     }
     ctx.restore();
 }
 
-// Revealed letter art, centered on the tile. The engine places the glyph
-// in a single 0x4394d0 call (no flip frames): appearance is instant.
 function drawBoardLetter(ch, c) {
     const url = letterArtURL(ch);
     const img = url && SEQ.frameCache[url];
@@ -1421,6 +1374,7 @@ function fitFont(text, maxW, base, weight) {
     }
     return size;
 }
+
 function drawPlayers() {
     const y0 = 500;
     const pw = 240, ph = 80;
@@ -1491,6 +1445,7 @@ function drawBuyDialog() {
 // Fire-and-forget press/flash anims (played once, drawn in render).
 function pressFx(seqId) {
     const p = new SeqPlayer(seqId);
+    p.once = true;
     p.init();
     if (!state.fxAnims) state.fxAnims = [];
     state.fxAnims.push(p);
@@ -1519,6 +1474,59 @@ function drawButton(x, y, w, h, label, kind) {
     ctx.fillText(label, x + w / 2, y + h / 2 + 6);
 }
 
+/* Pick cursor + echo + countdown (human letter entry) -------------- *
+ * Typing echoes the keystroke onto the cursor tile (entry box), then
+ * resolves immediately. Unrevealed-letter cells only. Countdown aborts
+ * the pick mode at zero (turn passes). */
+function pickCells() {
+    if (!state.boardCells) return [];
+    return state.boardCells.filter(c => {
+        const ch = state.puzzle.s[c.si].toUpperCase();
+        return ch >= 'A' && ch <= 'Z' && !state.revealed.has(c.si);
+    });
+}
+function pickStep(dir) {
+    const cells = pickCells();
+    if (!cells.length) return;
+    let i = cells.indexOf(state.pickCursor);
+    i = i < 0 ? (dir > 0 ? 0 : cells.length - 1) : (i + dir + cells.length) % cells.length;
+    state.pickCursor = cells[i];
+}
+function enterPickMode() {
+    const cells = pickCells();
+    state.pickCursor = cells[0] || null;
+    state.pickEcho = null;
+    state.pickCount = 300;
+}
+function drawPickCursor() {
+    const c = state.pickCursor;
+    if (!c || state.revealed.has(c.si)) return;
+    const now = performance.now();
+    ctx.strokeStyle = '#7fd8ff';
+    ctx.lineWidth = 2;
+    roundRect(c.x - 1.5, c.y - 1.5, 42, 31, 4);
+    ctx.stroke();
+    const e = state.pickEcho;
+    if (e && e.si === c.si && now < e.until) {
+        ctx.fillStyle = '#ffe066';
+        ctx.font = 'bold 15px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(e.letter, c.x + 19.5, c.y + 15);
+    }
+}
+function tickPickCount() {
+    if ((!state.pickingLetter && !state.buyVowelMode) || state.screen !== 'PLAY') return;
+    if (state.pickCount === undefined) state.pickCount = 300;
+    if (state.pickCount <= 0) {
+        // Timeout abort: exit pick mode, turn passes.
+        state.pickingLetter = false; state.buyVowelMode = false;
+        state.pickCursor = null; state.pickEcho = null;
+        setTimeout(() => nextTurn(true, 'timeout'), 800);
+        return;
+    }
+    state.pickCount--;
+}
 /* -- Used letters + spin value ---------- */
 function drawStatus() {
     ctx.textAlign = 'center';
@@ -1674,13 +1682,17 @@ function drawGameOver() {
 function render() {
     clearScreen();
     if (state.wheelResultTimer > 0) state.wheelResultTimer--;
+    // Pick-count countdown (~10Hz while picking; aborts at zero).
+    if ((state.pickingLetter || state.buyVowelMode) && state.screen === 'PLAY') {
+        state.pickTick = ((state.pickTick || 0) + 1) % 6;
+        if (state.pickTick === 0) tickPickCount();
+    }
     if (state.screen === 'CUTSCENE') {
         drawCutscene();
     } else if (state.screen === 'PLAY') {
         drawBackground();
         drawPuzzleBoard();
         drawPlaque();
-        if (!state.inBonus) drawWheel(650, 118, 80);
         drawPlayers();
         drawControls();
         drawFxAnims();
@@ -2112,9 +2124,13 @@ function resolveHit(px, py) {
         if (hit) { sfx.click(); state.solveCells.cursor = hit; }
         return;
     }
-    // Consonant/vowel picks are keyboard-typed in the original (help:
-    // "Simply type in a letter"). Clicks do nothing while picking.
-    if (state.pickingLetter || state.buyVowelMode) return;
+    // Consonant/vowel picks are keyboard-typed; board tile clicks move
+    // the pick cursor (tile groups select). Buttons are dead while picking.
+    if (state.pickingLetter || state.buyVowelMode) {
+        const hit = solveTileHit(px, py);
+        if (hit) { sfx.click(); state.pickCursor = hit; }
+        return;
+    }
     // Bonus letter picker
     if (state.inBonus && state.bonusTimerActive === false && state.bonusGranted < 4) {
         const hit = hitBonusLetter(px, py);
@@ -2249,10 +2265,30 @@ function handleKey(e) {
         return;
     }
     if (p && p.isHuman && state.screen === 'PLAY') {
+        // Letter-pick modes: type to echo + resolve; arrows move the
+        // cursor; space accepted (no-op); ESC cancels the pick.
+        if (state.pickingLetter || state.buyVowelMode) {
+            if (key === 'ESCAPE') {
+                state.pickingLetter = false; state.buyVowelMode = false;
+                state.pickCursor = null; state.pickEcho = null;
+                return;
+            }
+            if (key === 'ARROWLEFT' || key === 'ARROWRIGHT') {
+                pickStep(key === 'ARROWLEFT' ? -1 : 1);
+                return;
+            }
+            if (key === ' ') return;
+            if (/^[A-Z]$/.test(key)) {
+                if (state.pickCursor) {
+                    state.pickEcho = { si: state.pickCursor.si, letter: key, until: performance.now() + 600 };
+                }
+                if (state.buyVowelMode) resolveVowel(state.currentPlayer, key);
+                else resolveLetter(state.currentPlayer, key);
+            }
+            return;
+        }
         // quick actions
         if (key === ' ') { doPlayerAction(state.currentPlayer, 'spin'); }
-        else if (VOWELS.includes(key) && state.buyVowelMode) resolveVowel(state.currentPlayer, key);
-        else if (CONSONANTS.join('').includes(key) && state.pickingLetter) resolveLetter(state.currentPlayer, key);
         else if (key === 'E' && state.spinValue > 0) { doPlayerAction(state.currentPlayer, 'vowel'); }
     }
 }
