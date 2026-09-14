@@ -219,6 +219,7 @@ function spriteImage(name) {
 const SEQ = {
     manifests: null,
     spriteIndex: null,
+    opqIndex: null,
     frameCache: {},
     loadPromise: null,
     load() {
@@ -226,8 +227,9 @@ const SEQ = {
         if (!this.loadPromise) {
             this.loadPromise = Promise.all([
                 fetch('assets/seq/manifests.json').then(r => r.json()).catch(() => ({})),
-                fetch('assets/sprites/index.json').then(r => r.json()).catch(() => ({}))
-            ]).then(([m, s]) => { this.manifests = m; this.spriteIndex = s; return m; });
+                fetch('assets/sprites/index.json').then(r => r.json()).catch(() => ({})),
+                fetch('assets/sprites/opq_index.json').then(r => r.json()).catch(() => ({}))
+            ]).then(([m, s, o]) => { this.manifests = m; this.spriteIndex = s; this.opqIndex = o; return m; });
         }
         return this.loadPromise;
     },
@@ -239,8 +241,12 @@ const SEQ = {
         const key = (mfile === 'wheel.dat' ? 'w' : 'm') + String(spriteId).padStart(4, '0');
         return this.spriteIndex[key] || null;
     },
-    loadFrame(mfile, spriteId) {
-        const url = this.frameURL(mfile, spriteId);
+    opqURL(mfile, spriteId) {
+        if (!this.opqIndex) return null;
+        const key = (mfile === 'wheel.dat' ? 'w' : 'm') + String(spriteId).padStart(4, '0');
+        return this.opqIndex[key] || null;
+    },
+    loadURL(url) {
         if (!url) return Promise.resolve(null);
         if (this.frameCache[url]) return Promise.resolve(this.frameCache[url]);
         return new Promise((res) => {
@@ -249,6 +255,9 @@ const SEQ = {
             img.onerror = () => res(null);
             img.src = url;
         });
+    },
+    loadFrame(mfile, spriteId) {
+        return this.loadURL(this.frameURL(mfile, spriteId));
     },
     cueURL(mfile, sndId) {
         const tag = (mfile === 'wheel.dat' ? 'w' : 'm') + String(sndId).padStart(4, '0');

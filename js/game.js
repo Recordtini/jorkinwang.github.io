@@ -1138,7 +1138,11 @@ class SeqPlayer {
         this.m = SEQ.get(this.seqId);
         if (!this.m || !this.m.frames.length) { this.done = true; return this; }
         const jobs = [];
-        for (const f of this.m.frames) jobs.push(SEQ.loadFrame(this.m.file, f.sprite));
+        for (const f of this.m.frames) {
+            jobs.push(SEQ.loadFrame(this.m.file, f.sprite));
+            // f2==2 layers composite opaque: preload the opaque variant.
+            if (f.f2 === 2) jobs.push(SEQ.loadURL(SEQ.opqURL(this.m.file, f.sprite)));
+        }
         await Promise.all(jobs);
         for (const f of this.m.frames) {
             (this.byId[f.frame] = this.byId[f.frame] || []).push(f);
@@ -1188,13 +1192,29 @@ class SeqPlayer {
         }
         if (!this.done) this.fireCues(this.slotIds[this.slotIdx]);
     }
+    // Engine restarts the roll on every interior mousemove (no
+    // already-hovered guard): reset to frame 0 + refire its cues.
+    restart() {
+        if (!this.ready) return;
+        this.slotIdx = 0;
+        this.t = 0;
+        this.t0 = 0;
+        this.done = false;
+        if (this.slotIds.length) this.fireCues(this.slotIds[0]);
+    }
     draw(c) {
         if (!this.ready || (this.done && !this.hold)) return;
         const ids = this.slotIds;
         const recs = this.byId[ids[Math.min(this.slotIdx, ids.length - 1)]];
         for (const f of recs) {
             const url = SEQ.frameURL(this.m.file, f.sprite);
-            const img = url && SEQ.frameCache[url];
+            let img = url && SEQ.frameCache[url];
+            // f2==2 layers are opaque (keyed blit off): prefer variant.
+            if (f.f2 === 2) {
+                const ourl = SEQ.opqURL(this.m.file, f.sprite);
+                if (ourl && SEQ.frameCache[ourl]) img = SEQ.frameCache[ourl];
+                else if (ourl) SEQ.loadURL(ourl);
+            }
             if (!img) continue;
             const r = f.rect;
             const dw = r[2] - r[0], dh = r[3] - r[1];
@@ -1210,7 +1230,12 @@ const MAP_PIK_SEQS = ['m0119', 'm0124', 'm0111', 'm0139', 'm0118', 'm0145'];
 let mapAnims = null;
 function ensureMapAnims() {
     if (mapAnims) return;
-    mapAnims = MAP_PIK_SEQS.map((id) => { const p = new SeqPlayer(id); p.init(); return p; });
+    mapAnims = MAP_PIK_SEQS.map((id) => {
+        const p = new SeqPlayer(id);
+        p.once = true; p.hold = true;
+        p.init();
+        return p;
+    });
 }
 
 /* ------------------------------------------------------------------ *
@@ -1279,7 +1304,7 @@ function drawPlaque() {
     if (!state.plaqueUntil || performance.now() > state.plaqueUntil) return;
     if (!state.plaquePlayer) {
         const p = new SeqPlayer('m0046');
-        p.hold = true;
+        p.once = true; p.hold = true;
         p.init();
         state.plaquePlayer = p;
     }
@@ -1439,7 +1464,7 @@ function drawControls() {
 function drawBuyDialog() {
     if (state.buyDialogSeen || state.buyVowelMode || state.inBonus) return;
     const p = seqBtn('m0248');
-    p.hold = true;
+    p.once = true; p.hold = true;
     p.update(frameDt); p.draw(ctx);
 }
 // Fire-and-forget press/flash anims (played once, drawn in render).
@@ -1748,6 +1773,45 @@ function drawMenuScreen() {
  * hover plays the mmrolXXX overlay seq (no BMP swap); click enters the
  * room (BMP swap + room idle seq). Room BMPs: exa->0002 exam screen,
  * green->0003, control->0000, prod->0005, dress->0001, stage->0006. */
+/* Sticky highlight: leave is a no-op (p10=0 everywhere), so the roll
+ * keeps looping until replaced. Restarted on every interior mousemove. */
+function rolPlayerFor(scr, key) {
+    if (key === 'gback') return seqBtn('m0012');
+    if (scr === 1) return (rolAnims && rolAnims[key]) || null;
+    if (scr === 3) {
+        const b = MAIN_BTNS.find(b => b.k === key);
+        return (b && b.rol) ? seqBtn(b.rol) : null;
+    }
+    if (scr === 9) {
+        const b = HELP_BTNS.find(b => b.k === key);
+        return (b && b.rol) ? seqBtn(b.rol) : null;
+    }
+    return null;
+}
+function stickyKeyFor() {
+    const m = state.mscreen, h = state.menuHover;
+    if (!h) return null;
+    if (m === 1) {
+        if (typeof h === 'string') {
+            if (h === 'back' || h === 'back2') return null;
+            return { scr: 1, key: h };
+        }
+        if (h.k === 'gback') return { scr: 1, key: 'gback' };
+        return null;
+    }
+    if (h && h.k === 'gback') return { scr: m, key: 'gback' };
+    if ((m === 3 || m === 9) && h && h.rol) return { scr: m, key: h.k };
+    return null;
+}
+function isSticky(scr, key) {
+    const st = state.sticky;
+    return !!(st && st.scr === scr && st.key === key);
+}
+function backEnabled() {
+    // Global BACK slot off on screens 3/9/10 (0x4115d5).
+    return state.screen === 'MENU' && ![3, 9, 10].includes(state.mscreen);
+}
+
 function drawMenu() {
     ensureMapAnims();
     ensureRolAnims();
@@ -1757,10 +1821,10 @@ function drawMenu() {
     else drawProceduralBg();
     if (!room && mapAnims) for (const p of mapAnims) { p.update(frameDt); p.draw(ctx); }
     if (room && state.roomPlayer) { state.roomPlayer.update(frameDt); state.roomPlayer.draw(ctx); }
-    const hov = state.menuHover;
-    if (hov && hov !== 'back' && hov !== 'back2' && rolAnims && rolAnims[hov]) {
-        rolAnims[hov].update(frameDt);
-        rolAnims[hov].draw(ctx);
+    const st = state.sticky;
+    if (st && st.scr === 1 && rolAnims && rolAnims[st.key]) {
+        const p = rolAnims[st.key];
+        p.update(frameDt); p.draw(ctx);
     }
     drawGlobals();
 }
@@ -1795,6 +1859,7 @@ function setRoom(r) {
     state.roomPlayer = null;
     if (r && ROOM_IDLE[r]) {
         const p = new SeqPlayer(ROOM_IDLE[r]);
+        p.once = true; p.hold = true;
         p.init();
         state.roomPlayer = p;
     }
@@ -1853,7 +1918,10 @@ function seqBtn(id) {
     return seqBtnCache[id];
 }
 function drawSeqBtn(idleId, rolId, hovered) {
+    // Menu idle art plays once on entry then holds (static menu that
+    // responds on hover/press); rol loops while hovered.
     const p = seqBtn(idleId);
+    p.once = true; p.hold = true;
     p.update(frameDt); p.draw(ctx);
     if (hovered && rolId) { const r = seqBtn(rolId); r.update(frameDt); r.draw(ctx); }
 }
@@ -1876,7 +1944,7 @@ function drawMain() {
     const img = bgImage('car56');
     if (img) ctx.drawImage(img, 0, 0, W, H);
     else drawProceduralBg();
-    for (const b of MAIN_BTNS) drawSeqBtn(b.idle, b.rol, state.menuHover === b);
+    for (const b of MAIN_BTNS) drawSeqBtn(b.idle, b.rol, isSticky(3, b.k));
     if (state.tourneyMsg && performance.now() - state.tourneyMsg < 2500) {
         ctx.fillStyle = '#ff8888';
         ctx.font = 'bold 20px Verdana, sans-serif';
@@ -1896,8 +1964,9 @@ const GLOB_BTNS = [
 function pushPrev() { state.prevStack.push({ m: state.mscreen, room: state.room }); }
 function drawGlobals() {
     drawSeqBtn('m0266', null, false);
-    const hov = state.menuHover;
-    drawSeqBtn('m0011', 'm0012', !!(hov && hov.k === 'gback'));
+    if (!backEnabled()) return;
+    const hov = isSticky(state.mscreen, 'gback');
+    drawSeqBtn('m0011', 'm0012', hov);
 }
 function menuScreenAction(b) {
     const m = state.mscreen;
@@ -2076,7 +2145,7 @@ function drawHelp() {
         ctx.font = '15px Verdana, sans-serif';
         ctx.fillText('loading help...', W / 2, 300);
     }
-    for (const b of HELP_BTNS) drawSeqBtn(b.idle, b.rol, state.menuHover === b);
+    for (const b of HELP_BTNS) drawSeqBtn(b.idle, b.rol, isSticky(9, b.k));
     drawGlobals();
 }
 /* -- Screen 10: options (mxopta frame; SOUND toggle wired) ------------ */
@@ -2084,6 +2153,7 @@ const OPT_SOUND = { k: 'optSound', x: 282, y: 118, w: 224, h: 35 };
 function drawOptions10() {
     carouselBg();
     const p = seqBtn('m0258');
+    p.once = true; p.hold = true;
     p.update(frameDt); p.draw(ctx);
     ctx.fillStyle = GameAudio.muted ? '#ff8888' : '#7dff8f';
     ctx.font = 'bold 20px Verdana, sans-serif';
@@ -2168,7 +2238,7 @@ function resolveHit(px, py) {
             return;
         }
         const g = btnHit(GLOB_BTNS, px, py);
-        if (g) {
+        if (g && !(g.k === 'gback' && !backEnabled())) {
             if (g.k === 'mz') toggleMute();
             else { sfx.click(); g.act(); }
         }
@@ -2412,6 +2482,13 @@ canvas.addEventListener('mousemove', (e) => {
     else if (m === 9) state.menuHover = btnHit(HELP_BTNS, px, py);
     else if (m === 1) state.menuHover = hoverAt(px, py);
     else state.menuHover = btnHit(GLOB_BTNS, px, py);
+    // Sticky highlight + restart on every interior mousemove (no guard).
+    const st = stickyKeyFor();
+    if (st) {
+        state.sticky = st;
+        const p = rolPlayerFor(st.scr, st.key);
+        if (p) p.restart();
+    }
 });
 
 function playIntroSequence() {
