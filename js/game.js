@@ -1118,6 +1118,10 @@ function endBonusRound(won) {
  *  Playback rate is engine-side in the original; SEQ_FPS is our default.
  * ------------------------------------------------------------------ */
 const SEQ_FPS = 12;
+// Menu rollover rate is not in the binary (no ms/frame constant exists);
+// 2 fps gives the gentle pulse the engine's sticky highlight implies.
+// Everything else (spins, landings, presses, game buttons) stays at 12.
+const MENU_ROL_FPS = 2;
 class SeqPlayer {
     constructor(seqId) {
         this.seqId = seqId;
@@ -1126,6 +1130,7 @@ class SeqPlayer {
         this.done = false;
         this.hold = false; // when true, draw() keeps showing the last slot
         this.once = false; // when true, play through once then done (no loop)
+        this.rate = SEQ_FPS; // frames/sec; menu rolls use MENU_ROL_FPS
         this.stretchMs = 0; // when set, spread slots over wall time
         this.t0 = 0;
         this.slotIdx = 0;
@@ -1177,7 +1182,7 @@ class SeqPlayer {
             return;
         }
         this.t += dt;
-        const step = 1 / SEQ_FPS;
+        const step = 1 / (this.rate || SEQ_FPS);
         let adv = Math.floor(this.t / step);
         this.t -= adv * step;
         if (adv > 4) { this.t = 0; adv = 4; } // clamp tab-switch jumps
@@ -1849,6 +1854,7 @@ function ensureRolAnims() {
     rolAnims = {};
     for (const k of Object.keys(ROL_SEQS)) {
         const p = new SeqPlayer(ROL_SEQS[k]);
+        p.rate = MENU_ROL_FPS;
         p.init();
         rolAnims[k] = p;
     }
@@ -1923,7 +1929,11 @@ function drawSeqBtn(idleId, rolId, hovered) {
     const p = seqBtn(idleId);
     p.once = true; p.hold = true;
     p.update(frameDt); p.draw(ctx);
-    if (hovered && rolId) { const r = seqBtn(rolId); r.update(frameDt); r.draw(ctx); }
+    if (hovered && rolId) {
+        const r = seqBtn(rolId);
+        r.rate = MENU_ROL_FPS;
+        r.update(frameDt); r.draw(ctx);
+    }
 }
 function btnHit(list, px, py) {
     for (const b of list) {
