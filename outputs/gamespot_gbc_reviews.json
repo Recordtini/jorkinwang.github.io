@@ -1,0 +1,4891 @@
+{
+  "metadata": {
+    "generated_at": "2026-09-21T09:14:44.626714+00:00",
+    "source_index_original_url": "http://www.gamespot.com:80/gbc/reviews.html",
+    "source_index_capture_timestamp": "20040911132018",
+    "total_picker_games": 151,
+    "ok_reviews": 149,
+    "missing_scores": 2,
+    "missing_scores_titles": [
+      "Rayman",
+      "BattleTanx"
+    ],
+    "fetch_errors": 0,
+    "rows_with_parse_issues": 9,
+    "label_scale": {
+      "perfect": "10.0",
+      "superb": "9.0-9.9",
+      "great": "8.0-8.9",
+      "good": "7.0-7.9",
+      "fair": "6.0-6.9",
+      "mediocre": "5.0-5.9",
+      "poor": "4.0-4.9",
+      "bad": "3.0-3.9",
+      "terrible": "2.0-2.9",
+      "abysmal": "0.0-1.9"
+    },
+    "collection_notes": "Component scores extracted from archived score-card image alt text; full-score layouts found in 1999-2004 snapshots. requested_wayback_url records the 2002id_ URL pattern used at collection; final_wayback_url/capture_timestamp are null because per-game capture timestamps were not recorded during collection.",
+    "manual_fixes_applied": [
+      "Looney Tunes Racing: replaced copy-pasted Cruis'n Exotica blurb with verified teaser",
+      "Triple Play 2001: replaced copy-pasted Toobin' blurb with verified teaser",
+      "Croc / Legend of the River King 2 / Micro Machines 1 and 2: Twin Turbo / The Mummy / Dragon Warrior Monsters / Batman: Chaos in Gotham: restored blurbs cut off mid-sentence or truncated at 200 chars",
+      "Tony Hawk's Pro Skater: recovered missing reviewer byline (Frank Provo)",
+      "Checkmate: review recovered from 2004 snapshot (2002-2003 captures were GameSpot 404s)",
+      "Component scores recovered for Project S-11, Looney Tunes Collector: Alert!, Woody Woodpecker Racing, Batman: Chaos in Gotham, FIFA '98, Ghosts N' Goblins, Perfect Dark, X-Men: Wolverine's Rage, Triple Play 2001",
+      "Release dates recovered for 12 pilot-batch games; review dates recovered from review-page POSTED stamps where visible",
+      "BattleTanx and Rayman: no numeric scores exist in any capture (only label abysmal / missing scorecards) -> null"
+    ]
+  },
+  "games": [
+    {
+      "title": "Bionic Commando",
+      "index_title": "Bionic Commando",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "12/31/1999",
+      "original_path": "/gbc/action/bioniccommando/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/bioniccommando/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/bioniccommando/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "You may occasionally find yourself longing for the levels and graphical style of the original game, but the new model doesn't disappoint in any way.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/bioniccommando/review.html"
+      },
+      "score": {
+        "gamespot": 9.0,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 10,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Blaster Master: Enemy Below",
+      "index_title": "Blaster Master: Enemy Below",
+      "genre": "Action",
+      "publisher": "Sunsoft",
+      "developer": "Sunsoft",
+      "release_date": "09/24/2000",
+      "original_path": "/gbc/action/blastermasterenemybelow/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/blastermasterenemybelow/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/blastermasterenemybelow/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "With the addition of a password save feature and new weapons, Blaster Master Enemy Below seeks to deliver a refreshing twist on a revered classic.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/blastermasterenemybelow/review.html"
+      },
+      "score": {
+        "gamespot": 8.6,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 9,
+          "value": 7,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Bomberman MAX",
+      "index_title": "Bomberman MAX",
+      "genre": "Puzzle",
+      "publisher": "Vatical Entertainment",
+      "developer": "Hudson",
+      "release_date": "05/14/2000",
+      "original_path": "/gbc/puzzle/bombermanmax/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/bombermanmax/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/bombermanmax/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you can deal with the lack of a traditional Bomberman multiplayer mode, the title makes a good candidate for your next portable game.",
+        "reviewer": "Justin Speer",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/bombermanmax/review.html"
+      },
+      "score": {
+        "gamespot": 8.4,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Carmageddon",
+      "index_title": "Carmageddon",
+      "genre": "Driving",
+      "publisher": "Titus Software",
+      "developer": null,
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/driving/carmageddon/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/carmageddon/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/carmageddon/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "What one gets with Carmageddon is a game where every pro is met by an equally matched con.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/carmageddon/review.html"
+      },
+      "score": {
+        "gamespot": 3.1,
+        "label": "bad",
+        "components": {
+          "gameplay": 2,
+          "graphics": 5,
+          "sound": 4,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Casper",
+      "index_title": "Casper",
+      "genre": "Role-Playing",
+      "publisher": "Interplay",
+      "developer": "Interplay",
+      "release_date": "06/01/2000",
+      "original_path": "/gbc/rpg/casper/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/casper/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/casper/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "For children from age 5 to 12, many fun hours of friendly haunting await. For adolescents and adults, however, there are better choices in the genre.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/casper/review.html"
+      },
+      "score": {
+        "gamespot": 4.5,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 5,
+          "sound": 3,
+          "value": 3,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Catz",
+      "index_title": "Catz",
+      "genre": "Strategy",
+      "publisher": "Mindscape",
+      "developer": "Saffire",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/strategy/catz/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/strategy/catz/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/strategy/catz/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Don't be fooled into thinking that Catz (or its sister title, Dogz) is actually a game.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/strategy/catz/review.html"
+      },
+      "score": {
+        "gamespot": 3.3,
+        "label": "bad",
+        "components": {
+          "gameplay": 1,
+          "graphics": 7,
+          "sound": 6,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Chase HQ: Secret Police",
+      "index_title": "Chase HQ: Secret Police",
+      "genre": "Driving",
+      "publisher": "Midway",
+      "developer": null,
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/driving/chasehqsecretpolice/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/chasehqsecretpolice/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/chasehqsecretpolice/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Chase H.Q.: Secret Police is fun to play, the strategy elements are engrossing, and the level design gives the game a sense of replay rarely seen in GBC racing titles.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/chasehqsecretpolice/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Checkmate",
+      "index_title": "Checkmate",
+      "genre": "Action",
+      "publisher": "Atron",
+      "developer": "Atron",
+      "release_date": "12/31/1998",
+      "original_path": "/gbc/action/checkmate/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/checkmate/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/checkmate/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "This is one for serious chess heads who don't mind concentrating for hours on end. - Cameron Davis",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/checkmate/review.html"
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 8,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "2002-2003 captures were a GameSpot 404; review recovered from 2004 snapshot"
+      ]
+    },
+    {
+      "title": "Commander Keen",
+      "index_title": "Commander Keen",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "David A. Palmer Productions",
+      "release_date": "05/31/2001",
+      "original_path": "/gbc/action/commanderkeen/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/commanderkeen/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/commanderkeen/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Commander Keen was always better suited to a platform where instant save games could make up for its frantic gameplay and cranked difficulty.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/commanderkeen/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Croc",
+      "index_title": "Croc",
+      "genre": "Action",
+      "publisher": null,
+      "developer": "Argonaut Games",
+      "release_date": "06/06/2000",
+      "original_path": "/gbc/action/croc/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/croc/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/croc/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Croc's characters are endearing, the level design is good, and the quest is both long and enjoyable. Unfortunately, the horrible control destroys the game's playability, making Croc for the Game Boy Color a different type of crock entirely. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/croc/review.html"
+      },
+      "score": {
+        "gamespot": 4.4,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 6,
+          "sound": 5,
+          "value": 6,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Earlier saved blurb was cut off mid-sentence; corrected against hub page"
+      ]
+    },
+    {
+      "title": "Croc 2",
+      "index_title": "Croc 2",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Natsume",
+      "release_date": "01/25/2001",
+      "original_path": "/gbc/action/croc2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/croc2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/croc2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "THQ has released a Croc game that lives up to the series' roots but doesn't exactly take the world by storm.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/croc2/review.html"
+      },
+      "score": {
+        "gamespot": 6.0,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Cruis'n Exotica",
+      "index_title": "Cruis'n Exotica",
+      "genre": "Driving",
+      "publisher": "Nintendo",
+      "developer": "Crawfish Interactive",
+      "release_date": "11/06/2000",
+      "original_path": "/gbc/driving/cruisnexotica/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/cruisnexotica/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/cruisnexotica/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While the game is lacking in terms of overall gameplay, visual quality, and sound depth, there is never any doubt that you're playing a Cruis'n game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/cruisnexotica/review.html"
+      },
+      "score": {
+        "gamespot": 5.4,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 6,
+          "sound": 3,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Crystalis",
+      "index_title": "Crystalis",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "06/26/2000",
+      "original_path": "/gbc/rpg/crystalis/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/crystalis/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/crystalis/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "For a game developed more than ten years ago, Crystalis is still surprisingly relevant, and it's a testament to tight, polished RPG game design.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/crystalis/review.html"
+      },
+      "score": {
+        "gamespot": 8.0,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Daikatana",
+      "index_title": "Daikatana",
+      "genre": "Adventure",
+      "publisher": "Kemco",
+      "developer": "Kemco",
+      "release_date": "06/30/2000",
+      "original_path": "/gbc/adventure/daikatana/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/daikatana/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/daikatana/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Kemco transforms a reviled PC game into a highly playable Game Boy Color game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/daikatana/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 4,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dave Mirra Freestyle BMX",
+      "index_title": "Dave Mirra Freestyle BMX",
+      "genre": "Sports",
+      "publisher": "Acclaim",
+      "developer": "Neon Studios",
+      "release_date": "11/10/2000",
+      "original_path": "/gbc/sports/davemirrafreestylebmx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/davemirrafreestylebmx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/davemirrafreestylebmx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "It may not be perfect, but Dave Mirra Freestyle BMX plays well and looks awesome - two traits that will no doubt put it under many a tree this holiday season.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/davemirrafreestylebmx/review.html"
+      },
+      "score": {
+        "gamespot": 7.1,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 9,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dexter's Lab: Robot Revenge",
+      "index_title": "Dexter's Lab: Robot Revenge",
+      "genre": "Action",
+      "publisher": "bam! entertainment",
+      "developer": "bam! entertainment",
+      "release_date": "11/23/2000",
+      "original_path": "/gbc/action/dexterslabrobotrevenge/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/dexterslabrobotrevenge/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/dexterslabrobotrevenge/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Dexter's Laboratory is founded on some classic gameplay, giving it the potential to please both fans of the show and fans of classic gaming.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/dexterslabrobotrevenge/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Disney's The Little Mermaid II Pinball Frenzy",
+      "index_title": "Disney's The Little Mermaid II Pinball Frenzy",
+      "genre": "Puzzle",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "09/24/2000",
+      "original_path": "/gbc/puzzle/disneysthelittlem2pf/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/disneysthelittlem2pf/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/disneysthelittlem2pf/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Disney's The Little Mermaid II Pinball Frenzy is little more than a remake of Pokémon Pinball, minus Pikachu and his cohorts.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/disneysthelittlem2pf/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dogz",
+      "index_title": "Dogz",
+      "genre": "Strategy",
+      "publisher": "Mindscape",
+      "developer": "Saffire",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/strategy/dogz/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/strategy/dogz/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/strategy/dogz/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "There's really nothing to do other than to turn your Game Boy on, watch your dog run around the screen, and wonder why you're wasting your time with this title.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/strategy/dogz/review.html"
+      },
+      "score": {
+        "gamespot": 3.3,
+        "label": "bad",
+        "components": {
+          "gameplay": 1,
+          "graphics": 7,
+          "sound": 6,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Donkey Kong Country",
+      "index_title": "Donkey Kong Country",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Rare Ltd.",
+      "release_date": "11/04/2000",
+      "original_path": "/gbc/action/donkeykongcountry/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/donkeykongcountry/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/donkeykongcountry/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Donkey Kong Country is one of the most playable and replayable Game Boy Color games ever created.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/donkeykongcountry/review.html"
+      },
+      "score": {
+        "gamespot": 9.1,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 10,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dragon Warrior I&II",
+      "index_title": "Dragon Warrior I&II",
+      "genre": "Role-Playing",
+      "publisher": "Square Enix",
+      "developer": "Square Enix",
+      "release_date": "09/27/2000",
+      "original_path": "/gbc/rpg/dragonwarrior1_2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarrior1_2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/dragonwarrior1_2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Dragon Warrior may seem like just an appetizer for the full-featured RPG experience in Dragon Warrior II, but the ability to play both games in succession and witness the interaction of their story",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarrior1_2/review.html"
+      },
+      "score": {
+        "gamespot": 9.6,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 10,
+          "value": 10,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dragon Warrior III",
+      "index_title": "Dragon Warrior III",
+      "genre": "Role-Playing",
+      "publisher": "Square Enix",
+      "developer": "Square Enix",
+      "release_date": "07/16/2001",
+      "original_path": "/gbc/rpg/dragonwarrior3/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarrior3/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/dragonwarrior3/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "DWIII is a worthy port of its old NES ancestor, but its firm grounding in the RPG old-school means that only the hard-core need apply.",
+        "reviewer": "Brad Shoemaker",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarrior3/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dragon's Lair",
+      "index_title": "Dragon's Lair",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Digital Eclipse",
+      "release_date": "01/15/2001",
+      "original_path": "/gbc/action/dragonslair/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/dragonslair/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/dragonslair/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Eighteen years later, it's still a refreshingly innovative game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/dragonslair/review.html"
+      },
+      "score": {
+        "gamespot": 7.5,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 9,
+          "sound": 4,
+          "value": 6,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Driver",
+      "index_title": "Driver",
+      "genre": "Driving",
+      "publisher": "Infogrames",
+      "developer": "GT Interactive",
+      "release_date": null,
+      "original_path": "/gbc/driving/driver/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/driver/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/driver/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Driving around is fun and exciting, the levels are varied, and the side games really do improve your skill within the main game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/driver/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 5,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Duke Nukem",
+      "index_title": "Duke Nukem",
+      "genre": "Action",
+      "publisher": "GT Interactive",
+      "developer": "Torus Games",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/action/dukenukem/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/dukenukem/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/dukenukem/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "With titles like Toy Story 2 and Gex 3 out for the Game Boy, Duke Nukem simply falls short.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/dukenukem/review.html"
+      },
+      "score": {
+        "gamespot": 6.0,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 5,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "ECW Hardcore Revolution",
+      "index_title": "ECW Hardcore Revolution",
+      "genre": "Sports",
+      "publisher": "Acclaim",
+      "developer": "Crawfish Interactive",
+      "release_date": "01/31/2000",
+      "original_path": "/gbc/sports/ecwhardcorerevolution/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/ecwhardcorerevolution/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/ecwhardcorerevolution/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Take last year's WWF Attitude, strip out the WWF license, insert the ECW characters, and voila - a new game to release in 2000.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/ecwhardcorerevolution/review.html"
+      },
+      "score": {
+        "gamespot": 4.5,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 4,
+          "value": 2,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Evel Knievel",
+      "index_title": "Evel Knievel",
+      "genre": "Driving",
+      "publisher": "Rockstar Games",
+      "developer": "Tarantula Studios",
+      "release_date": "10/31/1999",
+      "original_path": "/gbc/driving/evelknievel/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/evelknievel/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/evelknievel/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Evel Knievel is all about precision - knowing when to tap what, how hard, and for how long is integral to making an enjoyable experience out of this game.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/evelknievel/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "F1 Championship Season 2000",
+      "index_title": "F1 Championship Season 2000",
+      "genre": "Driving",
+      "publisher": "EA Sports",
+      "developer": "Tiertex Design Studios",
+      "release_date": "12/19/2000",
+      "original_path": "/gbc/driving/f1championshipseason2000/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/f1championshipseason2000/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/f1championshipseason2000/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "F1 Championship Season 2000 is about what you'd expect: An arcade-style racing game with a simulation twist that's amply capable of satisfying the F1 fan's pocket-gaming needs.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/f1championshipseason2000/review.html"
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 4,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "FIFA '98 - Road to the World Cup",
+      "index_title": "FIFA '98 - Road to the World Cup",
+      "genre": "Sports",
+      "publisher": "Electronic Arts",
+      "developer": "EA Sports",
+      "release_date": "12/31/1997",
+      "original_path": "/gbc/sports/fifa98roadtotheworldcup/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/fifa98roadtotheworldcup/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/fifa98roadtotheworldcup/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "This is a great conversion of the 16- and 32-bit franchise of the same name.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/fifa98roadtotheworldcup/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "FIFA 2000",
+      "index_title": "FIFA 2000",
+      "genre": "Sports",
+      "publisher": "THQ",
+      "developer": "Tiertex Design Studios",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/sports/fifa2000/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/fifa2000/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/fifa2000/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The game could have been a modest success, as it has scores of teams to choose from, a bevy of options, and even an indoor soccer game that plays ten times faster than the regular form.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/fifa2000/review.html"
+      },
+      "score": {
+        "gamespot": 5.4,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 3,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Frogger",
+      "index_title": "Frogger",
+      "genre": "Puzzle",
+      "publisher": "Hasbro Interactive",
+      "developer": "Hasbro Interactive",
+      "release_date": "12/31/1998",
+      "original_path": "/gbc/puzzle/frogger/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/frogger/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/frogger/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Frogger is one of those gaming archetypes that has remained basically unaltered since it made its coin-op debut.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/frogger/review.html"
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 4,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Frogger 2: Swampy's Revenge",
+      "index_title": "Frogger 2: Swampy's Revenge",
+      "genre": "Puzzle",
+      "publisher": "Majesco Games",
+      "developer": "Hasbro Interactive",
+      "release_date": "09/23/2000",
+      "original_path": "/gbc/puzzle/frogger2swampysrevenge/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/frogger2swampysrevenge/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/frogger2swampysrevenge/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If NES-caliber sound and graphics wrapped around one of the most memorable classic games fills you with nostalgia, then Frogger 2 for the Game Boy Color is right up your alley.",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/frogger2swampysrevenge/review.html"
+      },
+      "score": {
+        "gamespot": 5.4,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 4,
+          "sound": 4,
+          "value": 5,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Gex 3: Deep Pocket Gecko",
+      "index_title": "Gex 3: Deep Pocket Gecko",
+      "genre": "Action",
+      "publisher": "Eidos Interactive",
+      "developer": "Crystal Dynamics",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/action/gex3deeppocketgecko/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/gex3deeppocketgecko/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/gex3deeppocketgecko/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Fans of the genre or those who want to pick up a decent game that will keep them coming back for more won't be disappointed.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/gex3deeppocketgecko/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Ghosts N' Goblins",
+      "index_title": "Ghosts N' Goblins",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Digital Eclipse",
+      "release_date": "12/31/1999",
+      "original_path": "/gbc/action/ghostsngoblins/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/ghostsngoblins/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/ghostsngoblins/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Overall, it's a great version of a real classic.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/ghostsngoblins/review.html"
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Gold and Glory: The Road to El Dorado",
+      "index_title": "Gold and Glory: The Road to El Dorado",
+      "genre": "Action",
+      "publisher": "Ubi Soft",
+      "developer": "Planet Interactive",
+      "release_date": "04/30/2000",
+      "original_path": "/gbc/action/goldandglorytheroadted/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/goldandglorytheroadted/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/goldandglorytheroadted/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While the game's plot and gameplay are standard, it's eye-candy that El Dorado excels in. Miguel and Tulio walk, jump, crawl, and meander with countless frames of animation.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/goldandglorytheroadted/review.html"
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Harvest Moon",
+      "index_title": "Harvest Moon",
+      "genre": "Puzzle",
+      "publisher": "Natsume",
+      "developer": "Victor Interactive Software",
+      "release_date": "12/31/1998",
+      "original_path": "/gbc/puzzle/harvestmoon/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/harvestmoon/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/harvestmoon/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Harvest Moon is a relaxing and rewarding simulation of the simple life on the farm, combining all the things that made games like Tamagotchi and Pokemon such addictive hits and adding some charm",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/harvestmoon/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Heroes of Might and Magic",
+      "index_title": "Heroes of Might and Magic",
+      "genre": "Strategy",
+      "publisher": "3DO",
+      "developer": "3DO",
+      "release_date": "04/29/2000",
+      "original_path": "/gbc/strategy/heroesofmightandmagic/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/strategy/heroesofmightandmagic/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/strategy/heroesofmightandmagic/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Heroes of Might and Magic is an average strategy game that tries very hard to bring as many aspects of the genre as it can to the Game Boy Color.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com:80/gbc/strategy/heroesofmightandmagic/review.html"
+      },
+      "score": {
+        "gamespot": 4.6,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 4,
+          "sound": 4,
+          "value": 6,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Indiana Jones and the Infernal Machine",
+      "index_title": "Indiana Jones and the Infernal Machine",
+      "genre": "Adventure",
+      "publisher": "THQ",
+      "developer": "HotGen",
+      "release_date": "03/22/2001",
+      "original_path": "/gbc/adventure/indianajonesandtheim/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/indianajonesandtheim/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/indianajonesandtheim/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If it weren't for all of the pointless wandering and the lack of plot development, Indiana Jones and the Infernal Machine would have been a great game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/indianajonesandtheim/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "International Superstar Soccer",
+      "index_title": "International Superstar Soccer",
+      "genre": "Sports",
+      "publisher": "Konami",
+      "developer": "Konami",
+      "release_date": "12/31/1998",
+      "original_path": "/gbc/sports/internationalsuperstarsoccer/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/internationalsuperstarsoccer/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/internationalsuperstarsoccer/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Konami's International Superstar Soccer series has been the pinnacle of soccer excellence on any other console it has graced, so the GB conversion arrives with plenty of high hopes attached.",
+        "reviewer": "Ravi Hiranand",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/internationalsuperstarsoccer/review.html"
+      },
+      "score": {
+        "gamespot": 5.1,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 6,
+          "graphics": 4,
+          "sound": 3,
+          "value": 2,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Kirby Tilt 'n' Tumble",
+      "index_title": "Kirby Tilt 'n' Tumble",
+      "genre": "Puzzle",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "04/11/2001",
+      "original_path": "/gbc/puzzle/kirbytiltntumble/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/kirbytiltntumble/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/kirbytiltntumble/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Yes, Kirby Tilt 'n' Tumble is a gimmicky game, but it's a gimmicky game done well.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/kirbytiltntumble/review.html"
+      },
+      "score": {
+        "gamespot": 8.3,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Legend of the River King 2",
+      "index_title": "Legend of the River King 2",
+      "genre": "Role-Playing",
+      "publisher": "Crave",
+      "developer": "Natsume",
+      "release_date": "04/17/2001",
+      "original_path": "/gbc/rpg/legendoftheriverking2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/legendoftheriverking2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/legendoftheriverking2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Although the game itself isn't overwhelmingly deep in terms of either fishing strategy or RPG intricacy, the incorporation of a number of Pokémon-inspired gameplay elements lends this easygoing adventure a charm that can't be overlooked. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/legendoftheriverking2/review.html"
+      },
+      "score": {
+        "gamespot": 7.8,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Earlier saved blurb was truncated at 200 chars; corrected against hub page"
+      ]
+    },
+    {
+      "title": "Legend of Zelda: DX",
+      "index_title": "Legend of Zelda: DX",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "10/31/1998",
+      "original_path": "/gbc/rpg/legendofzeldadx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/legendofzeldadx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/legendofzeldadx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "We can't urge you enough to play this game.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/legendofzeldadx/review.html"
+      },
+      "score": {
+        "gamespot": 8.7,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 9,
+          "value": 7,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Legend of Zelda: Oracle of Ages",
+      "index_title": "The Legend of Zelda: Oracle of Ages",
+      "genre": "Adventure",
+      "publisher": "Nintendo",
+      "developer": "Flagship",
+      "release_date": "05/13/2001",
+      "original_path": "/gbc/adventure/legendofzeldaoracleofages/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/legendofzeldaoracleofages/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/legendofzeldaoracleofages/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Ages is a wonderful game in its own right, and as a set with Seasons, it comes as highly recommended as a game can be.",
+        "reviewer": "Brad Shoemaker",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/legendofzeldaoracleofages/review.html"
+      },
+      "score": {
+        "gamespot": 9.2,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Legend of Zelda: Oracle of Seasons",
+      "index_title": "The Legend of Zelda: Oracle of Seasons",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Flagship",
+      "release_date": "05/13/2001",
+      "original_path": "/gbc/rpg/legendofzeldaoracleos/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/legendofzeldaoracleos/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/legendofzeldaoracleos/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Although Capcom's Flagship team actually handled development on the two games, both of them pack in everything one expects from a good Zelda adventure.",
+        "reviewer": "Brad Shoemaker",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/legendofzeldaoracleos/review.html"
+      },
+      "score": {
+        "gamespot": 9.2,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Little Nicky",
+      "index_title": "Little Nicky",
+      "genre": "Action",
+      "publisher": "Ubi Soft",
+      "developer": "Digital Eclipse",
+      "release_date": "11/16/2000",
+      "original_path": "/gbc/action/littlenicky/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/littlenicky/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/littlenicky/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Unpleasant - that's the best word to describe Little Nicky.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/littlenicky/review.html"
+      },
+      "score": {
+        "gamespot": 4.0,
+        "label": "poor",
+        "components": {
+          "gameplay": 3,
+          "graphics": 7,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Looney Tunes Collector: Alert!",
+      "index_title": "Looney Tunes Collector: Alert!",
+      "genre": "Action",
+      "publisher": "Atari",
+      "developer": "Atari",
+      "release_date": "06/24/2000",
+      "original_path": "/gbc/action/looneytunescollectoralert/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/looneytunescollectoralert/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/looneytunescollectoralert/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Infogrames' Looney Tunes Collector: Alert! may not be Pokémon, but it's a finely polished puzzle-quest action-RPG nonetheless.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/looneytunescollectoralert/review.html"
+      },
+      "score": {
+        "gamespot": 6.5,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Looney Tunes Racing",
+      "index_title": "Looney Tunes Racing",
+      "genre": "Driving",
+      "publisher": "Infogrames",
+      "developer": "Infogrames",
+      "release_date": "12/14/2000",
+      "original_path": "/gbc/driving/looneytunesracing/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/looneytunesracing/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/looneytunesracing/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Looney Tunes Racing has a way to go before it can stack up to the big boys.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/looneytunesracing/review.html"
+      },
+      "score": {
+        "gamespot": 5.9,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 6,
+          "graphics": 8,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Madden NFL 2000",
+      "index_title": "Madden NFL 2000",
+      "genre": "Sports",
+      "publisher": "THQ",
+      "developer": "Tiertex Design Studios",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/sports/maddennfl2000/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/maddennfl2000/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/maddennfl2000/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The control is dead-on, the graphics are clean, and there are enough options to keep you tossing the pigskin around for a long time.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/maddennfl2000/review.html"
+      },
+      "score": {
+        "gamespot": 7.9,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Magical Tetris Challenge",
+      "index_title": "Magical Tetris Challenge",
+      "genre": "Puzzle",
+      "publisher": "Capcom",
+      "developer": "Capcom",
+      "release_date": "01/31/2000",
+      "original_path": "/gbc/puzzle/magicaltetrischallenge/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/magicaltetrischallenge/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/magicaltetrischallenge/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Magical Tetris Challenge is a winner of a game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/magicaltetrischallenge/review.html"
+      },
+      "score": {
+        "gamespot": 9.4,
+        "label": "superb",
+        "components": {
+          "gameplay": 10,
+          "graphics": 9,
+          "sound": 8,
+          "value": 10,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mario Golf",
+      "index_title": "Mario Golf",
+      "genre": "Sports",
+      "publisher": "Nintendo",
+      "developer": "Camelot Corp.",
+      "release_date": "01/27/2000",
+      "original_path": "/gbc/sports/mariogolf/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/mariogolf/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/mariogolf/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Mario Golf is an excellent adaptation of the N64 title, and it's a Game Boy experience that stands well on its own.",
+        "reviewer": "Lauren Fielder",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/mariogolf/review.html"
+      },
+      "score": {
+        "gamespot": 7.2,
+        "label": "good",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mario Tennis",
+      "index_title": "Mario Tennis",
+      "genre": "Sports",
+      "publisher": "Nintendo",
+      "developer": "Camelot Corp.",
+      "release_date": "01/14/2001",
+      "original_path": "/gbc/sports/mariotennis/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/mariotennis/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/mariotennis/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "A lot of polish went into Mario Tennis, and it shows.",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/mariotennis/review.html"
+      },
+      "score": {
+        "gamespot": 8.0,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Mask of Zorro",
+      "index_title": "The Mask of Zorro",
+      "genre": "Action",
+      "publisher": null,
+      "developer": null,
+      "release_date": "01/14/2000",
+      "original_path": "/gbc/action/maskofzorro/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/maskofzorro/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/maskofzorro/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The history of gaming is full of poor movie adaptations, and the Mask of Zorro represents one more.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/maskofzorro/review.html"
+      },
+      "score": {
+        "gamespot": 3.5,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 4,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mat Hoffman's Pro BMX",
+      "index_title": "Mat Hoffman's Pro BMX",
+      "genre": "Sports",
+      "publisher": "Activision",
+      "developer": "HotGen",
+      "release_date": "05/14/2001",
+      "original_path": "/gbc/sports/mathoffmansprobmx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/mathoffmansprobmx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/mathoffmansprobmx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Unless you've played Road Champs BXS Stunt Biking to death, the sheer number of gameplay and style improvements present in Mat Hoffman ultimately make it the more satisfying of the two games.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/mathoffmansprobmx/review.html"
+      },
+      "score": {
+        "gamespot": 7.9,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mega Man Xtreme",
+      "index_title": "Mega Man Xtreme",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Capcom",
+      "release_date": "01/11/2001",
+      "original_path": "/gbc/action/megamanxtreme/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/megamanxtreme/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/megamanxtreme/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you're a fan of the series, Xtreme's general gameplay, familiar environments, and visual repertoire should be enough to warrant a purchase.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/megamanxtreme/review.html"
+      },
+      "score": {
+        "gamespot": 6.4,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 6,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mega Man Xtreme 2",
+      "index_title": "Mega Man Xtreme 2",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Capcom",
+      "release_date": "10/30/2001",
+      "original_path": "/gbc/action/megamanxtreme2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/megamanxtreme2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/megamanxtreme2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "It will certainly appeal to an audience eager for a serious challenge and more classic Mega Man action as well as those who might have been disappointed with the previous game.",
+        "reviewer": "Giancarlo Varanini",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/megamanxtreme2/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Men in Black: The Series",
+      "index_title": "Men in Black: The Series",
+      "genre": "Action",
+      "publisher": "Crave",
+      "developer": "Tiertex Design Studios",
+      "release_date": "01/31/1999",
+      "original_path": "/gbc/action/meninblacktheseries/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/meninblacktheseries/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/meninblacktheseries/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The Men In Black franchise had such an opportunity to be a good video game - wild alien characters, cool weapons, stylish black suits - but what we have here is a complete waste of potential.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/meninblacktheseries/review.html"
+      },
+      "score": {
+        "gamespot": 4.3,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 7,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Men in Black: The Series 2",
+      "index_title": "Men in Black: The Series 2",
+      "genre": "Action",
+      "publisher": "Crave",
+      "developer": null,
+      "release_date": "07/09/2000",
+      "original_path": "/gbc/action/meninblacktheseries2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/meninblacktheseries2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/meninblacktheseries2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "In all, Men In Black isn't a bad game, but it isn't entirely exciting.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/meninblacktheseries2/review.html"
+      },
+      "score": {
+        "gamespot": 5.3,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 6,
+          "graphics": 5,
+          "sound": 6,
+          "value": 4,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Metal Gear Solid",
+      "index_title": "Metal Gear Solid",
+      "genre": "Adventure",
+      "publisher": "Konami",
+      "developer": "Konami",
+      "release_date": "04/24/2000",
+      "original_path": "/gbc/adventure/metalgearsolid/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/metalgearsolid/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/metalgearsolid/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Despite minor gripes, Metal Gear Solid is, without equal, the best tactical-espionage title on the Game Boy Color.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/metalgearsolid/review.html"
+      },
+      "score": {
+        "gamespot": 9.4,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 10,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Metal Walker",
+      "index_title": "Metal Walker",
+      "genre": "Role-Playing",
+      "publisher": "Capcom",
+      "developer": "Capcom",
+      "release_date": "02/06/2001",
+      "original_path": "/gbc/rpg/metalwalker/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/metalwalker/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/metalwalker/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Metal Walker is a more than worthwhile endeavor for anyone that is in between Pokémon games.",
+        "reviewer": "Gerald Villoria",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/metalwalker/review.html"
+      },
+      "score": {
+        "gamespot": 8.0,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 6,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mickey's Racing Adventure",
+      "index_title": "Mickey's Racing Adventure",
+      "genre": "Driving",
+      "publisher": "Nintendo",
+      "developer": "Rare Ltd.",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/driving/mickeysracingadventure/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/mickeysracingadventure/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/mickeysracingadventure/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "With more than 20 tracks and six characters to choose from, this title shows how Game Boy racers should be done.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/mickeysracingadventure/review.html"
+      },
+      "score": {
+        "gamespot": 9.0,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 9,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mickey's Speedway USA",
+      "index_title": "Mickey's Speedway USA",
+      "genre": "Driving",
+      "publisher": "Nintendo",
+      "developer": "Rare Ltd.",
+      "release_date": "03/25/2001",
+      "original_path": "/gbc/driving/mickeysspeedwayusa/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/mickeysspeedwayusa/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/mickeysspeedwayusa/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Varied gameplay, diverse options, gorgeous visuals, and ample two-player support make Mickey's Speedway USA a class-A title.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/mickeysspeedwayusa/review.html"
+      },
+      "score": {
+        "gamespot": 9.0,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 9,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Micro Machines 1 and 2: Twin Turbo",
+      "index_title": "Micro Machines 1 and 2: Twin Turbo",
+      "genre": "Driving",
+      "publisher": "THQ",
+      "developer": null,
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/driving/micromachines1and2tt/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/micromachines1and2tt/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/micromachines1and2tt/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Unlike recent games that attempt to imitate the gameplay and style of Micro Machines, Micro Machines 1 and 2: Twin Turbo proves that nothing can improve on a series that neared perfection to begin with. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/micromachines1and2tt/review.html"
+      },
+      "score": {
+        "gamespot": 8.8,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Earlier saved blurb was truncated at 200 chars; corrected against hub page"
+      ]
+    },
+    {
+      "title": "Mission: Impossible",
+      "index_title": "Mission: Impossible",
+      "genre": "Adventure",
+      "publisher": "Infogrames",
+      "developer": "Rebellion",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/adventure/missionimpossible/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/missionimpossible/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/missionimpossible/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Mission: Impossible seems geared to those hard-core gamers out there who have both the time and the patience to spend replaying level after level until they've finished the game.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/missionimpossible/review.html"
+      },
+      "score": {
+        "gamespot": 5.2,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 4,
+          "graphics": 8,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mortal Kombat 4",
+      "index_title": "Mortal Kombat 4",
+      "genre": "Action",
+      "publisher": "Midway",
+      "developer": "Digital Eclipse",
+      "release_date": "02/28/1999",
+      "original_path": "/gbc/action/mortalkombat4/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/mortalkombat4/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/mortalkombat4/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "People looking for portable fighting-game action would do well to wait for Street Fighter Alpha, a much more responsive fighting game.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/mortalkombat4/review.html"
+      },
+      "score": {
+        "gamespot": 3.5,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 4,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Mr. Driller",
+      "index_title": "Mr. Driller",
+      "genre": "Puzzle",
+      "publisher": "Namco",
+      "developer": "Namco",
+      "release_date": "08/02/2000",
+      "original_path": "/gbc/puzzle/mrdriller/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/mrdriller/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/mrdriller/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you're the type of person who can forgive a lack of features for an otherwise impeccable game, Mr. Driller might be a decent addition to your puzzle game library.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/mrdriller/review.html"
+      },
+      "score": {
+        "gamespot": 7.9,
+        "label": "good",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 8,
+          "value": 5,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Mummy",
+      "index_title": "The Mummy",
+      "genre": "Action",
+      "publisher": "Konami",
+      "developer": "Konami",
+      "release_date": "12/14/2000",
+      "original_path": "/gbc/action/mummy/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/mummy/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/mummy/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Fans of spatially oriented puzzle games won't christen it the second coming of Solomon's Key, but there's enough challenge and intelligence within each of The Mummy's 46 stages to keep most people occupied for a goodly amount of time. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/mummy/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 8,
+          "value": 8,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Earlier saved blurb was cut off mid-sentence; corrected against hub page"
+      ]
+    },
+    {
+      "title": "NASCAR 2000",
+      "index_title": "NASCAR 2000",
+      "genre": "Driving",
+      "publisher": "THQ",
+      "developer": "THQ",
+      "release_date": "04/29/2000",
+      "original_path": "/gbc/driving/nascar2000/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/nascar2000/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/nascar2000/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Offering 33 unique cars, 16 tracks, real-life drivers, a season mode, a variety of car-tuning options, and a two-player link-cable option, THQ has crammed a great deal into this pocket-sized beauty.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/nascar2000/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 5,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NASCAR Challenge",
+      "index_title": "NASCAR Challenge",
+      "genre": "Driving",
+      "publisher": "Hasbro Interactive",
+      "developer": "Morning Star Multimedia",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/driving/nascarchallenge/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/nascarchallenge/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/nascarchallenge/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "NASCAR Challenge is a dull racing game that doesn't have much going for it.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/nascarchallenge/review.html"
+      },
+      "score": {
+        "gamespot": 5.0,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 4,
+          "graphics": 6,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NASCAR Heat",
+      "index_title": "NASCAR Heat",
+      "genre": "Driving",
+      "publisher": "Majesco Games",
+      "developer": "Pipe Dream Interactive",
+      "release_date": "01/14/2001",
+      "original_path": "/gbc/driving/nascarheat/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/nascarheat/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/nascarheat/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you've ever wondered what Micro Machines would be like with NASCAR drivers, Majesco's NASCAR Heat is the answer.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/nascarheat/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NBA Hoopz",
+      "index_title": "NBA Hoopz",
+      "genre": "Sports",
+      "publisher": "Midway",
+      "developer": "Torus Games",
+      "release_date": "02/25/2001",
+      "original_path": "/gbc/sports/nbahoopz/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/nbahoopz/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/nbahoopz/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If it weren't for its abhorrent background music, tinny sound effects, and lack of a two-player feature, NBA Hoopz would be a glowing addition to the Game Boy Color's library.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/nbahoopz/review.html"
+      },
+      "score": {
+        "gamespot": 6.1,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 2,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NBA Jam 99",
+      "index_title": "NBA Jam 99",
+      "genre": "Sports",
+      "publisher": "Acclaim",
+      "developer": "Torus Games",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/sports/nbajam99/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/nbajam99/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/nbajam99/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "NBA Jam 99 on the Game Boy Color takes the series back to the two-on-two arcade action that it is famous for.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/nbajam99/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NHL 2000",
+      "index_title": "NHL 2000",
+      "genre": "Sports",
+      "publisher": "THQ",
+      "developer": "THQ",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/sports/nhl2000/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/nhl2000/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/nhl2000/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Even hard-core hockey fans should avoid this title; it will start gathering dust on its first day of play.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/nhl2000/review.html"
+      },
+      "score": {
+        "gamespot": 4.4,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 5,
+          "sound": 5,
+          "value": 5,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Perfect Dark",
+      "index_title": "Perfect Dark",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Rare Ltd.",
+      "release_date": "2000",
+      "original_path": "/gbc/action/perfectdark/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/perfectdark/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/perfectdark/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Perfect Dark GBC does its Nintendo 64 counterpart justice, albeit haphazardly.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/perfectdark/review.html"
+      },
+      "score": {
+        "gamespot": 5.3,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 4,
+          "graphics": 7,
+          "sound": 8,
+          "value": 7,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Crystal",
+      "index_title": "Pokemon Crystal",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Game Freak",
+      "release_date": "07/29/2001",
+      "original_path": "/gbc/rpg/pokemoncrystal/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/pokemoncrystal/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/pokemoncrystal/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "For those who are new to Pokémon or have yet to upgrade from the Red/Blue/Yellow series, Pokémon: Crystal Version offers a great deal of value for the investment involved.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/pokemoncrystal/review.html"
+      },
+      "score": {
+        "gamespot": 8.4,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Gold",
+      "index_title": "Pokemon Gold",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Game Freak",
+      "release_date": "10/14/2000",
+      "original_path": "/gbc/rpg/pokemongold/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/pokemongold/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/pokemongold/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "You really can't go wrong with 251 monsters, two main adventures, countless side quests, and a baseline of 60 hours of gameplay.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/pokemongold/review.html"
+      },
+      "score": {
+        "gamespot": 8.8,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 10,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Pinball",
+      "index_title": "Pokemon Pinball",
+      "genre": "Puzzle",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "07/31/1999",
+      "original_path": "/gbc/puzzle/pokemonpinball/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/pokemonpinball/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/pokemonpinball/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Pokemon Pinball manages the impossible by being more than a shameless cash-in on the Pokemon phenomenon.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/pokemonpinball/review.html"
+      },
+      "score": {
+        "gamespot": 8.7,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Puzzle Challenge",
+      "index_title": "Pokemon Puzzle Challenge",
+      "genre": "Puzzle",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "2000",
+      "original_path": "/gbc/puzzle/pokemonpuzzlechallenge/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/pokemonpuzzlechallenge/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/pokemonpuzzlechallenge/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Pokémon Puzzle Challenge is a game that does the Pokémon license proud.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/pokemonpuzzlechallenge/review.html"
+      },
+      "score": {
+        "gamespot": 8.9,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Silver",
+      "index_title": "Pokemon Silver",
+      "genre": "Role-Playing",
+      "publisher": "Nintendo",
+      "developer": "Game Freak",
+      "release_date": "10/14/2000",
+      "original_path": "/gbc/rpg/pokemonsilver/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/pokemonsilver/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/pokemonsilver/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "You really can't go wrong with 251 monsters, two main adventures, countless side quests, and a baseline of 60 hours of gameplay.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/pokemonsilver/review.html"
+      },
+      "score": {
+        "gamespot": 8.8,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 10,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pokemon Trading Card",
+      "index_title": "Pokemon Trading Card",
+      "genre": "Strategy",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "03/31/2000",
+      "original_path": "/gbc/strategy/pokemontradingcard/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/strategy/pokemontradingcard/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/strategy/pokemontradingcard/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "A great game for a time, Pokemon Trading Card is a faithful and amusing adaptation of the collectible card game, but it suffers as a single-player video game.",
+        "reviewer": "Peter Bartholow",
+        "full_review_url": "http://www.gamespot.com:80/gbc/strategy/pokemontradingcard/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Polaris SnoCross",
+      "index_title": "Polaris SnoCross",
+      "genre": "Sports",
+      "publisher": "Vatical Entertainment",
+      "developer": "Vicarious",
+      "release_date": "01/31/2000",
+      "original_path": "/gbc/sports/polarissnocross/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/polarissnocross/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/polarissnocross/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "At the outset, Polaris SnoCross is an above-average racer that delivers the \"extreme\" experience, while including an oft-neglected link-play feature.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/polarissnocross/review.html"
+      },
+      "score": {
+        "gamespot": 7.8,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Powerpuff Girls Episode 1: Bad Mojo Jojo",
+      "index_title": "Powerpuff Girls Episode 1: Bad Mojo Jojo",
+      "genre": "Action",
+      "publisher": "bam! entertainment",
+      "developer": "Sennari Interactive",
+      "release_date": "11/14/2000",
+      "original_path": "/gbc/action/powerpuffgirlsepisode1bmj/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/powerpuffgirlsepisode1bmj/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/powerpuffgirlsepisode1bmj/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Fans of the Cartoon Network's Powerpuff Girls series will ultimately be disappointed by Bad Mojo Jojo since the game is extremely simple and boring.",
+        "reviewer": "Ryan Mac Donald",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/powerpuffgirlsepisode1bmj/review.html"
+      },
+      "score": {
+        "gamespot": 3.2,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 3,
+          "sound": 5,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Project S-11",
+      "index_title": "Project S-11",
+      "genre": "Action",
+      "publisher": "SunSoft",
+      "developer": "Paragon 5",
+      "release_date": "12/14/2000",
+      "original_path": "/gbc/action/projects11/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/projects11/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/projects11/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Project S-11 is about the best the GBC is going to see in terms of space shooters.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/projects11/review.html"
+      },
+      "score": {
+        "gamespot": 6.3,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "R-Type DX",
+      "index_title": "R-Type DX",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Bits Studios",
+      "release_date": "05/31/1999",
+      "original_path": "/gbc/action/rtypedx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/rtypedx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/rtypedx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "R-Type DX is one of the best shooters you can get for any machine, and the GBC version does the series proud.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/rtypedx/review.html"
+      },
+      "score": {
+        "gamespot": 8.6,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Rainbow Six",
+      "index_title": "Rainbow Six",
+      "genre": "Action",
+      "publisher": "Red Storm Entertainment",
+      "developer": "Crawfish Interactive",
+      "release_date": "03/31/2000",
+      "original_path": "/gbc/action/rainbowsix/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/rainbowsix/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/rainbowsix/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If your idea of a good time is blowing things up, Metal Gear Solid or Army Men might be better choices.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/rainbowsix/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Rayman",
+      "index_title": "Rayman",
+      "genre": "Action",
+      "publisher": "Ubisoft",
+      "developer": "Ubisoft",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/action/rayman/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/rayman/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/rayman/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "One of the better titles to hit the Game Boy Color in recent history. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/rayman/review.html"
+      },
+      "score": {
+        "gamespot": null,
+        "label": null,
+        "components": {
+          "gameplay": null,
+          "graphics": null,
+          "sound": null,
+          "value": null,
+          "reviewers_tilt": null
+        }
+      },
+      "status": "missing_scores",
+      "error": null,
+      "parse_issues": [
+        "No numeric scores in any capture; hub shows none, review page shows label 'abysmal' with missing components"
+      ]
+    },
+    {
+      "title": "Resident Evil Gaiden",
+      "index_title": "Resident Evil Gaiden",
+      "genre": "Adventure",
+      "publisher": "Capcom",
+      "developer": "M4 Limited",
+      "release_date": "06/03/2002",
+      "original_path": "/gbc/adventure/residentevilgaiden/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/residentevilgaiden/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/residentevilgaiden/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Resident Evil Gaiden doesn't inspire the same level of interest that the other games in the franchise do.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/residentevilgaiden/review.html"
+      },
+      "score": {
+        "gamespot": 5.0,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 6,
+          "value": 4,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Road Champs BXS Stunt Biking",
+      "index_title": "Road Champs BXS Stunt Biking",
+      "genre": "Sports",
+      "publisher": "Activision",
+      "developer": "Activision",
+      "release_date": "12/09/2000",
+      "original_path": "/gbc/sports/roadchampsbxsstuntbiking/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/roadchampsbxsstuntbiking/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/roadchampsbxsstuntbiking/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Surprisingly, the game isn't just an attempt to cash in on a passing trend - it's also a decent addition to any stunt-bike aficionado's collection.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/roadchampsbxsstuntbiking/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Roswell Conspiracies: Aliens, Myths & Legends",
+      "index_title": "Roswell Conspiracies: Aliens, Myths & Legends",
+      "genre": "Adventure",
+      "publisher": "Red Storm Entertainment",
+      "developer": "Crawfish Interactive",
+      "release_date": "05/28/2001",
+      "original_path": "/gbc/adventure/roswellconspiraciesaml/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/roswellconspiraciesaml/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/roswellconspiraciesaml/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "As an action game, Roswell Conspiracies is rather basic, but the plot is certainly fanciful enough to appeal to less discerning consumers.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/roswellconspiraciesaml/review.html"
+      },
+      "score": {
+        "gamespot": 6.2,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 6,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Rugrats: The Movie",
+      "index_title": "Rugrats: The Movie",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Tiertex Design Studios",
+      "release_date": "02/28/1999",
+      "original_path": "/gbc/action/rugratsthemovie/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/rugratsthemovie/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/rugratsthemovie/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Rugrats: The Movie for the Game Boy is the only way you can relive the surprise hit without buying a VCR",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/rugratsthemovie/review.html"
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "San Francisco Rush 2049",
+      "index_title": "San Francisco Rush 2049",
+      "genre": "Driving",
+      "publisher": "Midway",
+      "developer": "Handheld Games",
+      "release_date": "09/06/2000",
+      "original_path": "/gbc/driving/sanfranciscorush2049/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/sanfranciscorush2049/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/sanfranciscorush2049/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Visually, aurally, and in terms of gameplay, there's nothing good about this version of Rush 2049.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/sanfranciscorush2049/review.html"
+      },
+      "score": {
+        "gamespot": 3.6,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 6,
+          "sound": 3,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Scooby Doo! Classic Creep Capers",
+      "index_title": "Scooby Doo! Classic Creep Capers",
+      "genre": "Adventure",
+      "publisher": "THQ",
+      "developer": "Digital Eclipse",
+      "release_date": "02/20/2001",
+      "original_path": "/gbc/adventure/scoobydooclassiccreepcapers/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/scoobydooclassiccreepcapers/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/scoobydooclassiccreepcapers/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The game is brief, but the tale it tells provides plenty of classic Scooby-Doo antics.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/scoobydooclassiccreepcapers/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 6,
+          "value": 4,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Sgt. Rock: On the Frontline",
+      "index_title": "Sgt. Rock: On the Frontline",
+      "genre": "Action",
+      "publisher": "bam! entertainment",
+      "developer": "Taito Corporation",
+      "release_date": "12/17/2000",
+      "original_path": "/gbc/action/sgtrockonthefrontline/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/sgtrockonthefrontline/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/sgtrockonthefrontline/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Classic gaming fanatics will eat it up, but fussier gamers would be more satisfied elsewhere.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/sgtrockonthefrontline/review.html"
+      },
+      "score": {
+        "gamespot": 6.0,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 6,
+          "value": 4,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Shadowgate Classic",
+      "index_title": "Shadowgate Classic",
+      "genre": "Role-Playing",
+      "publisher": "Mindscape",
+      "developer": "Mindscape",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/rpg/shadowgateclassic/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/shadowgateclassic/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/shadowgateclassic/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Shadowgate Classic has is that it has not improved with age, and newcomers will fail to see the original charm hidden under the unintuitive gameplay.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/shadowgateclassic/review.html"
+      },
+      "score": {
+        "gamespot": 5.8,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 5,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Shantae",
+      "index_title": "Shantae",
+      "genre": "Puzzle",
+      "publisher": "Capcom",
+      "developer": "WayForward",
+      "release_date": "06/02/2002",
+      "original_path": "/gbc/puzzle/shantae/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/shantae/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/shantae/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Shantae is a fine example of how good a 2D platform game can be on a portable system.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/shantae/review.html"
+      },
+      "score": {
+        "gamespot": 7.7,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Shrek: Fairy Tale Freakdown",
+      "index_title": "Shrek: Fairy Tale Freakdown",
+      "genre": "Action",
+      "publisher": "TDK Mediactive",
+      "developer": "Prolific",
+      "release_date": "05/29/2001",
+      "original_path": "/gbc/action/shrekfairytalefreakdown/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/shrekfairytalefreakdown/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/shrekfairytalefreakdown/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The lack of moves, strategy, and a two-player mode limits the game's appeal.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/shrekfairytalefreakdown/review.html"
+      },
+      "score": {
+        "gamespot": 4.9,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 6,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Simpsons: Night of the Living Treehouse of Horror",
+      "index_title": "The Simpsons: Night of the Living Treehouse of Horror",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Software Creations",
+      "release_date": "03/26/2001",
+      "original_path": "/gbc/action/simpsonsnightoftheltoh/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/simpsonsnightoftheltoh/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/simpsonsnightoftheltoh/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "THQ has managed to re-create a decade of Halloween specials into a single GBC game that's bound to give series fans hours of recreation.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/simpsonsnightoftheltoh/review.html"
+      },
+      "score": {
+        "gamespot": 7.8,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Smurf's Nightmare",
+      "index_title": "Smurf's Nightmare",
+      "genre": "Action",
+      "publisher": "Infogrames",
+      "developer": "Infogrames",
+      "release_date": "02/28/1999",
+      "original_path": "/gbc/action/smurfsnightmare/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/smurfsnightmare/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/smurfsnightmare/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "There are inevitably going to be a dozen or so average platformers in your Game Boy collection, one of them might as well be this.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/smurfsnightmare/review.html"
+      },
+      "score": {
+        "gamespot": 6.0,
+        "label": "fair",
+        "components": {
+          "gameplay": 5,
+          "graphics": 8,
+          "sound": 7,
+          "value": 5,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Spider-Man",
+      "index_title": "Spider-Man",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": null,
+      "release_date": "08/31/2000",
+      "original_path": "/gbc/action/spiderman/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/spiderman/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/spiderman/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "More fully realized than anything on the 8- or 16-bit systems, Spider-Man for the GBC is the game we all wish we had ten years ago - a totally convincing interpretation of Spidey for the handheld sector.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/spiderman/review.html"
+      },
+      "score": {
+        "gamespot": 6.5,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Spider-Man 2: The Sinister Six",
+      "index_title": "Spider-Man 2: The Sinister Six",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Torus Games",
+      "release_date": "05/30/2001",
+      "original_path": "/gbc/action/spiderman2thesinistersix/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/spiderman2thesinistersix/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/spiderman2thesinistersix/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Even though it's only a subtle remake, fans of the webbed wonder will no doubt enjoy everything that Spider-Man 2: The Sinister Six has to offer.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/spiderman2thesinistersix/review.html"
+      },
+      "score": {
+        "gamespot": 6.6,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "SpongeBob SquarePants: Legend of the Lost Spatula",
+      "index_title": "SpongeBob SquarePants: Legend of the Lost Spatula",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Vicarious Visions",
+      "release_date": "03/14/2001",
+      "original_path": "/gbc/action/spongebobsquarepantslotls/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/spongebobsquarepantslotls/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/spongebobsquarepantslotls/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "There is no evidence to suggest that children would actually enjoy playing a game this unremarkable--let alone adults.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/spongebobsquarepantslotls/review.html"
+      },
+      "score": {
+        "gamespot": 3.8,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 6,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Spy vs. Spy",
+      "index_title": "Spy vs. Spy",
+      "genre": "Puzzle",
+      "publisher": "Vatical Entertainment",
+      "developer": "Kemco",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/puzzle/spyvsspy/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/spyvsspy/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/spyvsspy/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Spy Vs. Spy is a fast-paced, comedic strategy title especially suited for the more vindictive of players.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/spyvsspy/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 5,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Star Wars Episode I Racer",
+      "index_title": "Star Wars Episode I Racer",
+      "genre": "Driving",
+      "publisher": "Nintendo",
+      "developer": "LucasArts",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/driving/starwarsepisodeiracer/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/starwarsepisodeiracer/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/starwarsepisodeiracer/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Racer for the Game Boy Color is a fun little game.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/starwarsepisodeiracer/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Street Fighter Alpha",
+      "index_title": "Street Fighter Alpha",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Crawfish Interactive",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/action/streetfighteralpha/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/streetfighteralpha/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/streetfighteralpha/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Street Fighter Alpha stands alone as the best fighting game to ever hit the Game Boy.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/streetfighteralpha/review.html"
+      },
+      "score": {
+        "gamespot": 8.2,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Super Mario DX",
+      "index_title": "Super Mario DX",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "04/30/1999",
+      "original_path": "/gbc/action/supermariodx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/supermariodx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/supermariodx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "It looks like we finally have the \"killer app\" for the Game Boy Color.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/supermariodx/review.html"
+      },
+      "score": {
+        "gamespot": 9.9,
+        "label": "superb",
+        "components": {
+          "gameplay": 10,
+          "graphics": 10,
+          "sound": 9,
+          "value": 10,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tech Deck Skateboarding",
+      "index_title": "Tech Deck Skateboarding",
+      "genre": "Sports",
+      "publisher": "Activision",
+      "developer": "Handheld Games",
+      "release_date": "03/25/2001",
+      "original_path": "/gbc/sports/techdeckskateboarding/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/techdeckskateboarding/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/techdeckskateboarding/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Tech Deck Skateboarding is a solid video game re-creation of the uniquely hands-on Tech Deck experience.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/techdeckskateboarding/review.html"
+      },
+      "score": {
+        "gamespot": 7.5,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Test Drive Cycles",
+      "index_title": "Test Drive Cycles",
+      "genre": "Driving",
+      "publisher": "Infogrames",
+      "developer": "Infogrames",
+      "release_date": "07/26/2000",
+      "original_path": "/gbc/driving/testdrivecycles/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/testdrivecycles/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/testdrivecycles/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "In all, what really makes Cycles a good game is the balance of arcade-style gameplay and a lengthy championship mode.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/testdrivecycles/review.html"
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 6,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Test Drive Le Mans",
+      "index_title": "Test Drive Le Mans",
+      "genre": "Driving",
+      "publisher": "Atari",
+      "developer": "Atari",
+      "release_date": "06/06/2000",
+      "original_path": "/gbc/driving/testdrivelemans/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/testdrivelemans/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/testdrivelemans/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "What you get with Test Drive Le Mans is the most solid GBC racing title to date. The features are thick, the gameplay is deep, and the level of replay isn't contrived.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/testdrivelemans/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tetris DX",
+      "index_title": "Tetris DX",
+      "genre": "Puzzle",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "10/31/1998",
+      "original_path": "/gbc/puzzle/tetrisdx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/tetrisdx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/tetrisdx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Tetris has been often called the greatest game ever created, and the Game Boy version is the best version of Russia's greatest export.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/tetrisdx/review.html"
+      },
+      "score": {
+        "gamespot": 9.0,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tom and Jerry: Mouse Hunt",
+      "index_title": "Tom and Jerry: Mouse Hunt",
+      "genre": "Action",
+      "publisher": "Conspiracy Entertainment",
+      "developer": "Conspiracy Entertainment",
+      "release_date": "03/14/2001",
+      "original_path": "/gbc/action/tomandjerrymousehunt/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/tomandjerrymousehunt/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/tomandjerrymousehunt/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Tom and Jerry: Mouse Hunt is a fun and exciting sportslike game that lives up the TV show's madcap, albeit sometimes violent, reputation.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/tomandjerrymousehunt/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tomb Raider",
+      "index_title": "Tomb Raider",
+      "genre": "Adventure",
+      "publisher": "THQ",
+      "developer": "Core Design Ltd.",
+      "release_date": "06/07/2000",
+      "original_path": "/gbc/adventure/tombraider/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/adventure/tombraider/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/adventure/tombraider/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "As a total package, Tomb Raider for Game Boy Color delivers a degree of immersion not realized since Tomb Raider 2.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/adventure/tombraider/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tomb Raider: Curse of the Sword",
+      "index_title": "Tomb Raider: Curse of the Sword",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Core Design Ltd.",
+      "release_date": "07/01/2001",
+      "original_path": "/gbc/action/tombraidercurseofthesword/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/tombraidercurseofthesword/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/tombraidercurseofthesword/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you found the previous pocket-sized Tomb Raider too sluggish or bland, this new one probably won't change your mind.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/tombraidercurseofthesword/review.html"
+      },
+      "score": {
+        "gamespot": 7.1,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tonka Raceway",
+      "index_title": "Tonka Raceway",
+      "genre": "Driving",
+      "publisher": "Hasbro Interactive",
+      "developer": "Morning Star Multimedia",
+      "release_date": "10/31/1999",
+      "original_path": "/gbc/driving/tonkaraceway/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/tonkaraceway/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/tonkaraceway/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If R/C Pro-Am didn't exist, this game would probably be taken a bit more seriously.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/tonkaraceway/review.html"
+      },
+      "score": {
+        "gamespot": 4.9,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 6,
+          "sound": 5,
+          "value": 5,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tony Hawk's Pro Skater",
+      "index_title": "Tony Hawk's Pro Skater",
+      "genre": "Sports",
+      "publisher": "Activision",
+      "developer": "Natsume",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/sports/tonyhawksproskater/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/tonyhawksproskater/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/tonyhawksproskater/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Though there's much room for improvement, Tony Hawk Pro Skater is easily the best skateboarding game available for the Game Boy Color. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/tonyhawksproskater/review.html"
+      },
+      "score": {
+        "gamespot": 7.1,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 9,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tony Hawk's Pro Skater 2",
+      "index_title": "Tony Hawk's Pro Skater 2",
+      "genre": "Sports",
+      "publisher": "Activision",
+      "developer": "Natsume",
+      "release_date": "11/09/2000",
+      "original_path": "/gbc/sports/tonyhawksproskater2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/tonyhawksproskater2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/tonyhawksproskater2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Tony Hawk's Pro Skater 2 is a must buy for any handheld-boarding fan.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/tonyhawksproskater2/review.html"
+      },
+      "score": {
+        "gamespot": 8.9,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Toobin'",
+      "index_title": "Toobin'",
+      "genre": "Sports",
+      "publisher": "Midway",
+      "developer": "Digital Eclipse",
+      "release_date": "05/06/2000",
+      "original_path": "/gbc/sports/toobin/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/toobin/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/toobin/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Some will be drawn to the quirky, skills-type gameplay, while others may find Toobin's innovative ideas buried under a sea of unforgiving control and limited replay value.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/toobin/review.html"
+      },
+      "score": {
+        "gamespot": 4.7,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 6,
+          "sound": 6,
+          "value": 3,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Toonsylvania",
+      "index_title": "Toonsylvania",
+      "genre": "Action",
+      "publisher": "Ubi Soft",
+      "developer": "LSP",
+      "release_date": "06/22/2000",
+      "original_path": "/gbc/action/toonsylvania/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/toonsylvania/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/toonsylvania/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "With so many exceptional Game Boy platformers on the market, one simply can't justify picking up Toonsylvania.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/toonsylvania/review.html"
+      },
+      "score": {
+        "gamespot": 4.6,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 7,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Top Gear Pocket",
+      "index_title": "Top Gear Pocket",
+      "genre": "Driving",
+      "publisher": "Vatical Entertainment",
+      "developer": "Kemco",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/driving/topgearpocket/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/topgearpocket/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/topgearpocket/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Top Gear Pocket feels like a Sunday drive.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/topgearpocket/review.html"
+      },
+      "score": {
+        "gamespot": 5.3,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 8,
+          "sound": 5,
+          "value": 4,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Towers: Lord Baniff's Deceit",
+      "index_title": "Towers: Lord Baniff's Deceit",
+      "genre": "Role-Playing",
+      "publisher": "JV Games",
+      "developer": "JV Games",
+      "release_date": "02/28/2000",
+      "original_path": "/gbc/rpg/towerslordbaniffsdeceit/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/towerslordbaniffsdeceit/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/towerslordbaniffsdeceit/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The average gamer just isn't going to find Towers' quest all that engaging or exciting.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/towerslordbaniffsdeceit/review.html"
+      },
+      "score": {
+        "gamespot": 5.1,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 3,
+          "value": 5,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Toy Story 2",
+      "index_title": "Toy Story 2",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Tiertex Design Studios",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/action/toystory2/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/toystory2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/toystory2/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If the designers had done their homework and played the original Super Mario Bros. game they would have realized that it's never a good idea to make the jump button the same as the run button.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/toystory2/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Toy Story Racer",
+      "index_title": "Toy Story Racer",
+      "genre": "Driving",
+      "publisher": "Activision",
+      "developer": "Tiertex Design Studios",
+      "release_date": "02/28/2001",
+      "original_path": "/gbc/driving/toystoryracer/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/toystoryracer/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/toystoryracer/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "The 3D visuals and cartoon-style charm contained within Toy Story Racer do make it an excellent choice for children, Disney fans, or Game Boy fanatics who enjoy visual gimmicks.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/toystoryracer/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 8,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Triple Play 2001",
+      "index_title": "Triple Play 2001",
+      "genre": "Sports",
+      "publisher": "THQ",
+      "developer": null,
+      "release_date": "04/30/2000",
+      "original_path": "/gbc/sports/tripleplay2001/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/tripleplay2001/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/tripleplay2001/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Triple Play 2001 is a perfect example of how good ideas can go horribly awry. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/tripleplay2001/review.html"
+      },
+      "score": {
+        "gamespot": 3.0,
+        "label": "bad",
+        "components": {
+          "gameplay": 4,
+          "graphics": 4,
+          "sound": 3,
+          "value": 2,
+          "reviewers_tilt": 2
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Previously saved blurb was a copy-paste of Toobin' blurb; corrected against hub page"
+      ]
+    },
+    {
+      "title": "Turok 3: Shadow of Oblivion",
+      "index_title": "Turok 3: Shadow of Oblivion",
+      "genre": "Action",
+      "publisher": "Acclaim",
+      "developer": null,
+      "release_date": "08/02/2000",
+      "original_path": "/gbc/action/turok3shadowofoblivion/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/turok3shadowofoblivion/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/turok3shadowofoblivion/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Despite being a rehash, Turok 3 is a well-balanced, varied platform gaming experience.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/turok3shadowofoblivion/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 4,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Turok: Rage Wars",
+      "index_title": "Turok: Rage Wars",
+      "genre": "Action",
+      "publisher": "Acclaim",
+      "developer": "Bit Managers",
+      "release_date": "10/31/1999",
+      "original_path": "/gbc/action/turokragewars/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/turokragewars/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/turokragewars/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you're looking for a high-quality action game, you can't go wrong with this one.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/turokragewars/review.html"
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Vigilante 8",
+      "index_title": "Vigilante 8",
+      "genre": "Action",
+      "publisher": "Vatical Entertainment",
+      "developer": "Vicarious",
+      "release_date": "12/31/1999",
+      "original_path": "/gbc/action/vigilante8/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/vigilante8/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/vigilante8/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "There is definitely some fun to be had here.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/vigilante8/review.html"
+      },
+      "score": {
+        "gamespot": 7.1,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 9,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Wacky Races",
+      "index_title": "Wacky Races",
+      "genre": "Driving",
+      "publisher": "Infogrames",
+      "developer": null,
+      "release_date": "06/09/2000",
+      "original_path": "/gbc/driving/wackyraces/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/wackyraces/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/wackyraces/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "In every category, be it gameplay, sound, visuals, or replay, Infogrames' Wacky Races turns in a solid performance.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/wackyraces/review.html"
+      },
+      "score": {
+        "gamespot": 8.6,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 8,
+          "value": 7,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Wario Land 3",
+      "index_title": "Wario Land 3",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "06/01/2000",
+      "original_path": "/gbc/action/warioland3/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/warioland3/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/warioland3/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "As far as platformers go, Wario Land 3 is a game that fires on all cylinders.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/warioland3/review.html"
+      },
+      "score": {
+        "gamespot": 9.8,
+        "label": "superb",
+        "components": {
+          "gameplay": 10,
+          "graphics": 10,
+          "sound": 9,
+          "value": 9,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Wario Land II DX",
+      "index_title": "Wario Land II DX",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Nintendo",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/action/warioland2dx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/warioland2dx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/warioland2dx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Wario Land II DX is one of the best 2D platformers to come out of Nintendo in years.",
+        "reviewer": "Cameron Davis",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/warioland2dx/review.html"
+      },
+      "score": {
+        "gamespot": 8.9,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Warlocked",
+      "index_title": "Warlocked",
+      "genre": "Strategy",
+      "publisher": "Nintendo",
+      "developer": "Bits Studios",
+      "release_date": "2000",
+      "original_path": "/gbc/strategy/warlocked/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/strategy/warlocked/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/strategy/warlocked/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "New or younger players should be able to look past the game's limitations and simply accept it as a simple but fun game.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/strategy/warlocked/review.html"
+      },
+      "score": {
+        "gamespot": 6.6,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "WCW Mayhem",
+      "index_title": "WCW Mayhem",
+      "genre": "Sports",
+      "publisher": "Electronic Arts",
+      "developer": "Electronic Arts",
+      "release_date": "04/30/2000",
+      "original_path": "/gbc/sports/wcwmayhem/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/wcwmayhem/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/wcwmayhem/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "WCW Mayhem marks a respectable entry for EA into the realm of handheld wrestling titles.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/wcwmayhem/review.html"
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 4,
+          "value": 5,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Wings of Fury",
+      "index_title": "Wings of Fury",
+      "genre": "Action",
+      "publisher": "Ed Magnin and Associates",
+      "developer": "Ed Magnin and Associates",
+      "release_date": "1999",
+      "original_path": "/gbc/action/wingsoffury/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/wingsoffury/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/wingsoffury/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While the game is, in its little digital soul, a side-scrolling shooter, it really, really wants to be a simulation.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/wingsoffury/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 8,
+          "graphics": 5,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Woody Woodpecker Racing",
+      "index_title": "Woody Woodpecker Racing",
+      "genre": "Driving",
+      "publisher": "Konami",
+      "developer": "Konami",
+      "release_date": "2000",
+      "original_path": "/gbc/driving/woodywoodpeckerracing/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/driving/woodywoodpeckerracing/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/driving/woodywoodpeckerracing/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you're looking for clever courses, brutal power-ups, and plenty of replay, look no further than Woody Woodpecker Racing.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/driving/woodywoodpeckerracing/review.html"
+      },
+      "score": {
+        "gamespot": 9.1,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "WWF Attitude",
+      "index_title": "WWF Attitude",
+      "genre": "Sports",
+      "publisher": "Acclaim",
+      "developer": "Crawfish Interactive",
+      "release_date": "03/31/1999",
+      "original_path": "/gbc/sports/wwfattitude/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/wwfattitude/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/wwfattitude/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "It's better than the wrestling games to come before it, but WWF Attitude still doesn't quite get the job done.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/wwfattitude/review.html"
+      },
+      "score": {
+        "gamespot": 6.1,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 5,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "WWF Betrayal",
+      "index_title": "WWF Betrayal",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "THQ",
+      "release_date": "08/07/2001",
+      "original_path": "/gbc/action/wwfbetrayal/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/wwfbetrayal/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/wwfbetrayal/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Double Dragon it's not, but WWF Betrayal does give you the chance to pummel hoodlums and machine-gun-toting businessmen with reckless abandon.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/wwfbetrayal/review.html"
+      },
+      "score": {
+        "gamespot": 4.9,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 6,
+          "sound": 7,
+          "value": 4,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "X-Men: Mutant Academy",
+      "index_title": "X-Men: Mutant Academy",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Crawfish Interactive",
+      "release_date": "2000",
+      "original_path": "/gbc/action/xmenmutantacademy/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/xmenmutantacademy/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/xmenmutantacademy/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While the \"big brother\" console release of X-Men: Mutant Academy may be at least tolerable, the Game Boy Color release falls flat.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/xmenmutantacademy/review.html"
+      },
+      "score": {
+        "gamespot": 2.4,
+        "label": "terrible",
+        "components": {
+          "gameplay": 1,
+          "graphics": 7,
+          "sound": 3,
+          "value": 3,
+          "reviewers_tilt": 1
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "X-Men: Mutant Wars",
+      "index_title": "X-Men: Mutant Wars",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "HAL Labs",
+      "release_date": "11/07/2000",
+      "original_path": "/gbc/action/xmenmutantwars/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/xmenmutantwars/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/xmenmutantwars/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "X-Men: Mutant Wars is an archetypical example of a good idea executed badly.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/xmenmutantwars/review.html"
+      },
+      "score": {
+        "gamespot": 4.7,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 8,
+          "sound": 6,
+          "value": 3,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "X-Men: Wolverine's Rage",
+      "index_title": "X-Men: Wolverine's Rage",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Digital Eclipse",
+      "release_date": "05/15/2001",
+      "original_path": "/gbc/action/xmenwolverinesrage/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/xmenwolverinesrage/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/xmenwolverinesrage/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Discerning action aficionados require much more than the 13 brief levels of slashing, jumping, and supernatural healing that this game has to offer",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/xmenwolverinesrage/review.html"
+      },
+      "score": {
+        "gamespot": 5.4,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 7,
+          "value": 4,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Xtreme Sports",
+      "index_title": "Xtreme Sports",
+      "genre": "Sports",
+      "publisher": "Atari",
+      "developer": "WayForward",
+      "release_date": "2000",
+      "original_path": "/gbc/sports/xtremesports/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/xtremesports/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/xtremesports/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Xtreme Sports is definitely going to be an unsung hit.",
+        "reviewer": "Miguel Lopez",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/xtremesports/review.html"
+      },
+      "score": {
+        "gamespot": 8.0,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 6,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Yoda Stories",
+      "index_title": "Yoda Stories",
+      "genre": "Puzzle",
+      "publisher": "THQ",
+      "developer": "Torus Games",
+      "release_date": "01/31/2000",
+      "original_path": "/gbc/puzzle/yodastories/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/yodastories/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/yodastories/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Sadly, there is no reason for anyone to play through Yoda Stories.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/yodastories/review.html"
+      },
+      "score": {
+        "gamespot": 1.8,
+        "label": "abysmal",
+        "components": {
+          "gameplay": 1,
+          "graphics": 3,
+          "sound": 4,
+          "value": 2,
+          "reviewers_tilt": 1
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Yu-Gi-Oh! Dark Duel Stories",
+      "index_title": "Yu-Gi-Oh! Dark Duel Stories",
+      "genre": "Puzzle",
+      "publisher": "Konami",
+      "developer": "KCEJ",
+      "release_date": "03/18/2002",
+      "original_path": "/gbc/puzzle/yugiohdarkduelstories/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/yugiohdarkduelstories/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/yugiohdarkduelstories/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Dark Duel Stories comes recommended to avid enthusiasts of the Duel Monsters card game.",
+        "reviewer": "Gerald Villoria",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/yugiohdarkduelstories/review.html"
+      },
+      "score": {
+        "gamespot": 6.2,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 6,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Dragon Warrior Monsters",
+      "index_title": "Dragon Warrior Monsters",
+      "genre": "Role-Playing",
+      "publisher": "Eidos Interactive",
+      "developer": "Square Enix",
+      "release_date": "12/31/1999",
+      "original_path": "/gbc/rpg/dragonwarriormonsters/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarriormonsters/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/rpg/dragonwarriormonsters/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "If you've already \"caught 'em all,\" and you're looking for a game to tide you over until Pokemon Gold and Silver are released near the end of the year, Dragon Warrior Monsters is exactly what you're looking for. - Jeff Gerstmann",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com:80/gbc/rpg/dragonwarriormonsters/review.html"
+      },
+      "score": {
+        "gamespot": 8.7,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 8,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [
+        "Earlier saved blurb was cut off mid-sentence; corrected against hub page"
+      ]
+    },
+    {
+      "title": "1942",
+      "index_title": "1942",
+      "genre": "Action",
+      "publisher": "Capcom",
+      "developer": "Digital Eclipse",
+      "release_date": "04/30/2000",
+      "original_path": "/gbc/action/1942/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/1942/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/1942/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Even though the gameplay is solid, the bland visuals and lackluster sound make 1942 a tough pill to swallow.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/1942/review.html"
+      },
+      "score": {
+        "gamespot": 4.5,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 5,
+          "sound": 3,
+          "value": 3,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Action Man: Search for Base X",
+      "index_title": "Action Man: Search for Base X",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Natsume",
+      "release_date": "02/06/2001",
+      "original_path": "/gbc/action/actionmansearchforbase10/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/actionmansearchforbase10/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/actionmansearchforbase10/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While the game could be a touch easier and a tad less repetitive, it's still a fine addition to the 2D action genre.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/actionmansearchforbase10/review.html"
+      },
+      "score": {
+        "gamespot": 8.4,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 7,
+          "value": 9,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "AirForce Delta",
+      "index_title": "AirForce Delta",
+      "genre": "Action",
+      "publisher": "Konami",
+      "developer": "Climax Entertainment",
+      "release_date": "11/21/2000",
+      "original_path": "/gbc/action/airforcedelta/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/airforcedelta/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/airforcedelta/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "About the only people capable of enjoying Airforce Delta will be Afterburner or Blue Lightning junkies seeking their latest pseudo-3D flying fix.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/airforcedelta/review.html"
+      },
+      "score": {
+        "gamespot": 4.5,
+        "label": "poor",
+        "components": {
+          "gameplay": 3,
+          "graphics": 9,
+          "sound": 7,
+          "value": 4,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Alice in Wonderland",
+      "index_title": "Alice in Wonderland",
+      "genre": "Action",
+      "publisher": "Nintendo",
+      "developer": "Digital Eclipse",
+      "release_date": "10/04/2000",
+      "original_path": "/gbc/action/aliceinwonderland/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/aliceinwonderland/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/aliceinwonderland/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "In execution, Alice offers some of the best graphics and gameplay ever seen on a portable system.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/aliceinwonderland/review.html"
+      },
+      "score": {
+        "gamespot": 9.0,
+        "label": "superb",
+        "components": {
+          "gameplay": 9,
+          "graphics": 9,
+          "sound": 7,
+          "value": 8,
+          "reviewers_tilt": 10
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "All-Star Baseball 2001",
+      "index_title": "All-Star Baseball 2001",
+      "genre": "Sports",
+      "publisher": "Acclaim",
+      "developer": "KnowWonder",
+      "release_date": "04/30/2000",
+      "original_path": "/gbc/sports/allstarbaseball2001/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/sports/allstarbaseball2001/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/sports/allstarbaseball2001/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Due to limitations in graphical and sound capabilities, handheld baseball titles still have a long way to go before they catch up to their console counterparts. Acclaim's All-Star Baseball 2001 is a step in the right direction.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/sports/allstarbaseball2001/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 4,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Antz",
+      "index_title": "Antz",
+      "genre": "Action",
+      "publisher": "Atari",
+      "developer": "Atari",
+      "release_date": "08/31/1999",
+      "original_path": "/gbc/action/antz/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/antz/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/antz/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Antz on the GBC is another platform game that will amuse those who find the genre enjoyable in small scale 8-bit.",
+        "reviewer": "Lauren Fielder",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/antz/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 8,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Army Men",
+      "index_title": "Army Men",
+      "genre": "Action",
+      "publisher": "3DO",
+      "developer": "Digital Eclipse",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/action/armymen/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/armymen/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/armymen/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Taken as a whole, Army Men is an enjoyable game that delivers the pleasingly nostalgic experience of plastic-soldier warfare.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/armymen/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Asterix: Search for Dogmatix",
+      "index_title": "Asterix: Search for Dogmatix",
+      "genre": "Action",
+      "publisher": "Infogrames",
+      "developer": "Rebellion",
+      "release_date": "05/31/2000",
+      "original_path": "/gbc/action/asterixsearchfordogmatix/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/asterixsearchfordogmatix/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/asterixsearchfordogmatix/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "IMPORT: Asterix: The Search for Dogmatix is one of the better combinations of platformer and plot to come out in recent years.",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/asterixsearchfordogmatix/review.html"
+      },
+      "score": {
+        "gamespot": 7.2,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Babe and Friends",
+      "index_title": "Babe and Friends",
+      "genre": "Puzzle",
+      "publisher": "Crave",
+      "developer": "Aqua Pacific",
+      "release_date": "11/30/1999",
+      "original_path": "/gbc/puzzle/babeandfriends/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/babeandfriends/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/babeandfriends/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "While this title isn't going to win any awards, it's a satisfying way to spend some free time.",
+        "reviewer": "Doug Trueman",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/babeandfriends/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Ballistic",
+      "index_title": "Ballistic",
+      "genre": "Puzzle",
+      "publisher": "Atari",
+      "developer": "Atari",
+      "release_date": "10/31/1999",
+      "original_path": "/gbc/puzzle/ballistic/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/puzzle/ballistic/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/puzzle/ballistic/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Ballistic is a simple and fun game with a fairly innovative puzzle mechanic that's at least good for a while.",
+        "reviewer": "Ben Stahl",
+        "full_review_url": "http://www.gamespot.com:80/gbc/puzzle/ballistic/review.html"
+      },
+      "score": {
+        "gamespot": 5.6,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 6,
+          "graphics": 6,
+          "sound": 5,
+          "value": 6,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Batman: Chaos in Gotham",
+      "index_title": "Batman: Chaos in Gotham",
+      "genre": "Action",
+      "publisher": "Ubisoft",
+      "developer": "Digital Eclipse",
+      "release_date": "04/16/2001",
+      "original_path": "/gbc/action/batmanchaosingotham/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/batmanchaosingotham/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/batmanchaosingotham/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Batman: Chaos in Gotham does well by following a storyline that would have appeared in the comic book or animated series and dressed it up with an assortment of gaming styles and a deep level of control. - Trevor Rivers",
+        "reviewer": "Trevor Rivers",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/batmanchaosingotham/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "BattleTanx",
+      "index_title": "BattleTanx",
+      "genre": "Action",
+      "publisher": "3DO",
+      "developer": "Lucky Chicken",
+      "release_date": "02/29/2000",
+      "original_path": "/gbc/action/battletanx/index.html",
+      "original_url": "http://www.gamespot.com:80/gbc/action/battletanx/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/battletanx/index.html",
+      "final_wayback_url": null,
+      "capture_timestamp": null,
+      "review": {
+        "blurb": "Make no mistake: BattleTanx's gameplay isn't the most complex in the world. - Frank Provo",
+        "reviewer": "Frank Provo",
+        "full_review_url": "http://www.gamespot.com:80/gbc/action/battletanx/review.html"
+      },
+      "score": {
+        "gamespot": null,
+        "label": null,
+        "components": {
+          "gameplay": null,
+          "graphics": null,
+          "sound": null,
+          "value": null,
+          "reviewers_tilt": null
+        }
+      },
+      "status": "missing_scores",
+      "error": null,
+      "parse_issues": [
+        "Only label 'abysmal' shown, no numeric overall or component scores available in any capture"
+      ]
+    }
+  ]
+}
