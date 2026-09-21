@@ -1,15 +1,12 @@
 {
   "metadata": {
-    "generated_at": "2026-09-21T09:14:44.626714+00:00",
+    "generated_at": "2026-09-21T09:19:26.828974+00:00",
     "source_index_original_url": "http://www.gamespot.com:80/gbc/reviews.html",
     "source_index_capture_timestamp": "20040911132018",
     "total_picker_games": 151,
-    "ok_reviews": 149,
-    "missing_scores": 2,
-    "missing_scores_titles": [
-      "Rayman",
-      "BattleTanx"
-    ],
+    "ok_reviews": 151,
+    "missing_scores": 0,
+    "missing_scores_titles": [],
     "fetch_errors": 0,
     "rows_with_parse_issues": 9,
     "label_scale": {
@@ -24,16 +21,17 @@
       "terrible": "2.0-2.9",
       "abysmal": "0.0-1.9"
     },
-    "collection_notes": "Component scores extracted from archived score-card image alt text; full-score layouts found in 1999-2004 snapshots. requested_wayback_url records the 2002id_ URL pattern used at collection; final_wayback_url/capture_timestamp are null because per-game capture timestamps were not recorded during collection.",
+    "collection_notes": "Component scores extracted from archived score-card image alt text; full-score layouts found in 1999-2004 snapshots. BattleTanx/Rayman numeric scores and Checkmate cross-check recovered from videogames.com (pre-rebrand GameSpot) snapshots. requested_wayback_url records the 2002id_ URL pattern used at collection; final_wayback_url/capture_timestamp are null because per-game capture timestamps were not recorded during collection.",
     "manual_fixes_applied": [
+      "BattleTanx: numeric score 5.9 + components recovered from videogames.com snapshot 20000521175339 (later captures showed only label \"abysmal\")",
+      "Rayman: numeric score 8.2 + components recovered from videogames.com snapshot 20000604083527 (later captures had no score section)",
+      "Checkmate: review confirmed against videogames.com full-review snapshot 20010503032244; scores cross-checked",
       "Looney Tunes Racing: replaced copy-pasted Cruis'n Exotica blurb with verified teaser",
       "Triple Play 2001: replaced copy-pasted Toobin' blurb with verified teaser",
       "Croc / Legend of the River King 2 / Micro Machines 1 and 2: Twin Turbo / The Mummy / Dragon Warrior Monsters / Batman: Chaos in Gotham: restored blurbs cut off mid-sentence or truncated at 200 chars",
       "Tony Hawk's Pro Skater: recovered missing reviewer byline (Frank Provo)",
-      "Checkmate: review recovered from 2004 snapshot (2002-2003 captures were GameSpot 404s)",
       "Component scores recovered for Project S-11, Looney Tunes Collector: Alert!, Woody Woodpecker Racing, Batman: Chaos in Gotham, FIFA '98, Ghosts N' Goblins, Perfect Dark, X-Men: Wolverine's Rage, Triple Play 2001",
-      "Release dates recovered for 12 pilot-batch games; review dates recovered from review-page POSTED stamps where visible",
-      "BattleTanx and Rayman: no numeric scores exist in any capture (only label abysmal / missing scorecards) -> null"
+      "Release dates recovered for 12 pilot-batch games; review dates recovered from review-page POSTED stamps where visible"
     ]
   },
   "games": [
@@ -267,7 +265,7 @@
       "genre": "Action",
       "publisher": "Atron",
       "developer": "Atron",
-      "release_date": "12/31/1998",
+      "release_date": "01/99",
       "original_path": "/gbc/action/checkmate/index.html",
       "original_url": "http://www.gamespot.com:80/gbc/action/checkmate/index.html",
       "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/checkmate/index.html",
@@ -292,7 +290,8 @@
       "status": "ok",
       "error": null,
       "parse_issues": [
-        "2002-2003 captures were a GameSpot 404; review recovered from 2004 snapshot"
+        "2002-2003 captures were a GameSpot 404; review recovered from 2004 snapshot",
+        "Cross-checked against videogames.com full-review snapshot 20010503032244; scores confirmed"
       ]
     },
     {
@@ -2707,34 +2706,35 @@
       "title": "Rayman",
       "index_title": "Rayman",
       "genre": "Action",
-      "publisher": "Ubisoft",
+      "publisher": "Ubi Soft",
       "developer": "Ubisoft",
-      "release_date": "02/29/2000",
+      "release_date": "03/2000",
       "original_path": "/gbc/action/rayman/index.html",
       "original_url": "http://www.gamespot.com:80/gbc/action/rayman/index.html",
       "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/rayman/index.html",
       "final_wayback_url": null,
       "capture_timestamp": null,
       "review": {
-        "blurb": "One of the better titles to hit the Game Boy Color in recent history. - Frank Provo",
+        "blurb": "One of the better titles to hit the Game Boy Color in recent history.",
         "reviewer": "Frank Provo",
         "full_review_url": "http://www.gamespot.com:80/gbc/action/rayman/review.html"
       },
       "score": {
-        "gamespot": null,
-        "label": null,
+        "gamespot": 8.2,
+        "label": "great",
         "components": {
-          "gameplay": null,
-          "graphics": null,
-          "sound": null,
-          "value": null,
-          "reviewers_tilt": null
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 8,
+          "value": 8,
+          "reviewers_tilt": 8
         }
       },
-      "status": "missing_scores",
+      "status": "ok",
       "error": null,
       "parse_issues": [
-        "No numeric scores in any capture; hub shows none, review page shows label 'abysmal' with missing components"
+        "No numeric scores in any capture; hub shows none, review page shows label 'abysmal' with missing components",
+        "Numeric scores recovered from videogames.com snapshot 20000604083527; later GameSpot captures showed no score section at all"
       ]
     },
     {
@@ -4857,34 +4857,35 @@
       "title": "BattleTanx",
       "index_title": "BattleTanx",
       "genre": "Action",
-      "publisher": "3DO",
+      "publisher": "The 3DO Company",
       "developer": "Lucky Chicken",
-      "release_date": "02/29/2000",
+      "release_date": "03/2000",
       "original_path": "/gbc/action/battletanx/index.html",
       "original_url": "http://www.gamespot.com:80/gbc/action/battletanx/index.html",
       "requested_wayback_url": "https://web.archive.org/web/2002id_/http://www.gamespot.com/gbc/action/battletanx/index.html",
       "final_wayback_url": null,
       "capture_timestamp": null,
       "review": {
-        "blurb": "Make no mistake: BattleTanx's gameplay isn't the most complex in the world. - Frank Provo",
+        "blurb": "Make no mistake: BattleTanx's gameplay isn't the most complex in the world.",
         "reviewer": "Frank Provo",
         "full_review_url": "http://www.gamespot.com:80/gbc/action/battletanx/review.html"
       },
       "score": {
-        "gamespot": null,
-        "label": null,
+        "gamespot": 5.9,
+        "label": "mediocre",
         "components": {
-          "gameplay": null,
-          "graphics": null,
-          "sound": null,
-          "value": null,
-          "reviewers_tilt": null
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 6,
+          "value": 5,
+          "reviewers_tilt": 5
         }
       },
-      "status": "missing_scores",
+      "status": "ok",
       "error": null,
       "parse_issues": [
-        "Only label 'abysmal' shown, no numeric overall or component scores available in any capture"
+        "Only label 'abysmal' shown, no numeric overall or component scores available in any capture",
+        "Numeric scores recovered from videogames.com snapshot 20000521175339; later GameSpot captures showed only label 'abysmal'"
       ]
     }
   ]
