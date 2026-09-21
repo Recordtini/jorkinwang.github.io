@@ -1,775 +1,259 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VideoGames.com: Game Boy Color Review Index</title>
-  <style>
-    html,
-    body {
-      margin: 0;
-      min-height: 100%;
-    }
-
-    body {
-      background: #000;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      overflow-x: auto;
-      font-family: "Times New Roman", Times, serif;
-      font-size: 16px;
-    }
-
-    a {
-      color: #ff9900;
-      text-decoration: none;
-    }
-
-    a:visited {
-      color: #cc7700;
-    }
-
-    img {
-      border: 0;
-      vertical-align: top;
-    }
-
-    .page {
-      width: 1448px;
-      min-height: 100vh;
-      margin: 0;
-      display: flex;
-      align-items: stretch;
-    }
-
-    @media (min-width: 1600px) {
-      .page {
-        zoom: 1.12;
-      }
-    }
-
-    @media (min-width: 2500px) {
-      .page {
-        zoom: 1.55;
-      }
-    }
-
-    @media (min-width: 3400px) {
-      .page {
-        zoom: 2;
-      }
-    }
-
-    .rail {
-      width: 130px;
-      min-height: 100vh;
-      background: #003f00 url("siteexample/VideoGameSpot_%20Review%20Index_files/edge_KvcD.gif") repeat-y left top;
-      text-align: center;
-      flex: 0 0 130px;
-    }
-
-    .rail img {
-      margin-top: 92px;
-    }
-
-    .right {
-      width: 1270px;
-      margin-left: 48px;
-      padding-top: 40px;
-      text-align: left;
-    }
-
-    /* 2001-era header, rebuilt from the November 2001 page look */
-    .masthead {
-      width: 720px;
-      background: #000;
-      border: 1px solid #2a4d2a;
-    }
-
-    .masthead-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px 6px;
-      background: #000;
-    }
-
-    .logo {
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: bold;
-      font-size: 26px;
-      letter-spacing: 1px;
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    .logo .g-dot {
-      display: inline-block;
-      width: 30px;
-      height: 30px;
-      margin-right: 6px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ffe27a, #d4a017 60%, #7a5a00);
-      color: #000;
-      font-size: 20px;
-      line-height: 30px;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    .tagline {
-      display: block;
-      font-size: 9px;
-      font-weight: normal;
-      letter-spacing: 3px;
-      color: #9acd32;
-    }
-
-    .masthead-date {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      color: #c0c0c0;
-      text-transform: uppercase;
-    }
-
-    .masthead-search {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      background: #0d2b0d;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .masthead-search input {
-      width: 220px;
-      padding: 2px 4px;
-      border: 1px solid #666;
-      background: #fff;
-      color: #000;
-      font-size: 12px;
-    }
-
-    .masthead-search .go {
-      padding: 2px 10px;
-      background: #2e8b2e;
-      border: 1px solid #9acd32;
-      color: #fff;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .console-banner {
-      width: 720px;
-      margin-top: 8px;
-      padding: 7px 10px;
-      box-sizing: border-box;
-      background: #b89c50;
-      color: #1a1a1a;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 20px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-
-    .list-banner {
-      width: 720px;
-      margin-top: 2px;
-      padding: 6px 10px;
-      box-sizing: border-box;
-      background: #111;
-      border: 1px solid #2a4d2a;
-      border-top: 0;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .list-banner .list-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #ff9900;
-      letter-spacing: 1px;
-    }
-
-    .list-banner .list-note {
-      font-size: 10px;
-      color: #999;
-    }
-
-    .sort-row {
-      margin-top: 28px;
-      height: 28px;
-      white-space: nowrap;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      font-weight: bold;
-      line-height: 20px;
-    }
-
-    .sort-label,
-    .sort-button {
-      display: inline-block;
-      height: 22px;
-      padding: 0 10px;
-      margin-right: 6px;
-      color: #fff;
-      background: #0d2b0d;
-      border: 1px solid #2e8b2e;
-      box-sizing: border-box;
-      text-align: center;
-      vertical-align: top;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      font-weight: bold;
-      line-height: 20px;
-    }
-
-    .sort-label {
-      width: 90px;
-      color: #fff;
-      background: #1b1b1b;
-      border-color: #ff9900;
-    }
-
-    .sort-button.active {
-      position: relative;
-      border-color: #fff;
-      background: #2e8b2e;
-    }
-
-    .sort-button {
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    .sort-button.active::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -8px;
-      width: 0;
-      height: 0;
-      margin-left: -6px;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 6px solid #ff9900;
-    }
-
-    .filter-row {
-      margin-top: 10px;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      font-weight: bold;
-      color: #9acd32;
-    }
-
-    .filter-row input {
-      width: 260px;
-      padding: 3px 6px;
-      margin-left: 8px;
-      border: 1px solid #2e8b2e;
-      background: #111;
-      color: #fff;
-      font-size: 12px;
-    }
-
-    .filter-count {
-      margin-left: 10px;
-      color: #999;
-      font-weight: normal;
-    }
-
-    .review-grid {
-      width: 1270px;
-      margin-top: 18px;
-      border-collapse: collapse;
-      table-layout: fixed;
-      border: 1px solid #2e8b2e;
-      border-left-width: 0;
-      border-top-width: 0;
-    }
-
-    .review-grid th,
-    .review-grid td {
-      border-left: 1px solid #2e8b2e;
-      border-top: 1px solid #2e8b2e;
-      background: #000;
-      color: #fff;
-      vertical-align: top;
-      box-sizing: border-box;
-    }
-
-    .review-grid th {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      padding: 7px 8px 6px;
-      color: #9acd32;
-      background: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      font-weight: bold;
-      line-height: 12px;
-      text-align: center;
-      text-transform: uppercase;
-      box-shadow: 0 2px 0 #2e8b2e;
-    }
-
-    .review-grid th.game-col,
-    .review-grid th.blurb-col {
-      text-align: left;
-    }
-
-    .review-grid td {
-      padding: 12px 12px;
-      font-size: 16px;
-      line-height: 20px;
-    }
-
-    .review-grid .game-col {
-      width: 220px;
-      border-left: 0;
-    }
-
-    .review-grid .score-col,
-    .review-grid .mini-score-col {
-      text-align: center;
-    }
-
-    .review-grid .overall-col {
-      width: 78px;
-    }
-
-    .review-grid .overall-col .score-value {
-      color: #9acd32;
-      font-weight: bold;
-    }
-
-    .review-grid .mini-score-col {
-      width: 80px;
-    }
-
-    .review-grid .reviewer-col {
-      width: 132px;
-    }
-
-    .review-grid .blurb-col {
-      width: 440px;
-    }
-
-    .review-grid .game-title {
-      display: block;
-      color: #ff9900;
-      font-weight: bold;
-      line-height: 18px;
-    }
-
-    .review-grid .publisher,
-    .review-grid .date {
-      display: block;
-      color: #fff;
-      line-height: 20px;
-    }
-
-    .review-grid .score-value {
-      display: block;
-      padding-top: 2px;
-    }
-
-    .review-grid .blurb {
-      display: block;
-      max-height: 80px;
-      overflow: hidden;
-    }
-
-    .load-state {
-      width: 1270px;
-      margin-top: 30px;
-      color: #fff;
-      text-align: center;
-    }
-
-    .footer {
-      width: 600px;
-      margin-top: 30px;
-      padding-bottom: 40px;
-      color: #fff;
-      font-size: 10px;
-      line-height: 12px;
-    }
-
-    @media (max-width: 760px) {
-      body {
-        display: block;
-        overflow-x: hidden;
-      }
-
-      .page {
-        width: 100%;
-        display: block;
-        zoom: 1 !important;
-      }
-
-      .rail {
-        width: 100%;
-        height: 92px;
-        min-height: 92px;
-        padding-left: 24px;
-        box-sizing: border-box;
-        background-repeat: repeat;
-        text-align: left;
-      }
-
-      .rail img {
-        margin-top: 18px;
-      }
-
-      .right {
-        width: auto;
-        margin-left: 0;
-        padding: 24px 12px 32px;
-      }
-
-      .masthead,
-      .console-banner,
-      .list-banner {
-        width: 100%;
-      }
-
-      .sort-row {
-        height: auto;
-        margin-top: 22px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        justify-content: center;
-        white-space: normal;
-      }
-
-      .sort-label,
-      .sort-button {
-        margin-right: 0;
-      }
-
-      .review-grid {
-        width: 100%;
-        display: block;
-        border: 0;
-        table-layout: auto;
-      }
-
-      .review-grid thead,
-      .review-grid tbody,
-      .review-grid tr,
-      .review-grid td {
-        display: block;
-      }
-
-      .review-grid thead {
-        display: none;
-      }
-
-      .review-grid tr {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        border: 1px solid #2e8b2e;
-        border-top: 0;
-      }
-
-      .review-grid tr:first-child {
-        border-top: 1px solid #2e8b2e;
-      }
-
-      .review-grid td {
-        width: auto !important;
-        min-width: 0;
-        padding: 8px 6px;
-        border-left: 1px solid #2e8b2e;
-        border-top: 1px solid #2e8b2e;
-        font-size: 15px;
-        line-height: 18px;
-        overflow-wrap: anywhere;
-      }
-
-      .review-grid .game-col,
-      .review-grid .reviewer-col,
-      .review-grid .blurb-col {
-        grid-column: 1 / -1;
-      }
-
-      .review-grid .game-col {
-        border-left: 1px solid #2e8b2e;
-      }
-
-      .review-grid td[data-label]::before {
-        display: block;
-        margin-bottom: 3px;
-        color: #ff9900;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 10px;
-        font-weight: bold;
-        line-height: 11px;
-        text-transform: uppercase;
-        content: attr(data-label);
-      }
-
-      .review-grid .blurb {
-        max-height: none;
-      }
-
-      .load-state,
-      .footer {
-        width: auto;
-      }
-
-      .footer {
-        padding: 0 12px 28px;
-        text-align: center;
-      }
-    }
-  </style>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameSpot: Game Boy Color</title>
+<meta name="description" content="GameSpot's Game Boy Color section features in-depth game information, reviews, previews, movies, release dates, hints, and much more.">
+<meta name="keywords" content="game boy color, gbc, games, game, video games, reviews, previews, movies, hints, codes, cheats, release dates, game guides, game faqs">
+<link rel="stylesheet" href="https://web.archive.org/web/20011107142422cs_/http://image.com.com/gamespot/css/gs3.css">
+<script language="JavaScript">
+<!--
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+function MM_findObj(n, d) { //v3.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document); return x;
+}
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+//-->
+</script>
+<style>
+.sortbtn { font-family: Arial,Helvetica,sans-serif; font-size:10px; font-weight:bold; color:#fff; background:#222; border:1px solid #666; padding:2px 7px; margin:1px 2px; cursor:pointer; }
+.sortbtn.active { background:#000; border-color:#ffcc00; color:#ffcc00; }
+#filter-input { font-family: Arial,Helvetica,sans-serif; font-size:11px; width:200px; padding:2px 4px; border:1px solid #666; background:#fff; color:#000; }
+.blurb { display:block; max-height:44px; overflow:hidden; }
+#load-state { padding:30px; text-align:center; }
+</style>
 </head>
-<body>
-  <div class="page">
-    <aside class="rail">
-      <img src="siteexample/VideoGameSpot_%20Review%20Index_files/astro_002_KvcD.gif" width="57" height="57" alt="">
-    </aside>
+<body bgcolor="#FFFFFF" text="#000000" link="#003399" vlink="#003399" alink="#FF0000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="MM_preloadImages('https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_home_on.gif','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_pc_on.gif','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_hw_on.gif','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_live_on.gif','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_buyer_on.gif')">
 
-    <main class="right">
-      <div class="masthead">
-        <div class="masthead-top">
-          <div class="logo"><span class="g-dot">G</span>VIDEO GAMES<span class="tagline">WHERE VIDEO GAMERS GO TO KNOW</span></div>
-          <div class="masthead-date">Wednesday, November 07, 2001</div>
-        </div>
-        <div class="masthead-search">
-          <span>SEARCH FOR:</span>
-          <input type="text" id="site-search" aria-label="Search the site">
-          <button class="go" type="button" id="site-go">GO</button>
-        </div>
-      </div>
+<!-- BEGIN OUTER TABLE -->
+<table width="750" border="0" cellpadding="0" cellspacing="0" align="center"><tbody><tr valign="top"><td>
 
-      <div class="console-banner">GAME BOY COLOR</div>
-      <div class="list-banner">
-        <div class="list-title">GAME BOY COLOR REVIEW INDEX</div>
-        <div class="list-note">Every GameSpot review from the Game Boy Color era, resurrected from the archives.</div>
-      </div>
+<!-- BEGIN EYEBROW -->
+<table width="750" border="0" cellspacing="0" cellpadding="0" align="center">
+<tbody><tr>
+<td width="150"><a href="https://web.archive.org/web/20011107142422/http://video.gamespot.com/"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/eyebrow_vg.gif" width="150" height="30" border="0" alt="VIDEO.GAMESPOT.COM"></a></td>
+<td width="450" align="center" bgcolor="#000000">
+<table border="0" cellspacing="0" cellpadding="0">
+<tbody><tr>
+<td><a href="https://web.archive.org/web/20011107142422/http://www.gamespot.com/" onmouseover="MM_swapImage('home','','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_home_on.gif',1)" onmouseout="MM_swapImgRestore()"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_home.gif" width="93" height="30" border="0" alt="GameSpot Home" name="home"></a></td>
+<td><a href="https://web.archive.org/web/20011107142422/http://www.gamespot.com/pc.html" onmouseover="MM_swapImage('pc','','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_pc_on.gif',1)" onmouseout="MM_swapImgRestore()"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_pc.gif" width="77" height="30" border="0" alt="PC Games" name="pc"></a></td>
+<td><a href="https://web.archive.org/web/20011107142422/http://www.gamespot.com/pchardware.html" onmouseover="MM_swapImage('hw','','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_hw_on.gif',1)" onmouseout="MM_swapImgRestore()"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_hw.gif" width="98" height="30" border="0" alt="PC Hardware" name="hw"></a></td>
+<td><a href="https://web.archive.org/web/20011107142422/http://gamespot.com/gamespot/live/" onmouseover="MM_swapImage('live','','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_live_on.gif',1)" onmouseout="MM_swapImgRestore()"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_live.gif" width="103" height="30" border="0" alt="GameSpot Live" name="live"></a></td>
+<td><a href="https://web.archive.org/web/20011107142422/http://www.gamebuyer.com/" onmouseover="MM_swapImage('buyer','','https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_buyer_on.gif',1)" onmouseout="MM_swapImgRestore()"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_buyer.gif" width="79" height="30" border="0" alt="GameBuyer" name="buyer"></a></td>
+</tr></tbody></table>
+</td>
+<td width="150" align="right" bgcolor="#000000"><a href="https://web.archive.org/web/20011107142422/http://www.gamespot.com/"><img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/eyebrow_gs.gif" width="150" height="30" border="0" alt="GameSpot Video Games"></a></td>
+</tr>
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tbody><tr>
+<td class="gsblack11">&nbsp;&nbsp;<b>WEDNESDAY, NOVEMBER 07, 2001</b></td>
+<td align="right">
+<table border="0" cellspacing="0" cellpadding="0">
+<tbody><tr>
+<td><input type="text" name="Utext" size="15" class="gsinput"></td>
+<td><input type="image" src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/gs3/nav/btn_go.gif" width="36" height="20" border="0" alt="Go!" name="Go!"></td>
+</tr></tbody></table>
+</td>
+</tr></tbody></table>
+</td>
+</tr></tbody></table>
+<!-- END EYEBROW -->
 
-      <div class="sort-row" aria-label="Sort controls">
-        <span class="sort-label">SORT BY:</span>
-        <button class="sort-button active" type="button" data-sort="date">Date</button>
-        <button class="sort-button" type="button" data-sort="genre">Genre</button>
-        <button class="sort-button" type="button" data-sort="title">Games</button>
-        <button class="sort-button" type="button" data-sort="publisher">Publisher</button>
-        <button class="sort-button" type="button" data-sort="score">Spot Score</button>
-        <button class="sort-button" type="button" data-sort="gameplay">Gameplay</button>
-        <button class="sort-button" type="button" data-sort="graphics">Graphics</button>
-        <button class="sort-button" type="button" data-sort="sound">Sound</button>
-        <button class="sort-button" type="button" data-sort="value">Value</button>
-        <button class="sort-button" type="button" data-sort="tilt">Tilt</button>
-        <button class="sort-button" type="button" data-sort="reviewer">Reviewer</button>
-      </div>
+<br>
 
-      <div class="filter-row">
-        <label for="filter-input">FILTER:</label>
-        <input type="text" id="filter-input" placeholder="Type a title, publisher, or reviewer...">
-        <span class="filter-count" id="filter-count"></span>
-      </div>
+<img src="https://web.archive.org/web/20011107142422im_/http://image.com.com/gamespot/images/headers/video/428_video_gbc.gif" width="440" height="50" alt="Game Boy Color" border="0"><br>
 
-      <div id="load-state" class="load-state">Loading...</div>
-      <table id="review-table" class="review-grid" style="display:none">
-        <thead>
-          <tr>
-            <th class="game-col"><span>Game</span><br><span>Publisher</span><br><span>Date</span></th>
-            <th class="overall-col score-col">Overall<br>Score</th>
-            <th class="mini-score-col">Gameplay</th>
-            <th class="mini-score-col">Graphics</th>
-            <th class="mini-score-col">Sound</th>
-            <th class="mini-score-col">Value</th>
-            <th class="mini-score-col">Tilt</th>
-            <th class="reviewer-col">Reviewer</th>
-            <th class="blurb-col">Blurb</th>
-          </tr>
-        </thead>
-        <tbody id="review-body"></tbody>
-      </table>
+<img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/428_video_mp_gbc.gif" width="428" height="17" hspace="0" alt="Most Popular Game Boy Color  Games"><br>
+<!---***** BEGIN MOST POPULAR *****--->
+<table width="748" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000">
+<tbody><tr><td width="1" bgcolor="#666666" rowspan="320"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/clear.gif" width="1" height="1"></td>
+<td width="746" bgcolor="#333333" colspan="8" class="gsgrey10"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/dot_666666.gif" width="746" hspace="0" height="1"><br>&nbsp;&nbsp;
+<!--by traffic -->
+Rankings are based on site traffic<br><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/dot_444444.gif" width="746" height="1" hspace="0"></td>
+<td width="1" bgcolor="#666666" rowspan="320"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/clear.gif" width="1" height="1"></td></tr>
+<tr><td colspan="8" class="spacer8">&nbsp;<br></td></tr>
+<tr><td colspan="8" class="gsgrey11" style="padding:4px 10px;"><b>SORT BY:</b>
+<button class="sortbtn" type="button" data-sort="date">Date</button><button class="sortbtn" type="button" data-sort="genre">Genre</button><button class="sortbtn" type="button" data-sort="title">Games</button><button class="sortbtn" type="button" data-sort="publisher">Publisher</button><button class="sortbtn active" type="button" data-sort="score">Spot Score</button><button class="sortbtn" type="button" data-sort="gameplay">Gameplay</button><button class="sortbtn" type="button" data-sort="graphics">Graphics</button><button class="sortbtn" type="button" data-sort="sound">Sound</button><button class="sortbtn" type="button" data-sort="value">Value</button><button class="sortbtn" type="button" data-sort="tilt">Tilt</button><button class="sortbtn" type="button" data-sort="reviewer">Reviewer</button>
+<br><b>FILTER:</b> <input type="text" id="filter-input" placeholder="Type a title, publisher, or reviewer..."> <span id="filter-count" class="gsgrey11"></span>
+</td></tr>
+<tr>
+<td width="30" align="center" class="gsgrey11"><b>#</b></td>
+<td width="306" class="gsgrey11"><b>GAME</b></td>
+<td width="60" align="center" class="gsgrey11"><b>SCORE</b></td>
+<td width="50" align="center" class="gsgrey11"><b>PLAY</b></td>
+<td width="50" align="center" class="gsgrey11"><b>GFX</b></td>
+<td width="50" align="center" class="gsgrey11"><b>SND</b></td>
+<td width="50" align="center" class="gsgrey11"><b>VAL</b></td>
+<td width="100" class="gsgrey11"><b>REVIEWER</b></td>
+</tr>
+<tr><td width="746" colspan="8"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/dot_333333.gif" width="746" height="1" hspace="0" vspace="6"></td></tr>
+</tbody>
+<tbody id="list-body"></tbody>
+<tbody><tr><td width="746" colspan="8"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/dot_666666.gif" width="746" hspace="0" height="1"><br></td></tr></tbody></table>
+<!---***** END MOST POPULAR *****--->
 
-      <div class="footer">
-        Copyright &copy; 2001 SpotMedia Communications. All rights reserved.
-        Reproduction in whole or in part in any form or in any medium without
-        express written permission of SpotMedia Communications is prohibited.
-      </div>
-    </main>
-  </div>
+<div id="load-state" class="gsgrey11">Loading...</div>
 
-  <script>
-    const jsonUrl = "outputs/gamespot_gbc_reviews.json";
-    const reviewBody = document.getElementById("review-body");
-    const reviewTable = document.getElementById("review-table");
-    const loadState = document.getElementById("load-state");
-    const sortButtons = Array.from(document.querySelectorAll(".sort-button"));
-    const filterInput = document.getElementById("filter-input");
-    const filterCount = document.getElementById("filter-count");
-    const siteSearch = document.getElementById("site-search");
-    const siteGo = document.getElementById("site-go");
-    let loadedGames = [];
-    let activeSort = "date";
-    let filterText = "";
+</td></tr></tbody></table>
+<!-- END OUTER TABLE -->
 
-    function text(value) {
-      return value == null || value === "" ? "\u00a0" : String(value);
+<script>
+const jsonUrl = "outputs/gamespot_gbc_reviews.json";
+const listBody = document.getElementById("list-body");
+const loadState = document.getElementById("load-state");
+const sortButtons = Array.from(document.querySelectorAll(".sortbtn"));
+const filterInput = document.getElementById("filter-input");
+const filterCount = document.getElementById("filter-count");
+let loadedGames = [];
+let activeSort = "score";
+let filterText = "";
+
+function text(value) {
+  return value == null || value === "" ? "\u00a0" : String(value);
+}
+
+function oneDecimal(value) {
+  return value == null || value === "" ? "\u00a0" : Number(value).toFixed(1);
+}
+
+function wholeScore(value) {
+  return value == null || value === "" ? "\u00a0" : String(value);
+}
+
+function escapeHtml(value) {
+  return text(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function gameHref(game) {
+  return game.final_wayback_url || game.requested_wayback_url || game.original_url || "#";
+}
+
+function sortDate(game) {
+  const raw = game.release_date || "";
+  const parts = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (parts) {
+    return `${parts[3]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+  }
+  const year = raw.match(/^\d{4}$/);
+  return year ? `${raw}-00-00` : raw;
+}
+
+function sortValue(game, key) {
+  if (key === "date") return sortDate(game);
+  if (key === "genre") return text(game.genre).toLowerCase();
+  if (key === "title") return text(game.title).toLowerCase();
+  if (key === "publisher") return text(game.publisher).toLowerCase();
+  if (key === "score") return game.score && game.score.gamespot != null ? Number(game.score.gamespot) : -1;
+  const components = (game.score && game.score.components) || {};
+  if (key === "gameplay") return components.gameplay != null ? Number(components.gameplay) : -1;
+  if (key === "graphics") return components.graphics != null ? Number(components.graphics) : -1;
+  if (key === "sound") return components.sound != null ? Number(components.sound) : -1;
+  if (key === "value") return components.value != null ? Number(components.value) : -1;
+  if (key === "tilt") return components.reviewers_tilt != null ? Number(components.reviewers_tilt) : -1;
+  if (key === "reviewer") return text(game.review && game.review.reviewer).toLowerCase();
+  return "";
+}
+
+function matchesFilter(game) {
+  if (!filterText) return true;
+  const haystack = [
+    game.title, game.genre, game.publisher, game.developer,
+    game.review && game.review.reviewer, game.review && game.review.blurb,
+  ].filter(Boolean).join(" ").toLowerCase();
+  return filterText.split(/\s+/).every((word) => haystack.includes(word));
+}
+
+function visibleGames() {
+  const filtered = loadedGames.filter(matchesFilter);
+  return filtered.sort((a, b) => {
+    const av = sortValue(a, activeSort);
+    const bv = sortValue(b, activeSort);
+    if (typeof av === "number" || typeof bv === "number") {
+      const diff = Number(bv) - Number(av);
+      if (diff !== 0) return diff;
+    } else {
+      const descending = activeSort === "date";
+      const diff = descending ? String(bv).localeCompare(String(av)) : String(av).localeCompare(String(bv));
+      if (diff !== 0) return diff;
     }
+    return text(a.title).localeCompare(text(b.title));
+  });
+}
 
-    function score(value) {
-      return value == null || value === "" ? "\u00a0" : Number(value).toFixed(1);
-    }
+function renderAll() {
+  listBody.innerHTML = "";
+  const games = visibleGames();
+  games.forEach((game, i) => renderGame(game, i + 1));
+  filterCount.textContent = filterText ? `showing ${games.length} of ${loadedGames.length}` : "";
+}
 
-    function wholeScore(value) {
-      return value == null || value === "" ? "\u00a0" : String(value);
-    }
+function renderGame(game, rank) {
+  const components = (game.score && game.score.components) || {};
+  const href = escapeHtml(gameHref(game));
+  const meta = [game.publisher, game.genre, game.release_date].filter(Boolean).map(escapeHtml).join(" &middot; ");
+  const tr = document.createElement("tr");
+  tr.setAttribute("valign", "top");
+  tr.innerHTML = `
+    <td width="30" align="center" valign="top"><span class="gsgrey11"><b>${String(rank).padStart(2, "0")}</b></span></td>
+    <td width="306" valign="top">
+      <a href="${href}" class="gsyellow13">${escapeHtml(game.title)}</a><br>
+      <span class="gsgrey11">${meta}</span><br>
+      <span class="blurb gsgrey10">${escapeHtml(game.review && game.review.blurb)}</span>
+      <a href="${href}" class="gslink11">Read More</a>
+    </td>
+    <td width="60" align="center"><span class="gsgrey11"><b>score:</b></span><br><span class="gsscore3">${oneDecimal(game.score && game.score.gamespot)}</span></td>
+    <td width="50" align="center"><span class="gsscore3">${wholeScore(components.gameplay)}</span></td>
+    <td width="50" align="center"><span class="gsscore3">${wholeScore(components.graphics)}</span></td>
+    <td width="50" align="center"><span class="gsscore3">${wholeScore(components.sound)}</span></td>
+    <td width="50" align="center"><span class="gsscore3">${wholeScore(components.value)}</span></td>
+    <td width="100" valign="top"><span class="gsgrey11">${escapeHtml(game.review && game.review.reviewer)}</span></td>`;
+  listBody.appendChild(tr);
+  const div = document.createElement("tr");
+  div.innerHTML = `<td width="746" colspan="8"><img src="/web/20011107142422im_/http://gamespot.com/gamespot/shared4/dot_333333.gif" width="746" height="1" hspace="0" vspace="6"></td>`;
+  listBody.appendChild(div);
+}
 
-    function sortDate(game) {
-      const raw = game.release_date || "";
-      const parts = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-      if (parts) {
-        return `${parts[3]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
-      }
-      const year = raw.match(/^\d{4}$/);
-      return year ? `${raw}-00-00` : raw;
-    }
+sortButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeSort = button.dataset.sort;
+    sortButtons.forEach((candidate) => candidate.classList.toggle("active", candidate === button));
+    renderAll();
+  });
+});
 
-    function escapeHtml(value) {
-      return text(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
-    }
+filterInput.addEventListener("input", () => {
+  filterText = filterInput.value.trim().toLowerCase();
+  renderAll();
+});
 
-    function gameHref(game) {
-      return game.final_wayback_url || game.requested_wayback_url || game.original_url || "#";
-    }
-
-    function sortValue(game, key) {
-      if (key === "date") return sortDate(game);
-      if (key === "genre") return text(game.genre).toLowerCase();
-      if (key === "title") return text(game.title).toLowerCase();
-      if (key === "publisher") return text(game.publisher).toLowerCase();
-      if (key === "score") return game.score && game.score.gamespot != null ? Number(game.score.gamespot) : -1;
-
-      const components = (game.score && game.score.components) || {};
-      if (key === "gameplay") return components.gameplay != null ? Number(components.gameplay) : -1;
-      if (key === "graphics") return components.graphics != null ? Number(components.graphics) : -1;
-      if (key === "sound") return components.sound != null ? Number(components.sound) : -1;
-      if (key === "value") return components.value != null ? Number(components.value) : -1;
-      if (key === "tilt") return components.reviewers_tilt != null ? Number(components.reviewers_tilt) : -1;
-
-      if (key === "reviewer") return text(game.review && game.review.reviewer).toLowerCase();
-      return "";
-    }
-
-    function matchesFilter(game) {
-      if (!filterText) return true;
-      const haystack = [
-        game.title,
-        game.genre,
-        game.publisher,
-        game.developer,
-        game.review && game.review.reviewer,
-        game.review && game.review.blurb,
-      ].filter(Boolean).join(" ").toLowerCase();
-      return filterText.split(/\s+/).every((word) => haystack.includes(word));
-    }
-
-    function visibleGames() {
-      const filtered = loadedGames.filter(matchesFilter);
-      return filtered.sort((a, b) => {
-        const av = sortValue(a, activeSort);
-        const bv = sortValue(b, activeSort);
-        if (typeof av === "number" || typeof bv === "number") {
-          const diff = Number(bv) - Number(av);
-          if (diff !== 0) return diff;
-        } else {
-          const descending = activeSort === "date";
-          const diff = descending ? String(bv).localeCompare(String(av)) : String(av).localeCompare(String(bv));
-          if (diff !== 0) return diff;
-        }
-        return text(a.title).localeCompare(text(b.title));
-      });
-    }
-
-    function renderAll() {
-      reviewBody.innerHTML = "";
-      const games = visibleGames();
-      games.forEach(renderGame);
-      filterCount.textContent = filterText
-        ? `showing ${games.length} of ${loadedGames.length}`
-        : "";
-    }
-
-    function renderGame(game) {
-      const row = document.createElement("tr");
-      const components = (game.score && game.score.components) || {};
-      row.innerHTML = `
-        <td class="game-col">
-          <a class="game-title" href="${escapeHtml(gameHref(game))}">${escapeHtml(game.title)}</a>
-          <span class="publisher">${escapeHtml(game.publisher)}</span>
-          <span class="date">${escapeHtml(game.release_date)}</span>
-        </td>
-        <td class="overall-col score-col" data-label="Overall"><span class="score-value">${score(game.score && game.score.gamespot)}</span></td>
-        <td class="mini-score-col" data-label="Gameplay"><span class="score-value">${wholeScore(components.gameplay)}</span></td>
-        <td class="mini-score-col" data-label="Graphics"><span class="score-value">${wholeScore(components.graphics)}</span></td>
-        <td class="mini-score-col" data-label="Sound"><span class="score-value">${wholeScore(components.sound)}</span></td>
-        <td class="mini-score-col" data-label="Value"><span class="score-value">${wholeScore(components.value)}</span></td>
-        <td class="mini-score-col" data-label="Tilt"><span class="score-value">${wholeScore(components.reviewers_tilt)}</span></td>
-        <td class="reviewer-col" data-label="Reviewer">${escapeHtml(game.review && game.review.reviewer)}</td>
-        <td class="blurb-col" data-label="Blurb"><span class="blurb">${escapeHtml(game.review && game.review.blurb)}</span></td>
-      `;
-      reviewBody.appendChild(row);
-    }
-
-    sortButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        activeSort = button.dataset.sort;
-        sortButtons.forEach((candidate) => candidate.classList.toggle("active", candidate === button));
-        renderAll();
-      });
-    });
-
-    filterInput.addEventListener("input", () => {
-      filterText = filterInput.value.trim().toLowerCase();
-      renderAll();
-    });
-
-    function siteSearchGo() {
-      filterText = siteSearch.value.trim().toLowerCase();
-      filterInput.value = siteSearch.value;
-      renderAll();
-    }
-
-    siteGo.addEventListener("click", siteSearchGo);
-    siteSearch.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") siteSearchGo();
-    });
-
-    fetch(jsonUrl)
-      .then((response) => {
-        if (!response.ok) throw new Error(response.statusText);
-        return response.json();
-      })
-      .then((data) => {
-        loadedGames = data.games || [];
-        renderAll();
-        loadState.style.display = "none";
-        reviewTable.style.display = "";
-      })
-      .catch(() => {
-        loadState.textContent = "Could not load review data.";
-      });
-  </script>
-</body>
-</html>
+fetch(jsonUrl)
+  .then((response) => {
+    if (!response.ok) throw new Error(response.statusText);
+    return response.json();
+  })
+  .then((data) => {
+    loadedGames = data.games || [];
+    renderAll();
+    loadState.style.display = "none";
+  })
+  .catch(() => {
+    loadState.textContent = "Could not load review data.";
+  });
+</script>
+</body></html>
