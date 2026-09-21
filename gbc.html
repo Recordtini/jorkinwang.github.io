@@ -256,7 +256,22 @@ function change(form){
 }
 
 //-->
-</script></head>
+</script><style type="text/css">
+.score-grid{border-collapse:collapse;}
+.score-grid thead th{position:sticky;top:0;z-index:5;background:#0d0d0d;color:#FF9900;
+font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+padding:7px 4px 6px;text-align:center;white-space:nowrap;
+border-bottom:2px solid #FF9900;border-left:1px solid #2a2a2a;}
+.score-grid thead th.game-col{text-align:left;padding-left:8px;border-left:0;}
+.score-grid thead th a.gh-link{color:#FF9900;text-decoration:none;}
+.score-grid thead th a.gh-link:hover{color:#FFBB33;text-decoration:underline;}
+.score-grid tbody td{background:#000000;vertical-align:top;
+border-bottom:1px solid #333333;border-left:1px solid #1f1f1f;padding:6px 4px;}
+.score-grid tbody td.game-col{border-left:0;padding-left:8px;}
+.score-grid tbody td.num{text-align:center;}
+.score-grid tbody td .comp{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#999999;}
+</style>
+</head>
 
 <body background="gbc_files/pc_bg.gif" bgcolor="#000000" text="#DDDDCC" link="#aaee55" vlink="#88bb55" alink="#ffffff" marginheight="10" marginwidth="0" leftmargin="0">
 
@@ -304,7 +319,7 @@ function change(form){
 <!-- begin encompassing main column -->
 <td width="100%" bgcolor="#002200">
 
-<table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#222222" background="gbc_files/end_stub.gif"><tr><td><img src="gbc_files/video_gbc.gif" width="618" height="18" alt="Game Boy Color" hspace="0" vspace="0"></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" border="0">
+<table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#222222" background="gbc_files/end_stub.gif"><tr><td align="center"><img src="gbc_files/video_gbc.gif" width="618" height="18" alt="Game Boy Color" hspace="0" vspace="0"></td></tr></table><table cellpadding="0" cellspacing="0" width="100%" border="0">
 <tr valign="top">
 
 <!-- begin left gutter -->
@@ -319,11 +334,10 @@ function change(form){
 
 
 	<!---***** BEGIN MOST POPULAR *****--->
-<img src="gbc_files/428_video_gbc.gif" width="428" height="17" hspace="0" alt="All Game Boy Color Games"><br>
+<div align="center" style="width:726px;margin:0 auto;"><img src="gbc_files/428_video_gbc.gif" width="428" height="17" hspace="0" alt="All Game Boy Color Games"></div>
 <table width="726" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000">
-
-<tr><td colspan="2" class="spacer8">&nbsp;<br></td></tr>
-<tr><td colspan="2" class="gsgrey11" style="padding:4px 8px;"><b>SORT:</b>
+<tr><td class="spacer8">&nbsp;<br></td></tr>
+<tr><td class="gsgrey11" style="padding:4px 8px;"><b>SORT:</b>
 <a href="#" class="gslink11" data-sort="score">Score</a> <span class="gsgrey11">|</span>
 <a href="#" class="gslink11" data-sort="gameplay">Gameplay</a> <span class="gsgrey11">|</span>
 <a href="#" class="gslink11" data-sort="graphics">Graphics</a> <span class="gsgrey11">|</span>
@@ -337,8 +351,23 @@ function change(form){
 <a href="#" class="gslink11" data-sort="reviewer">Reviewer</a><br>
 <b>FIND:</b> <input type="text" id="filter-input" size="32" style="font-family:Arial;font-size:10px;"> <span id="filter-count" class="gsgrey11"></span>
 </td></tr>
+</table>
+<table width="726" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000" class="score-grid">
+<thead>
+<tr>
+<th class="game-col" width="404"><a href="#" data-sort="title" class="gh-link">Game</a></th>
+<th width="60"><a href="#" data-sort="score" class="gh-link">Score</a></th>
+<th width="52"><a href="#" data-sort="gameplay" class="gh-link">Gameplay</a></th>
+<th width="52"><a href="#" data-sort="graphics" class="gh-link">Graphics</a></th>
+<th width="52"><a href="#" data-sort="sound" class="gh-link">Sound</a></th>
+<th width="52"><a href="#" data-sort="value" class="gh-link">Value</a></th>
+<th width="52"><a href="#" data-sort="tilt" class="gh-link">Tilt</a></th>
+</tr>
+</thead>
 <tbody id="list-body"></tbody>
-<tr><td colspan="2"><img src="gbc_files/dot_666666.gif" width="724" hspace="0" height="1"><br></td></tr></table>	
+</table>
+<table width="726" cellpadding="0" cellspacing="0" border="0" bgcolor="#000000">
+<tr><td><img src="gbc_files/dot_666666.gif" width="724" hspace="0" height="1"><br></td></tr></table>	
 <!---***** END MOST POPULAR *****--->	
 <br clear="all">
 </td>
@@ -444,29 +473,28 @@ function visible(){
     return text(a.title).localeCompare(text(b.title));
   });
 }
+function fmtComp(v){return v==null?"-":v;}
 function renderGame(g){
   var c=(g.score&&g.score.components)||{};
   var href=esc(gameHref(g));
   var meta=[g.publisher,g.genre,g.release_date].filter(Boolean).map(esc).join(" &middot; ");
   var reviewer=esc(g.review&&g.review.reviewer);
   var blurb=esc(g.review&&g.review.blurb);
-  var comps=[c.gameplay,c.graphics,c.sound,c.value,c.reviewers_tilt].map(function(v){return v==null?"-":v;}).join(".");
   var tr=document.createElement("tr");
-  tr.setAttribute("valign","top");
   tr.innerHTML=
-   '<td width="654" valign="top"><img src="gbc_files/dot_clear.gif" width="654" height="1"><br>'+
+   '<td class="game-col" width="404" valign="top">'+
    '<a href="'+href+'" class="gsyellow13">'+esc(g.title)+'</a><br>'+
    '<span class="gsgrey11">'+meta+'</span><br>'+
    '<span class="gsgrey10">'+blurb+'</span><br>'+
    '<a href="'+href+'" class="gslink11">Read More</a><span class="gsgrey11"> | </span>'+
    '<span class="gsgrey10">reviewed by '+reviewer+'</span></td>'+
-   '<td width="70" align="center"><span class="gsgrey11"><b>score:</b></span><br>'+
-   '<span class="gsscore3">'+oneDecimal(g.score&&g.score.gamespot)+'</span><br>'+
-   '<span class="gsgrey10" title="Gameplay '+c.gameplay+' | Graphics '+c.graphics+' | Sound '+c.sound+' | Value '+c.value+' | Tilt '+c.reviewers_tilt+'">'+comps+'</span></td>';
+   '<td class="num" width="60" valign="top"><span class="gsscore3">'+oneDecimal(g.score&&g.score.gamespot)+'</span></td>'+
+   '<td class="num" width="52" valign="top"><span class="comp">'+fmtComp(c.gameplay)+'</span></td>'+
+   '<td class="num" width="52" valign="top"><span class="comp">'+fmtComp(c.graphics)+'</span></td>'+
+   '<td class="num" width="52" valign="top"><span class="comp">'+fmtComp(c.sound)+'</span></td>'+
+   '<td class="num" width="52" valign="top"><span class="comp">'+fmtComp(c.value)+'</span></td>'+
+   '<td class="num" width="52" valign="top"><span class="comp">'+fmtComp(c.reviewers_tilt)+'</span></td>';
   listBody.appendChild(tr);
-  var div=document.createElement("tr");
-  div.innerHTML='<td width="724" colspan="2"><img src="gbc_files/dot_333333.gif" width="724" height="1" hspace="0" vspace="6"></td>';
-  listBody.appendChild(div);
 }
 function renderAll(){
   listBody.innerHTML="";
@@ -485,7 +513,7 @@ filterInput.addEventListener("input",function(){
 });
 fetch(jsonUrl).then(function(r){if(!r.ok)throw new Error(r.statusText);return r.json();})
 .then(function(d){loadedGames=d.games||d;renderAll();})
-.catch(function(){listBody.innerHTML='<tr><td colspan="2" class="gsgrey11">Could not load the review data.</td></tr>';});
+.catch(function(){listBody.innerHTML='<tr><td colspan="7" class="gsgrey11">Could not load the review data.</td></tr>';});
 </script>
 
 </body></html>
