@@ -91,6 +91,27 @@
     .nav-art img {
       vertical-align: middle;
     }
+    .plat-link {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 7px;
+      border: 1px solid #ffcc00;
+      color: #ffcc00;
+      background: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 14px;
+      text-decoration: none;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .plat-link:hover {
+      background: #ffcc00;
+      color: #000;
+    }
+
 
     .sort-row {
       margin-top: 28px;
@@ -308,6 +329,21 @@
         min-width: 0;
         height: 30px;
       }
+      .nav-art {
+        height: auto;
+        min-height: 30px;
+        white-space: normal;
+        overflow: visible;
+      }
+
+      .nav-art img:nth-child(2) {
+        display: none;
+      }
+
+      .plat-link {
+        margin: 4px 0 4px 6px;
+      }
+
 
       .sort-row {
         height: auto;
@@ -346,11 +382,7 @@
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         border: 1px solid #00a000;
-        border-top: 0;
-      }
-
-      .review-grid tr:first-child {
-        border-top: 1px solid #00a000;
+        margin-bottom: 16px;
       }
 
       .review-grid td {
@@ -410,7 +442,7 @@
 
     <main class="right">
       <div class="nav-art">
-        <img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_home_KvcD.gif" width="72" height="30" alt="Home"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_spacer_KvcD.gif" width="192" height="30" alt=""><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_platform_KvcD.gif" width="121" height="30" alt="Nintendo 64"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_reviews_KvcD.gif" width="75" height="30" alt="Reviews">
+        <img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_home_KvcD.gif" width="72" height="30" alt="Home"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_spacer_KvcD.gif" width="160" height="30" alt=""><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_platform_KvcD.gif" width="121" height="30" alt="Nintendo 64"><a class="plat-link" href="saturn.html">Saturn</a><a class="plat-link" href="ps1.html">PlayStation</a><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_reviews_KvcD.gif" width="75" height="30" alt="Reviews">
       </div>
 
       <div class="sort-row" aria-label="Sort controls">
