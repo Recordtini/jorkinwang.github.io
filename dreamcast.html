@@ -48,7 +48,7 @@
 <!-- begin left column -->
 
 <tr><td width="140" valign="top">
-<table width="140" cellpadding="1" cellspacing="0" border="0" bgcolor="#003300"><tr><td>
+<table width="140" cellpadding="0" cellspacing="1" border="0" bgcolor="#003300"><tr><td bgcolor="#000000">
 	 <script language="JavaScript">
 <!--
 
@@ -164,11 +164,10 @@ function submit_it () {
 <td width="10" valign="top"><img src="dreamcast_files/pc_gutter_lt.gif" width="10"></td>
 
 <!-- end left gutter -->
-<td width="600" valign="top">
+<td width="700" valign="top">
 
-<img src="dreamcast_files/headers_video_reviews_top.gif" width="450" height="29" alt="Reviews" hspace="0">
-<br clear="all">
-<table width="600" cellpadding="0" cellspacing="0" border="0" valign="top">
+<div style="width:700px;background:#000000;line-height:0;"><img src="dreamcast_files/headers_video_reviews_top.gif" width="450" height="29" alt="Reviews" hspace="0" style="display:block;border:0;"></div>
+<table width="700" cellpadding="0" cellspacing="0" border="0" valign="top">
 <tr><td width="600" bgcolor="#444444"><img src="dreamcast_files/video_block1.gif" width="10" height="16" hspace="0" align="left"><span class="gsheader12">&nbsp;All Dreamcast Games</span></td></tr>
 <tr><td width="600" bgcolor="#000000" class="gsgrey11" style="padding:4px 6px;"><b>SORT:</b>
 <a href="#" class="gslink11" data-sort="score">Score</a> <span class="gsgrey11">|</span>
@@ -184,17 +183,17 @@ function submit_it () {
 <a href="#" class="gslink11" data-sort="reviewer">Reviewer</a>
 <span id="filter-count" class="gsgrey11"></span></td></tr>
 </table>
-<table width="600" cellpadding="2" cellspacing="0" border="0" bgcolor="#000000" id="score-grid">
+<table width="700" cellpadding="2" cellspacing="0" border="0" bgcolor="#000000" id="score-grid">
 <thead><tr bgcolor="#222222">
-<th align="left" width="150"><a href="#" data-sort="title" class="gsheader11">Game</a></th>
-<th width="48" align="center"><a href="#" data-sort="score" class="gsheader11">Score</a></th>
-<th width="36" align="center"><a href="#" data-sort="gameplay" class="gsheader11">Play</a></th>
-<th width="36" align="center"><a href="#" data-sort="graphics" class="gsheader11">Graph</a></th>
-<th width="36" align="center"><a href="#" data-sort="sound" class="gsheader11">Sound</a></th>
-<th width="36" align="center"><a href="#" data-sort="value" class="gsheader11">Value</a></th>
-<th width="34" align="center"><a href="#" data-sort="tilt" class="gsheader11">Tilt</a></th>
-<th width="90"><a href="#" data-sort="reviewer" class="gsheader11">Reviewer</a></th>
-<th align="left" width="134"><span class="gsheader11">Blurb</span></th>
+<th align="left" width="170"><a href="#" data-sort="title" class="gsheader11">Game</a></th>
+<th width="52" align="center"><a href="#" data-sort="score" class="gsheader11">Score</a></th>
+<th width="40" align="center"><a href="#" data-sort="gameplay" class="gsheader11">Play</a></th>
+<th width="40" align="center"><a href="#" data-sort="graphics" class="gsheader11">Graph</a></th>
+<th width="40" align="center"><a href="#" data-sort="sound" class="gsheader11">Sound</a></th>
+<th width="40" align="center"><a href="#" data-sort="value" class="gsheader11">Value</a></th>
+<th width="38" align="center"><a href="#" data-sort="tilt" class="gsheader11">Tilt</a></th>
+<th width="100"><a href="#" data-sort="reviewer" class="gsheader11">Reviewer</a></th>
+<th align="left" width="180"><span class="gsheader11">Blurb</span></th>
 </tr></thead>
 <tbody id="list-body"></tbody>
 </table>
@@ -237,21 +236,21 @@ function renderGame(g){
   var tr=document.createElement("tr");
   tr.setAttribute("valign","top");
   tr.innerHTML =
-   '<td width="150"><a href="'+esc(g.href)+'" class="gsyellow13">'+esc(g.title)+'</a><br>'+
+   '<td width="170"><a href="'+esc(g.href)+'" class="gsyellow13">'+esc(g.title)+'</a><br>'+
    '<span class="gsgrey11">'+esc(g.publisher)+(g.date?" &middot; "+esc(g.date):"")+'</span><br>'+
    '</td>'+
-   '<td width="48" align="center"><span class="gsscore3" style="font-size:16px;">'+oneDec(g.score)+'</span></td>'+
-   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.gameplay)+'</td>'+
-   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.graphics)+'</td>'+
-   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.sound)+'</td>'+
-   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.value)+'</td>'+
-   '<td width="34" align="center" class="gstext11" style="font-size:14px;">'+comp(g.tilt)+'</td>'+
-   '<td width="90" class="gstext11">'+esc(g.reviewer)+'</td>'+
-    '<td width="134" class="gstext11" style="color:#cccccc;">'+esc(g.blurb)+'</td>';
+   '<td width="52" align="center"><span class="gsscore3" style="font-size:16px;">'+oneDec(g.score)+'</span></td>'+
+   '<td width="40" align="center" class="gstext11" style="font-size:14px;">'+comp(g.gameplay)+'</td>'+
+   '<td width="40" align="center" class="gstext11" style="font-size:14px;">'+comp(g.graphics)+'</td>'+
+   '<td width="40" align="center" class="gstext11" style="font-size:14px;">'+comp(g.sound)+'</td>'+
+   '<td width="40" align="center" class="gstext11" style="font-size:14px;">'+comp(g.value)+'</td>'+
+   '<td width="38" align="center" class="gstext11" style="font-size:14px;">'+comp(g.tilt)+'</td>'+
+   '<td width="100" class="gstext11">'+esc(g.reviewer)+'</td>'+
+    '<td width="180" class="gstext11" style="color:#cccccc;">'+esc(g.blurb)+'</td>';
   if(REVIEWS.indexOf(g)%2===1) tr.setAttribute("bgcolor","#111111");
   listBody.appendChild(tr);
   var sep=document.createElement("tr");
-  sep.innerHTML='<td colspan="9"><img src="dreamcast_files/dot_grey.gif" width="600" height="1" vspace="4"></td>';
+  sep.innerHTML='<td colspan="9"><img src="dreamcast_files/dot_grey.gif" width="700" height="1" vspace="4"></td>';
   listBody.appendChild(sep);
 }
 function renderAll(){
@@ -273,7 +272,7 @@ if(gsFilter){gsFilter.addEventListener("input",function(){
 renderAll();
 </script>
 
-</td><td width="10" valign="top"><img src="dreamcast_files/pc_gutter_rt.gif" width="10"></td><td width="160" valign="top" align="left"><img src="dreamcast_files/dot_clear.gif" width="160" height="40"><br>
+</td><td width="10" valign="top"><img src="dreamcast_files/pc_gutter_rt.gif" width="10"></td><td width="60" valign="top" align="left"><img src="dreamcast_files/dot_clear.gif" width="160" height="40"><br>
 </td></tr>
 
 <!-- end right column --></table>
