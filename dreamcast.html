@@ -269,7 +269,7 @@ var gsFilter=document.getElementById("gs-top-filter");
 if(gsFilter){gsFilter.addEventListener("input",function(){
   filterText=gsFilter.value.trim().toLowerCase();renderAll();
 });}
-fetch("outputs/gamespot_dreamcast_reviews.json").then(function(r){return r.json();}).then(function(data){REVIEWS=data.games;renderAll();});
+fetch("outputs/gamespot_dreamcast_reviews.json").then(function(r){return r.json();}).then(function(data){REVIEWS=data;renderAll();});
 </script>
 
 </td><td width="10" valign="top"><img src="dreamcast_files/pc_gutter_rt.gif" width="10"></td><td width="60" valign="top" align="left"><img src="dreamcast_files/dot_clear.gif" width="160" height="40"><br>
