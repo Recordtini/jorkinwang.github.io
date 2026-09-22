@@ -1,0 +1,1344 @@
+{
+  "metadata": {
+    "generated_at": "2026-09-22T08:20:13.588533+00:00",
+    "source_index_original_url": "http://www.gamespot.com/ngage/reviews.html",
+    "source_index_capture_timestamp": "20041215202941",
+    "total_picker_games": 41,
+    "ok_reviews": 41,
+    "missing_scores": 0,
+    "missing_scores_titles": [],
+    "fetch_errors": 0,
+    "rows_with_parse_issues": 0,
+    "label_scale": {
+      "perfect": "10.0",
+      "superb": "9.0-9.9",
+      "great": "8.0-8.9",
+      "good": "7.0-7.9",
+      "fair": "6.0-6.9",
+      "mediocre": "5.0-5.9",
+      "poor": "4.0-4.9",
+      "bad": "3.0-3.9",
+      "terrible": "2.0-2.9",
+      "abysmal": "0.0-1.9"
+    },
+    "collection_notes": "Game list cross-checked between MobyGames GameSpot critic pages 65-67 (41 reviews), Dec-2004 gamespot.com/ngage/reviews.html dropdown, and web.archive.org/web/*/http://www.gamespot.com/ngage/* keyword-filtered listing. All 41 critic scorecards extracted from pre-migration /ngage/ review.html captures (2003-2006). Post-2013 migrated /reviews/ URLs (14 games) replaced with original /ngage/ review URLs and full component scorecards. Requiem of Hell skipped: never reviewed (appeared on index under cheats only). One's publisher (Nokia) per MobyGames; not shown on review page.",
+    "manual_fixes_applied": [
+      "King of Fighters: Extreme recovered from user-supplied capture 20050124025748 (MobyGames review URL had no archived capture)",
+      "One: publisher Nokia per MobyGames (not shown on review page)"
+    ]
+  },
+  "games": [
+    {
+      "title": "The Sims: Bustin' Out",
+      "index_title": "The Sims: Bustin' Out",
+      "genre": "Strategy",
+      "publisher": "EA Games",
+      "developer": null,
+      "release_date": "05/12/2004",
+      "original_path": "/ngage/strategy/thesimsbustinout/index.html",
+      "original_url": "http://www.gamespot.com/ngage/strategy/thesimsbustinout/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041204055611id_/http://www.gamespot.com/ngage/strategy/thesimsbustinout/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041204055611/http://www.gamespot.com/ngage/strategy/thesimsbustinout/review.html",
+      "capture_timestamp": "20041204055611",
+      "review": {
+        "blurb": "The Sims Bustin' Out for the N-Gage is a fairly direct port of The Sims Bustin' Out for the Game Boy...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/strategy/thesimsbustinout/review.html"
+      },
+      "score": {
+        "gamespot": 7.4,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Glimmerati",
+      "index_title": "Glimmerati",
+      "genre": "Driving",
+      "publisher": "Nokia",
+      "developer": "Bugbear",
+      "release_date": "2005",
+      "original_path": "/ngage/driving/glimmerati/index.html",
+      "original_url": "http://www.gamespot.com/ngage/driving/glimmerati/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20051126052253id_/http://www.gamespot.com/ngage/driving/glimmerati/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20051126052253/http://www.gamespot.com/ngage/driving/glimmerati/review.html",
+      "capture_timestamp": "20051126052253",
+      "review": {
+        "blurb": "Glimmerati's combination of simple driving with an engaging, character-driven plot makes it one of the N-Gage's better games.",
+        "reviewer": "Steve Palley",
+        "full_review_url": "http://www.gamespot.com/ngage/driving/glimmerati/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "SSX: Out of Bounds",
+      "index_title": "SSX: Out of Bounds",
+      "genre": "Sports",
+      "publisher": "EA Sports Big",
+      "developer": null,
+      "release_date": "01/24/2005",
+      "original_path": "/ngage/sports/ssxoutofbounds/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/ssxoutofbounds/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050212064314id_/http://www.gamespot.com/ngage/sports/ssxoutofbounds/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050212064314/http://www.gamespot.com/ngage/sports/ssxoutofbounds/review.html",
+      "capture_timestamp": "20050212064314",
+      "review": {
+        "blurb": "SSX: Out of Bounds is basically a scaled-down version of SSX 3.",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/ssxoutofbounds/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Puyo Pop",
+      "index_title": "Puyo Pop",
+      "genre": "Puzzle",
+      "publisher": "Nokia",
+      "developer": "Sega",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/puzzle/puyopop/index.html",
+      "original_url": "http://www.gamespot.com/ngage/puzzle/puyopop/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041104015736id_/http://www.gamespot.com/ngage/puzzle/puyopop/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041104015736/http://www.gamespot.com/ngage/puzzle/puyopop/review.html",
+      "capture_timestamp": "20041104015736",
+      "review": {
+        "blurb": "Handheld game platforms and the puzzle genre go together like peanut butter and jelly. When combined...",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com/ngage/puzzle/puyopop/review.html"
+      },
+      "score": {
+        "gamespot": 6.0,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 3,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tom Clancy's Splinter Cell",
+      "index_title": "Tom Clancy's Splinter Cell",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Gameloft",
+      "release_date": "12/10/2003",
+      "original_path": "/ngage/action/splintercell/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/splintercell/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050204142708id_/http://www.gamespot.com/ngage/action/splintercell/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050204142708/http://www.gamespot.com/ngage/action/splintercell/review.html",
+      "capture_timestamp": "20050204142708",
+      "review": {
+        "blurb": "Tom Clancy's Splinter Cell for the N-Gage, based on Ubisoft's blockbuster stealth action game, is a...",
+        "reviewer": "Greg Kasavin",
+        "full_review_url": "http://www.gamespot.com/ngage/action/splintercell/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 7,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Worms World Party",
+      "index_title": "Worms World Party",
+      "genre": "Strategy",
+      "publisher": "THQ",
+      "developer": "Paragon 5",
+      "release_date": "05/17/2005",
+      "original_path": "/ngage/strategy/wormsworldparty/index.html",
+      "original_url": "http://www.gamespot.com/ngage/strategy/wormsworldparty/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050421060652id_/http://www.gamespot.com/ngage/strategy/wormsworldparty/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050421060652/http://www.gamespot.com/ngage/strategy/wormsworldparty/review.html",
+      "capture_timestamp": "20050421060652",
+      "review": {
+        "blurb": "For years, worms have played unlikely heroes in their quirky but tactically sophisticated series of...",
+        "reviewer": "Carrie Venetia",
+        "full_review_url": "http://www.gamespot.com/ngage/strategy/wormsworldparty/review.html"
+      },
+      "score": {
+        "gamespot": 7.7,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 8,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tony Hawk's Pro Skater",
+      "index_title": "Tony Hawk's Pro Skater",
+      "genre": "Sports",
+      "publisher": "Nokia",
+      "developer": "Activision",
+      "release_date": "10/13/2003",
+      "original_path": "/ngage/sports/tonyhawksproskater/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/tonyhawksproskater/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041109113304id_/http://www.gamespot.com/ngage/sports/tonyhawksproskater/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041109113304/http://www.gamespot.com/ngage/sports/tonyhawksproskater/review.html",
+      "capture_timestamp": "20041109113304",
+      "review": {
+        "blurb": "Though Activision may release updates to its Tony Hawk franchise at a pretty rapid-fire pace, that d...",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/tonyhawksproskater/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 8,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Elder Scrolls Travels: Shadowkey",
+      "index_title": "The Elder Scrolls Travels: Shadowkey",
+      "genre": "Role-Playing",
+      "publisher": "Bethesda Softworks",
+      "developer": "Vir2L Studios",
+      "release_date": "11/23/2004",
+      "original_path": "/ngage/rpg/theelderscrollstravelsshadowkey/index.html",
+      "original_url": "http://www.gamespot.com/ngage/rpg/theelderscrollstravelsshadowkey/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041210085434id_/http://www.gamespot.com/ngage/rpg/theelderscrollstravelsshadowkey/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041210085434/http://www.gamespot.com/ngage/rpg/theelderscrollstravelsshadowkey/review.html",
+      "capture_timestamp": "20041210085434",
+      "review": {
+        "blurb": "In its several iterations on the PC, Bethesda's Elder Scrolls series has provided extremely immersiv...",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/rpg/theelderscrollstravelsshadowkey/review.html"
+      },
+      "score": {
+        "gamespot": 6.1,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 5,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Ashen",
+      "index_title": "Ashen",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Torus Games",
+      "release_date": "06/17/2004",
+      "original_path": "/ngage/action/ashen/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/ashen/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050117093410id_/http://www.gamespot.com/ngage/action/ashen/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050117093410/http://www.gamespot.com/ngage/action/ashen/review.html",
+      "capture_timestamp": "20050117093410",
+      "review": {
+        "blurb": "When playing Ashen, the new gothic first-person shooter from Torus Games, it's hard not to be reminded...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/action/ashen/review.html"
+      },
+      "score": {
+        "gamespot": 6.2,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Asphalt: Urban GT",
+      "index_title": "Asphalt: Urban GT",
+      "genre": "Driving",
+      "publisher": "Nokia",
+      "developer": "Gameloft",
+      "release_date": "11/15/2004",
+      "original_path": "/ngage/driving/highgear/index.html",
+      "original_url": "http://www.gamespot.com/ngage/driving/highgear/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050117085349id_/http://www.gamespot.com/ngage/driving/highgear/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050117085349/http://www.gamespot.com/ngage/driving/highgear/review.html",
+      "capture_timestamp": "20050117085349",
+      "review": {
+        "blurb": "Of all the developers that have taken a stab at the N-Gage, Gameloft seems to have had the most-cons...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/driving/highgear/review.html"
+      },
+      "score": {
+        "gamespot": 7.5,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tom Clancy's Ghost Recon: Jungle Storm",
+      "index_title": "Tom Clancy's Ghost Recon: Jungle Storm",
+      "genre": "Action",
+      "publisher": "Gameloft",
+      "developer": null,
+      "release_date": "08/11/2004",
+      "original_path": "/ngage/action/ghostreconjunglestorm/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/ghostreconjunglestorm/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041208054351id_/http://www.gamespot.com/ngage/action/ghostreconjunglestorm/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041208054351/http://www.gamespot.com/ngage/action/ghostreconjunglestorm/review.html",
+      "capture_timestamp": "20041208054351",
+      "review": {
+        "blurb": "First-person shooters don't exactly have an auspicious history on the N-Gage. Until the release of Ghost Recon: Jungle Storm...",
+        "reviewer": "Steve Palley",
+        "full_review_url": "http://www.gamespot.com/ngage/action/ghostreconjunglestorm/review.html"
+      },
+      "score": {
+        "gamespot": 8.3,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 9,
+          "value": 7,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Sonic N",
+      "index_title": "Sonic N",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Sonic Team",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/action/sonicn/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/sonicn/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050123053154id_/http://www.gamespot.com/ngage/action/sonicn/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050123053154/http://www.gamespot.com/ngage/action/sonicn/review.html",
+      "capture_timestamp": "20050123053154",
+      "review": {
+        "blurb": "SonicN marks the debut appearance of Sonic Team's ever-popular Sonic the Hedgehog on Nokia's N-Gage.",
+        "reviewer": "Alex Navarro",
+        "full_review_url": "http://www.gamespot.com/ngage/action/sonicn/review.html"
+      },
+      "score": {
+        "gamespot": 5.6,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 6,
+          "graphics": 5,
+          "sound": 5,
+          "value": 5,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pandemonium!",
+      "index_title": "Pandemonium!",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Ideaworks3D",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/action/pandemonium/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/pandemonium/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050212093602id_/http://www.gamespot.com/ngage/action/pandemonium/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050212093602/http://www.gamespot.com/ngage/action/pandemonium/review.html",
+      "capture_timestamp": "20050212093602",
+      "review": {
+        "blurb": "Pandemonium is one of the first games to come out for Nokia's new handheld game system, the N-Gage.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com/ngage/action/pandemonium/review.html"
+      },
+      "score": {
+        "gamespot": 4.4,
+        "label": "poor",
+        "components": {
+          "gameplay": 5,
+          "graphics": 6,
+          "sound": 2,
+          "value": 4,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tomb Raider",
+      "index_title": "Tomb Raider",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Ideaworks3D",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/action/tombraiderstarringlaracroft/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/tombraiderstarringlaracroft/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050329062344id_/http://www.gamespot.com/ngage/action/tombraiderstarringlaracroft/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050329062344/http://www.gamespot.com/ngage/action/tombraiderstarringlaracroft/review.html",
+      "capture_timestamp": "20050329062344",
+      "review": {
+        "blurb": "It seems that the world has turned a cold shoulder to Lara Croft, star of the once extremely popular...",
+        "reviewer": "Greg Kasavin",
+        "full_review_url": "http://www.gamespot.com/ngage/action/tombraiderstarringlaracroft/review.html"
+      },
+      "score": {
+        "gamespot": 5.9,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 7,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pathway to Glory",
+      "index_title": "Pathway to Glory",
+      "genre": "Strategy",
+      "publisher": "Nokia",
+      "developer": null,
+      "release_date": "11/29/2004",
+      "original_path": "/ngage/strategy/pathwaytoglory/index.html",
+      "original_url": "http://www.gamespot.com/ngage/strategy/pathwaytoglory/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050115145101id_/http://www.gamespot.com/ngage/strategy/pathwaytoglory/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050115145101/http://www.gamespot.com/ngage/strategy/pathwaytoglory/review.html",
+      "capture_timestamp": "20050115145101",
+      "review": {
+        "blurb": "Nokia's World War II-themed strategy game Pathway to Glory stands out immediately by being one of the best...",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/strategy/pathwaytoglory/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 9,
+          "value": 9,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Super Monkey Ball Jr.",
+      "index_title": "Super Monkey Ball Jr.",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Sega",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/action/supermonkeyball/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/supermonkeyball/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041225063802id_/http://www.gamespot.com/ngage/action/supermonkeyball/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041225063802/http://www.gamespot.com/ngage/action/supermonkeyball/review.html",
+      "capture_timestamp": "20041225063802",
+      "review": {
+        "blurb": "Super Monkey Ball started life as an arcade game that had a banana for a joystick. This Marble Madness clone...",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com/ngage/action/supermonkeyball/review.html"
+      },
+      "score": {
+        "gamespot": 6.3,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Puzzle Bobble VS",
+      "index_title": "Puzzle Bobble VS",
+      "genre": "Puzzle",
+      "publisher": "Nokia",
+      "developer": "Taito Corporation",
+      "release_date": "10/06/2003",
+      "original_path": "/ngage/puzzle/puzzlebobblevs/index.html",
+      "original_url": "http://www.gamespot.com/ngage/puzzle/puzzlebobblevs/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050417044627id_/http://www.gamespot.com/ngage/puzzle/puzzlebobblevs/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050417044627/http://www.gamespot.com/ngage/puzzle/puzzlebobblevs/review.html",
+      "capture_timestamp": "20050417044627",
+      "review": {
+        "blurb": "The Puzzle Bobble series has been around for years, though the series usually comes to the US under the name Bust-A-Move...",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "http://www.gamespot.com/ngage/puzzle/puzzlebobblevs/review.html"
+      },
+      "score": {
+        "gamespot": 1.4,
+        "label": "abysmal",
+        "components": {
+          "gameplay": 1,
+          "graphics": 1,
+          "sound": 3,
+          "value": 2,
+          "reviewers_tilt": 1
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Crash Nitro Kart",
+      "index_title": "Crash Nitro Kart",
+      "genre": "Driving",
+      "publisher": "VU Games",
+      "developer": null,
+      "release_date": "07/28/2004",
+      "original_path": "/ngage/driving/crashnitrokart/index.html",
+      "original_url": "http://www.gamespot.com/ngage/driving/crashnitrokart/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041208074851id_/http://www.gamespot.com/ngage/driving/crashnitrokart/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041208074851/http://www.gamespot.com/ngage/driving/crashnitrokart/review.html",
+      "capture_timestamp": "20041208074851",
+      "review": {
+        "blurb": "Crash Nitro Kart, which originally appeared last year on all the major gaming consoles, was a solid...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/driving/crashnitrokart/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 8,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "FIFA Soccer 2004",
+      "index_title": "FIFA Soccer 2004",
+      "genre": "Sports",
+      "publisher": "EA Sports",
+      "developer": null,
+      "release_date": "01/14/2004",
+      "original_path": "/ngage/sports/fifasoccer2004/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/fifasoccer2004/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041107064757id_/http://www.gamespot.com/ngage/sports/fifasoccer2004/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041107064757/http://www.gamespot.com/ngage/sports/fifasoccer2004/review.html",
+      "capture_timestamp": "20041107064757",
+      "review": {
+        "blurb": "FIFA Soccer 2004 is easily the best traditional sports game currently available on the N-Gage.",
+        "reviewer": "Alex Navarro",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/fifasoccer2004/review.html"
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 6,
+          "sound": 5,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "FIFA Soccer 2005",
+      "index_title": "FIFA Soccer 2005",
+      "genre": "Sports",
+      "publisher": "EA Sports",
+      "developer": null,
+      "release_date": "11/10/2004",
+      "original_path": "/ngage/sports/fifa2005/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/fifa2005/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050123045319id_/http://www.gamespot.com/ngage/sports/fifa2005/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050123045319/http://www.gamespot.com/ngage/sports/fifa2005/review.html",
+      "capture_timestamp": "20050123045319",
+      "review": {
+        "blurb": "Released for the N-Gage in January of this year, FIFA Soccer 2004 is arguably the best sports game that...",
+        "reviewer": "Justin Calvert",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/fifa2005/review.html"
+      },
+      "score": {
+        "gamespot": 8.2,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tiger Woods PGA Tour 2004",
+      "index_title": "Tiger Woods PGA Tour 2004",
+      "genre": "Sports",
+      "publisher": "EA Sports",
+      "developer": null,
+      "release_date": "06/24/2004",
+      "original_path": "/ngage/sports/tigerwoodspgatour2004/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/tigerwoodspgatour2004/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041208112928id_/http://www.gamespot.com/ngage/sports/tigerwoodspgatour2004/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041208112928/http://www.gamespot.com/ngage/sports/tigerwoodspgatour2004/review.html",
+      "capture_timestamp": "20041208112928",
+      "review": {
+        "blurb": "One of the perks that Nokia has been promising since before the N-Gage even launched is wide-area wireless online play...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/tigerwoodspgatour2004/review.html"
+      },
+      "score": {
+        "gamespot": 6.4,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 5,
+          "sound": 4,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Xanadu Next",
+      "index_title": "Xanadu Next",
+      "genre": "RPG",
+      "publisher": "Falcom",
+      "developer": null,
+      "release_date": "Aug 15, 2005",
+      "original_path": "/ngage/rpg/xanadunext/index.html",
+      "original_url": "http://www.gamespot.com/ngage/rpg/xanadunext/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20060220092227id_/http://www.gamespot.com/ngage/rpg/xanadunext/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20060220092227/http://www.gamespot.com/ngage/rpg/xanadunext/review.html",
+      "capture_timestamp": "20060220092227",
+      "review": {
+        "blurb": "A competent dungeon crawler marred by some presentation and design shortcomings, Xanadu is a bare-bones...",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/rpg/xanadunext/review.html"
+      },
+      "score": {
+        "gamespot": 6.6,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 5,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Red Faction",
+      "index_title": "Red Faction",
+      "genre": "Action",
+      "publisher": "THQ",
+      "developer": "Monkeystone",
+      "release_date": "12/10/2003",
+      "original_path": "/ngage/action/redfaction/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/redfaction/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050101105345id_/http://www.gamespot.com/ngage/action/redfaction/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050101105345/http://www.gamespot.com/ngage/action/redfaction/review.html",
+      "capture_timestamp": "20050101105345",
+      "review": {
+        "blurb": "Red Faction is a gritty and apocalyptic first-person shooter that originally appeared on the PlayStation...",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com/ngage/action/redfaction/review.html"
+      },
+      "score": {
+        "gamespot": 3.4,
+        "label": "bad",
+        "components": {
+          "gameplay": 3,
+          "graphics": 5,
+          "sound": 4,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Virtua Tennis",
+      "index_title": "Virtua Tennis",
+      "genre": "Sports",
+      "publisher": "Nokia",
+      "developer": "Sega",
+      "release_date": "12/08/2003",
+      "original_path": "/ngage/sports/virtuatennis/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/virtuatennis/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041220042035id_/http://www.gamespot.com/ngage/sports/virtuatennis/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041220042035/http://www.gamespot.com/ngage/sports/virtuatennis/review.html",
+      "capture_timestamp": "20041220042035",
+      "review": {
+        "blurb": "Though it started in the arcades, Sega's Virtua Tennis series has been met with success--perhaps not...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/virtuatennis/review.html"
+      },
+      "score": {
+        "gamespot": 3.3,
+        "label": "bad",
+        "components": {
+          "gameplay": 4,
+          "graphics": 3,
+          "sound": 3,
+          "value": 3,
+          "reviewers_tilt": 3
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Colin McRae Rally 2005",
+      "index_title": "Colin McRae Rally 2005",
+      "genre": "Driving",
+      "publisher": "Codemasters",
+      "developer": "Ideaworks3D",
+      "release_date": "11/15/2004",
+      "original_path": "/ngage/driving/colinmcraerally2005/index.html",
+      "original_url": "http://www.gamespot.com/ngage/driving/colinmcraerally2005/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041230135950id_/http://www.gamespot.com/ngage/driving/colinmcraerally2005/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041230135950/http://www.gamespot.com/ngage/driving/colinmcraerally2005/review.html",
+      "capture_timestamp": "20041230135950",
+      "review": {
+        "blurb": "Rally racing is a far more esoteric sport than its NASCAR or Formula 1 counterparts. Rally cars rarely...",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/driving/colinmcraerally2005/review.html"
+      },
+      "score": {
+        "gamespot": 8.3,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 8,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Rayman 3",
+      "index_title": "Rayman 3",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Gameloft",
+      "release_date": "12/11/2003",
+      "original_path": "/ngage/action/rayman3/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/rayman3/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050308022452id_/http://www.gamespot.com/ngage/action/rayman3/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050308022452/http://www.gamespot.com/ngage/action/rayman3/review.html",
+      "capture_timestamp": "20050308022452",
+      "review": {
+        "blurb": "Let's be honest. Up to this point, the majority of the N-Gage's library has been, by and large, mediocre...",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/action/rayman3/review.html"
+      },
+      "score": {
+        "gamespot": 7.6,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The Roots: Gates of Chaos",
+      "index_title": "The Roots: Gates of Chaos",
+      "genre": "Action Role-Playing",
+      "publisher": "Nokia",
+      "developer": "Cenega Publishing",
+      "release_date": "08/15/2005",
+      "original_path": "/ngage/rpg/rootsgatesofchaos/index.html",
+      "original_url": "http://www.gamespot.com/ngage/rpg/rootsgatesofchaos/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20051224184008id_/http://www.gamespot.com/ngage/rpg/rootsgatesofchaos/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20051224184008/http://www.gamespot.com/ngage/rpg/rootsgatesofchaos/review.html",
+      "capture_timestamp": "20051224184008",
+      "review": {
+        "blurb": "The Roots: Gates of Chaos is standing on the shoulders of giants here, and RPG-starved N-Gage gamers will reap the sweet fruit of this copycat move.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/rpg/rootsgatesofchaos/review.html"
+      },
+      "score": {
+        "gamespot": 8.3,
+        "label": "great",
+        "components": {
+          "gameplay": 9,
+          "graphics": 7,
+          "sound": 8,
+          "value": 9,
+          "reviewers_tilt": 8
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "MotoGP",
+      "index_title": "MotoGP",
+      "genre": "Driving",
+      "publisher": "Nokia",
+      "developer": "THQ",
+      "release_date": "11/14/2003",
+      "original_path": "/ngage/driving/motogp/index.html",
+      "original_url": "http://www.gamespot.com/ngage/driving/motogp/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20040115060514id_/http://www.gamespot.com/ngage/driving/motogp/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20040115060514/http://www.gamespot.com/ngage/driving/motogp/review.html",
+      "capture_timestamp": "20040115060514",
+      "review": {
+        "blurb": "MotoGP for the N-Gage is a failure of a racing game any way you look at it. With horrible controls, no sense of speed, and blotchy graphics, this game simply isn't worth your time or money, no matter how big a fan of the MotoGP series you are.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com/ngage/driving/motogp/review.html"
+      },
+      "score": {
+        "gamespot": 2.7,
+        "label": "terrible",
+        "components": {
+          "gameplay": 3,
+          "graphics": 3,
+          "sound": 3,
+          "value": 3,
+          "reviewers_tilt": 2
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "NCAA Football 2004",
+      "index_title": "NCAA Football 2004",
+      "genre": "Sports",
+      "publisher": "EA Sports",
+      "developer": "EA Sports",
+      "release_date": "12/10/2003",
+      "original_path": "/ngage/sports/ncaafootball2004/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/ncaafootball2004/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20031221172943id_/http://www.gamespot.com/ngage/sports/ncaafootball2004/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20031221172943/http://www.gamespot.com/ngage/sports/ncaafootball2004/review.html",
+      "capture_timestamp": "20031221172943",
+      "review": {
+        "blurb": "NCAA Football 2004 for the N-Gage definitely brings a nice roster of features to the table, but it can't back any of these features up with solid gameplay, graphics, or sound. It's just not very fun to play, and no number of game modes can fix that.",
+        "reviewer": "Alex Navarro",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/ncaafootball2004/review.html"
+      },
+      "score": {
+        "gamespot": 5.5,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 5,
+          "sound": 5,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "X-Men: Legends",
+      "index_title": "X-Men: Legends",
+      "genre": "Role-Playing",
+      "publisher": "Activision",
+      "developer": "Barking Lizards",
+      "release_date": "02/07/2005",
+      "original_path": "/ngage/rpg/xmenlegends/index.html",
+      "original_url": "http://www.gamespot.com/ngage/rpg/xmenlegends/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050209014938id_/http://www.gamespot.com/ngage/rpg/xmenlegends/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050209014938/http://www.gamespot.com/ngage/rpg/xmenlegends/review.html",
+      "capture_timestamp": "20050209014938",
+      "review": {
+        "blurb": "The N-Gage is typically inundated by stripped-down console ports, and X-Men Legends helps buck this trend. This game feels more complete and playable than all but a handful of N-Gage titles, and provides a fairly lengthy adventure to boot.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/rpg/xmenlegends/review.html"
+      },
+      "score": {
+        "gamespot": 8.1,
+        "label": "great",
+        "components": {
+          "gameplay": 7,
+          "graphics": 8,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Tom Clancy's Splinter Cell: Chaos Theory",
+      "index_title": "Tom Clancy's Splinter Cell: Chaos Theory",
+      "genre": "Action",
+      "publisher": "Gameloft",
+      "developer": "Gameloft",
+      "release_date": "03/23/2005",
+      "original_path": "/ngage/action/splintercell3/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/splintercell3/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050331025613id_/http://www.gamespot.com/ngage/action/splintercell3/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050331025613/http://www.gamespot.com/ngage/action/splintercell3/review.html",
+      "capture_timestamp": "20050331025613",
+      "review": {
+        "blurb": "Tom Clancy's Splinter Cell Chaos Theory is probably the best game made thus far for the N-Gage.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/action/splintercell3/review.html"
+      },
+      "score": {
+        "gamespot": 8.6,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 9,
+          "sound": 9,
+          "value": 8,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "WWE Aftershock",
+      "index_title": "WWE Aftershock",
+      "genre": "Wrestling",
+      "publisher": "THQ",
+      "developer": "Exient",
+      "release_date": "08/15/2005",
+      "original_path": "/ngage/action/wwe/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/wwe/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20060418231448id_/http://www.gamespot.com/ngage/action/wwe/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20060418231448/http://www.gamespot.com/ngage/action/wwe/review.html",
+      "capture_timestamp": "20060418231448",
+      "review": {
+        "blurb": "Even as a mindless button-masher, WWE Aftershock isn't particularly successful.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/action/wwe/review.html"
+      },
+      "score": {
+        "gamespot": 5.3,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 4,
+          "sound": 8,
+          "value": 6,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "MLB Slam!",
+      "index_title": "MLB Slam!",
+      "genre": "Sports",
+      "publisher": "Nokia",
+      "developer": "THQ",
+      "release_date": "11/03/2003",
+      "original_path": "/ngage/sports/mlbslam/index.html",
+      "original_url": "http://www.gamespot.com/ngage/sports/mlbslam/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20040110035329id_/http://www.gamespot.com/ngage/sports/mlbslam/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20040110035329/http://www.gamespot.com/ngage/sports/mlbslam/review.html",
+      "capture_timestamp": "20040110035329",
+      "review": {
+        "blurb": "In all, MLB Slam! is a game that is impossible to recommend to anyone. Its poorly designed gameplay and boring, bug-filled graphics would prevent even the most rabid baseball fan from enjoying what is presented.",
+        "reviewer": "Tim Tracy",
+        "full_review_url": "http://www.gamespot.com/ngage/sports/mlbslam/review.html"
+      },
+      "score": {
+        "gamespot": 1.7,
+        "label": "abysmal",
+        "components": {
+          "gameplay": 2,
+          "graphics": 2,
+          "sound": 2,
+          "value": 2,
+          "reviewers_tilt": 1
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "One",
+      "index_title": "One",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": null,
+      "release_date": null,
+      "original_path": "/ngage/action/one/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/one/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20051212072419id_/http://www.gamespot.com/ngage/action/one/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20051212072419/http://www.gamespot.com/ngage/action/one/review.html",
+      "capture_timestamp": "20051212072419",
+      "review": {
+        "blurb": "One is a fairly ambitious portable fighting game that looks impressive on the N-Gage, but lacks the sort of deep, hard-hitting action you'd probably expect.",
+        "reviewer": "Greg Kasavin",
+        "full_review_url": "http://www.gamespot.com/ngage/action/one/review.html"
+      },
+      "score": {
+        "gamespot": 6.6,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Snakes",
+      "index_title": "Snakes",
+      "genre": "Puzzle",
+      "publisher": "Nokia",
+      "developer": "Iomo",
+      "release_date": "01/25/2005",
+      "original_path": "/ngage/puzzle/snakes/index.html",
+      "original_url": "http://www.gamespot.com/ngage/puzzle/snakes/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050204041627id_/http://www.gamespot.com/ngage/puzzle/snakes/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050204041627/http://www.gamespot.com/ngage/puzzle/snakes/review.html",
+      "capture_timestamp": "20050204041627",
+      "review": {
+        "blurb": "For now, Snakes is mandatory software for N-Gagers. Download it immediately and start sharing.",
+        "reviewer": "Steve Palley",
+        "full_review_url": "http://www.gamespot.com/ngage/puzzle/snakes/review.html"
+      },
+      "score": {
+        "gamespot": 8.6,
+        "label": "great",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 8,
+          "value": 10,
+          "reviewers_tilt": 9
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Operation Shadow",
+      "index_title": "Operation Shadow",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Torus Games",
+      "release_date": "10/19/2004",
+      "original_path": "/ngage/action/operationshadow/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/operationshadow/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041023022452id_/http://www.gamespot.com/ngage/action/operationshadow/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041023022452/http://www.gamespot.com/ngage/action/operationshadow/review.html",
+      "capture_timestamp": "20041023022452",
+      "review": {
+        "blurb": "Operation Shadow is a very flawed game that would be impossible to recommend--for any price.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/action/operationshadow/review.html"
+      },
+      "score": {
+        "gamespot": 4.2,
+        "label": "poor",
+        "components": {
+          "gameplay": 4,
+          "graphics": 4,
+          "sound": 6,
+          "value": 4,
+          "reviewers_tilt": 4
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Bomberman",
+      "index_title": "Bomberman",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Hudson",
+      "release_date": "08/04/2004",
+      "original_path": "/ngage/action/bomberman/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/bomberman/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20040819045857id_/http://www.gamespot.com/ngage/action/bomberman/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20040819045857/http://www.gamespot.com/ngage/action/bomberman/review.html",
+      "capture_timestamp": "20040819045857",
+      "review": {
+        "blurb": "Bomberman for the N-Gage plays it pretty safe. It's a decent enough presentation of a formula that's either tried-and-true or well-worn, depending on how fondly you remember Bomberman.",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/action/bomberman/review.html"
+      },
+      "score": {
+        "gamespot": 6.2,
+        "label": "fair",
+        "components": {
+          "gameplay": 7,
+          "graphics": 5,
+          "sound": 6,
+          "value": 6,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Pocket Kingdom: Own the World",
+      "index_title": "Pocket Kingdom: Own the World",
+      "genre": "Role-Playing",
+      "publisher": "Nokia",
+      "developer": "Sega",
+      "release_date": "11/24/2004",
+      "original_path": "/ngage/rpg/pocketkingdomowntheworld/index.html",
+      "original_url": "http://www.gamespot.com/ngage/rpg/pocketkingdomowntheworld/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041212000420id_/http://www.gamespot.com/ngage/rpg/pocketkingdomowntheworld/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041212000420/http://www.gamespot.com/ngage/rpg/pocketkingdomowntheworld/review.html",
+      "capture_timestamp": "20041212000420",
+      "review": {
+        "blurb": "Despite its prominent flaws, Pocket Kingdom is still a somewhat significant landmark for the N-Gage. There is a core idea here that is quite sound, but it's unfortunately undermined by a series of poor design choices.",
+        "reviewer": "Ryan Davis",
+        "full_review_url": "http://www.gamespot.com/ngage/rpg/pocketkingdomowntheworld/review.html"
+      },
+      "score": {
+        "gamespot": 6.8,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 7,
+          "sound": 6,
+          "value": 8,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Spider-Man 2",
+      "index_title": "Spider-Man 2",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Activision",
+      "release_date": "07/06/2004",
+      "original_path": "/ngage/action/spiderman2/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/spiderman2/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20040725014551id_/http://www.gamespot.com/ngage/action/spiderman2/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20040725014551/http://www.gamespot.com/ngage/action/spiderman2/review.html",
+      "capture_timestamp": "20040725014551",
+      "review": {
+        "blurb": "Between the uninspired gameplay and the occasionally crippling bugs, Spider-Man 2 for the N-Gage is a very difficult title to recommend.",
+        "reviewer": "Avery Score",
+        "full_review_url": "http://www.gamespot.com/ngage/action/spiderman2/review.html"
+      },
+      "score": {
+        "gamespot": 5.2,
+        "label": "mediocre",
+        "components": {
+          "gameplay": 5,
+          "graphics": 5,
+          "sound": 7,
+          "value": 5,
+          "reviewers_tilt": 5
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "Call of Duty",
+      "index_title": "Call of Duty",
+      "genre": "Action",
+      "publisher": "Activision",
+      "developer": "Nokia",
+      "release_date": "11/22/2004",
+      "original_path": "/ngage/action/callofduty/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/callofduty/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20041123113257id_/http://www.gamespot.com/ngage/action/callofduty/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20041123113257/http://www.gamespot.com/ngage/action/callofduty/review.html",
+      "capture_timestamp": "20041123113257",
+      "review": {
+        "blurb": "Ultimately, Call of Duty's play experience doesn't quite match up with the ambitious scope of its design.",
+        "reviewer": "Steve Palley",
+        "full_review_url": "http://www.gamespot.com/ngage/action/callofduty/review.html"
+      },
+      "score": {
+        "gamespot": 6.6,
+        "label": "fair",
+        "components": {
+          "gameplay": 6,
+          "graphics": 6,
+          "sound": 9,
+          "value": 6,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    },
+    {
+      "title": "The King of Fighters: Extreme",
+      "index_title": "The King of Fighters: Extreme",
+      "genre": "Action",
+      "publisher": "Nokia",
+      "developer": "Hudson",
+      "release_date": "01/12/2005",
+      "original_path": "/ngage/action/kingoffighters/index.html",
+      "original_url": "http://www.gamespot.com/ngage/action/kingoffighters/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/20050124025748id_/http://www.gamespot.com/ngage/action/kingoffighters/review.html",
+      "final_wayback_url": "https://web.archive.org/web/20050124025748/http://www.gamespot.com/ngage/action/kingoffighters/review.html",
+      "capture_timestamp": "20050124025748",
+      "review": {
+        "blurb": "It's unclear what's so \"extreme\" about The King of Fighters Extreme for the N-Gage, which is a translation of the excellent King of Fighters EX2: Howling Blood for the Game Boy Advance, originally released in late 2003. In turn, it's hard to imagine any of this game's prospective players not being familiar with the popular, long-running NeoGeo 2D fighting game series that inspired this portable version. KOF fans will find in King of Fighters Extreme a competent port of the familiar, tried-and-true gameplay they love, and this version touts a wireless two-player mode for good measure. Given that, and considering the controls are surprisingly responsive and the graphics look sharp on the N-Gage's small screen, The King of Fighters Extreme has all the makings of a great portable fighting game. Unfortunately, a consistently sluggish frame rate seriously hurts the experience.",
+        "reviewer": "Greg Kasavin",
+        "full_review_url": "http://www.gamespot.com/ngage/action/kingoffighters/review.html"
+      },
+      "score": {
+        "gamespot": 7.0,
+        "label": "good",
+        "components": {
+          "gameplay": 7,
+          "graphics": 7,
+          "sound": 7,
+          "value": 7,
+          "reviewers_tilt": 7
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": []
+    }
+  ]
+}
