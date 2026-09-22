@@ -191,13 +191,14 @@ function submit_it () {
 <table width="600" cellpadding="2" cellspacing="0" border="0" bgcolor="#000000" id="score-grid">
 <thead><tr bgcolor="#222222">
 <th align="left" width="150"><a href="#" data-sort="title" class="gsheader11">Game</a></th>
-<th width="40"><a href="#" data-sort="score" class="gsheader11">Score</a></th>
-<th width="34"><a href="#" data-sort="gameplay" class="gsheader11">Play</a></th>
-<th width="34"><a href="#" data-sort="graphics" class="gsheader11">Graph</a></th>
-<th width="34"><a href="#" data-sort="sound" class="gsheader11">Sound</a></th>
-<th width="34"><a href="#" data-sort="value" class="gsheader11">Value</a></th>
-<th width="30"><a href="#" data-sort="tilt" class="gsheader11">Tilt</a></th>
-<th width="94"><a href="#" data-sort="reviewer" class="gsheader11">Reviewer</a></th>
+<th width="48"><a href="#" data-sort="score" class="gsheader11">Score</a></th>
+<th width="36"><a href="#" data-sort="gameplay" class="gsheader11">Play</a></th>
+<th width="36"><a href="#" data-sort="graphics" class="gsheader11">Graph</a></th>
+<th width="36"><a href="#" data-sort="sound" class="gsheader11">Sound</a></th>
+<th width="36"><a href="#" data-sort="value" class="gsheader11">Value</a></th>
+<th width="34"><a href="#" data-sort="tilt" class="gsheader11">Tilt</a></th>
+<th width="90"><a href="#" data-sort="reviewer" class="gsheader11">Reviewer</a></th>
+<th align="left" width="134"><span class="gsheader11">Blurb</span></th>
 </tr></thead>
 <tbody id="list-body"></tbody>
 </table>
@@ -242,18 +243,19 @@ function renderGame(g){
   tr.innerHTML =
    '<td width="150"><a href="'+esc(g.href)+'" class="gsyellow13">'+esc(g.title)+'</a><br>'+
    '<span class="gsgrey11">'+esc(g.publisher)+(g.date?" &middot; "+esc(g.date):"")+'</span><br>'+
-   '<span class="gstext11" style="color:#cccccc;">'+esc(g.blurb)+'</span></td>'+
-   '<td width="40" align="center"><span class="gsscore3">'+oneDec(g.score)+'</span></td>'+
-   '<td width="34" align="center" class="gstext11">'+comp(g.gameplay)+'</td>'+
-   '<td width="34" align="center" class="gstext11">'+comp(g.graphics)+'</td>'+
-   '<td width="34" align="center" class="gstext11">'+comp(g.sound)+'</td>'+
-   '<td width="34" align="center" class="gstext11">'+comp(g.value)+'</td>'+
-   '<td width="30" align="center" class="gstext11">'+comp(g.tilt)+'</td>'+
-   '<td width="94" class="gstext11">'+esc(g.reviewer)+'</td>';
+   '</td>'+
+   '<td width="48" align="center"><span class="gsscore3" style="font-size:16px;">'+oneDec(g.score)+'</span></td>'+
+   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.gameplay)+'</td>'+
+   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.graphics)+'</td>'+
+   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.sound)+'</td>'+
+   '<td width="36" align="center" class="gstext11" style="font-size:14px;">'+comp(g.value)+'</td>'+
+   '<td width="34" align="center" class="gstext11" style="font-size:14px;">'+comp(g.tilt)+'</td>'+
+   '<td width="90" class="gstext11">'+esc(g.reviewer)+'</td>'+
+    '<td width="134" class="gstext11" style="color:#cccccc;">'+esc(g.blurb)+'</td>';
   if(REVIEWS.indexOf(g)%2===1) tr.setAttribute("bgcolor","#111111");
   listBody.appendChild(tr);
   var sep=document.createElement("tr");
-  sep.innerHTML='<td colspan="8"><img src="dreamcast_files/dot_grey.gif" width="600" height="1" vspace="4"></td>';
+  sep.innerHTML='<td colspan="9"><img src="dreamcast_files/dot_grey.gif" width="600" height="1" vspace="4"></td>';
   listBody.appendChild(sep);
 }
 function renderAll(){
