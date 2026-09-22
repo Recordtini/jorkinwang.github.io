@@ -51,6 +51,36 @@ svg{
 .can-scroll::-webkit-scrollbar{width:14px;}
 .can-scroll::-webkit-scrollbar-track{background:#4b4b4b;}
 .can-scroll::-webkit-scrollbar-thumb{background:#8d8d8d;border:2px solid #4b4b4b;}
+.sort-row{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;
+  padding:0 0 8px;
+  margin:0 0 8px;
+  background:#404040;
+  border-bottom:3px solid #707070;
+}
+.sort-button{
+  appearance:none;
+  -webkit-appearance:none;
+  border:2px outset #bdbdbd;
+  background:#9a9a9a;
+  color:#000000;
+  font-family:"Comic Sans MS","Comic Sans",cursive;
+  font-size:10px;
+  font-weight:bold;
+  line-height:1;
+  padding:4px 6px;
+  cursor:pointer;
+}
+.sort-button:active,
+.sort-button.active{
+  border-style:inset;
+  background:#d0d0d0;
+}
 .list{display:block;}
 .card{
   background:#cfcfcf;
@@ -140,6 +170,19 @@ svg{
   </svg>
 
   <div class="can-scroll">
+    <div class="sort-row" aria-label="Sort controls">
+      <button class="sort-button active" type="button" data-sort="date">DATE</button>
+      <button class="sort-button" type="button" data-sort="genre">GENRE</button>
+      <button class="sort-button" type="button" data-sort="title">GAMES</button>
+      <button class="sort-button" type="button" data-sort="publisher">PUBLISHER</button>
+      <button class="sort-button" type="button" data-sort="score">SPOT SCORE</button>
+      <button class="sort-button" type="button" data-sort="gameplay">GAMEPLAY</button>
+      <button class="sort-button" type="button" data-sort="graphics">GRAPHICS</button>
+      <button class="sort-button" type="button" data-sort="sound">SOUND</button>
+      <button class="sort-button" type="button" data-sort="value">VALUE</button>
+      <button class="sort-button" type="button" data-sort="tilt">TILT</button>
+      <button class="sort-button" type="button" data-sort="reviewer">REVIEWER</button>
+    </div>
     <div id="list" class="list">
       <div class="loading">LOADING TRASH...</div>
     </div>
@@ -149,57 +192,118 @@ svg{
 <script>
 const DATA_URL = 'outputs/gamespot_ngage_reviews.json';
 const list = document.getElementById('list');
+const sortButtons = Array.from(document.querySelectorAll('.sort-button'));
+let loadedGames = [];
+let activeSort = 'date';
 
-function esc(s){
-  return String(s == null ? '' : s)
+function text(value){
+  return value == null || value === '' ? '' : String(value);
+}
+function esc(value){
+  return text(value)
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
 }
-function scoreText(v){return typeof v === 'number' ? v.toFixed(1) : '-';}
-function tiny(v){return typeof v === 'number' ? v : '-';}
-function sortGames(games){
-  return games.slice().sort(function(a,b){
-    const av = typeof a.score === 'number' ? a.score : -999;
-    const bv = typeof b.score === 'number' ? b.score : -999;
-    if (bv !== av) return bv - av;
-    return String(a.title||'').localeCompare(String(b.title||''));
+function scoreText(value){
+  return value == null || value === '' ? '-' : Number(value).toFixed(1);
+}
+function wholeScore(value){
+  return value == null || value === '' ? '-' : String(value);
+}
+function sortDate(game){
+  const raw = text(game.release_date);
+  const parts = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(parts){
+    return parts[3]+'-'+parts[1].padStart(2,'0')+'-'+parts[2].padStart(2,'0');
+  }
+  if(/^\d{4}$/.test(raw)) return raw+'-00-00';
+  return raw;
+}
+function sortValue(game,key){
+  if(key === 'date') return sortDate(game);
+  if(key === 'genre') return text(game.genre).toLowerCase();
+  if(key === 'title') return text(game.title).toLowerCase();
+  if(key === 'publisher') return text(game.publisher).toLowerCase();
+  if(key === 'score') return game.score && game.score.gamespot != null ? Number(game.score.gamespot) : -1;
+
+  const components = (game.score && game.score.components) || {};
+  if(key === 'gameplay') return components.gameplay != null ? Number(components.gameplay) : -1;
+  if(key === 'graphics') return components.graphics != null ? Number(components.graphics) : -1;
+  if(key === 'sound') return components.sound != null ? Number(components.sound) : -1;
+  if(key === 'value') return components.value != null ? Number(components.value) : -1;
+  if(key === 'tilt') return components.reviewers_tilt != null ? Number(components.reviewers_tilt) : -1;
+  if(key === 'reviewer') return text(game.review && game.review.reviewer).toLowerCase();
+  return '';
+}
+function sortedGames(){
+  return loadedGames.slice().sort(function(a,b){
+    const av = sortValue(a,activeSort);
+    const bv = sortValue(b,activeSort);
+
+    if(typeof av === 'number' || typeof bv === 'number'){
+      const diff = Number(bv) - Number(av);
+      if(diff !== 0) return diff;
+    }else{
+      const descending = activeSort === 'date';
+      const diff = descending
+        ? String(bv).localeCompare(String(av))
+        : String(av).localeCompare(String(bv));
+      if(diff !== 0) return diff;
+    }
+    return text(a.title).localeCompare(text(b.title));
   });
 }
-function render(games){
-  const sorted = sortGames(games);
-  list.innerHTML = sorted.map(function(g){
+function render(){
+  list.innerHTML = sortedGames().map(function(g){
+    const components = (g.score && g.score.components) || {};
+    const review = g.review || {};
+    const href = g.final_wayback_url || g.original_url || review.full_review_url || '#';
+
     return '<div class="card">'
       + '<div class="title-row">'
       + '<div>'
-      + '<a class="title" href="'+esc(g.href||'#')+'">'+esc(g.title||'Untitled')+'</a>'
+      + '<a class="title" href="'+esc(href)+'">'+esc(g.title||'Untitled')+'</a>'
       + '<div class="meta">'+esc(g.publisher||'')
       + (g.genre ? ' / '+esc(g.genre) : '')
-      + (g.date ? ' / '+esc(g.date) : '')
-      + (g.reviewer ? ' / '+esc(g.reviewer) : '')
+      + (g.release_date ? ' / '+esc(g.release_date) : '')
+      + (review.reviewer ? ' / '+esc(review.reviewer) : '')
       + '</div>'
       + '</div>'
-      + '<div class="score">'+scoreText(g.score)+'</div>'
+      + '<div class="score">'+scoreText(g.score && g.score.gamespot)+'</div>'
       + '</div>'
-      + '<div class="blurb">'+esc(g.blurb||'')+'</div>'
+      + '<div class="blurb">'+esc(review.blurb||'')+'</div>'
       + '<div class="stats">'
-      + '<span class="stat">PLAY '+tiny(g.gameplay)+'</span>'
-      + '<span class="stat">GRAPH '+tiny(g.graphics)+'</span>'
-      + '<span class="stat">SOUND '+tiny(g.sound)+'</span>'
-      + '<span class="stat">VALUE '+tiny(g.value)+'</span>'
-      + '<span class="stat">TILT '+tiny(g.tilt)+'</span>'
+      + '<span class="stat">PLAY '+wholeScore(components.gameplay)+'</span>'
+      + '<span class="stat">GRAPH '+wholeScore(components.graphics)+'</span>'
+      + '<span class="stat">SOUND '+wholeScore(components.sound)+'</span>'
+      + '<span class="stat">VALUE '+wholeScore(components.value)+'</span>'
+      + '<span class="stat">TILT '+wholeScore(components.reviewers_tilt)+'</span>'
       + '</div>'
       + '</div>';
   }).join('');
 }
 
+sortButtons.forEach(function(button){
+  button.addEventListener('click',function(){
+    activeSort = button.dataset.sort;
+    sortButtons.forEach(function(candidate){
+      candidate.classList.toggle('active',candidate === button);
+    });
+    render();
+  });
+});
+
 fetch(DATA_URL,{cache:'no-store'})
-  .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  })
   .then(function(data){
-    const games = Array.isArray(data) ? data : (data && Array.isArray(data.games) ? data.games : null);
-    if(!games) throw new Error('Unexpected JSON shape');
-    render(games);
+    loadedGames = Array.isArray(data) ? data : (data && Array.isArray(data.games) ? data.games : []);
+    if(!loadedGames.length) throw new Error('No N-Gage reviews found');
+    render();
   })
   .catch(function(err){
     console.error(err);
