@@ -1,6 +1,6 @@
 {
  "metadata": {
-  "generated_at": "2026-09-22T00:53:42.931677+00:00",
+  "generated_at": "2026-09-22T00:58:07.752417+00:00",
   "source_index_original_url": "http://www.gamespot.com/ps/reviews.html",
   "source_index_capture_timestamp": "20040608044303",
   "total_picker_games": 932,
@@ -460,8 +460,8 @@
     "reviewer": "Frank Provo",
     "blurb": "Whether you're toting around explosive grenades, pinpoint mortars, or the dangerous bazooka, Army Men World War: Land, Sea, Air is a well-rounded game that's not just for kids anymore."
    },
-   "release_date": "September 2000",
-   "source": "hub-crawl"
+   "release_date": "09/24/2000",
+   "source": "hub-crawl + manual correction (Marco, per IGN: Sep 24, 2000)"
   },
   {
    "title": "Assault: Retribution",
