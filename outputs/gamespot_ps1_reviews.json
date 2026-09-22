@@ -1,6 +1,6 @@
 {
  "metadata": {
-  "generated_at": "2026-09-22T01:03:00.209999+00:00",
+  "generated_at": "2026-09-22T01:05:17.461132+00:00",
   "source_index_original_url": "http://www.gamespot.com/ps/reviews.html",
   "source_index_capture_timestamp": "20040608044303",
   "total_picker_games": 932,
@@ -10115,11 +10115,11 @@
     "blurb": "Urban Chaos is ugly and almost completely unplayable."
    },
    "release_date": "03/31/2000",
-   "source": "hub-crawl",
+   "source": "hub-crawl + manual publisher (Marco)",
    "final_wayback_url": "https://web.archive.org/web/20030414175441/http://www.gamespot.com/ps/adventure/urbanchaos/index.html",
    "developer": "Mucky Foot Productions",
    "genre": "Adventure",
-   "publisher": null
+   "publisher": "Eidos Interactive"
   },
   {
    "title": "Vampire Hunter D",
