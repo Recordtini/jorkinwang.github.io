@@ -1,0 +1,89 @@
+.gsscore1 { font-family: Tahoma, Arial, Helvetica, Geneva; font-size: 46px; font-weight: bold; color: #FF8800; text-decoration: none}
+.gsscore2 { font-family: Tahoma, Arial, Helvetica, Geneva; font-size: 22px; font-weight: bold; color: #FF8800; text-decoration: none}
+.gsscore3 { font-family: Arial, Helvetica, Geneva; font-size: 12px; font-weight: bold; color: #FF8800; text-decoration: none}
+.gsscore4 { font-family: Tahoma, Arial, Helvetica, Geneva; font-size: 36px; font-weight: bold; color: #FF8800; text-decoration: none}
+
+.gameheader { font-family: Tahoma, Arial, Helvetica; font-size: 28px; font-weight: bold; color: #FF9900; text-decoration: none}
+.gsleadheader { font-family: Tahoma, Arial, Helvetica; font-size: 24px; font-weight: bold; color: #FF9900; text-decoration: none}
+.gsheader { font-family: Tahoma, Arial, Helvetica; font-size: 18px; font-weight: bold; color: #FF9900; text-decoration: none}
+.gsheader2 { font-family: Tahoma, Arial, Helvetica; font-size: 14px; font-weight: bold; color: #FF9900; text-decoration: none}
+.gsheader3 { font-family: Tahoma, Arial, Helvetica; font-size: 11px; font-weight: bold; color: #FF9900; text-decoration: none}
+
+.gsheader11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; font-weight: bold; color: #DDDDDD; text-decoration: none; line-height: 14px;}
+.gsheader12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; font-weight: bold; color: #DDDDDD; text-decoration: none; line-height: 15px;}
+
+.gsyellow10 { font-family: Arial, Helvetica, Geneva; font-size: 10px; font-weight: bold; color: #FF9900; text-decoration: none;}
+.gsyellow11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; font-weight: bold; color: #FF9900; text-decoration: none;}
+.gsyellow12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; font-weight: bold; color: #FF9900; text-decoration: none;}
+.gsyellow13 { font-family: Arial, Helvetica, Geneva; font-size: 13px; font-weight: bold; color: #FF9900; text-decoration: none;}
+.gsyellow14 { font-family: Arial, Helvetica, Geneva; font-size: 14px; font-weight: bold; color: #FF9900; text-decoration: none;}
+.gsyellow15 { font-family: Arial, Helvetica, Geneva; font-size: 15px; font-weight: bold; color: #FF9900; text-decoration: none;}
+
+.gstext10 { font-family: Arial, Helvetica, Geneva; font-size: 10px; text-decoration: none}
+.gstext11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; text-decoration: none}
+.gstext12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; text-decoration: none}
+.gstext13 { font-family: Arial, Helvetica, Geneva; font-size: 13px; text-decoration: none}
+.gstext14 { font-family: Arial, Helvetica, Geneva; font-size: 14px; text-decoration: none}
+.gstext15 { font-family: Arial, Helvetica, Geneva; font-size: 15px; text-decoration: none}
+.gstext16 { font-family: Arial, Helvetica, Geneva; font-size: 16px; text-decoration: none}
+.gstext17 { font-family: Arial, Helvetica, Geneva; font-size: 17px; text-decoration: none}
+
+.gssearch { font-family: Arial, Helvetica, Geneva; font-size: 10px; color: #FFFFFF; text-decoration: none;}
+.gsposted { font-family: Arial, Helvetica, Geneva; font-size: 10px; color: #777777; text-decoration: none;}
+.checkprice { font-family: Arial, Helvetica, Geneva; font-size: 11px; color: #FF0000; text-decoration: none;}
+.gsprice { font-family: Arial, Helvetica, Geneva; font-size: 14px; font-weight: bold; color: #FF0000; text-decoration: none;}
+
+.gsnav11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; color: #BBBBBB; font-weight: bold; text-decoration: none;}
+.gsnav12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; color: #BBBBBB; font-weight: bold; text-decoration: none;}
+.gsnav11on { font-family: Arial, Helvetica, Geneva; font-size: 11px; color:#FFFFFF; font-weight: bold; text-decoration: none;}
+.gsnav12on { font-family: Arial, Helvetica, Geneva; font-size: 12px; color:#FFFFFF; font-weight: bold; text-decoration: none;}
+
+.gslink10 { font-family: Arial, Helvetica, Geneva; font-size: 10px; text-decoration: none;}
+.gslink11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; text-decoration: none;}
+.gslink12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; text-decoration: none;}
+.gslink13 { font-family: Arial, Helvetica, Geneva; font-size: 13px; text-decoration: none;}
+.gslink14 { font-family: Arial, Helvetica, Geneva; font-size: 14px; text-decoration: none;}
+
+.gsgrey10 { font-family: Arial, Helvetica, Geneva; font-size: 10px; color:#999999; text-decoration: none }
+.gsgrey11 { font-family: Arial, Helvetica, Geneva; font-size: 11px; color:#999999; text-decoration: none }
+.gsgrey12 { font-family: Arial, Helvetica, Geneva; font-size: 12px; color:#999999; text-decoration: none }
+.gsgrey13 { font-family: Arial, Helvetica, Geneva; font-size: 13px; color:#999999; text-decoration: none }
+.gsgrey14 { font-family: Arial, Helvetica, Geneva; font-size: 14px; color:#999999; text-decoration: none }
+
+A:hover {color: #FFFFFF; text-decoration: underline; }
+
+
+
+.tlink { font-family: Verdana, Geneva, Arial; font-size: 10px; color: #FFFFFF; text-decoration: none; }
+A:hover.tlink { color:#FFFF66; text-decoration: underline; }
+.tsep { font-family: Arial, Geneva; font-size: 10px; color: #FFFFFF; }
+.spacer1 { font-family: Arial, Geneva; font-size: 1px }
+.spacer2 { font-family: Arial, Geneva; font-size: 2px }
+.spacer4 { font-family: Arial, Geneva; font-size: 4px }
+.spacer6 { font-family: Arial, Geneva; font-size: 6px }
+.spacer8 { font-family: Arial, Geneva; font-size: 8px }
+.bnav { font-family: Verdana, Geneva, Arial; font-size: 12px; font-weight: bold; text-decoration: none; color: #FFFFFF; }
+.bnav2 { font-family: Verdana, Geneva, Arial; font-size: 12px; text-decoration: none; color: #FFFFFF; }
+.bnavsep { font-family: Verdana, Geneva, Arial; font-size: 11px; color: #FFFFFF; }
+.v10 { font-family: Verdana, Geneva; font-size: 10px; }
+.tsquirt { font-family: Arial, Geneva; font-size: 11px; color: #FFFFFF; }
+.efree { font-family: Arial Black, Arial, Geneva; font-size: 20px; color: #CC3300; }
+.esignup { font-family: Verdana, Geneva, Arial; font-size: 13px; }
+.v11 { font-family: Verdana, Geneva; font-size: 11px; }
+.sphead { font-family: Verdana, Geneva, Arial; font-size: 13px; font-weight: bold; color: #FFFFCC; }
+.spdeck { font-family: Verdana, Geneva, Arial; font-size: 11px; }
+.spurl { font-family: Verdana, Geneva, Arial; font-size: 11px; color: #333399; }
+.bread { font-family: Tahoma, Verdana, Arial, Helvetica; font-size: 10px; font-weight: bold; color: #FF7700; text-decoration: none; line-height: 15px}
+.breadb { font-family: Tahoma, Verdana, Arial, Helvetica; font-size: 10px; color: #EEEEEE; text-decoration: none; font-weight: bold; line-height: 15px}
+
+.gspollheader { font-family: Tahoma, Arial, Helvetica; font-size: 24px; font-weight: bold; color: #ffffff; text-decoration: none}
+
+.gslink11gray { font-family: Arial, Helvetica, Geneva; font-size: 11px; text-decoration: none; color: #666666}
+
+.gslink12gray { font-family: Arial, Helvetica, Geneva; font-size: 12px; text-decoration: none; color: #666666}
+
+.ggheader1 { font-family: Tahoma, Arial, Geneva, Helvetica; font-size: 22px; font-weight: bold; text-decoration: none}
+.ggheader2 { font-family: Tahoma, Arial, Geneva, Helvetica; font-size: 20px; font-weight: bold; text-decoration: none}
+.ggheader3 { font-family: Tahoma, Arial, Geneva, Helvetica; font-size: 18px; font-weight: bold; text-decoration: none}
+.ggheader4 { font-family: Tahoma, Arial, Geneva, Helvetica; font-size: 16px; font-weight: bold; text-decoration: none}
+.ggheader5 { font-family: Tahoma, Arial, Geneva, Helvetica; font-size: 14px; font-weight: bold; text-decoration: none}
