@@ -1,6 +1,6 @@
 {
  "metadata": {
-  "generated_at": "2026-09-22T01:05:17.461132+00:00",
+  "generated_at": "2026-09-22T01:11:31.937736+00:00",
   "source_index_original_url": "http://www.gamespot.com/ps/reviews.html",
   "source_index_capture_timestamp": "20040608044303",
   "total_picker_games": 932,
@@ -1788,11 +1788,11 @@
     "gamespot": 7.0,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
+     "gameplay": 7,
+     "graphics": 7,
      "sound": 7,
      "value": 7,
-     "reviewers_tilt": 8
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -1977,11 +1977,11 @@
     "gamespot": 6.2,
     "label": "fair",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "gameplay": 6,
+     "graphics": 6,
+     "sound": 5,
+     "value": 6,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -2085,11 +2085,11 @@
     "gamespot": 5.8,
     "label": "mediocre",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
+     "gameplay": 5,
+     "graphics": 9,
      "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 5,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -3192,11 +3192,11 @@
     "gamespot": 4.5,
     "label": "poor",
     "components": {
-     "gameplay": 9,
-     "graphics": 7,
-     "sound": 8,
-     "value": 9,
-     "reviewers_tilt": 9
+     "gameplay": 4,
+     "graphics": 3,
+     "sound": 3,
+     "value": 7,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -3408,11 +3408,11 @@
     "gamespot": 2.5,
     "label": "terrible",
     "components": {
-     "gameplay": 4,
+     "gameplay": 2,
      "graphics": 3,
-     "sound": 3,
-     "value": 4,
-     "reviewers_tilt": 4
+     "sound": 4,
+     "value": 3,
+     "reviewers_tilt": 2
     }
    },
    "review": {
@@ -3732,11 +3732,11 @@
     "gamespot": 5.6,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 7
+     "gameplay": 6,
+     "graphics": 5,
+     "sound": 6,
+     "value": 6,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -3867,11 +3867,11 @@
     "gamespot": 7.0,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 8
+     "gameplay": 7,
+     "graphics": 7,
+     "sound": 8,
+     "value": 6,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -4704,8 +4704,8 @@
     "gamespot": 7.6,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
+     "gameplay": 7,
+     "graphics": 7,
      "sound": 8,
      "value": 8,
      "reviewers_tilt": 8
@@ -5324,11 +5324,11 @@
     "gamespot": 5.7,
     "label": "mediocre",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
+     "gameplay": 5,
+     "graphics": 8,
      "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 5,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -5351,11 +5351,11 @@
     "gamespot": 6.0,
     "label": "fair",
     "components": {
-     "gameplay": 2,
-     "graphics": 3,
-     "sound": 2,
-     "value": 2,
-     "reviewers_tilt": 2
+     "gameplay": 6,
+     "graphics": 8,
+     "sound": 6,
+     "value": 4,
+     "reviewers_tilt": 6
     }
    },
    "review": {
@@ -7727,11 +7727,11 @@
     "gamespot": 7.1,
     "label": "good",
     "components": {
-     "gameplay": 8,
+     "gameplay": 7,
      "graphics": 7,
      "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -8646,9 +8646,9 @@
     "label": "mediocre",
     "components": {
      "gameplay": 6,
-     "graphics": 6,
-     "sound": 6,
-     "value": 6,
+     "graphics": 5,
+     "sound": 8,
+     "value": 5,
      "reviewers_tilt": 6
     }
    },
@@ -8726,11 +8726,11 @@
     "gamespot": 4.4,
     "label": "poor",
     "components": {
-     "gameplay": 6,
-     "graphics": 6,
+     "gameplay": 4,
+     "graphics": 5,
      "sound": 5,
-     "value": 6,
-     "reviewers_tilt": 6
+     "value": 5,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -9185,11 +9185,11 @@
     "gamespot": 5.3,
     "label": "mediocre",
     "components": {
-     "gameplay": 6,
-     "graphics": 8,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 6
+     "gameplay": 4,
+     "graphics": 9,
+     "sound": 8,
+     "value": 5,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -9212,11 +9212,11 @@
     "gamespot": 5.3,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
+     "gameplay": 5,
      "graphics": 7,
-     "sound": 7,
-     "value": 6,
-     "reviewers_tilt": 7
+     "sound": 5,
+     "value": 5,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -11940,10 +11940,10 @@
     "label": "good",
     "components": {
      "gameplay": 8,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "graphics": 9,
+     "sound": 7,
+     "value": 6,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -14828,11 +14828,11 @@
     "gamespot": 1.3,
     "label": "abysmal",
     "components": {
-     "gameplay": 4,
-     "graphics": 4,
-     "sound": 4,
-     "value": 4,
-     "reviewers_tilt": 4
+     "gameplay": 1,
+     "graphics": 2,
+     "sound": 2,
+     "value": 1,
+     "reviewers_tilt": 1
     }
    },
    "review": {
@@ -16339,11 +16339,11 @@
     "gamespot": 6.9,
     "label": "fair",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 8,
-     "value": 9,
-     "reviewers_tilt": 8
+     "gameplay": 6,
+     "graphics": 7,
+     "sound": 7,
+     "value": 8,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -17095,11 +17095,11 @@
     "gamespot": 7.3,
     "label": "good",
     "components": {
-     "gameplay": 9,
-     "graphics": 7,
-     "sound": 8,
+     "gameplay": 7,
+     "graphics": 6,
+     "sound": 5,
      "value": 9,
-     "reviewers_tilt": 9
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -17581,11 +17581,11 @@
     "gamespot": 4.9,
     "label": "poor",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "gameplay": 4,
+     "graphics": 5,
+     "sound": 5,
+     "value": 6,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -18634,10 +18634,10 @@
     "label": "fair",
     "components": {
      "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 7
+     "graphics": 5,
+     "sound": 5,
+     "value": 6,
+     "reviewers_tilt": 6
     }
    },
    "review": {
@@ -18903,11 +18903,11 @@
     "gamespot": 5.3,
     "label": "mediocre",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 8
+     "gameplay": 5,
+     "graphics": 6,
+     "sound": 5,
+     "value": 6,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -19146,11 +19146,11 @@
     "gamespot": 8.4,
     "label": "great",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 7
+     "gameplay": 8,
+     "graphics": 8,
+     "sound": 9,
+     "value": 8,
+     "reviewers_tilt": 9
     }
    },
    "review": {
@@ -19579,10 +19579,10 @@
     "label": "good",
     "components": {
      "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 7
+     "graphics": 8,
+     "sound": 8,
+     "value": 8,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -19659,11 +19659,11 @@
     "gamespot": 2.2,
     "label": "terrible",
     "components": {
-     "gameplay": 5,
-     "graphics": 5,
-     "sound": 6,
-     "value": 5,
-     "reviewers_tilt": 5
+     "gameplay": 1,
+     "graphics": 3,
+     "sound": 2,
+     "value": 2,
+     "reviewers_tilt": 3
     }
    },
    "review": {
@@ -19821,11 +19821,11 @@
     "gamespot": 7.5,
     "label": "good",
     "components": {
-     "gameplay": 5,
-     "graphics": 5,
-     "sound": 5,
-     "value": 5,
-     "reviewers_tilt": 5
+     "gameplay": 7,
+     "graphics": 8,
+     "sound": 9,
+     "value": 8,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -19929,11 +19929,11 @@
     "gamespot": 7.8,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
-     "sound": 8,
+     "gameplay": 7,
+     "graphics": 8,
+     "sound": 10,
      "value": 7,
-     "reviewers_tilt": 7
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -20037,10 +20037,10 @@
     "gamespot": 8.5,
     "label": "great",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
+     "gameplay": 9,
+     "graphics": 8,
+     "sound": 8,
+     "value": 9,
      "reviewers_tilt": 8
     }
    },
@@ -20119,10 +20119,10 @@
     "label": "fair",
     "components": {
      "gameplay": 7,
-     "graphics": 6,
+     "graphics": 7,
      "sound": 5,
-     "value": 6,
-     "reviewers_tilt": 6
+     "value": 7,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -20226,11 +20226,11 @@
     "gamespot": 2.3,
     "label": "terrible",
     "components": {
-     "gameplay": 6,
-     "graphics": 6,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "gameplay": 2,
+     "graphics": 3,
+     "sound": 5,
+     "value": 3,
+     "reviewers_tilt": 1
     }
    },
    "review": {
@@ -20253,9 +20253,9 @@
     "gamespot": 8.4,
     "label": "great",
     "components": {
-     "gameplay": 8,
+     "gameplay": 9,
      "graphics": 8,
-     "sound": 8,
+     "sound": 9,
      "value": 8,
      "reviewers_tilt": 8
     }
@@ -20442,9 +20442,9 @@
     "gamespot": 7.1,
     "label": "good",
     "components": {
-     "gameplay": 7,
-     "graphics": 9,
-     "sound": 7,
+     "gameplay": 6,
+     "graphics": 10,
+     "sound": 6,
      "value": 7,
      "reviewers_tilt": 7
     }
@@ -20496,11 +20496,11 @@
     "gamespot": 4.7,
     "label": "poor",
     "components": {
-     "gameplay": 5,
-     "graphics": 6,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 7
+     "gameplay": 4,
+     "graphics": 7,
+     "sound": 5,
+     "value": 5,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -20739,11 +20739,11 @@
     "gamespot": 6.1,
     "label": "fair",
     "components": {
-     "gameplay": 7,
-     "graphics": 6,
+     "gameplay": 6,
+     "graphics": 7,
      "sound": 7,
      "value": 7,
-     "reviewers_tilt": 6
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -20766,10 +20766,10 @@
     "gamespot": 7.9,
     "label": "good",
     "components": {
-     "gameplay": 9,
+     "gameplay": 8,
      "graphics": 8,
-     "sound": 8,
-     "value": 9,
+     "sound": 7,
+     "value": 8,
      "reviewers_tilt": 8
     }
    },
@@ -20793,11 +20793,11 @@
     "gamespot": 4.7,
     "label": "poor",
     "components": {
-     "gameplay": 6,
-     "graphics": 7,
+     "gameplay": 4,
+     "graphics": 6,
      "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "value": 5,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -20901,11 +20901,11 @@
     "gamespot": 5.6,
     "label": "mediocre",
     "components": {
-     "gameplay": 6,
-     "graphics": 6,
+     "gameplay": 7,
+     "graphics": 5,
      "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "value": 4,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -20928,11 +20928,11 @@
     "gamespot": 6.3,
     "label": "fair",
     "components": {
-     "gameplay": 8,
+     "gameplay": 5,
      "graphics": 7,
-     "sound": 7,
+     "sound": 6,
      "value": 7,
-     "reviewers_tilt": 8
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -21009,11 +21009,11 @@
     "gamespot": 7.2,
     "label": "good",
     "components": {
-     "gameplay": 6,
-     "graphics": 5,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "gameplay": 7,
+     "graphics": 6,
+     "sound": 7,
+     "value": 7,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -21063,10 +21063,10 @@
     "gamespot": 5.8,
     "label": "mediocre",
     "components": {
-     "gameplay": 6,
-     "graphics": 6,
-     "sound": 6,
-     "value": 6,
+     "gameplay": 4,
+     "graphics": 8,
+     "sound": 8,
+     "value": 5,
      "reviewers_tilt": 6
     }
    },
@@ -21171,11 +21171,11 @@
     "gamespot": 8.9,
     "label": "great",
     "components": {
-     "gameplay": 8,
+     "gameplay": 9,
      "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "sound": 9,
+     "value": 9,
+     "reviewers_tilt": 9
     }
    },
    "review": {
@@ -21361,9 +21361,9 @@
     "label": "good",
     "components": {
      "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
+     "graphics": 9,
+     "sound": 8,
+     "value": 8,
      "reviewers_tilt": 7
     }
    },
@@ -21388,10 +21388,10 @@
     "label": "great",
     "components": {
      "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 7
+     "graphics": 8,
+     "sound": 9,
+     "value": 8,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -21415,8 +21415,8 @@
     "label": "great",
     "components": {
      "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
+     "graphics": 8,
+     "sound": 8,
      "value": 8,
      "reviewers_tilt": 8
     }
@@ -21495,10 +21495,10 @@
     "gamespot": 5.6,
     "label": "mediocre",
     "components": {
-     "gameplay": 5,
-     "graphics": 5,
+     "gameplay": 6,
+     "graphics": 6,
      "sound": 5,
-     "value": 5,
+     "value": 6,
      "reviewers_tilt": 5
     }
    },
@@ -21684,11 +21684,11 @@
     "gamespot": 3.2,
     "label": "bad",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 6,
-     "value": 7,
-     "reviewers_tilt": 7
+     "gameplay": 4,
+     "graphics": 3,
+     "sound": 2,
+     "value": 3,
+     "reviewers_tilt": 3
     }
    },
    "review": {
@@ -21792,11 +21792,11 @@
     "gamespot": 5.4,
     "label": "mediocre",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "gameplay": 6,
+     "graphics": 7,
+     "sound": 7,
+     "value": 4,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -21901,10 +21901,10 @@
     "label": "good",
     "components": {
      "gameplay": 8,
-     "graphics": 9,
-     "sound": 9,
-     "value": 8,
-     "reviewers_tilt": 9
+     "graphics": 7,
+     "sound": 6,
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -22008,11 +22008,11 @@
     "gamespot": 8.8,
     "label": "great",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "gameplay": 9,
+     "graphics": 7,
+     "sound": 7,
+     "value": 9,
+     "reviewers_tilt": 10
     }
    },
    "review": {
@@ -22035,11 +22035,11 @@
     "gamespot": 2.3,
     "label": "terrible",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 9,
-     "value": 9,
-     "reviewers_tilt": 9
+     "gameplay": 2,
+     "graphics": 3,
+     "sound": 2,
+     "value": 3,
+     "reviewers_tilt": 2
     }
    },
    "review": {
@@ -22116,11 +22116,11 @@
     "gamespot": 5.0,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "gameplay": 6,
+     "graphics": 6,
+     "sound": 5,
+     "value": 4,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -22143,11 +22143,11 @@
     "gamespot": 6.4,
     "label": "fair",
     "components": {
-     "gameplay": 5,
-     "graphics": 7,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "gameplay": 6,
+     "graphics": 6,
+     "sound": 5,
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -22224,11 +22224,11 @@
     "gamespot": 4.6,
     "label": "poor",
     "components": {
-     "gameplay": 5,
-     "graphics": 5,
+     "gameplay": 4,
+     "graphics": 6,
      "sound": 5,
      "value": 5,
-     "reviewers_tilt": 5
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -22388,9 +22388,9 @@
     "components": {
      "gameplay": 7,
      "graphics": 6,
-     "sound": 6,
-     "value": 7,
-     "reviewers_tilt": 7
+     "sound": 3,
+     "value": 4,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -22413,11 +22413,11 @@
     "gamespot": 3.3,
     "label": "bad",
     "components": {
-     "gameplay": 5,
-     "graphics": 5,
-     "sound": 5,
+     "gameplay": 4,
+     "graphics": 2,
+     "sound": 3,
      "value": 4,
-     "reviewers_tilt": 5
+     "reviewers_tilt": 3
     }
    },
    "review": {
@@ -22441,10 +22441,10 @@
     "label": "great",
     "components": {
      "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 9,
-     "reviewers_tilt": 9
+     "graphics": 8,
+     "sound": 8,
+     "value": 8,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -22468,10 +22468,10 @@
     "label": "good",
     "components": {
      "gameplay": 8,
-     "graphics": 8,
-     "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "graphics": 7,
+     "sound": 6,
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -22575,11 +22575,11 @@
     "gamespot": 4.0,
     "label": "poor",
     "components": {
-     "gameplay": 6,
+     "gameplay": 4,
      "graphics": 5,
-     "sound": 6,
-     "value": 5,
-     "reviewers_tilt": 5
+     "sound": 7,
+     "value": 3,
+     "reviewers_tilt": 3
     }
    },
    "review": {
@@ -22710,11 +22710,11 @@
     "gamespot": 6.0,
     "label": "fair",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
+     "gameplay": 6,
+     "graphics": 5,
      "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 8
+     "value": 4,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -22763,10 +22763,10 @@
     "gamespot": 5.6,
     "label": "mediocre",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
-     "sound": 7,
-     "value": 7,
+     "gameplay": 5,
+     "graphics": 5,
+     "sound": 6,
+     "value": 4,
      "reviewers_tilt": 7
     }
    },
@@ -22790,11 +22790,11 @@
     "gamespot": 7.9,
     "label": "good",
     "components": {
-     "gameplay": 7,
+     "gameplay": 8,
      "graphics": 6,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "sound": 8,
+     "value": 7,
+     "reviewers_tilt": 9
     }
    },
    "review": {
@@ -22898,11 +22898,11 @@
     "gamespot": 5.5,
     "label": "mediocre",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 8,
-     "value": 9,
-     "reviewers_tilt": 9
+     "gameplay": 7,
+     "graphics": 5,
+     "sound": 4,
+     "value": 7,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -23033,11 +23033,11 @@
     "gamespot": 6.2,
     "label": "fair",
     "components": {
-     "gameplay": 4,
-     "graphics": 4,
-     "sound": 4,
-     "value": 4,
-     "reviewers_tilt": 5
+     "gameplay": 6,
+     "graphics": 7,
+     "sound": 6,
+     "value": 6,
+     "reviewers_tilt": 6
     }
    },
    "review": {
@@ -23061,9 +23061,9 @@
     "label": "good",
     "components": {
      "gameplay": 8,
-     "graphics": 8,
+     "graphics": 7,
      "sound": 8,
-     "value": 7,
+     "value": 8,
      "reviewers_tilt": 8
     }
    },
@@ -23168,11 +23168,11 @@
     "gamespot": 7.2,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
+     "gameplay": 7,
+     "graphics": 7,
      "sound": 9,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -23195,11 +23195,11 @@
     "gamespot": 8.5,
     "label": "great",
     "components": {
-     "gameplay": 7,
+     "gameplay": 9,
      "graphics": 8,
-     "sound": 8,
-     "value": 7,
-     "reviewers_tilt": 7
+     "sound": 10,
+     "value": 8,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -23224,9 +23224,9 @@
     "components": {
      "gameplay": 6,
      "graphics": 6,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "sound": 7,
+     "value": 7,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -23303,11 +23303,11 @@
     "gamespot": 5.3,
     "label": "mediocre",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
+     "gameplay": 5,
+     "graphics": 4,
      "sound": 8,
-     "value": 7,
-     "reviewers_tilt": 8
+     "value": 6,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -23357,11 +23357,11 @@
     "gamespot": 5.1,
     "label": "mediocre",
     "components": {
-     "gameplay": 4,
-     "graphics": 4,
-     "sound": 4,
-     "value": 4,
-     "reviewers_tilt": 4
+     "gameplay": 5,
+     "graphics": 5,
+     "sound": 6,
+     "value": 5,
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -23385,10 +23385,10 @@
     "label": "mediocre",
     "components": {
      "gameplay": 6,
-     "graphics": 5,
-     "sound": 6,
-     "value": 6,
-     "reviewers_tilt": 6
+     "graphics": 4,
+     "sound": 7,
+     "value": 5,
+     "reviewers_tilt": 4
     }
    },
    "review": {
@@ -23438,11 +23438,11 @@
     "gamespot": 6.9,
     "label": "fair",
     "components": {
-     "gameplay": 4,
-     "graphics": 4,
-     "sound": 5,
-     "value": 5,
-     "reviewers_tilt": 5
+     "gameplay": 7,
+     "graphics": 5,
+     "sound": 7,
+     "value": 8,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -23519,11 +23519,11 @@
     "gamespot": 8.6,
     "label": "great",
     "components": {
-     "gameplay": 8,
-     "graphics": 8,
+     "gameplay": 9,
+     "graphics": 9,
      "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 7,
+     "reviewers_tilt": 9
     }
    },
    "review": {
@@ -23546,11 +23546,11 @@
     "gamespot": 8.1,
     "label": "great",
     "components": {
-     "gameplay": 7,
+     "gameplay": 8,
      "graphics": 8,
-     "sound": 8,
+     "sound": 9,
      "value": 8,
-     "reviewers_tilt": 7
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -23708,11 +23708,11 @@
     "gamespot": 5.7,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
-     "graphics": 6,
-     "sound": 7,
+     "gameplay": 6,
+     "graphics": 5,
+     "sound": 6,
      "value": 7,
-     "reviewers_tilt": 7
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -23762,11 +23762,11 @@
     "gamespot": 6.0,
     "label": "fair",
     "components": {
-     "gameplay": 8,
+     "gameplay": 7,
      "graphics": 6,
-     "sound": 7,
-     "value": 7,
-     "reviewers_tilt": 8
+     "sound": 3,
+     "value": 6,
+     "reviewers_tilt": 6
     }
    },
    "review": {
@@ -24007,7 +24007,7 @@
     "components": {
      "gameplay": 8,
      "graphics": 8,
-     "sound": 8,
+     "sound": 10,
      "value": 8,
      "reviewers_tilt": 8
     }
@@ -24194,11 +24194,11 @@
     "gamespot": 5.3,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
+     "gameplay": 5,
+     "graphics": 5,
+     "sound": 5,
      "value": 7,
-     "reviewers_tilt": 8
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -24249,10 +24249,10 @@
     "label": "great",
     "components": {
      "gameplay": 8,
-     "graphics": 8,
+     "graphics": 7,
      "sound": 8,
-     "value": 8,
-     "reviewers_tilt": 8
+     "value": 9,
+     "reviewers_tilt": 9
     }
    },
    "review": {
@@ -24329,11 +24329,11 @@
     "gamespot": 7.6,
     "label": "good",
     "components": {
-     "gameplay": 4,
-     "graphics": 3,
-     "sound": 3,
-     "value": 4,
-     "reviewers_tilt": 3
+     "gameplay": 8,
+     "graphics": 7,
+     "sound": 7,
+     "value": 7,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -24410,9 +24410,9 @@
     "gamespot": 8.1,
     "label": "great",
     "components": {
-     "gameplay": 9,
-     "graphics": 8,
-     "sound": 8,
+     "gameplay": 8,
+     "graphics": 6,
+     "sound": 7,
      "value": 9,
      "reviewers_tilt": 9
     }
@@ -24437,11 +24437,11 @@
     "gamespot": 7.7,
     "label": "good",
     "components": {
-     "gameplay": 7,
+     "gameplay": 8,
      "graphics": 6,
-     "sound": 6,
-     "value": 7,
-     "reviewers_tilt": 7
+     "sound": 8,
+     "value": 8,
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -24464,11 +24464,11 @@
     "gamespot": 4.9,
     "label": "poor",
     "components": {
-     "gameplay": 6,
-     "graphics": 5,
-     "sound": 5,
+     "gameplay": 5,
+     "graphics": 4,
+     "sound": 4,
      "value": 6,
-     "reviewers_tilt": 6
+     "reviewers_tilt": 5
     }
    },
    "review": {
@@ -24545,11 +24545,11 @@
     "gamespot": 7.1,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
+     "gameplay": 7,
+     "graphics": 6,
      "sound": 6,
      "value": 7,
-     "reviewers_tilt": 7
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -24707,11 +24707,11 @@
     "gamespot": 6.5,
     "label": "fair",
     "components": {
-     "gameplay": 9,
-     "graphics": 6,
-     "sound": 7,
+     "gameplay": 8,
+     "graphics": 4,
+     "sound": 3,
      "value": 9,
-     "reviewers_tilt": 8
+     "reviewers_tilt": 6
     }
    },
    "review": {
@@ -24816,10 +24816,10 @@
     "label": "good",
     "components": {
      "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
+     "graphics": 6,
+     "sound": 8,
      "value": 7,
-     "reviewers_tilt": 7
+     "reviewers_tilt": 8
     }
    },
    "review": {
@@ -24898,9 +24898,9 @@
     "components": {
      "gameplay": 8,
      "graphics": 7,
-     "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 8
+     "sound": 6,
+     "value": 6,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -24922,11 +24922,11 @@
     "gamespot": 7.0,
     "label": "good",
     "components": {
-     "gameplay": 8,
-     "graphics": 7,
-     "sound": 8,
+     "gameplay": 7,
+     "graphics": 6,
+     "sound": 7,
      "value": 8,
-     "reviewers_tilt": 8
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -25111,11 +25111,11 @@
     "gamespot": 6.5,
     "label": "fair",
     "components": {
-     "gameplay": 4,
-     "graphics": 2,
-     "sound": 4,
-     "value": 3,
-     "reviewers_tilt": 4
+     "gameplay": 7,
+     "graphics": 6,
+     "sound": 5,
+     "value": 6,
+     "reviewers_tilt": 7
     }
    },
    "review": {
@@ -25165,11 +25165,11 @@
     "gamespot": 5.4,
     "label": "mediocre",
     "components": {
-     "gameplay": 7,
-     "graphics": 7,
-     "sound": 7,
-     "value": 8,
-     "reviewers_tilt": 7
+     "gameplay": 6,
+     "graphics": 4,
+     "sound": 4,
+     "value": 7,
+     "reviewers_tilt": 5
     }
    },
    "review": {
