@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Redirecting</title>
+	<script>
+		window.location.href = 'http://gen.xyz/availability?aid=99999&domain=' + window.location.hostname;
+	</script>
+</head>
+<body>
+<h1></h1>
+</body>
+</html>
