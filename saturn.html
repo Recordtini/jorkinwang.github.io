@@ -92,7 +92,17 @@
       vertical-align: middle;
     }
     .plat-row {
-      margin-top: 8px;
+      display: none;
+    }
+
+    .plat-rail {
+      margin-top: 30px;
+    }
+
+    .plat-rail .plat-btn {
+      display: block;
+      width: 121px;
+      margin: 0 auto 12px;
     }
 
     .plat-btn {
@@ -424,12 +434,25 @@
         text-align: center;
       }
     }
+    @media (max-width: 760px) {
+      .plat-rail {
+        display: none;
+      }
+
+      .plat-row {
+        display: block;
+        margin-top: 8px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="page">
     <aside class="rail">
       <img src="siteexample/VideoGameSpot_Saturn_Review_Index_files/astro.gif" width="57" height="57" alt="">
+      <div class="plat-rail">
+        <a class="plat-btn plat-btn-n64" href="n64.html"><img src="siteexample/VideoGameSpot_%20Review%20Index_files/nb_platform_KvcD.gif" width="121" height="30" alt="Nintendo 64"></a><a class="plat-btn plat-btn-ps1" href="ps1.html"><img src="siteexample/VideoGameSpot_PS1_Review_Index_files/nb_platform.gif" width="121" height="30" alt="PlayStation"></a>
+      </div>
     </aside>
 
     <main class="right">
