@@ -175,8 +175,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/ps2/adventure/24thegame/review.html?page=1&q=&q=",
   "requested_wayback_url": "http://www.gamespot.com/ps2/adventure/24thegame/review.html?page=1&q=&q=",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20060428080226id_/http://www.gamespot.com/ps2/adventure/24thegame/review.html",
+  "capture_timestamp": "20060428080226",
   "review": {
    "blurb": "24: The Game gets the 24-part right, but the game-part comes crumbling down very quickly.",
    "reviewer": "Alex Navarro",
@@ -186,17 +186,19 @@
    "gamespot": 6.2,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 5,
+    "graphics": 6,
+    "sound": 8,
+    "value": 6,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20060428080226",
+  "gamespot_url": "http://www.gamespot.com/ps2/adventure/24thegame/review.html"
  },
  {
   "title": "25 to Life",
@@ -561,7 +563,8 @@
    }
   },
   "badges": [
-   "Same Aslastyear"
+   "Busted Graphics, Technical",
+   "Same As Last Year"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -1613,8 +1616,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/arena-football-road-to-glory-review/1900-6166450/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/arena-football-road-to-glory-review/1900-6166450/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070227192354id_/http://www.gamespot.com/ps2/sports/arenafootballroadtoglory/review.html",
+  "capture_timestamp": "20070227192354",
   "review": {
    "blurb": "Arena Football's Road to Glory has been paved with little more than a roster update and a few unappealing upgrades.",
    "reviewer": "Alex Navarro",
@@ -1624,17 +1627,19 @@
    "gamespot": 6.2,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6,
+    "graphics": 6,
+    "sound": 5,
+    "value": 6,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070227192354",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/arenafootballroadtoglory/review.html"
  },
  {
   "title": "Armored Core 2",
@@ -3724,7 +3729,7 @@
     "graphics": 5,
     "sound": 5,
     "value": 4,
-    "reviewers_tilt": null
+    "reviewers_tilt": 5
    }
   },
   "badges": [],
@@ -3843,8 +3848,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/brunswick-pro-bowling/reviews/brunswick-pro-bowling-review-6181770/",
   "requested_wayback_url": "http://www.gamespot.com/brunswick-pro-bowling/reviews/brunswick-pro-bowling-review-6181770/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20071028173044id_/http://www.gamespot.com/ps2/sports/brunswickprobowling/review.html",
+  "capture_timestamp": "20071028173044",
   "review": {
    "blurb": "Brunswick Pro Bowling proffers dry simulation fare that only a big fan of professional bowling could love.",
    "reviewer": "Chris Watters",
@@ -3864,7 +3869,9 @@
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20071028173044",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/brunswickprobowling/review.html"
  },
  {
   "title": "Buffy the Vampire Slayer: Chaos Bleeds Review for PlayStation 2 at GameSpot",
@@ -4438,8 +4445,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/cartoon-network-racing-review/1900-6163357/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/cartoon-network-racing-review/1900-6163357/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070103185928id_/http://www.gamespot.com/ps2/driving/cartoonnetworkracing/review.html",
+  "capture_timestamp": "20070103185928",
   "review": {
    "blurb": "This derivative kart racer is no fun for the entire family.",
    "reviewer": "Aaron Thomas",
@@ -4449,17 +4456,19 @@
    "gamespot": 3.8,
    "label": "bad",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 3,
+    "graphics": 5,
+    "sound": 5,
+    "value": 5,
+    "reviewers_tilt": 3
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070103185928",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/cartoonnetworkracing/review.html"
  },
  {
   "title": "Castle Shikigami 2",
@@ -5744,12 +5753,13 @@
    }
   },
   "badges": [
-   "Blatent Product Placement",
+   "Blatant Product Placement",
+   "Busted Graphics, Technical",
    "Same As Last Year",
    "Shallow",
    "Short",
    "Too Easy",
-   "Wasteceleb Talent"
+   "Waste of Celebrity Talent"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -6197,8 +6207,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/dawn-of-mana-review/1900-6171666/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/dawn-of-mana-review/1900-6171666/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070607100905id_/http://www.gamespot.com/ps2/rpg/dawnofmana/review.html?sid=6171666",
+  "capture_timestamp": "20070607100905",
   "review": {
    "blurb": "Infuriating controls and frustrating platforming sections are among Dawn of Mana's many shortcomings.",
    "reviewer": "Kevin VanOrd",
@@ -6208,17 +6218,19 @@
    "gamespot": 5.1,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 5,
+    "graphics": 7,
+    "sound": 6,
+    "value": 5,
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070607100905",
+  "gamespot_url": "http://www.gamespot.comhttp://www.gamespot.com/ps2/rpg/dawnofmana/review.html"
  },
  {
   "title": "DDRMAX: Dance Dance Revolution for PlayStation 2 at GameSpot",
@@ -6762,8 +6774,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/dice-review/1900-6135808/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/dice-review/1900-6135808/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20051028032124id_/http://www.gamespot.com/ps2/action/dice/review.html",
+  "capture_timestamp": "20051028032124",
   "review": {
    "blurb": "D.I.C.E. the game is a dull, repetitive, and often frustrating experience that should be avoided.",
    "reviewer": "Greg Mueller",
@@ -6773,17 +6785,19 @@
    "gamespot": 4.4,
    "label": "poor",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4,
+    "graphics": 5,
+    "sound": 5,
+    "value": 5,
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20051028032124",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/dice/review.html"
  },
  {
   "title": "Digimon World 4",
@@ -6828,8 +6842,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/digimon-world-data-squad-review/1900-6180087/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/digimon-world-data-squad-review/1900-6180087/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20120409011658id_/http://www.gamespot.com/ps2/rpg/digimon-world-data-squad/review.html",
+  "capture_timestamp": "20120409011658",
   "review": {
    "blurb": "Digimon World: Data Squad is a crushingly repetitive and generally joyless role-playing game.",
    "reviewer": "Ryan Davis",
@@ -6846,10 +6860,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Derivative",
+   "Shallow"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20120409011658",
+  "gamespot_url": "http://www.gamespot.com/ps2/rpg/digimon-world-data-squad/review.html"
  },
  {
   "title": "Dino Stalker for PlayStation 2 at GameSpot",
@@ -9413,11 +9432,11 @@
    "gamespot": 6.0,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 5,
+    "graphics": 7,
+    "sound": 7,
+    "value": 6,
+    "reviewers_tilt": 6
    }
   },
   "badges": [],
@@ -11198,7 +11217,7 @@
    }
   },
   "badges": [
-   "Get More Than Your Money&#039;s Worth",
+   "Get More Than Your Money's Worth",
    "Sucks You In",
    "Bad Music",
    "Steep Learning Curve",
@@ -11761,7 +11780,7 @@
     "graphics": 5,
     "sound": 6,
     "value": 6,
-    "reviewers_tilt": null
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
@@ -13809,8 +13828,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/global-touring-challenge-africa-review/1900-2872297/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/global-touring-challenge-africa-review/1900-2872297/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20030402033923id_/http://www.gamespot.com/ps2/driving/globaltouringchallengeafrica/review.html",
+  "capture_timestamp": "20030402033923",
   "review": {
    "blurb": "Almost all of its components are average at best, and unlike other games in this genre, it lacks any one outstanding feature or notable aspect.",
    "reviewer": "Amer Ajami",
@@ -13820,17 +13839,19 @@
    "gamespot": 5.8,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6,
+    "graphics": 6,
+    "sound": 4,
+    "value": 6,
+    "reviewers_tilt": 6
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20030402033923",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/globaltouringchallengeafrica/review.html"
  },
  {
   "title": "Guilty Gear Isuka for PlayStation 2 Review - PlayStation 2 Guilty Gear Isuka Review",
@@ -14100,7 +14121,7 @@
    }
   },
   "badges": [
-   "Value"
+   "Bad Value"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -14782,7 +14803,7 @@
    }
   },
   "badges": [
-   "Weakstory"
+   "Weak Story"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -15173,8 +15194,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/heavenly-guardian-review/1900-6189590/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/heavenly-guardian-review/1900-6189590/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20120406055429id_/http://www.gamespot.com/ps2/action/heavenly-guardian/review.html",
+  "capture_timestamp": "20120406055429",
   "review": {
    "blurb": "This 2D action game proves that you can't go home again.",
    "reviewer": "Kevin VanOrd",
@@ -15191,10 +15212,18 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Busted Graphics, Artistic",
+   "Derivative",
+   "Shallow",
+   "Short",
+   "Stripped"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20120406055429",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/heavenly-guardian/review.html"
  },
  {
   "title": "Herdy Gerdy",
@@ -15592,7 +15621,7 @@
    }
   },
   "badges": [
-   "Sound Fx",
+   "Bad Sound Effects",
    "Shallow"
   ],
   "parse_issues": [],
@@ -15906,8 +15935,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/igpx-immortal-grand-prix-review/1900-6163006/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/igpx-immortal-grand-prix-review/1900-6163006/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070218101212id_/http://www.gamespot.com/ps2/driving/igpximmortalgrandprix/review.html",
+  "capture_timestamp": "20070218101212",
   "review": {
    "blurb": "If you can make it past IGPX's terrible presentation and steep learning curve, you just might find an inexplicably satisfying mech-combat racing game.",
    "reviewer": "Gamespot Staff",
@@ -15917,17 +15946,19 @@
    "gamespot": 5.9,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6,
+    "graphics": 4,
+    "sound": 5,
+    "value": 6,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070218101212",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/igpximmortalgrandprix/review.html"
  },
  {
   "title": "In the Groove",
@@ -16357,9 +16388,9 @@
    }
   },
   "badges": [
-   "Better Sumofparts",
-   "Voice Acting",
-   "Wasteceleb Talent"
+   "Better Than the Sum of Its Parts",
+   "Bad Voice Acting",
+   "Waste of Celebrity Talent"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -21295,8 +21326,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/mlb-power-pros-review/1900-6181203/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/mlb-power-pros-review/1900-6181203/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/sports/mlbpowerpros2008/review.html",
+  "capture_timestamp": "2007",
   "review": {
    "blurb": "Konami has crafted a whimsical take on baseball that's as deep as you want it to be.",
    "reviewer": "Frank Provo",
@@ -21313,10 +21344,16 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Outstanding Gameplay",
+   "Strong Competitive Multiplayer",
+   "Same As Last Year"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "2007",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/mlbpowerpros2008/review.html"
  },
  {
   "title": "MLB Power Pros 2008",
@@ -21629,8 +21666,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/mobile-suit-gundam-seed-never-ending-tomorrow-revi/1900-6135924/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/mobile-suit-gundam-seed-never-ending-tomorrow-revi/1900-6135924/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20051101085832id_/http://www.gamespot.com/ps2/action/kidousenshigundamseedoranaiashitae/review.html",
+  "capture_timestamp": "20051101085832",
   "review": {
    "blurb": "The action here is a complete mess that can't be salvaged, even with copious amounts of fan service and esoteric references to the Gundam universe.",
    "reviewer": "Greg Mueller",
@@ -21640,17 +21677,19 @@
    "gamespot": 4.4,
    "label": "poor",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4,
+    "graphics": 4,
+    "sound": 5,
+    "value": 4,
+    "reviewers_tilt": 5
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20051101085832",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/kidousenshigundamseedoranaiashitae/review.html"
  },
  {
   "title": "Mobile Suit Gundam: Zeonic Front",
@@ -21762,8 +21801,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/monster-house-review/1900-6154627/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/monster-house-review/1900-6154627/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20060818162946id_/http://www.gamespot.com/ps2/adventure/monsterhouse/review.html",
+  "capture_timestamp": "20060818162946",
   "review": {
    "blurb": "Excellent atmosphere notwithstanding, this third-person action game is hobbled by tedious combat and a number of dubious design problems.",
    "reviewer": "Frank Provo",
@@ -21773,17 +21812,19 @@
    "gamespot": 4.7,
    "label": "poor",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4,
+    "graphics": 6,
+    "sound": 8,
+    "value": 4,
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20060818162946",
+  "gamespot_url": "http://www.gamespot.com/ps2/adventure/monsterhouse/review.html"
  },
  {
   "title": "Monster Hunter Review for PlayStation 2 at GameSpot",
@@ -22298,8 +22339,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/pimp-my-ride-review/1900-6163378/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/pimp-my-ride-review/1900-6163378/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070103170954id_/http://www.gamespot.com/ps2/strategy/pimpmyride/review.html",
+  "capture_timestamp": "20070103170954",
   "review": {
    "blurb": "No amount of Xzibit influence or ride pimpage can save Pimp My Ride from its god-awful minigames and lousy driving mechanics.",
    "reviewer": "Alex Navarro",
@@ -22309,17 +22350,19 @@
    "gamespot": 4.5,
    "label": "poor",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4,
+    "graphics": 6,
+    "sound": 6,
+    "value": 4,
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070103170954",
+  "gamespot_url": "http://www.gamespot.com/ps2/strategy/pimpmyride/review.html"
  },
  {
   "title": "MTV's Celebrity Deathmatch for PlayStation 2 Review - PlayStation 2 MTV's Celebrity Deathmatch Review",
@@ -22499,8 +22542,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/mvp-07-ncaa-baseball-review/1900-6165887/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/mvp-07-ncaa-baseball-review/1900-6165887/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070219140553id_/http://www.gamespot.com/ps2/sports/mvp07ncaabaseball/review.html?page=1&sid=6165887",
+  "capture_timestamp": "20070219140553",
   "review": {
    "blurb": "The new pitching mechanic breathes some new life into the aging but still very good MVP Baseball franchise.",
    "reviewer": "Aaron Thomas",
@@ -22510,17 +22553,19 @@
    "gamespot": 7.7,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 8,
+    "graphics": 6,
+    "sound": 6,
+    "value": 7,
+    "reviewers_tilt": 9
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070219140553",
+  "gamespot_url": "http://www.gamespot.comhttp://www.gamespot.com/ps2/sports/mvp07ncaabaseball/review.html"
  },
  {
   "title": "MVP Baseball 2003",
@@ -23100,8 +23145,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/naruto-ultimate-ninja-3-review/1900-6188529/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/naruto-ultimate-ninja-3-review/1900-6188529/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20120228174556id_/http://www.gamespot.com/ps2/action/naruto-ultimate-ninja-3/review.html",
+  "capture_timestamp": "20120228174556",
   "review": {
    "blurb": "Though this wimpy fighter still doesn't pack enough punch, it has all the heart and charm of your favorite spiky-haired ninja hero.",
    "reviewer": "Joe Dodson",
@@ -23118,10 +23163,21 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Great Sound Effects",
+   "Terrific Voice Acting",
+   "Outstanding Visual Design",
+   "Technically Proficient Graphics",
+   "Undeniable Charm",
+   "Shallow",
+   "Short",
+   "Too Easy"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20120228174556",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/naruto-ultimate-ninja-3/review.html"
  },
  {
   "title": "Naruto: Uzumaki Chronicles",
@@ -23166,8 +23222,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/naruto-uzumaki-chronicles-2-review/1900-6178432/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/naruto-uzumaki-chronicles-2-review/1900-6178432/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20120107013545id_/http://www.gamespot.com/ps2/action/naruto-uzumaki-chronicles-2/review.html",
+  "capture_timestamp": "20120107013545",
   "review": {
    "blurb": "The Naruto license does little to compensate for this forgettable brawler's undemanding combat and tedious story.",
    "reviewer": "Ryan Davis",
@@ -23184,10 +23240,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Shallow",
+   "Too Easy"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20120107013545",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/naruto-uzumaki-chronicles-2/review.html"
  },
  {
   "title": "NASCAR 06: Total Team Control",
@@ -23269,8 +23330,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/nascar-08/reviews/nascar-08-review-6176089/",
   "requested_wayback_url": "http://www.gamespot.com/nascar-08/reviews/nascar-08-review-6176089/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070806054130id_/http://www.gamespot.com/ps2/driving/nascar08/review.html",
+  "capture_timestamp": "20070806054130",
   "review": {
    "blurb": "NASCAR 08 is one small step...backwards.",
    "reviewer": "Aaron Thomas",
@@ -23287,10 +23348,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Same As Last Year",
+   "Stripped"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070806054130",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/nascar08/review.html"
  },
  {
   "title": "NASCAR 2001",
@@ -23658,8 +23724,9 @@
    }
   },
   "badges": [
-   "Better Sumofparts",
+   "Better Than the Sum of Its Parts",
    "Great Story",
+   "Busted Graphics, Technical",
    "Same As Last Year"
   ],
   "parse_issues": [],
@@ -23833,7 +23900,7 @@
    }
   },
   "badges": [
-   "Value",
+   "Bad Value",
    "Same As Last Year"
   ],
   "parse_issues": [],
@@ -24017,8 +24084,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/nba-live-08/reviews/nba-live-08-review-6180800/",
   "requested_wayback_url": "http://www.gamespot.com/nba-live-08/reviews/nba-live-08-review-6180800/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20071012220614id_/http://www.gamespot.com/ps2/sports/nbalive08/review.html?sid=6180800",
+  "capture_timestamp": "20071012220614",
   "review": {
    "blurb": "It plays fine, but other than some updated rosters, there's almost nothing new in NBA Live 08.",
    "reviewer": "Aaron Thomas",
@@ -24035,10 +24102,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Terrific Voice Acting",
+   "Same As Last Year"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20071012220614",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/nbalive08/review.html"
  },
  {
   "title": "NBA Live 2001",
@@ -24494,11 +24566,11 @@
    "gamespot": 8.0,
    "label": "great",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 8,
+    "graphics": 7,
+    "sound": 8,
+    "value": 8,
+    "reviewers_tilt": 8
    }
   },
   "badges": [],
@@ -24686,8 +24758,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/ncaa-football-08/reviews/ncaa-football-08-review-6175521/",
   "requested_wayback_url": "http://www.gamespot.com/ncaa-football-08/reviews/ncaa-football-08-review-6175521/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070808131240id_/http://www.gamespot.com/ps2/sports/ncaafootball08/review.html",
+  "capture_timestamp": "20070808131240",
   "review": {
    "blurb": "The PlayStation 2 and Xbox version of NCAA Football 08 didn't get many new features this year, but it's still a great game if you don't own NCAA 07.",
    "reviewer": "Aaron Thomas",
@@ -24704,10 +24776,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Outstanding Gameplay",
+   "Same As Last Year"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070808131240",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/ncaafootball08/review.html"
  },
  {
   "title": "NCAA Football 2002",
@@ -24967,7 +25044,7 @@
     "graphics": 6,
     "sound": 8,
     "value": 7,
-    "reviewers_tilt": null
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
@@ -25688,8 +25765,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/nfl-head-coach-review/1900-6153017/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/nfl-head-coach-review/1900-6153017/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20060704210100id_/http://www.gamespot.com/ps2/sports/nflheadcoach/review.html",
+  "capture_timestamp": "20060704210100",
   "review": {
    "blurb": "Its laborious pacing and artificial-intelligence issues not withstanding, NFL Head Coach is a worthwhile first attempt at a football-management simulation.",
    "reviewer": "Alex Navarro",
@@ -25699,17 +25776,19 @@
    "gamespot": 7.2,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7,
+    "graphics": 7,
+    "sound": 7,
+    "value": 8,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20060704210100",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/nflheadcoach/review.html"
  },
  {
   "title": "NFL Quarterback Club 2002",
@@ -26159,8 +26238,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/nhl-2k7/reviews/nhl-2k7-review-6159437/",
   "requested_wayback_url": "http://www.gamespot.com/nhl-2k7/reviews/nhl-2k7-review-6159437/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20061023074230id_/http://www.gamespot.com/ps2/sports/nhl2k7/review.html",
+  "capture_timestamp": "20061023074230",
   "review": {
    "blurb": "NHL 2K7 for the PlayStation 2 lacks much of the forward progress of its Xbox 360 counterpart and instead provides an enjoyable hockey game that you've pretty much played before.",
    "reviewer": "Alex Navarro",
@@ -26170,17 +26249,19 @@
    "gamespot": 7.8,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 9,
+    "graphics": 7,
+    "sound": 7,
+    "value": 8,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20061023074230",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/nhl2k7/review.html"
  },
  {
   "title": "NHL 2K8",
@@ -26663,8 +26744,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/one-piece-grand-adventure-review/1900-6157027/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/one-piece-grand-adventure-review/1900-6157027/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20060903052001id_/http://www.gamespot.com/ps2/action/onepiecegrandadventure/review.html",
+  "capture_timestamp": "20060903052001",
   "review": {
    "blurb": "One Piece Grand Adventure feels like a beefier version of One Piece Grand Battle, but it's still not a very compelling brawler.",
    "reviewer": "Ryan Davis",
@@ -26674,17 +26755,19 @@
    "gamespot": 5.6,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6,
+    "graphics": 6,
+    "sound": 5,
+    "value": 6,
+    "reviewers_tilt": 5
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20060903052001",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/onepiecegrandadventure/review.html"
  },
  {
   "title": "One Piece: Grand Battle",
@@ -26980,7 +27063,7 @@
     "graphics": 6,
     "sound": 6,
     "value": 5,
-    "reviewers_tilt": null
+    "reviewers_tilt": 5
    }
   },
   "badges": [],
@@ -27330,8 +27413,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/pac-man-world-rally/reviews/pac-man-world-rally-review-6157022/",
   "requested_wayback_url": "http://www.gamespot.com/pac-man-world-rally/reviews/pac-man-world-rally-review-6157022/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070129010350id_/http://www.gamespot.com/ps2/driving/pacmanworldrally/review.html",
+  "capture_timestamp": "20070129010350",
   "review": {
    "blurb": "Pac-Man World Rally is a paint-by-numbers kart racer with almost zero in the way of unique qualities.",
    "reviewer": "Alex Navarro",
@@ -27351,7 +27434,9 @@
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070129010350",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/pacmanworldrally/review.html"
  },
  {
   "title": "PaRappa the Rapper 2 Review for PlayStation 2 at GameSpot",
@@ -28295,8 +28380,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/pump-it-up-exceed-review/1900-6134299/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/pump-it-up-exceed-review/1900-6134299/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20051028062429id_/http://www.gamespot.com/ps2/puzzle/pumpitupexceed/review.html",
+  "capture_timestamp": "20051028062429",
   "review": {
    "blurb": "In Andamiro's Pump It Up: Exceed, the first US home edition of a popular Korean dancing series, we're presented with a good alternative to DDR.",
    "reviewer": "Avery Score",
@@ -28306,17 +28391,19 @@
    "gamespot": 7.3,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7,
+    "graphics": 6,
+    "sound": 8,
+    "value": 7,
+    "reviewers_tilt": 8
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20051028062429",
+  "gamespot_url": "http://www.gamespot.com/ps2/puzzle/pumpitupexceed/review.html"
  },
  {
   "title": "The Punisher",
@@ -28932,8 +29019,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/smash-cars/reviews/smash-cars-review-6073413/",
   "requested_wayback_url": "http://www.gamespot.com/smash-cars/reviews/smash-cars-review-6073413/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20030823163721id_/http://www.gamespot.com/ps2/driving/smashcars/review.html",
+  "capture_timestamp": "20030823163721",
   "review": {
    "blurb": "Smash Cars' easy-to-pick-up style of gameplay, often absurdly amusing level design, and budget price tag make it a worthwhile game for any RC or kart racing fan.",
    "reviewer": "Alex Navarro",
@@ -28943,17 +29030,19 @@
    "gamespot": 7.2,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7,
+    "graphics": 7,
+    "sound": 6,
+    "value": 7,
+    "reviewers_tilt": 8
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20030823163721",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/smashcars/review.html"
  },
  {
   "title": "RC Revenge Pro",
@@ -30311,7 +30400,7 @@
   "original_path": "/ps2/strategy/romanceofthe3kingdoms8/index.html",
   "original_url": "http://www.gamespot.com/ps2/strategy/romanceofthe3kingdoms8/index.html",
   "requested_wayback_url": "http://www.gamespot.com/ps2/strategy/romanceofthe3kingdoms8/index.html",
-  "final_wayback_url": "https://web.archive.org/web/20050828154948id_/http://www.gamespot.com/ps2/strategy/romanceofthe3kingdoms8/review.html",
+  "final_wayback_url": "https://web.archive.org/web/2008id_/http://www.gamespot.com/ps2/strategy/romanceofthe3kingdoms8/review.html",
   "capture_timestamp": "20050828154948",
   "review": {
    "blurb": "Great strategy never gets old.",
@@ -30332,7 +30421,9 @@
   "badges": [],
   "status": "ok",
   "error": null,
-  "parse_issues": []
+  "parse_issues": [],
+  "components_source_ts": "20070122164328",
+  "gamespot_url": "http://www.gamespot.com/ps2/strategy/romanceofthe3kingdoms8/review.html"
  },
  {
   "title": "Romance of the Three Kingdoms X",
@@ -30377,8 +30468,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/romance-of-the-three-kingdoms-xi/reviews/romance-of-the-three-kingdoms-xi-review-6166361/",
   "requested_wayback_url": "http://www.gamespot.com/romance-of-the-three-kingdoms-xi/reviews/romance-of-the-three-kingdoms-xi-review-6166361/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070226171750id_/http://www.gamespot.com/ps2/strategy/romanceofthethreekingdomsxi/review.html",
+  "capture_timestamp": "20070226171750",
   "review": {
    "blurb": "The strategy is complex and rewarding, but the menu shuffling and extremely slow pace won't earn the series any new fans.",
    "reviewer": "Greg Mueller",
@@ -30388,17 +30479,19 @@
    "gamespot": 6.9,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6,
+    "graphics": 6,
+    "sound": 7,
+    "value": 9,
+    "reviewers_tilt": 7
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070226171750",
+  "gamespot_url": "http://www.gamespot.com/ps2/strategy/romanceofthethreekingdomsxi/review.html"
  },
  {
   "title": "Romancing SaGa",
@@ -32200,7 +32293,7 @@
   },
   "badges": [
    "Art House",
-   "Get More Than Your Money&#039;s Worth",
+   "Get More Than Your Money's Worth",
    "Great Story",
    "Sucks You In"
   ],
@@ -32860,8 +32953,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/theme-park-roller-coaster-review/1900-2664058/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/theme-park-roller-coaster-review/1900-2664058/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20030402032425id_/http://www.gamespot.com/ps2/strategy/themeparkrollercoaster/review.html",
+  "capture_timestamp": "20030402032425",
   "review": {
    "blurb": "Sim fans should get a major kick out of Theme Park Roller Coaster.",
    "reviewer": "Jeff Gerstmann",
@@ -32871,17 +32964,19 @@
    "gamespot": 8.3,
    "label": "great",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 8,
+    "graphics": 8,
+    "sound": 8,
+    "value": 8,
+    "reviewers_tilt": 9
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20030402032425",
+  "gamespot_url": "http://www.gamespot.com/ps2/strategy/themeparkrollercoaster/review.html"
  },
  {
   "title": "The Simpsons: Hit & Run for PlayStation 2 Review - PlayStation 2 The Simpsons: Hit & Run Review",
@@ -33076,7 +33171,7 @@
    }
   },
   "badges": [
-   "Good Groups",
+   "Great at Parties",
    "Plays Well With Others",
    "Same As Last Year"
   ],
@@ -33565,8 +33660,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/snocross-2-featuring-blair-morgan-review/1900-6166267/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/snocross-2-featuring-blair-morgan-review/1900-6166267/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20070217173200id_/http://www.gamespot.com/ps2/driving/snocross2/review.html",
+  "capture_timestamp": "20070217173200",
   "review": {
    "blurb": "The discount price isn't enough to make SnoCross 2: Featuring Blair Morgan an attractive purchase for even the most price-conscious consumer.",
    "reviewer": "Aaron Thomas",
@@ -33576,17 +33671,19 @@
    "gamespot": 3.8,
    "label": "bad",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4,
+    "graphics": 3,
+    "sound": 3,
+    "value": 4,
+    "reviewers_tilt": 4
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20070217173200",
+  "gamespot_url": "http://www.gamespot.com/ps2/driving/snocross2/review.html"
  },
  {
   "title": "Snoopy vs. the Red Baron",
@@ -33914,7 +34011,7 @@
    "Funny",
    "Just Right",
    "Solid Extras",
-   "Terrific Voiceacting"
+   "Terrific Voice Acting"
   ],
   "parse_issues": [
    "missing reviewer"
@@ -34255,8 +34352,8 @@
    }
   },
   "badges": [
-   "For Kids",
-   "Terrific Voiceacting",
+   "Good for Kids",
+   "Terrific Voice Acting",
    "Undeniable Charm",
    "Short",
    "Too Easy"
@@ -37264,8 +37361,8 @@
    }
   },
   "badges": [
-   "Value",
-   "Bustedgraphics",
+   "Bad Value",
+   "Busted Graphics, Artistic",
    "Shallow"
   ],
   "parse_issues": [],
@@ -37490,8 +37587,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/the-grim-adventures-of-billy-and-mandy-review/1900-6162193/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/the-grim-adventures-of-billy-and-mandy-review/1900-6162193/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20100513221523id_/http://www.gamespot.com:80/ps2/action/thegrimadventuresofbillymandy/review.html?mode=web&tag=scoresummary%3Bcritic-score",
+  "capture_timestamp": "20100513221523",
   "review": {
    "blurb": "This game is surprisingly enjoyable for a few hours, but after that it goes from good, mindless fun to mind-numbingly repetitive.",
    "reviewer": "Greg Mueller",
@@ -37511,7 +37608,9 @@
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20100513221523",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/thegrimadventuresofbillymandy/review.html"
  },
  {
   "title": "The History Channel: Battle for the Pacific",
@@ -37659,8 +37758,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/the-king-of-fighters-xi-review/1900-6184167/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/the-king-of-fighters-xi-review/1900-6184167/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20100228232906id_/http://www.gamespot.com/ps2/action/thekingoffightersxi/review.html?sid=6184167",
+  "capture_timestamp": "20100228232906",
   "review": {
    "blurb": "Despite the dated presentation, The King of Fighters XI is one of the best fighting games in the entire series.",
    "reviewer": "Andrew Park",
@@ -37677,10 +37776,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Better Than the Sum of Its Parts",
+   "Outstanding Gameplay"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20100228232906",
+  "gamespot_url": "http://www.gamespot.comhttp://www.gamespot.com/ps2/action/thekingoffightersxi/review.html"
  },
  {
   "title": "The Legend of Spyro: A New Beginning",
@@ -37796,8 +37900,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/reviews/the-mummy-tomb-of-the-dragon-emperor-review/1900-6197215/",
   "requested_wayback_url": "http://www.gamespot.com/reviews/the-mummy-tomb-of-the-dragon-emperor-review/1900-6197215/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20081209103524id_/http://www.gamespot.com/ps2/action/themummytombofthedragonemperor/review.html",
+  "capture_timestamp": "20081209103524",
   "review": {
    "blurb": "The Mummy: Tomb of the Dragon Emperor has all the right elements, yet it still manages to do everything wrong.",
    "reviewer": "Carolyn Petit",
@@ -37814,10 +37918,15 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Bad Camera",
+   "Disappointing"
+  ],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20081209103524",
+  "gamespot_url": "http://www.gamespot.com/ps2/action/themummytombofthedragonemperor/review.html"
  },
  {
   "title": "The Red Star",
@@ -38883,8 +38992,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/tokyo-xtreme-racer-drift-2-review/1900-6170356/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/tokyo-xtreme-racer-drift-2-review/1900-6170356/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20060709004020id_/http://www.gamespot.com/ps2/driving/tokyoxtremeracerdrift/review.html?sid=6148901",
+  "capture_timestamp": "20060709004020",
   "review": {
    "blurb": "Tedious gameplay, poor vehicle handling, and an unfriendly interface are just a few reasons why you should leave this game in the bargain bin.",
    "reviewer": "Aaron Thomas",
@@ -38894,17 +39003,19 @@
    "gamespot": 5.2,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 5,
+    "graphics": 5,
+    "sound": 7,
+    "value": 7,
+    "reviewers_tilt": 6
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20060709004020",
+  "gamespot_url": "http://www.gamespot.comhttp://www.gamespot.com/ps2/driving/tokyoxtremeracerdrift/review.html"
  },
  {
   "title": "Tokyo Xtreme Racer: Zero",
@@ -40341,7 +40452,7 @@
    }
   },
   "badges": [
-   "Get More Than Your Money&#039;s Worth"
+   "Get More Than Your Money's Worth"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -41257,8 +41368,8 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/sega-sports-tennis/1900-2875910/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/sega-sports-tennis/1900-2875910/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20030402012118id_/http://www.gamespot.com/ps2/sports/segasportstennis/review.html",
+  "capture_timestamp": "20030402012118",
   "review": {
    "blurb": "Simply put, console tennis doesn't get any better than this.",
    "reviewer": "Ryan Davis",
@@ -41268,17 +41379,19 @@
    "gamespot": 8.5,
    "label": "great",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 9,
+    "graphics": 8,
+    "sound": 7,
+    "value": 8,
+    "reviewers_tilt": 9
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20030402012118",
+  "gamespot_url": "http://www.gamespot.com/ps2/sports/segasportstennis/review.html"
  },
  {
   "title": "Virtual-On Marz",
@@ -42020,8 +42133,8 @@
    }
   },
   "badges": [
-   "Ohsnap",
-   "Bustedgraphics"
+   "Oh Snap!",
+   "Busted Graphics, Artistic"
   ],
   "parse_issues": [],
   "status": "ok",
@@ -42188,7 +42301,7 @@
     "graphics": 8,
     "sound": 7,
     "value": 9,
-    "reviewers_tilt": null
+    "reviewers_tilt": 9
    }
   },
   "badges": [],
@@ -42476,8 +42589,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/world-poker-tour-2005/reviews/world-poker-tour-2k6-review-6136501/",
   "requested_wayback_url": "http://www.gamespot.com/world-poker-tour-2005/reviews/world-poker-tour-2k6-review-6136501/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20051101065620id_/http://www.gamespot.com/ps2/puzzle/worldpokertour2k6/review.html",
+  "capture_timestamp": "20051101065620",
   "review": {
    "blurb": "World Poker Tour is the best of the console poker bunch--though that isn't necessarily saying an awful lot.",
    "reviewer": "Alex Navarro",
@@ -42487,17 +42600,19 @@
    "gamespot": 7.1,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7,
+    "graphics": 5,
+    "sound": 6,
+    "value": 8,
+    "reviewers_tilt": 8
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20051101065620",
+  "gamespot_url": "http://www.gamespot.com/ps2/puzzle/worldpokertour2k6/review.html"
  },
  {
   "title": "World Rally Championship",
@@ -42576,8 +42691,8 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/world-series-of-poker/reviews/world-series-of-poker-review-6133046/",
   "requested_wayback_url": "http://www.gamespot.com/world-series-of-poker/reviews/world-series-of-poker-review-6133046/",
-  "final_wayback_url": null,
-  "capture_timestamp": null,
+  "final_wayback_url": "https://web.archive.org/web/20051127053423id_/http://www.gamespot.com/ps2/puzzle/worldseriesofpoker/review.html",
+  "capture_timestamp": "20051127053423",
   "review": {
    "blurb": "With a license as big as the World Series, you'd hope for something more than a merely competent poker title.",
    "reviewer": "Alex Navarro",
@@ -42587,17 +42702,19 @@
    "gamespot": 6.8,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7,
+    "graphics": 5,
+    "sound": 5,
+    "value": 7,
+    "reviewers_tilt": 8
    }
   },
   "badges": [],
   "parse_issues": [],
   "status": "ok",
-  "error": null
+  "error": null,
+  "components_source_ts": "20051127053423",
+  "gamespot_url": "http://www.gamespot.com/ps2/puzzle/worldseriesofpoker/review.html"
  },
  {
   "title": "World Series of Poker: Tournament of Champions",
