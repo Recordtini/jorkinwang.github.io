@@ -318,16 +318,20 @@ export class Studio {
     c.textAlign='center';c.textBaseline='middle';c.font='20px "Retail Category"';c.fillStyle='#fff';c.shadowColor='#1e4351';c.shadowBlur=3;
     c.fillText(clip.text,0,0,460);c.restore();
   }
-  playScreen(name='game_logo',loop=true){
+  restScreen(){
+    this.screenVideos?.forEach(entry=>entry.video.pause());this.screenMovie=null;
+    this.screenMaterials?.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});
+  }
+  playScreen(name='game_logo'){
     if(this.screenMovie===name)return;
     this.screenVideos.forEach(entry=>entry.video.pause());this.screenMovie=name;
     if(!this.screenVideos.has(name)){
       const video=document.createElement('video');video.src=`assets/presentation/screens/${name}.mp4`;video.muted=true;video.playsInline=true;video.preload='auto';
       const texture=new THREE.VideoTexture(video);texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=false;
       video.onloadeddata=()=>{if(this.screenMovie===name)this.screenMaterials.forEach(m=>{m.map=texture;m.needsUpdate=true;});};
-      video.onended=()=>{if(this.screenMovie===name&&!video.loop)this.playScreen('game_logo');};this.screenVideos.set(name,{video,texture});
+      video.onended=()=>{if(this.screenMovie===name)this.restScreen();};this.screenVideos.set(name,{video,texture});
     }
-    const {video,texture}=this.screenVideos.get(name);video.loop=loop;video.currentTime=0;
+    const {video,texture}=this.screenVideos.get(name);video.loop=false;video.currentTime=0;
     if(video.readyState>=2)this.screenMaterials.forEach(m=>{m.map=texture;m.needsUpdate=true;});
     video.play().catch(()=>{this.screenMaterials.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});});
   }
@@ -347,9 +351,13 @@ export class Studio {
     this.boardSnapshot={id:state.puzzle.id,used:transition.used};
     this.boardState={puzzle:state.puzzle,used:transition.used};
     if(transition.opening&&event!=='restore')this.categorySequence={start:performance.now(),text:state.puzzle.category};
-    if(event==='start'||event==='restore')this.playScreen();
-    if(event==='round')this.playScreen(state.round===2?'jackpot_intro':state.round===3?'mystery_intro':'game_logo',state.round!==2&&state.round!==3);
-    if(event==='win')this.playScreen('fireworks',false);
+    if(event==='start')this.playScreen();
+    if(event==='restore')this.restScreen();
+    if(event==='round'){
+      if(state.round===2||state.round===3)this.playScreen(state.round===2?'jackpot_intro':'mystery_intro');
+      else this.restScreen();
+    }
+    if(event==='win')this.playScreen('fireworks');
     this.setBonusVisible(state.round===5);this.drawBoard(this.boardState);const podiumDuration=this.drawScreens(state,event);this.drawWheel();
     return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0,podiumDuration);
   }
@@ -357,8 +365,7 @@ export class Studio {
     this.podiums?.reset();
     this.boardSequence=null;this.boardSnapshot=null;this.categorySequence=null;document.querySelector('#category-reveal').hidden=true;
     for(const name of ['spinTween','bonusTween']){this[name]?.resolve();this[name]=null;}
-    this.screenVideos?.forEach(entry=>entry.video.pause());this.screenMovie=null;
-    this.screenMaterials?.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});
+    this.restScreen();
   }
   spin(index,wedges,onTick) {
     this.drawWheel();

@@ -138,3 +138,25 @@ Evidence includes `native-podium-atlas.png`, `native-cash-closeup-final.png`,
 `native-score-transition-atlas.png`, `native-loss-atlas.png` and
 `native-bankrupt.png` in ignored `qa/`. Source Flash timeline keys are recovered;
 the original executable's entire command sequence remains unverified.
+
+## Camera Default And Backdrop Recheck
+
+34 Node tests pass. Actual isolated-browser UI tests reproduced an old manual
+override carrying into a new single-player match, then verified the fix:
+
+- A legacy `wheel3d-camera=manual` fixture no longer disables automatic cuts on
+  boot, match start, or resume. Single-player start cuts to the puzzle; a real
+  spin cuts to its native wheel camera, holds the $800 amount, then returns to
+  the board. Manual overrides still work within the current match.
+- The visible Auto Cuts/Manual button restores automatic direction immediately.
+  New matches reset it to Auto Cuts. The button and board fit at 390 x 844.
+- The native logo MP4 is 8.84 seconds and fades to black at its end; its previous
+  continuous loop was browser logic, not a recovered retail command. It now plays
+  once at start, then returns to the decoded logo still. Resume starts on the
+  still rather than replaying the intro. The video paused and all large-screen
+  materials switched to the still after completion.
+- No page JavaScript errors occurred. Exact retail screen cue selection remains
+  unverified; `set_anim.xml` distinguishes intro/idle prop poses but does not
+  specify these movie callbacks.
+
+Evidence: `single-auto-amount-fixed.png` and `mobile-auto-start-fixed.png`.

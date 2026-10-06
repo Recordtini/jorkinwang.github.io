@@ -22,8 +22,10 @@ animate on the current player's podium; inactive podiums and HUD cards do not di
 Automatic cameras cut between spins, letter selections, reveals and solves by default.
 Regular spins use the active podium's original camera and cut closer to the
 landed amount, holding it before letter selection. They do not interpolate.
-Selecting Studio, Puzzle, Wheel, or Explore switches to manual; Backstage can
-re-enable automatic cameras. Explore supports drag,
+Selecting Studio, Puzzle, Wheel, or Explore switches the current match to manual;
+the visible Auto Cuts/Manual toggle or Backstage can re-enable automatic cuts.
+New and resumed matches default to automatic, ignoring older sticky manual
+preferences. Explore supports drag,
 scroll, and touch. Backstage switches sets and offers a viewer for recovered
 set props and an audio library for all 36 original tracks. Assets are loaded on demand. Player bodies and character creation are
 intentionally omitted.
@@ -80,8 +82,10 @@ shadow from the overhead rig. This is not a verified 1:1 retail renderer.
 The director uses recovered camera poses and wheel push-track endpoints; source
 tracks are cataloged, not continuously played. The puzzle camera uses source FOV
 with adapted framing to leave room for web controls, especially on phones.
-Monitor movie selection is browser logic, not a verified retail state-machine
-port. Retail skeletal clips and set-prop `.kf` animation tracks are not played.
+Monitor movies play once on presentation events, then return to the recovered
+logo still. The 8.8-second logo intro no longer loops throughout play, and resume
+does not replay it. Movie selection/timing is browser logic, not a verified retail
+state-machine port. Retail skeletal clips and set-prop `.kf` tracks are not played.
 
 `assets/manifest.json` lists packaged assets and conversion errors. This is an
 independent fan recreation. Wheel of Fortune and the original game assets belong

@@ -32,6 +32,10 @@ export function automaticView(state, event) {
   return 'show';
 }
 
+export function cameraAutomation(current,event){
+  return ['start','restore'].includes(event)?true:current;
+}
+
 export function solveTiles(state) {
   return state.puzzle.rows.flatMap((row,r)=>[...row].map((letter,c)=>{
     const editable=/[A-Z]/i.test(letter)&&!state.used.includes(letter.toUpperCase());

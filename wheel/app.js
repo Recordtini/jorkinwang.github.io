@@ -1,6 +1,6 @@
 import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-podiums';
-import {Studio} from './scene.js?v=20261006-podiums';
-import {automaticView,solveTiles,fillSolution} from './presentation.js?v=20261006-podiums';
+import {Studio} from './scene.js?v=20261006-director';
+import {automaticView,cameraAutomation,solveTiles,fillSolution} from './presentation.js?v=20261006-director';
 
 const $ = selector => document.querySelector(selector);
 const colors=['#e87555','#f4c94e','#65a1ef'];
@@ -35,7 +35,13 @@ function setMusic(){
   if(track&&!muted){music=new Audio(track.url);music.loop=true;music.volume=.12;music.play().catch(()=>{});}
 }
 function setCamera(view){studio.setView(view);document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('selected',button.dataset.view===view));}
-function setAutomaticCamera(enabled){automaticCamera=enabled;$('#camera-mode').value=enabled?'auto':'manual';store('wheel3d-camera',enabled?'auto':'manual');if(enabled&&game.state)setCamera(automaticView(game.state));}
+function setAutomaticCamera(enabled,cut=true){
+  automaticCamera=enabled;$('#camera-mode').value=enabled?'auto':'manual';
+  $('#camera-director').textContent=enabled?'AUTO CUTS':'MANUAL';
+  $('#camera-director').setAttribute('aria-pressed',String(enabled));
+  $('#camera-director').classList.toggle('selected',enabled);
+  if(enabled&&cut&&game.state)setCamera(automaticView(game.state));
+}
 function returnToLobby(){
   clearTimeout(aiTimer);clearInterval(bonusTimer);$('#mystery-choice')?.remove();
   clearTimeout(presentationTimer);presentationGeneration++;presenting=false;studio.cancelPresentation();
@@ -44,6 +50,7 @@ function returnToLobby(){
 }
 function render(state,event,completed=false){
   if(!state)return;
+  if(!completed)setAutomaticCamera(cameraAutomation(automaticCamera,event),false);
   if(!completed){
     const duration=studio.update(state,event),generation=++presentationGeneration;
     clearTimeout(presentationTimer);presenting=duration>0;
@@ -201,7 +208,8 @@ async function boot(){
     [manifest,puzzles]=await Promise.all(['manifest','puzzles'].map(name=>fetch(`assets/${name}.json`).then(response=>{if(!response.ok)throw new Error('The game assets could not be loaded. Please reload.');return response.json();})));
     studio=new Studio($('#scene'),(text,progress)=>{$('#load-status').textContent=text;$('#load-progress').value=progress;});
     game=new WheelGame(puzzles,{onChange:render});studio.game=game;
-    automaticCamera=stored('wheel3d-camera')!=='manual';$('#camera-mode').value=automaticCamera?'auto':'manual';
+    // Manual views are a current-match override, not a sticky new-game default.
+    setAutomaticCamera(true,false);
     // Keep score cards above the console when a solve or mystery choice expands it.
     new ResizeObserver(()=>{
       const consolePanel=$('.console');
@@ -253,6 +261,7 @@ async function boot(){
     $('#settings').onclick=()=>$('#studio-dialog').showModal();
     $('#quality').onchange=()=>studio.quality($('#quality').value);
     $('#camera-mode').onchange=()=>setAutomaticCamera($('#camera-mode').value==='auto');
+    $('#camera-director').onclick=()=>setAutomaticCamera(!automaticCamera);
     $('#restart').onclick=()=>{$('#studio-dialog').close();returnToLobby();};
     document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{setAutomaticCamera(false);setCamera(button.dataset.view);});
     const library=$('#library');
