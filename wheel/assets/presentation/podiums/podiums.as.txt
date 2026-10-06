@@ -1,0 +1,365 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function podiums_init()
+{
+   soeInit("podiums");
+   arrPodiums = new Array();
+   var _loc5_ = 0;
+   var _loc2_;
+   var _loc3_;
+   var _loc4_;
+   while(_loc5_ < 3)
+   {
+      _loc2_ = this["iPodium" + _loc5_];
+      _loc2_.index = _loc5_;
+      arrPodiums.push(_loc2_);
+      _loc2_.iBackground.gotoAndPlay("l" + _loc5_);
+      _loc2_.arrDigits = new Array();
+      _loc2_.arrDigitTransitions = new Array();
+      _loc3_ = 0;
+      while(_loc3_ < 9)
+      {
+         _loc4_ = _loc2_.iScore["iDigit" + _loc3_];
+         _loc2_.arrDigits.push(_loc4_);
+         setDigitValue(_loc4_,"");
+         _loc4_ = _loc2_.iScore["iDigitTransition" + _loc3_];
+         _loc2_.arrDigitTransitions.push(_loc4_);
+         setDigitValue(_loc4_,"");
+         _loc3_ = _loc3_ + 1;
+      }
+      _loc5_ = _loc5_ + 1;
+   }
+   if(!soeIsGame())
+   {
+      doSetScore(1,7890);
+      startListeners();
+   }
+}
+function initPodiums()
+{
+   var _loc1_ = 0;
+   while(_loc1_ < 3)
+   {
+      doSetScore(_loc1_,0);
+      doHidePlayersTurn(_loc1_);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function setDigitValue(inDigit, inValue)
+{
+   var _loc3_ = inDigit.iText.iText.tText;
+   _loc3_.text = inValue;
+   inDigit.iText.iText.tTextShadow.text = inValue;
+   inDigit.value = inValue;
+   inDigit.width = getCharacterWidth(inValue);
+}
+function setAllDigits(inPodium, inDigitSet)
+{
+   var _loc3_ = arrPodiums[inPodium];
+   var _loc4_ = _loc3_.displayScore;
+   var _loc8_ = 0;
+   var _loc9_ = 8;
+   var _loc1_ = 0;
+   var _loc2_;
+   var _loc6_;
+   while(_loc1_ < 9)
+   {
+      if(inDigitSet == "normal")
+      {
+         _loc2_ = _loc3_.arrDigits[_loc1_];
+      }
+      else
+      {
+         _loc2_ = _loc3_.arrDigitTransitions[_loc1_];
+      }
+      if(_loc1_ < _loc4_.length)
+      {
+         _loc6_ = _loc4_.slice(_loc1_,_loc1_ + 1);
+      }
+      else
+      {
+         _loc6_ = "";
+      }
+      setDigitValue(_loc2_,_loc6_);
+      _loc8_ += _loc2_.width;
+      _loc1_ = _loc1_ + 1;
+   }
+   _loc1_ = 0;
+   var _loc5_;
+   if(inDigitSet == "normal")
+   {
+      _loc5_ = _loc3_.arrDigits[_loc1_].width / 2;
+   }
+   else
+   {
+      _loc5_ = _loc3_.arrDigitTransitions[_loc1_].width / 2;
+   }
+   _loc5_ += (_loc3_._width - (_loc8_ + _loc4_.length * _loc9_)) / 2;
+   while(_loc1_ < _loc4_.length)
+   {
+      if(inDigitSet == "normal")
+      {
+         _loc2_ = _loc3_.arrDigits[_loc1_];
+      }
+      else
+      {
+         _loc2_ = _loc3_.arrDigitTransitions[_loc1_];
+      }
+      if(_loc2_.value == ",")
+      {
+         _loc2_._x = _loc5_ - 7;
+      }
+      else
+      {
+         _loc2_._x = _loc5_;
+      }
+      _loc5_ += _loc2_.width + _loc9_;
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function getCharacterWidth(inCharacter)
+{
+   switch(inCharacter)
+   {
+      case "$":
+         return 27;
+      case ",":
+         return 13;
+      case "1":
+         return 17;
+      case "2":
+         return 25;
+      case "3":
+         return 27;
+      case "4":
+         return 27;
+      case "5":
+         return 24;
+      case "6":
+         return 27;
+      case "7":
+         return 25;
+      case "8":
+         return 26;
+      case "9":
+         return 25;
+      case "0":
+         return 26;
+      default:
+         return 0;
+   }
+}
+function doShowScore(inPodium)
+{
+   soeTRACE("in doShowScore:" + inPodium);
+   arrPodiums[inPodium].iScore.gotoAndPlay("lShow");
+}
+function doFinalScoreEffect(inPodium)
+{
+   arrPodiums[inPodium].iScore.gotoAndPlay("lTransitionFinal");
+}
+function doHideScore(inPodium)
+{
+   arrPodiums[inPodium].iScore.gotoAndPlay("lHide");
+}
+function doSetScore(inPodium, inScore)
+{
+   arrPodiums[inPodium].score = inScore;
+   doSetDisplayScore(inPodium,"transition");
+   arrPodiums[inPodium].iScore.gotoAndPlay("lTransitionShow");
+   soeTRACE("in doSetScore, inPodium=" + inPodium + ", inscore=" + inScore);
+}
+function doSetScoreQuick(inPodium, inScore)
+{
+   arrPodiums[inPodium].score = inScore;
+   doSetDisplayScore(inPodium,"normal");
+}
+function doSetDisplayScore(inPodium, inDigitSet)
+{
+   var _loc2_ = arrPodiums[inPodium].score;
+   var _loc3_;
+   var _loc1_;
+   var _loc5_;
+   var _loc4_;
+   if(_loc2_ > 0)
+   {
+      _loc3_ = "$" + _loc2_;
+      _loc1_ = _loc3_.length;
+      if(_loc1_ > 4 && _loc2_ > 0)
+      {
+         _loc5_ = _loc3_.slice(0,_loc1_ - 3);
+         _loc4_ = _loc3_.slice(_loc1_ - 3,_loc1_);
+         _loc3_ = _loc5_ + "," + _loc4_;
+      }
+   }
+   else
+   {
+      _loc3_ = "";
+   }
+   soeTRACE("in doSetScore, displayScore=" + _loc3_);
+   arrPodiums[inPodium].displayScore = _loc3_;
+   setAllDigits(inPodium,inDigitSet);
+}
+function doFinalizeScore(inPodium)
+{
+   soeTRACE("in doFinalizeScore, inPodium:" + inPodium);
+   doSetDisplayScore(inPodium,"normal");
+   doShowDigits(inPodium,"normal");
+   doHideDigits(inPodium,"transition");
+}
+function doHideDigits(inPodium, inDigitSet)
+{
+   var _loc3_ = arrPodiums[inPodium];
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < 9)
+   {
+      if(inDigitSet == "normal")
+      {
+         _loc2_ = _loc3_.arrDigits[_loc1_];
+      }
+      else
+      {
+         _loc2_ = _loc3_.arrDigitTransitions[_loc1_];
+      }
+      _loc2_.gotoAndPlay("lHide");
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function doShowDigits(inPodium, inDigitSet)
+{
+   var _loc3_ = arrPodiums[inPodium];
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < 9)
+   {
+      if(inDigitSet == "normal")
+      {
+         _loc2_ = _loc3_.arrDigits[_loc1_];
+      }
+      else
+      {
+         _loc2_ = _loc3_.arrDigitTransitions[_loc1_];
+      }
+      _loc2_.gotoAndPlay("lShow");
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function doShowLoseATurn(inPodium)
+{
+   arrPodiums[inPodium].iLoseATurn.gotoAndPlay("lShow");
+}
+function doShowBankrupt(inPodium)
+{
+   arrPodiums[inPodium].iBankrupt.gotoAndPlay("lShow");
+}
+function doShowPlayersTurn(inPodium)
+{
+   arrPodiums[inPodium].iPlayersTurn.gotoAndPlay("lShow");
+}
+function doHidePlayersTurn(inPodium)
+{
+   arrPodiums[inPodium].iPlayersTurn.gotoAndPlay("lHide");
+}
+function handleSetScoreComplete()
+{
+   fscommand("postSetScoreComplete");
+}
+function handleShowBankruptComplete()
+{
+   fscommand("postShowBankruptComplete");
+}
+function handleShowLoseATurnComplete()
+{
+   fscommand("postShowLoseATurnComplete");
+}
+function stopListeners()
+{
+}
+function startListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+            doSetScore(1,arrPodiums[1].score + 500);
+            break;
+         case 40:
+            doSetScore(1,arrPodiums[1].score - 250);
+            break;
+         case 13:
+            handleKeyEnter();
+            break;
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+_global.s_bSoeEnableTrace = true;
+_global.soe_Init = function(strComment)
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_soe[" + strComment + "] _global.gfxExtensions " + _global.gfxExtensions);
+};
+_global.soe_EnableTrace = function(bEnable)
+{
+   _global.s_bSoeEnableTrace = bEnable;
+};
+_global.soe_TRACE = function(strText)
+{
+   if(_global.s_bSoeEnableTrace)
+   {
+      if(_global.gfxExtensions)
+      {
+         fscommand("soeTRACE " + strText,"");
+      }
+      else
+      {
+         trace(strText);
+      }
+   }
+};

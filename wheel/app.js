@@ -1,6 +1,6 @@
-import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-cuts';
-import {Studio} from './scene.js?v=20261006-cuts';
-import {automaticView,solveTiles,fillSolution} from './presentation.js?v=20261006-cuts';
+import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-podiums';
+import {Studio} from './scene.js?v=20261006-podiums';
+import {automaticView,solveTiles,fillSolution} from './presentation.js?v=20261006-podiums';
 
 const $ = selector => document.querySelector(selector);
 const colors=['#e87555','#f4c94e','#65a1ef'];
@@ -84,7 +84,7 @@ function render(state,event,completed=false){
   if(!completed){
     if(event==='win')playSound('PuzzleWin',.7);
     if(event==='letter')playSound(VOWELS.includes(state.used.at(-1))?'LetterVowel':'LetterConsonant',.6);
-    if(event==='miss')playSound('Incorrect',.5);
+    if(event==='miss'||event==='lose-turn')playSound('Incorrect',.5);
     if(event==='bankrupt')playSound('Bankrupt',.7);
     if(event==='start')playSound('WofChant',.35);
     if(event==='land'&&state.lastWedge==='MYSTERY')playSound('LandOnMysteryWedge');

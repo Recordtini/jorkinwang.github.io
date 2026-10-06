@@ -1,4 +1,4 @@
-import {wheelValues} from './presentation.js?v=20261006-cuts';
+import {wheelValues} from './presentation.js?v=20261006-podiums';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const WEDGES = wheelValues().map(value=>({value}));
@@ -57,7 +57,7 @@ export class WheelGame {
       this.player.cash = 0;
       this.passTurn('Bankrupt! Your round money is gone.', 'bankrupt');
     } else if (wedge === 'LOSE A TURN') {
-      this.passTurn('Lose a turn. The wheel passes to the next player.', 'miss');
+      this.passTurn('Lose a turn. The wheel passes to the next player.', 'lose-turn');
     } else {
       this.state.phase = 'consonant';
       this.state.message = typeof wedge === 'number' ? `${money(wedge)} per letter. Choose a consonant.` : `${wedge}! Choose a consonant.`;

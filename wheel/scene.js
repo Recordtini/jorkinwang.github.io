@@ -2,11 +2,10 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {money} from './game.js?v=20261006-cuts';
-import {boardTransition,materialAlpha} from './presentation.js?v=20261006-cuts';
+import {boardTransition,materialAlpha} from './presentation.js?v=20261006-podiums';
+import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 
 const SCALE = .01;
-const colors = ['#e87555','#f4c94e','#65a1ef'];
 function canvasTexture(width, height) {
   const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
@@ -55,7 +54,7 @@ export class Studio {
     this.wheelCanvas = canvasTexture(1024,1024);
     // The generated circle uses conventional UVs, unlike the source Flash meshes.
     this.wheelCanvas.texture.flipY = true;
-    this.podiumCanvas = canvasTexture(1536,512);
+    this.podiumCanvas = canvasTexture(1024,512);
     this.wheelGroup = new THREE.Group(); this.wheelGroup.position.set(6.012678, .97072, -.713909);
     this.scene.add(this.wheelGroup);
     this.wheelAngle = 0; this.view = 'show'; this.cameraTween = null; this.spinTween = null;
@@ -126,6 +125,13 @@ export class Studio {
     await Promise.all(Object.entries(this.presentation.fonts).map(async([name,url])=>{
       const face=new FontFace(name==='board'?'Retail Board':'Retail Category',`url("${url}")`);await face.load();document.fonts.add(face);
     }));
+    const podiumResponse=await fetch('assets/presentation/podiums/podiums.json');
+    if(!podiumResponse.ok)throw new Error('The recovered podium movie could not load');
+    const podiumData=await podiumResponse.json(),podiumImages={body:await picture(podiumData.body)};
+    for(const name of ['backgrounds','turn','lose','bankrupt','glyphs'])podiumImages[name]=await picture(podiumData[name].url);
+    await document.fonts.load('24px "Retail Podium"');
+    this.podiums=new PodiumDisplay(this.podiumCanvas.context,podiumData,podiumImages);
+    this.drawScreens(null);
     this.drawWheel();
     this.screenPoster=await new THREE.TextureLoader().loadAsync('assets/presentation/screens/game_logo.png');
     this.screenPoster.colorSpace=THREE.SRGBColorSpace;this.screenPoster.flipY=false;
@@ -190,25 +196,8 @@ export class Studio {
     });
   }
   bindPodiums(mesh){
-    mesh.geometry=mesh.geometry.clone();
-    const positions=mesh.geometry.getAttribute('position'),normals=mesh.geometry.getAttribute('normal');
-    const islands=meshIslands(mesh.geometry).map(vertices=>{
-      const points=vertices.map(i=>new THREE.Vector3().fromBufferAttribute(positions,i).applyMatrix4(mesh.matrixWorld));
-      const bounds=new THREE.Box3().setFromPoints(points);
-      return {vertices,points,bounds,center:bounds.getCenter(new THREE.Vector3())};
-    });
-    const displays=islands.filter(i=>i.bounds.max.y-i.bounds.min.y>.15&&i.bounds.max.z-i.bounds.min.z>.3);
-    const centers=displays.filter(i=>i.center.y>1).map(i=>i.center.z).sort((a,b)=>a-b);
-    const uv=new Float32Array(positions.count*2);uv.fill(.004);
-    for(const island of displays){
-      const player=centers.reduce((best,z,i)=>Math.abs(z-island.center.z)<Math.abs(centers[best]-island.center.z)?i:best,0);
-      const row=island.center.y>1?0:1;
-      const normal=new THREE.Vector3().fromBufferAttribute(normals,island.vertices[0]).transformDirection(mesh.matrixWorld);
-      const horizontal=new THREE.Vector3(normal.z,0,-normal.x).normalize();
-      const xs=island.points.map(p=>p.dot(horizontal));const left=Math.min(...xs),right=Math.max(...xs);
-      island.vertices.forEach((vertex,j)=>{uv[vertex*2]=(player+(xs[j]-left)/(right-left))/3;uv[vertex*2+1]=(row+1-(island.points[j].y-island.bounds.min.y)/(island.bounds.max.y-island.bounds.min.y))/2;});
-    }
-    mesh.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    // Original UVs address cash panels above the three colored body images.
+    // Reprojecting them as a 3x2 score/name grid corrupts both native surfaces.
     mesh.material=new THREE.MeshBasicMaterial({map:this.podiumCanvas.texture,side:THREE.DoubleSide,toneMapped:false});
   }
   async setStage(id) {
@@ -343,15 +332,10 @@ export class Studio {
     video.play().catch(()=>{this.screenMaterials.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});});
   }
   setSolveDraft(entries,cursor=null){this.solveDraft=entries;this.solveCursor=cursor;if(this.boardState)this.drawBoard(this.boardState);}
-  drawScreens(state) {
-    const {context:p,texture:pt}=this.podiumCanvas;p.fillStyle='#111f49';p.fillRect(0,0,1536,512);
-    for(let slot=0;slot<3;slot++){
-      const player=state?.players.find(p=>p.slot===slot),active=player&&player===state.players[state.turn],x=slot*512;
-      p.fillStyle=active?'#1742a1':'#040914';p.fillRect(x,0,512,512);p.fillStyle=active?colors[slot]:'#34404c';
-      p.fillRect(x+10,8,492,10);p.fillRect(x+10,264,492,10);p.fillStyle=active?'#fff':'#637080';p.textAlign='center';p.textBaseline='middle';
-      p.font='bold 72px "Retail Board"';p.fillText(player?money(player.cash):'',x+256,132,465);p.font='bold 54px "Retail Board"';p.fillText(player?.name??'',x+256,385,465);
-      if(active){p.fillStyle='#ffe198';p.font='20px Verdana';p.fillText('YOUR TURN',x+256,220);}
-    }pt.needsUpdate=true;
+  drawScreens(state,event='restore') {
+    const duration=this.podiums?.update(state,event,performance.now())??0;
+    this.podiumCanvas.texture.needsUpdate=true;
+    return duration;
   }
   setBonusVisible(visible){
     if(this.bonusRoot)this.bonusRoot.visible=visible;
@@ -366,10 +350,11 @@ export class Studio {
     if(event==='start'||event==='restore')this.playScreen();
     if(event==='round')this.playScreen(state.round===2?'jackpot_intro':state.round===3?'mystery_intro':'game_logo',state.round!==2&&state.round!==3);
     if(event==='win')this.playScreen('fireworks',false);
-    this.setBonusVisible(state.round===5);this.drawBoard(this.boardState);this.drawScreens(state);this.drawWheel();
-    return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0);
+    this.setBonusVisible(state.round===5);this.drawBoard(this.boardState);const podiumDuration=this.drawScreens(state,event);this.drawWheel();
+    return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0,podiumDuration);
   }
   cancelPresentation(){
+    this.podiums?.reset();
     this.boardSequence=null;this.boardSnapshot=null;this.categorySequence=null;document.querySelector('#category-reveal').hidden=true;
     for(const name of ['spinTween','bonusTween']){this[name]?.resolve();this[name]=null;}
     this.screenVideos?.forEach(entry=>entry.video.pause());this.screenMovie=null;
@@ -399,6 +384,7 @@ export class Studio {
   }
   quality(value){this.lowQuality=value==='low';this.renderer.setPixelRatio(this.lowQuality?1:Math.min(devicePixelRatio,1.5));this.renderer.shadowMap.enabled=!this.lowQuality;if(this.floorReflection)this.floorReflection.getRenderTarget().setSize(this.lowQuality?256:768,this.lowQuality?256:768);this.resize();}
   animate(time) {
+    if(this.podiums?.draw(time))this.podiumCanvas.texture.needsUpdate=true;
     if(this.boardSequence&&!this.boardSequence.done&&time-(this.boardDrawTime??0)>30){this.drawBoard(this.boardState,time);this.boardDrawTime=time;this.boardSequence.done=time-this.boardSequence.start>=this.boardSequence.duration;}
     if(this.categorySequence)this.drawCategory(time);
     if(this.spinTween){const spin=this.spinTween;const t=Math.min(1,(time-spin.start)/spin.duration);this.wheelAngle=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));this.wheelGroup.rotation.y=this.wheelAngle;const index=Math.floor(this.wheelAngle/(Math.PI*2/24));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.spinTween=null;spin.resolve();}}

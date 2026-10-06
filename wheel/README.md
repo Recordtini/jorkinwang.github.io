@@ -16,8 +16,8 @@ and Lose a Turn are supported. Reloading offers a saved-game resume button.
 
 Pat's prompts guide play. Solving fills only missing letter cells, with known
 letters, punctuation, and numbers locked. Typing advances through the blanks;
-arrow keys, backspace and paste are supported. Inactive podium displays and score
-cards dim so the current player remains clear.
+arrow keys, backspace and paste are supported. The native white inward arrows
+animate on the current player's podium; inactive podiums and HUD cards do not dim.
 
 Automatic cameras cut between spins, letter selections, reveals and solves by default.
 Regular spins use the active podium's original camera and cut closer to the
@@ -41,6 +41,11 @@ intentionally omitted.
 - Original green/white/blue board tiles and their transition frames, plus the
   embedded Swis721 BlkCn BT board font and Cosmos Medium category font.
 - The original masked category-reveal timeline, including text-scale/alpha keys.
+- Native podium colors/body artwork, Univers ExtraBlack score glyphs with their
+  original shadow/glow, character spacing, blank zero scores, staggered score
+  changes, final-score effects, looping turn arrows, Bankrupt and Lose a Turn.
+  Original 1024x512 atlas UVs are retained. This game's podium movie has no
+  player-name field, so names remain in the web HUD rather than replacing body art.
 - All 37 base-scene cameras, 16 camera-role groups and 30 parent-controller
   tracks, including original positions, direction/up axes and frusta. Backstage
   provides an original-camera inspector.
@@ -59,6 +64,11 @@ recovered ActionScript. Flash/Scaleform bytecode and the PS3 executable are not
 executed. `assets/presentation/source/` preserves the recovered root scripts;
 `presentation.json` records decoded source hashes, frame indices, timing and
 exporter version. Dynamic displays use CanvasTexture on recovered meshes.
+`assets/presentation/podiums/` contains source-frame atlases, the embedded WOFF,
+the root ActionScript and `podiums.json` with exact digit matrix/alpha keys.
+Penalty effects stay on the outgoing physical slot and finish before input/CPU
+handoff. These native Flash clips are driven by browser events; this is not a
+verified reconstruction of every PS3-to-Scaleform command or callback.
 Million, Wildcard and Free Spin collectible overlays use their native hidden
 state because their complete inventory rules are not implemented. These are
 not replaced by invented Free Play graphics. Toss-ups are still omitted.
@@ -85,6 +95,7 @@ From `E:\Python Projects\JEOPARDY`:
 .\.venv\Scripts\python.exe web-site\wheel\tools\build_assets.py
 powershell -File web-site\wheel\tools\vendor_three.ps1
 .\.venv\Scripts\python.exe web-site\wheel\tools\recover_presentation.py
+.\.venv\Scripts\python.exe web-site\wheel\tools\recover_podiums.py
 .\.venv\Scripts\python.exe web-site\wheel\tools\recover_scene.py
 ```
 
@@ -100,6 +111,9 @@ release at `wheel_web_tools/ffdec/ffdec.jar`, or an explicit `--ffdec` path.
 workspace, decodes external DDS alongside each GFX, and exports native frames,
 fonts and scripts without changing the original dump. `--reuse-exports` only
 repackages a completed local extraction. FFDec is not shipped with the website.
+Podium recovery exports clips in the fixed root-stage coordinates rather than
+resizing variable sprite bounds. It rasterizes the actual embedded score glyphs
+with their original text filters, then crops the native cash-panel rectangles.
 Scene recovery uses the workspace NIF reader/PyFFI and FFmpeg. It writes
 `cameras.json` with decoded source SHA-256, controller keys and material flags,
 plus the browser screen movies and a native still fallback. `--skip-video`

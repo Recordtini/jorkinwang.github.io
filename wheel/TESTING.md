@@ -94,7 +94,8 @@ Verified in isolated local Chrome at 1440 x 900 and touch viewport 390 x 844:
 - Two local plus one CPU lineup worked; CPU controls stayed locked. A two-player
   lineup with the middle podium empty used physical blue-slot camera 2, not 1.
   All-CPU setup was rejected with a visible explanation.
-- Active HUD/physical podium scores were bright; inactive displays were dark.
+- At this earlier revision, active HUD/physical scores were bright and inactive
+  displays were dark. The native-podium recheck below supersedes that behavior.
   Pat's label, lineup controls and the entire fill-in grid fit on mobile.
 - Rendered all 11 sets with floor reflections and a decoded original monitor
   movie. Inspected Los Angeles, New York, Denver and San Francisco captures;
@@ -107,3 +108,33 @@ Verified in isolated local Chrome at 1440 x 900 and touch viewport 390 x 844:
 Current local evidence includes `current-la.png`, `current-ny.png`,
 `native-amount-player1.png`, `native-amount-player2.png`, `fill-in-solve.png`,
 `mobile-fill-in-current.png` and `mobile-finished-current.png` in ignored `qa/`.
+
+## Native Podium Recheck
+
+33 Node tests include native score formatting and widths, controller/digit frame
+offsets, physical-slot routing, effect completion, reset/restore and packaged font
+and artwork. Source root scripts and fixed-stage frame exports are preserved.
+
+Verified with actual UI interactions in isolated Chrome at 1440 x 900:
+
+- Real spins and guesses awarded $800/$1,600; physical cash displayed upright
+  with native glyph shadows and comma spacing. Zero cash was blank in 3D.
+- Inactive podiums retained full native colors. All HUD cards had opacity 1;
+  active-player indication came from source white inward-arrow frames.
+- Captured staggered/flipping score digits, native Lose a Turn on yellow and
+  Bankrupt on blue. Native effects belonged to the outgoing physical slot;
+  the next arrow appeared on completion, and controls stayed locked meanwhile.
+- A fill-in solve triggered the native final-score animation, hid turn arrows,
+  and locked Next Round until it finished. Next Round cleared cash displays.
+- Save restoration set scores without a new transition. An empty middle slot
+  remained yellow rather than becoming a fake name/score panel. CPU play did not
+  start during Bankrupt; restarting during that effect canceled the presentation.
+- Original monitor video, floor reflections, native camera cuts and fill-in
+  solving still worked. No page JavaScript errors occurred in these checks.
+- At 390 x 844, a three-local lineup had no horizontal page overflow; the
+  Univers HUD font loaded and all cards remained undimmed.
+
+Evidence includes `native-podium-atlas.png`, `native-cash-closeup-final.png`,
+`native-score-transition-atlas.png`, `native-loss-atlas.png` and
+`native-bankrupt.png` in ignored `qa/`. Source Flash timeline keys are recovered;
+the original executable's entire command sequence remains unverified.
