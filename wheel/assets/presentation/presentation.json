@@ -1,0 +1,218 @@
+{
+  "wheels": [
+    "assets/presentation/wheel-1.png",
+    "assets/presentation/wheel-2.png",
+    "assets/presentation/wheel-3.png",
+    "assets/presentation/wheel-4.png"
+  ],
+  "tile": {
+    "url": "assets/presentation/tiles.png",
+    "columns": 8,
+    "width": 128,
+    "height": 160,
+    "frames": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38
+    ]
+  },
+  "category": {
+    "url": "assets/presentation/category.png",
+    "columns": 8,
+    "width": 640,
+    "height": 100,
+    "frames": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34
+    ],
+    "text": [
+      {
+        "scale": 0.3157959,
+        "alpha": 0.25
+      },
+      {
+        "scale": 0.372818,
+        "alpha": 0.5
+      },
+      {
+        "scale": 0.42982483,
+        "alpha": 0.75
+      },
+      {
+        "scale": 0.48684692,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.543869,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.6008911,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.65789795,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.71492004,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.7719269,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.828949,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.8859558,
+        "alpha": 1.0
+      },
+      {
+        "scale": 0.9429779,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      },
+      {
+        "scale": 1.0,
+        "alpha": 1.0
+      }
+    ],
+    "fps": 30.0
+  },
+  "timing": {
+    "mTimeBetweenLetters": 750.0,
+    "mTimeBetweenBlueLetters": 0.0,
+    "mTimeBetweenClearLetters": 50.0,
+    "mTimeAfterBlue": 1000.0
+  },
+  "fonts": {
+    "board": "assets/presentation/board.woff",
+    "category": "assets/presentation/category.woff"
+  },
+  "provenance": [
+    {
+      "source": "NPUA80137/USRDIR/data/swf/wheel/wheel.gfx.soe",
+      "decodedSha256": "bfbe9ce771110ce0b3fa3dcfe369bf36e2ef46a35e2384be358c85caf0c7e512"
+    },
+    {
+      "source": "NPUA80137/USRDIR/data/swf/puzzleboard/puzzleboard.gfx.soe",
+      "decodedSha256": "e72d079c6bd759ba0876527e87aeb89d7b81742f5fb8fc506ae465e32a3bd1ba"
+    },
+    {
+      "source": "NPUA80137/USRDIR/data/swf/gui/gui.gfx.soe",
+      "decodedSha256": "06d5d69190f05aebb6cca39bd96b6d3b86651c0e832a64077efbac230032dec8"
+    }
+  ],
+  "exporter": "JPEXS FFDec 26.3.0",
+  "hiddenCollectibles": [
+    "Million",
+    "Wildcard",
+    "FreeSpin"
+  ]
+}

@@ -1,0 +1,232 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function jackpot_init()
+{
+   if(!soeIsGame())
+   {
+      startListenersGui();
+   }
+}
+function initJackpot()
+{
+}
+function doShowJackpot()
+{
+   iJackpot.gotoAndPlay("lShow");
+}
+function doHideJackpot()
+{
+   iJackpot.gotoAndPlay("lHide");
+}
+function doSetJackpotScore(inScore)
+{
+   displayScore = "$" + inScore;
+   var _loc1_ = displayScore.length;
+   var _loc3_;
+   var _loc2_;
+   if(_loc1_ > 4)
+   {
+      _loc3_ = displayScore.slice(0,_loc1_ - 3);
+      _loc2_ = displayScore.slice(_loc1_ - 3,_loc1_);
+      displayScore = _loc3_ + "," + _loc2_;
+   }
+   setDisplayScore();
+}
+function setDisplayScore()
+{
+   soeTRACE("setDisplayScore - displayScore: " + displayScore);
+   iJackpot.iScore.tText.text = displayScore;
+}
+function stopListeners()
+{
+}
+function startListenersGui()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(chr(Key.getAscii()))
+      {
+         case "1":
+            doShowJackpot();
+            break;
+         case "2":
+            doHideJackpot();
+            break;
+         case "3":
+            doSetJackpotScore(1000);
+            break;
+         case "4":
+            doSetJackpotScore(25000);
+            break;
+         case "5":
+            setConsonantsActive();
+            break;
+         case "6":
+            setConsonantsInactive();
+            break;
+         case "7":
+            setAllLettersActive();
+            break;
+         case "8":
+            setAllLettersInactive();
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function category_init()
+{
+   if(!soeIsGame())
+   {
+      startListenersGui();
+      initCategory("Hello");
+   }
+}
+function initCategory(inCategory)
+{
+   oCategory = iCategory;
+   categoryText = inCategory;
+}
+function setCategoryType(inType)
+{
+   if(inType == "1")
+   {
+      soeTRACE("=====>setCategoryType, inType = 1!");
+      oCategory = iBonusCategory;
+   }
+   else
+   {
+      soeTRACE("=====>setCategoryType, inType = 0!");
+      oCategory = iCategory;
+   }
+}
+function doShowCategory()
+{
+   soeTRACE("doShowCategory - oCategory: " + oCategory);
+   doHideCategory();
+   oCategory.gotoAndPlay("lPlayIn");
+   soeTRACE("doShowCategory - done");
+}
+function doShowCategoryQuick()
+{
+   soeTRACE("doShowCategoryQuick - oCategory: " + oCategory);
+   oCategory.gotoAndPlay("lIn");
+   soeTRACE("doShowCategoryQuick - done");
+}
+function doHideCategory()
+{
+   soeTRACE("doHideCategory - begin");
+   iCategory.gotoAndPlay("lOut");
+   iBonusCategory.gotoAndPlay("lOut");
+   soeTRACE("doHideCategory - end");
+}
+function handleShowCategoryComplete()
+{
+   fscommand("postShowCategoryComplete");
+}
+function getCategoryText(inObject)
+{
+   inObject.tText.text = categoryText;
+}
+function stopListeners()
+{
+}
+function startListenersGui()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(chr(Key.getAscii()))
+      {
+         case "1":
+            initCategory("hello");
+            break;
+         case "2":
+            initCategory("world");
+            break;
+         case "3":
+            doHideCategory();
+            break;
+         case "4":
+            doShowCategoryQuick();
+            break;
+         case "5":
+         case "6":
+         case "7":
+         case "8":
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+jackpot_init();
+category_init();

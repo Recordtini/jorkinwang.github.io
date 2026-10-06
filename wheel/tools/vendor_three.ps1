@@ -12,7 +12,7 @@ foreach ($folder in @('loaders','controls','utils','objects')) {
     $target = Join-Path $addonRoot $folder
     New-Item -ItemType Directory -Path $target -Force | Out-Null
 }
-foreach ($file in @('loaders\GLTFLoader.js','controls\OrbitControls.js','utils\BufferGeometryUtils.js')) {
+foreach ($file in @('loaders\GLTFLoader.js','controls\OrbitControls.js','utils\BufferGeometryUtils.js','objects\Reflector.js')) {
     Copy-Item -LiteralPath (Join-Path $packageRoot "examples\jsm\$file") -Destination (Join-Path $addonRoot $file)
 }
 Write-Output 'Vendored Three.js and GLTFLoader for static, CDN-independent hosting.'

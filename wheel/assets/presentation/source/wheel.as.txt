@@ -1,0 +1,132 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function init_wheel()
+{
+   soeInit("wheel");
+   doSetBigMoneyGlowAnimationState(0);
+}
+function doSetRound(inRound)
+{
+   var _loc1_ = "lBase";
+   switch(inRound)
+   {
+      case 0:
+         _loc1_ = "lTossup1000";
+         break;
+      case 1:
+         _loc1_ = "lTossup2000";
+         break;
+      case 2:
+         _loc1_ = "lRound1";
+         break;
+      case 3:
+         _loc1_ = "lJackpotRound";
+         break;
+      case 4:
+         _loc1_ = "lBigMoneyRound";
+         break;
+      case 5:
+         _loc1_ = "lTossup3000";
+         break;
+      case 6:
+         _loc1_ = "lBonusRound";
+   }
+   soeTRACE(_loc1_);
+   gotoAndPlay(_loc1_);
+}
+function doSetBigMoneyAmount(inAmount)
+{
+   iBigMoney.tText.text = inAmount;
+}
+function setWedgeState(inWedgeName, inState)
+{
+   var _loc1_ = null;
+   switch(inWedgeName)
+   {
+      case "FreeSpin":
+         _loc1_ = iFreeSpin;
+         break;
+      case "Wildcard":
+         _loc1_ = iWildCard;
+         break;
+      case "Mystery1":
+         _loc1_ = iMystery1;
+         break;
+      case "Mystery2":
+         _loc1_ = iMystery2;
+         break;
+      case "10k":
+         _loc1_ = i10k;
+         break;
+      case "Million":
+         _loc1_ = iMillion;
+   }
+   soeTRACE("setWedgeState: inWedgeName - " + inWedgeName + " oWedge - " + _loc1_);
+   switch(inState)
+   {
+      case -1:
+         _loc1_.gotoAndPlay("lOn");
+         break;
+      case 0:
+         _loc1_.gotoAndPlay("lHide");
+         break;
+      case 1:
+         _loc1_.gotoAndPlay("lShow");
+         break;
+      case 2:
+         _loc1_.gotoAndPlay("l10k");
+         break;
+      case 3:
+         _loc1_.gotoAndPlay("lBankrupt");
+      default:
+         return;
+   }
+}
+function doSetBigMoneyGlowAnimationState(iState)
+{
+   mcBigMoneyGlowAnimation1._visible = iState != 0;
+   mcBigMoneyGlowAnimation2._visible = iState != 0;
+}
+_global.s_bSoeEnableTrace = true;
+_global.soe_Init = function(strComment)
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_soe[" + strComment + "] _global.gfxExtensions " + _global.gfxExtensions);
+};
+_global.soe_EnableTrace = function(bEnable)
+{
+   _global.s_bSoeEnableTrace = bEnable;
+};
+_global.soe_TRACE = function(strText)
+{
+   if(_global.s_bSoeEnableTrace)
+   {
+      if(_global.gfxExtensions)
+      {
+         fscommand("soeTRACE " + strText,"");
+      }
+      else
+      {
+         trace(strText);
+      }
+   }
+};
+init_wheel();

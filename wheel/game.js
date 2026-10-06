@@ -1,19 +1,7 @@
+import {wheelValues} from './presentation.js';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-export const WEDGES = [
-  {value: 500, color: '#ea68a5'}, {value: 900, color: '#78b6de'},
-  {value: 700, color: '#f8c765'}, {value: 'BANKRUPT', color: '#171b22'},
-  {value: 600, color: '#c880cb'}, {value: 500, color: '#e96155'},
-  {value: 800, color: '#71bc90'}, {value: 'FREE PLAY', color: '#ead39b'},
-  {value: 650, color: '#84b7de'}, {value: 500, color: '#eb86ae'},
-  {value: 900, color: '#b3cd83'}, {value: 550, color: '#cd85c7'},
-  {value: 2500, color: '#ba4d55'}, {value: 600, color: '#f2b77d'},
-  {value: 700, color: '#81bacc'}, {value: 'LOSE A TURN', color: '#f4ede2'},
-  {value: 800, color: '#bf90cc'}, {value: 500, color: '#eb729e'},
-  {value: 650, color: '#79ba85'}, {value: 'BANKRUPT', color: '#171b22'},
-  {value: 900, color: '#e6b85b'}, {value: 600, color: '#7eabd9'},
-  {value: 500, color: '#d58bcd'}, {value: 700, color: '#e97b55'},
-];
+export const WEDGES = wheelValues().map(value=>({value}));
 export const money = value => '$' + value.toLocaleString('en-US');
 export const normalizeAnswer = answer => answer.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
@@ -46,12 +34,7 @@ export class WheelGame {
   get player() { return this.state.players[this.state.turn]; }
   get isBonus() { return this.state.round === 5; }
   wedges() {
-    return WEDGES.map((wedge, index) => {
-      if (index === 12) return {...wedge, value: this.state?.round > 2 ? 5000 : this.state?.round === 2 ? 3500 : 2500};
-      if (this.state?.round === 2 && index === 7) return {...wedge, value: 'JACKPOT'};
-      if (this.state?.round === 3 && (index === 7 || index === 17)) return {...wedge, value: 'MYSTERY'};
-      return {...wedge};
-    });
+    return wheelValues(Math.min(4,this.state?.round??1)).map(value=>({value}));
   }
   beginSpin() {
     if (this.state.phase !== 'action') return null;

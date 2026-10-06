@@ -9,10 +9,12 @@ and assets load relative to this directory.
 Choose a set and solo or local three-player mode. Spin, select
 consonants, buy vowels for $250, and solve. Round earnings become banked winnings
 only when a player solves. Four rounds lead to the original bonus wheel and a 30-second bonus puzzle with
-RSTLNE plus three consonants and one vowel. Jackpot, Mystery, Free Play, Bankrupt,
+RSTLNE plus three consonants and one vowel. Jackpot, Mystery, Bankrupt,
 and Lose a Turn are supported. Reloading offers a saved-game resume button.
 
-Studio, Puzzle, Wheel, and Explore cameras are available. Explore supports drag,
+Automatic cameras follow spins, letter selections, reveals and solves by default.
+Selecting Studio, Puzzle, Wheel, or Explore switches to manual; Backstage can
+re-enable automatic cameras. Explore supports drag,
 scroll, and touch. Backstage switches sets and offers a viewer for recovered
 set props and an audio library for all 36 original tracks. Assets are loaded on demand. Player bodies and character creation are
 intentionally omitted.
@@ -25,16 +27,33 @@ intentionally omitted.
   export and including the empty player-library scene records.
 - Music and sound effects from the two FSB4 banks, transcoded to browser MP3.
 - Scene actor records and spin settings from the `.scx` files.
+- Native Flash wheel artwork for all four played rounds, including vector dollar
+  labels and external DDS glitter images, with sector values matching gameplay.
+- Original green/white/blue board tiles and their transition frames, plus the
+  embedded Swis721 BlkCn BT board font and Cosmos Medium category font.
+- The original masked category-reveal timeline, including text-scale/alpha keys.
+- Board sequencing ported from `doShowWhitePanels`, `doFindLetters`,
+  `doShowFoundLetters` and `handlePuzzleSolved`: column-first opening at 50ms,
+  blue matching tiles, then row-first letter reveals at 750ms intervals.
 - `assets/source-catalog.json` records SHA-256 and size for every source file,
   including the executable, shaders, movies, and animation resources.
 
-The web gameplay is new JavaScript. The PS3 executable, Flash UI logic, networking,
-and platform shaders are not executed in the browser. Dynamic wheel, letters,
-and score displays use CanvasTexture on recovered meshes. Retail skeletal clips
-and cinematic sequences are not played.
-Lighting uses browser lights and the converted material maps; it is not a
-verified reproduction of the retail renderer. The original camera records are
-preserved inside the GLBs; gameplay cameras frame the recovered geometry.
+The web gameplay is JavaScript, with selected board behavior ported from the
+recovered ActionScript. Flash/Scaleform bytecode and the PS3 executable are not
+executed. `assets/presentation/source/` preserves the recovered root scripts;
+`presentation.json` records decoded source hashes, frame indices, timing and
+exporter version. Dynamic displays use CanvasTexture on recovered meshes.
+Million, Wildcard and Free Spin collectible overlays use their native hidden
+state because their complete inventory rules are not implemented. These are
+not replaced by invented Free Play graphics. Toss-ups are still omitted.
+
+Lighting uses browser lights and converted material maps, with planar floor
+reflections over the original tile texture. The floor's baked dark map is no
+longer used as full-strength AO, and baked backdrops do not receive a second
+shadow from the overhead rig. This is not a verified 1:1 retail renderer.
+Original camera records remain in the GLBs; the game-state director frames
+recovered geometry, not the original cinematic camera tracks. Retail skeletal
+clips and set-prop `.kf` animation tracks are not played.
 
 `assets/manifest.json` lists packaged assets and conversion errors. This is an
 independent fan recreation. Wheel of Fortune and the original game assets belong
@@ -47,6 +66,7 @@ From `E:\Python Projects\JEOPARDY`:
 ```powershell
 .\.venv\Scripts\python.exe web-site\wheel\tools\build_assets.py
 powershell -File web-site\wheel\tools\vendor_three.ps1
+.\.venv\Scripts\python.exe web-site\wheel\tools\recover_presentation.py
 ```
 
 The extractor checks the decoded puzzle bank against the existing extracted
@@ -55,6 +75,12 @@ the FSB4 audio. It does not modify the original dump or run character conversion
 For another checkout, pass `--workspace` with the directory containing the game
 dump, `jeopardy/soe_decryptor.py`, and `wheel_of_fortune_glb/`. Vendoring requires
 the pinned Three.js package from `package.json` to be installed first.
+Presentation recovery needs Java and the official JPEXS FFDec 26.3.0 portable
+release at `wheel_web_tools/ffdec/ffdec.jar`, or an explicit `--ffdec` path.
+`--java` selects a Java executable. It isolates FFDec settings inside this
+workspace, decodes external DDS alongside each GFX, and exports native frames,
+fonts and scripts without changing the original dump. `--reuse-exports` only
+repackages a completed local extraction. FFDec is not shipped with the website.
 
 For a local preview, serve the repository root with an HTTP server, then open
 `http://127.0.0.1:8127/wheel/`. ES modules need HTTP, not `file://`.

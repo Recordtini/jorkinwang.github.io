@@ -1,0 +1,766 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function init_puzzleboard()
+{
+   soeInit("puzzleboard");
+   initArrays();
+   if(!soeIsGame())
+   {
+      bSolveMode = false;
+      initPuzzleboard();
+      startListeners();
+   }
+}
+function initArrays()
+{
+   if(!soeIsGame())
+   {
+      setPuzzleRowLetters(0,"%%%%%%%HELLO%%");
+      setPuzzleRowLetters(1,"%%%WORLD%&%%%%");
+      setPuzzleRowLetters(2,"%%%%%GOOD-%%%%");
+      setPuzzleRowLetters(3,"%%%MORNING%%%%");
+   }
+}
+function initFoundPanelsArray()
+{
+   delete mFoundPanelsArray;
+   mFoundPanelsArray = new Array();
+}
+function initPuzzleboard()
+{
+   bTossup = false;
+   var _loc1_ = 0;
+   while(_loc1_ < 4)
+   {
+      delete s_aPanelArray[_loc1_];
+      s_aPanelArray[_loc1_] = new Array();
+      if(s_aPuzzleLettersArray[_loc1_].length != 14)
+      {
+         s_aPuzzleLettersArray[_loc1_] = "%" + s_aPuzzleLettersArray[_loc1_] + "%";
+      }
+      initPuzzleRow(_loc1_);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function initPuzzleRow(inRow)
+{
+   var _loc3_ = inRow;
+   var _loc2_ = 0;
+   var _loc1_;
+   while(_loc2_ < 14)
+   {
+      _loc1_ = iPuzzleboard["iLetter" + _loc3_ + _loc2_];
+      if(_loc1_ == null)
+      {
+         _loc1_ = new Object();
+      }
+      s_aPanelArray[_loc3_].push(_loc1_);
+      _loc1_.strLetter = s_aPuzzleLettersArray[_loc3_].substr(_loc2_,1);
+      _loc1_.strSolveLetter = "";
+      _loc1_.row = _loc3_;
+      _loc1_.col = _loc2_;
+      if(_loc1_.strLetter == "%")
+      {
+         _loc1_.status = "empty";
+      }
+      else
+      {
+         _loc1_.status = "ready";
+      }
+      _loc1_.gotoAndPlay("lOff");
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function setPuzzleRowLetters(nRow, strText)
+{
+   s_aPuzzleLettersArray[nRow] = strText;
+}
+function setFoundPanelsArray(inCheckFunction, inVariable)
+{
+   initFoundPanelsArray();
+   var _loc3_ = 0;
+   var _loc1_;
+   var _loc2_;
+   while(_loc3_ < 14)
+   {
+      _loc1_ = 0;
+      while(_loc1_ < 4)
+      {
+         _loc2_ = s_aPanelArray[_loc1_][_loc3_];
+         if(inCheckFunction(_loc2_,inVariable))
+         {
+            mFoundPanelsArray.push(_loc2_);
+         }
+         _loc1_ = _loc1_ + 1;
+      }
+      _loc3_ = _loc3_ + 1;
+   }
+   soeTRACE("setFoundPanelsArray: mFoundPanelsArray.length - " + mFoundPanelsArray.length);
+}
+function setFoundPanelsArrayHor(inCheckFunction, inVariable)
+{
+   initFoundPanelsArray();
+   var _loc3_ = 0;
+   var _loc1_;
+   var _loc2_;
+   while(_loc3_ < 4)
+   {
+      _loc1_ = 0;
+      while(_loc1_ < 14)
+      {
+         _loc2_ = s_aPanelArray[_loc3_][_loc1_];
+         if(inCheckFunction(_loc2_,inVariable))
+         {
+            mFoundPanelsArray.push(_loc2_);
+         }
+         _loc1_ = _loc1_ + 1;
+      }
+      _loc3_ = _loc3_ + 1;
+   }
+}
+function randomizeArray(inArray)
+{
+   var _loc2_ = inArray;
+   var _loc3_ = [];
+   var _loc1_;
+   while(_loc2_.length > 0)
+   {
+      _loc1_ = random(_loc2_.length);
+      _loc3_.push(_loc2_[_loc1_]);
+      _loc2_.splice(_loc1_,1);
+   }
+   return _loc3_;
+}
+function findPanelByStatus(inPanel, inStatus)
+{
+   return inPanel.status == inStatus;
+}
+function findPanelByLetter(inPanel, inLetter)
+{
+   return inPanel.strLetter == inLetter;
+}
+function doGetCurrentShowIndex()
+{
+   return mCurrentShowIndex;
+}
+function doShowFoundPanels(inShowTarget, inTimer, bSyncWithGame)
+{
+   if(mFoundPanelsArray.length > 0)
+   {
+      mShowTarget = inShowTarget;
+      mCurrentShowIndex = 0;
+      initRevealTimer(inTimer,bSyncWithGame);
+   }
+   else
+   {
+      handleShowPanelsComplete();
+   }
+}
+function doShowTossupLetters()
+{
+   bTossup = true;
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   if(!soeIsGame())
+   {
+      nTossupOrderArray = new Array(mFoundPanelsArray.length);
+      nTossupOrderArray = randomizeArray(mFoundPanelsArray);
+      handleRandomArray();
+   }
+   else
+   {
+      fscommand("postGetRandomArray",mFoundPanelsArray.length);
+   }
+}
+function handleRandomArray()
+{
+   mFoundPanelsArray = randomizeTossupArray(mFoundPanelsArray);
+   doShowFoundPanels("lLetter",mTimeBetweenTossupLetters,true);
+}
+function randomizeTossupArray(inArray)
+{
+   var _loc2_ = inArray;
+   var _loc3_ = [];
+   var _loc1_ = _loc2_.length - 1;
+   while(_loc1_ >= 0)
+   {
+      _loc3_.push(_loc2_[nTossupOrderArray[_loc1_]]);
+      _loc1_ = _loc1_ - 1;
+   }
+   return _loc3_;
+}
+function showSolvePanels()
+{
+   setFoundPanelsArrayHor(findPanelByStatus,"lWhite");
+   var _loc1_ = 0;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      mFoundPanelsArray[_loc1_].gotoAndPlay("lSolve");
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function hideSolvePanels()
+{
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      _loc2_ = mFoundPanelsArray[_loc1_];
+      _loc2_.gotoAndPlay("lWhiteFast");
+      _loc2_.strSolveLetter = "";
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function doShowWhitePanels()
+{
+   soeTRACE("doShowWhitePanels");
+   setFoundPanelsArray(findPanelByStatus,"ready");
+   doShowFoundPanels("lWhite",mTimeBetweenClearLetters,false);
+}
+function doFindLetters(inLetter)
+{
+   setFoundPanelsArrayHor(findPanelByLetter,inLetter);
+   nbFoundLetters = mFoundPanelsArray.length;
+   if(nbFoundLetters > 0)
+   {
+      doShowFoundPanels("lBlue",mTimeBetweenBlueLetters,false);
+   }
+   else
+   {
+      fscommand("postFindLettersComplete",0);
+   }
+   return nbFoundLetters;
+}
+function doQueryLetterCount(inLetter)
+{
+   setFoundPanelsArrayHor(findPanelByLetter,inLetter);
+   return mFoundPanelsArray.length;
+}
+function doShowFoundLetters()
+{
+   doShowFoundPanels("lLetter",mTimeBetweenLetters,false);
+}
+function doFindAllLetters()
+{
+   setFoundPanelsArrayHor(findPanelByStatus,"lWhite");
+   if(mFoundPanelsArray.length > 0)
+   {
+      doShowFoundPanels("lLetter",mTimeBetweenClearLetters,false);
+   }
+   else
+   {
+      fscommand("postFindAllLettersComplete",0);
+   }
+}
+function handleShowPanels()
+{
+   var _loc1_ = mFoundPanelsArray[mCurrentShowIndex];
+   _loc1_.status = mShowTarget;
+   mCurrentShowIndex++;
+   switch(mShowTarget)
+   {
+      case "lWhite":
+         if("!@#$%^&*()-_=+[{}]\\`~,./<>?;\':".indexOf(_loc1_.strLetter) > -1)
+         {
+            _loc1_.status = "lLetter";
+            _loc1_.gotoAndPlay("lLetter");
+            fscommand("postSymbolRevealed",getIndexInPuzzle(_loc1_));
+         }
+         else
+         {
+            _loc1_.gotoAndPlay(mShowTarget);
+         }
+         break;
+      case "lBlue":
+         _loc1_.gotoAndPlay(mShowTarget);
+         break;
+      case "lLetter":
+         _loc1_.gotoAndPlay(mShowTarget);
+         fscommand("postLetterRevealed",getIndexInPuzzle(_loc1_));
+      default:
+         return;
+   }
+}
+function getIndexInPuzzle(inPanel)
+{
+   var _loc3_ = inPanel.row;
+   var _loc2_ = inPanel.col;
+   var _loc1_ = _loc3_ * 14 + _loc2_;
+   return _loc1_;
+}
+function getPanelFromPuzzleIndex(inIndex)
+{
+   var _loc1_ = Math.floor(inIndex / 14);
+   var _loc2_ = inIndex - 14 * _loc1_;
+   return s_aPanelArray[_loc1_][_loc2_];
+}
+function handleShowPanelsComplete()
+{
+   stopInterval();
+   switch(mShowTarget)
+   {
+      case "lWhite":
+         if(soeIsGame())
+         {
+         }
+         fscommand("postShowWhitePanelsComplete",mFoundPanelsArray.length);
+         break;
+      case "lBlue":
+         if(soeIsGame())
+         {
+         }
+         doShowFoundLetters();
+         break;
+      case "lLetter":
+         if(!soeIsGame())
+         {
+            soeTRACE("nbFoundLetters:" + nbFoundLetters);
+         }
+         if(!doCheckSolveForFoundLetters())
+         {
+            if(!doCheckVowels())
+            {
+               fscommand("postNoMoreVowels");
+            }
+            else if(!doCheckConsonants())
+            {
+               fscommand("postNoMoreConsonants");
+            }
+         }
+         fscommand("postFindLettersComplete",nbFoundLetters);
+      default:
+         return;
+   }
+}
+function handlePuzzleSolved()
+{
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      _loc2_ = mFoundPanelsArray[_loc1_];
+      _loc2_.gotoAndPlay("lLetter");
+      _loc2_.strSolveLetter = "";
+      _loc1_ = _loc1_ + 1;
+   }
+   fscommand("postPuzzleSolved");
+}
+function doCheckVowels()
+{
+   var _loc3_ = false;
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      _loc2_ = mFoundPanelsArray[_loc1_].strLetter;
+      if("AEIOU".indexOf(_loc2_) > -1)
+      {
+         _loc3_ = true;
+         break;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   soeTRACE(!_loc3_ ? "no more vowels" : "still vowels");
+   return _loc3_;
+}
+function doCheckConsonants()
+{
+   var _loc3_ = false;
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      _loc2_ = mFoundPanelsArray[_loc1_].strLetter;
+      if("BCDFGHJKLMNPQRSTVWXYZ".indexOf(_loc2_) > -1)
+      {
+         _loc3_ = true;
+         break;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   soeTRACE(!_loc3_ ? "no more consonants" : "still consonants");
+   return _loc3_;
+}
+function doReset()
+{
+   stopInterval();
+   stopRevealTimer();
+   var _loc1_ = 0;
+   while(_loc1_ < 4)
+   {
+      setPuzzleRowLetters(_loc1_,"");
+      _loc1_ = _loc1_ + 1;
+   }
+   initPuzzleboard();
+}
+function doStopReveal()
+{
+   stopInterval();
+   stopRevealTimer();
+}
+function doPlayerBuzzedIn(nPuzzleboardIndex)
+{
+   var _loc2_ = nPuzzleboardIndex;
+   stopInterval();
+   stopRevealTimer();
+   var _loc1_;
+   if(mCurrentShowIndex < mFoundPanelsArray.length)
+   {
+      _loc1_ = mCurrentShowIndex;
+      while(_loc1_ < _loc2_)
+      {
+         handleShowPanels();
+         if(mCurrentShowIndex >= mFoundPanelsArray.length)
+         {
+            handleShowPanelsComplete();
+            break;
+         }
+         _loc1_ = _loc1_ + 1;
+      }
+   }
+}
+function doStartSolveMode()
+{
+   stopInterval();
+   stopRevealTimer();
+   showSolvePanels();
+   mCurrentShowIndex = 0;
+   mFoundPanelsArray[mCurrentShowIndex].gotoAndPlay("lSelected");
+}
+function doEndSolveMode()
+{
+   hideSolvePanels();
+   if(bTossup)
+   {
+      doShowTossupLetters();
+   }
+}
+function doCheckSolveForSolveMode()
+{
+   var _loc2_ = 1;
+   var _loc1_ = 0;
+   while(_loc1_ < mFoundPanelsArray.length)
+   {
+      if(mFoundPanelsArray[_loc1_].strLetter != mFoundPanelsArray[_loc1_].strSolveLetter)
+      {
+         _loc2_ = 0;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   soeTRACE(!_loc2_ ? "puzzle is not solved" : "puzzle is solved");
+   return _loc2_;
+}
+function doCheckSolveForFoundLetters()
+{
+   setFoundPanelsArray(findPanelByStatus,"lWhite");
+   soeTRACE("doCheckForSolve:" + mFoundPanelsArray.length);
+   soeTRACE(mFoundPanelsArray.length != 0 ? "not solved" : "solved");
+   return mFoundPanelsArray.length != 0 ? 0 : 1;
+}
+function doSetSolveLetter(inLetter)
+{
+   mFoundPanelsArray[mCurrentShowIndex].strSolveLetter = inLetter;
+}
+function doGetNextPanel()
+{
+   var _loc1_ = -1;
+   if(mCurrentShowIndex + 1 < mFoundPanelsArray.length)
+   {
+      _loc1_ = mCurrentShowIndex + 1;
+   }
+   soeTRACE("doGetNextPanel: " + _loc1_);
+   return _loc1_;
+}
+function getPreviousPanel()
+{
+   var _loc1_ = -1;
+   if(mCurrentShowIndex > 0)
+   {
+      _loc1_ = mCurrentShowIndex - 1;
+   }
+   soeTRACE("doPreviousPanel: " + _loc1_);
+   return _loc1_;
+}
+function doGetSolvePanelLetter(inPanel)
+{
+   soeTRACE("doGetSolvePanelLetter:" + mFoundPanelsArray[mCurrentShowIndex].strLetter);
+   return mFoundPanelsArray[mCurrentShowIndex].strLetter;
+}
+function doSetSolvePanel(inPanel)
+{
+   mFoundPanelsArray[mCurrentShowIndex].gotoAndPlay("lSolve");
+   mCurrentShowIndex = inPanel;
+   mFoundPanelsArray[mCurrentShowIndex].gotoAndPlay("lSelected");
+}
+function handleKeyLeft()
+{
+}
+function handleKeyRight()
+{
+}
+function handleKeyUp()
+{
+}
+function handleKeyDown()
+{
+}
+function handleKeyEnter()
+{
+   var _loc1_ = doGetNextPanel();
+   doGetSolvePanelLetter(_loc1_);
+   doSetSolvePanel(_loc1_);
+}
+function handleKeyBack()
+{
+   var _loc1_ = doGetPreviousPanel();
+   doSetSolvePanel(_loc1_);
+}
+function handleKeyDelete()
+{
+}
+function initRevealTimer(fRevealTime, bSyncWithGame)
+{
+   soeTRACE("initRevealTimer - fRevealTime: " + fRevealTime);
+   mRevealTime = fRevealTime;
+   s_bSyncWithGame = bSyncWithGame;
+   if(mRevealTime > 0)
+   {
+      startRevealTimer();
+      startInterval();
+   }
+   else
+   {
+      while(mCurrentShowIndex < mFoundPanelsArray.length)
+      {
+         handleShowPanels();
+      }
+      handleShowPanelsComplete();
+   }
+}
+function startRevealTimer()
+{
+   soeTRACE("startRevealTimer");
+   _root.iTimer.startTimer(this,mRevealTime);
+}
+function onTimer(inTimer)
+{
+   s_bReveal = true;
+   stopRevealTimer();
+}
+function stopRevealTimer()
+{
+   soeTRACE("stopRevealTimer");
+   _root.iTimer.stopTimer();
+}
+function startInterval()
+{
+   soeTRACE("startInterval");
+   stopInterval();
+   s_nIntervalID = setInterval(onInterval,50);
+}
+function stopInterval()
+{
+   s_bReady = false;
+   s_bReveal = false;
+   if(s_nIntervalID)
+   {
+      soeTRACE("stopInterval");
+      clearInterval(s_nIntervalID);
+      s_nIntervalID = 0;
+   }
+}
+function doRevealIsReady(nReady)
+{
+   s_bReady = !nReady ? false : true;
+}
+function onInterval()
+{
+   if(!s_bReady)
+   {
+      if(soeIsGame() && s_bSyncWithGame)
+      {
+         fscommand("postIsPuzzleboardRevealReady",mCurrentShowIndex);
+      }
+      else
+      {
+         s_bReady = true;
+      }
+   }
+   if(s_bReveal && s_bReady)
+   {
+      s_bReady = false;
+      s_bReveal = false;
+      handleShowPanels();
+      if(mCurrentShowIndex < mFoundPanelsArray.length)
+      {
+         startRevealTimer();
+      }
+      else
+      {
+         handleShowPanelsComplete();
+      }
+   }
+}
+function onLetterRelease(inLetterItem, inNode)
+{
+   if(mbSolveActive)
+   {
+      mCursorIndex = inNode.mCursorIndex;
+      setCurrentCursor();
+   }
+}
+function stopListeners()
+{
+   Mouse.removelistener(mouseDownListener);
+   Key.removelistener(keyDownListener);
+   Key.removelistener(keyUpListener);
+}
+function startListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+            handleKeyRight();
+            break;
+         case 37:
+            handleKeyLeft();
+            break;
+         case 38:
+            handleKeyUp();
+            break;
+         case 40:
+            handleKeyDown();
+            break;
+         case 13:
+            handleKeyEnter();
+            break;
+         case 8:
+            handleKeyBack();
+            break;
+         case 36:
+            break;
+         case 35:
+            handleKeyDelete();
+      }
+      if(!soeIsGame())
+      {
+         if(Key.getAscii() >= 97 && Key.getAscii() <= 122)
+         {
+            if(bSolveMode)
+            {
+               doSetSolveLetter(chr(Key.getAscii()).toUpperCase());
+               soeTRACE("find:" + chr(Key.getAscii()).toUpperCase());
+            }
+            else
+            {
+               doFindLetters(chr(Key.getAscii()).toUpperCase());
+               soeTRACE("find:" + chr(Key.getAscii()).toUpperCase());
+            }
+         }
+         else
+         {
+            switch(chr(Key.getAscii()))
+            {
+               case "1":
+                  doShowWhitePanels();
+                  break;
+               case "2":
+                  doShowTossupLetters();
+                  break;
+               case "3":
+                  bSolveMode = true;
+                  doStartSolveMode();
+                  break;
+               case "4":
+                  bSolveMode = true;
+                  doEndSolveMode();
+                  break;
+               case "0":
+                  doFindAllLetters();
+               default:
+                  return;
+            }
+         }
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+_global.s_bSoeEnableTrace = true;
+_global.soe_Init = function(strComment)
+{
+   var _loc1_ = _global;
+   _loc1_.gfxExtensions = true;
+   if(_loc1_.gfxVersion == undefined)
+   {
+      _loc1_.gfxExtensions = false;
+   }
+   trace("init_soe[" + strComment + "] _global.gfxExtensions " + _loc1_.gfxExtensions);
+};
+_global.soe_EnableTrace = function(bEnable)
+{
+   _global.s_bSoeEnableTrace = bEnable;
+};
+_global.soe_TRACE = function(strText)
+{
+   if(_global.s_bSoeEnableTrace)
+   {
+      if(_global.gfxExtensions)
+      {
+         fscommand("soeTRACE " + strText,"");
+      }
+      else
+      {
+         trace(strText);
+      }
+   }
+};
+mTimeBetweenLetters = 0.75;
+mTimeBetweenTossupLetters = 1;
+mTimeBetweenBlueLetters = 0;
+mTimeBetweenClearLetters = 0.05;
+mTimeAfterBlue = 1;
+var s_aPuzzleLettersArray = new Array(4);
+var s_aPanelArray = new Array(4);
+var s_nIntervalID = 0;
+var s_bReady = false;
+var s_bReveal = false;
+var s_bSyncWithGame = false;
+init_puzzleboard();

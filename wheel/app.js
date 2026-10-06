@@ -1,11 +1,13 @@
 import {WheelGame, LETTERS, VOWELS, money} from './game.js';
 import {Studio} from './scene.js';
+import {automaticView} from './presentation.js';
 
 const $ = selector => document.querySelector(selector);
 const colors=['#e87555','#f4c94e','#65a1ef'];
 let studio, game, manifest, puzzles, muted=false, started=false, aiTimer=null, bonusTimer=null, bonusEnd=0, audioContext;
 const soundBuffers=new Map();
 let music;
+let presenting=false, presentationTimer=null, presentationGeneration=0, automaticCamera=true;
 function messageError(error){console.error(error);$('#message').textContent=error.message;}
 function store(key,value){try{localStorage.setItem(key,value);}catch{}}
 function stored(key){try{return localStorage.getItem(key);}catch{return null;}}
@@ -28,13 +30,21 @@ function setMusic(){
   if(track&&!muted){music=new Audio(track.url);music.loop=true;music.volume=.12;music.play().catch(()=>{});}
 }
 function setCamera(view){studio.setView(view);document.querySelectorAll('[data-view]').forEach(button=>button.classList.toggle('selected',button.dataset.view===view));}
+function setAutomaticCamera(enabled){automaticCamera=enabled;$('#camera-mode').value=enabled?'auto':'manual';store('wheel3d-camera',enabled?'auto':'manual');if(enabled&&game.state)setCamera(automaticView(game.state));}
 function returnToLobby(){
   clearTimeout(aiTimer);clearInterval(bonusTimer);$('#mystery-choice')?.remove();
+  clearTimeout(presentationTimer);presentationGeneration++;presenting=false;studio.cancelPresentation();
   started=false;music?.pause();$('#game-ui').hidden=true;$('#lobby').hidden=false;
   studio.setBonusVisible(false);studio.drawScreens(null);setCamera('show');
 }
-function render(state,event){
+function render(state,event,completed=false){
   if(!state)return;
+  if(!completed){
+    const duration=studio.update(state,event),generation=++presentationGeneration;
+    clearTimeout(presentationTimer);presenting=duration>0;
+    if(presenting)presentationTimer=setTimeout(()=>{if(generation!==presentationGeneration||!started)return;presenting=false;render(game.state,event,true);},duration+40);
+    if(automaticCamera)setCamera(automaticView(state,event));
+  }
   const current=state.players[state.turn],human=!current.ai;
   $('#round-label').textContent=state.round===5?'BONUS ROUND':`ROUND ${state.round}${state.round===2?' / JACKPOT':state.round===3?' / MYSTERY':''}`;
   $('#category').textContent=state.puzzle.category;
@@ -47,35 +57,35 @@ function render(state,event){
     const bank=document.createElement('div');bank.className='bank';bank.textContent=`BANK ${money(player.bank)}`;
     card.append(name,cash,bank);return card;
   }));
-  $('#spin').disabled=!['action','bonus-spin'].includes(state.phase)||!human;
-  $('#vowel').disabled=state.phase!=='action'||!human||current.cash<250||[...VOWELS].every(l=>state.used.includes(l));
-  $('#solve').disabled=!['action','consonant','vowel','bonus-solve'].includes(state.phase)||!human;
+  $('#spin').disabled=presenting||!['action','bonus-spin'].includes(state.phase)||!human;
+  $('#vowel').disabled=presenting||state.phase!=='action'||!human||current.cash<250||[...VOWELS].every(l=>state.used.includes(l));
+  $('#solve').disabled=presenting||!['action','consonant','vowel','bonus-solve'].includes(state.phase)||!human;
+  $('#next').disabled=presenting;
   $('#next').hidden=!['round-over','finished'].includes(state.phase);
   $('#next').textContent=state.phase==='finished'?'PLAY AGAIN':state.round===4?'BONUS ROUND':'NEXT ROUND';
   $('#spin').hidden=state.round===5&&state.phase!=='bonus-spin'&&state.phase!=='spinning-bonus';$('#vowel').hidden=state.round===5;
   $('#spin').firstChild.textContent=state.round===5?'SPIN THE BONUS WHEEL ':'SPIN THE WHEEL ';
   $('#bonus-hint').hidden=state.phase!=='bonus-select';
   for(const button of $('#alphabet').children){
-    const letter=button.textContent;button.disabled=!human||!game.canGuess(letter);
+    const letter=button.textContent;button.disabled=presenting||!human||!game.canGuess(letter);
     button.className=(VOWELS.includes(letter)?'vowel ':'')+(state.used.includes(letter)?state.puzzle.answer.toUpperCase().includes(letter)?'used':'miss':'');
     if(state.bonusChoices.includes(letter)&&state.round===5)button.classList.add('chosen');
   }
   if(!human||['spinning','spinning-bonus','round-over','finished','bonus-spin','bonus-select','mystery'].includes(state.phase))$('#solve-form').hidden=true;
-  studio.update(state);store('wheel3d-save',game.save());
-  if(event==='win')playSound('PuzzleWin',.7);
-  if(event==='letter')playSound(VOWELS.includes(state.used.at(-1))?'LetterVowel':'LetterConsonant',.6);
-  if(event==='miss')playSound('Incorrect',.5);
-  if(event==='bankrupt')playSound('Bankrupt',.7);
-  if(event==='start')playSound('WofChant',.35);
-  if(event==='land'&&state.lastWedge==='MYSTERY')playSound('LandOnMysteryWedge');
-  if(event==='round')playSound('PuzzleReveal');
-  if(event==='win'&&state.phase==='finished')playSound('BonusRoundTotal',.6);
-  if(event==='start'||event==='round'||event==='restore'){setCamera(state.phase==='bonus-spin'?'bonus':state.round===5?'board':'show');}
-  if(event==='letter'||event==='bonus-ready')setCamera('board');
-  if(event==='bonus-letters'){setCamera('board');playSound('PuzzleReveal');}
-  if(event==='bonus-ready')startBonusClock();
-  if(state.phase==='finished'){clearInterval(bonusTimer);bonusTimer=null;setCamera('board');music?.pause();}
-  if(state.phase==='mystery'&&human)showMystery();
+  store('wheel3d-save',game.save());
+  if(!completed){
+    if(event==='win')playSound('PuzzleWin',.7);
+    if(event==='letter')playSound(VOWELS.includes(state.used.at(-1))?'LetterVowel':'LetterConsonant',.6);
+    if(event==='miss')playSound('Incorrect',.5);
+    if(event==='bankrupt')playSound('Bankrupt',.7);
+    if(event==='start')playSound('WofChant',.35);
+    if(event==='land'&&state.lastWedge==='MYSTERY')playSound('LandOnMysteryWedge');
+    if(event==='round'||event==='bonus-letters')playSound('PuzzleReveal');
+    if(event==='win'&&state.phase==='finished')playSound('BonusRoundTotal',.6);
+  }
+  if(event==='bonus-ready'&&!presenting&&state.phase==='bonus-solve')startBonusClock();
+  if(state.phase==='finished'){clearInterval(bonusTimer);bonusTimer=null;music?.pause();}
+  if(state.phase==='mystery'&&human&&!presenting)showMystery();
   scheduleAI();
 }
 function showMystery(){
@@ -100,17 +110,19 @@ function startBonusClock(){
 }
 function openSolve(){if($('#solve').disabled)return;$('#solve-form').hidden=false;$('#answer').value='';$('#answer').focus();setCamera('board');}
 async function spin(){
+  if(presenting)return;
+  const session=presentationGeneration;
   if(game.isBonus){
     if(!game.beginBonusSpin())return;
-    await studio.spinBonus(()=>playSound('WheelClick',.18));game.finishBonusSpin();return;
+    await studio.spinBonus(()=>playSound('WheelClick',.18));if(started&&session+1===presentationGeneration)game.finishBonusSpin();return;
   }
   const index=game.beginSpin();if(index===null)return;
   await studio.spin(index,game.wedges(),()=>playSound('WheelClick',.18));
-  game.finishSpin(index);if(game.state.phase==='consonant')setCamera('board');
+  if(started&&session+1===presentationGeneration)game.finishSpin(index);
 }
 function scheduleAI(){
   clearTimeout(aiTimer);
-  const state=game.state;if(!started||!game.player.ai||['spinning','spinning-bonus','round-over','finished'].includes(state.phase))return;
+  const state=game.state;if(presenting||!started||!game.player.ai||['spinning','spinning-bonus','round-over','finished'].includes(state.phase))return;
   const currentTurn=state.turn,phase=state.phase;
   aiTimer=setTimeout(()=>{
     if(game.state.turn!==currentTurn||game.state.phase!==phase)return;
@@ -135,6 +147,7 @@ function scheduleAI(){
 }
 async function startGame(){
   clearTimeout(aiTimer);clearInterval(bonusTimer);$('#mystery-choice')?.remove();
+  clearTimeout(presentationTimer);presentationGeneration++;presenting=false;studio.cancelPresentation();
   activateSound();
   const name=$('#player-name').value.trim()||'Player 1';
   const names=$('#mode').value==='solo'?[name,'Kelly','Jason']:[name,'Player 2','Player 3'];
@@ -154,6 +167,7 @@ async function boot(){
     [manifest,puzzles]=await Promise.all(['manifest','puzzles'].map(name=>fetch(`assets/${name}.json`).then(response=>{if(!response.ok)throw new Error('The game assets could not be loaded. Please reload.');return response.json();})));
     studio=new Studio($('#scene'),(text,progress)=>{$('#load-status').textContent=text;$('#load-progress').value=progress;});
     game=new WheelGame(puzzles,{onChange:render});studio.game=game;
+    automaticCamera=stored('wheel3d-camera')!=='manual';$('#camera-mode').value=automaticCamera?'auto':'manual';
     // Keep score cards above the console when a solve or mystery choice expands it.
     new ResizeObserver(()=>{
       const consolePanel=$('.console');
@@ -174,7 +188,7 @@ async function boot(){
     }
     $('#asset-count').textContent=`${manifest.puzzleCount.toLocaleString()} original puzzles · ${manifest.stages.length-1} themed studios · original game audio`;
     $('#credits').textContent=`Recovered: ${manifest.models.length} set and prop models, ${manifest.audio.length} audio tracks, and ${manifest.puzzleCount.toLocaleString()} puzzles.`;
-    for(const letter of LETTERS){const button=document.createElement('button');button.textContent=letter;button.setAttribute('aria-label',`Choose ${letter}`);button.onclick=()=>game.guess(letter);$('#alphabet').append(button);}
+    for(const letter of LETTERS){const button=document.createElement('button');button.textContent=letter;button.setAttribute('aria-label',`Choose ${letter}`);button.onclick=()=>{if(!presenting)game.guess(letter);};$('#alphabet').append(button);}
     await studio.initialize(manifest);await studio.setStage($('#stage-select').value);
     studio.drawScreens(null);
     studio.drawBoard({puzzle:{rows:['              ','    WHEEL     ','  OF FORTUNE  ','              ']},used:[...LETTERS]});
@@ -191,15 +205,16 @@ async function boot(){
     $('#setup-form').onsubmit=event=>{event.preventDefault();startGame().catch(messageError);};
     $('#stage-select').onchange=()=>changeStage($('#stage-select').value);
     $('#change-stage').onchange=()=>changeStage($('#change-stage').value);
-    $('#spin').onclick=()=>{activateSound();spin().catch(messageError);};$('#vowel').onclick=()=>game.buyVowel();$('#solve').onclick=openSolve;
+    $('#spin').onclick=()=>{activateSound();spin().catch(messageError);};$('#vowel').onclick=()=>{if(!presenting)game.buyVowel();};$('#solve').onclick=openSolve;
     $('#next').onclick=()=>{if(game.state.phase==='finished')returnToLobby();else game.nextRound();};
-    $('#solve-form').onsubmit=event=>{event.preventDefault();const answer=$('#answer').value;if(answer.trim()){game.solve(answer);$('#solve-form').hidden=game.state.phase!=='bonus-solve';}};
+    $('#solve-form').onsubmit=event=>{event.preventDefault();const answer=$('#answer').value;if(!presenting&&answer.trim()){game.solve(answer);$('#solve-form').hidden=game.state.phase!=='bonus-solve';}};
     $('#cancel-solve').onclick=()=>{$('#solve-form').hidden=true;};
     $('#sound').onclick=()=>{muted=!muted;$('#sound').textContent=muted?'SOUND OFF':'SOUND ON';$('#sound').setAttribute('aria-pressed',String(!muted));if(muted)music?.pause();else{activateSound();if(started)setMusic();}};
     $('#settings').onclick=()=>$('#studio-dialog').showModal();
     $('#quality').onchange=()=>studio.quality($('#quality').value);
+    $('#camera-mode').onchange=()=>setAutomaticCamera($('#camera-mode').value==='auto');
     $('#restart').onclick=()=>{$('#studio-dialog').close();returnToLobby();};
-    document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>setCamera(button.dataset.view));
+    document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{setAutomaticCamera(false);setCamera(button.dataset.view);});
     const library=$('#library');
     for(const entry of manifest.models.filter(m=>m.url.includes('/animation/'))){
       const button=document.createElement('button');button.textContent=entry.id.replaceAll('_',' ');button.onclick=()=>{studio.previewPart(entry).catch(messageError);$('#studio-dialog').close();setCamera('orbit');};library.append(button);
@@ -212,7 +227,7 @@ async function boot(){
     }
     library.after(audioLibrary);
     document.addEventListener('keydown',event=>{
-      if(!started||$('#studio-dialog').open||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||event.ctrlKey||event.metaKey||event.altKey||game.player.ai)return;
+      if(presenting||!started||$('#studio-dialog').open||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||event.ctrlKey||event.metaKey||event.altKey||game.player.ai)return;
       const letter=event.key.toUpperCase();if(letter.length===1&&LETTERS.includes(letter))game.guess(letter);
       if(event.code==='Space'&&!$('#spin').disabled){event.preventDefault();spin().catch(messageError);}
     });

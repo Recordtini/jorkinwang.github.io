@@ -29,6 +29,7 @@
     </section>
     <section id="game-ui" hidden>
       <div class="round-tag"><span id="round-label">ROUND 1</span><b id="category"></b></div>
+      <canvas id="category-reveal" width="640" height="100" hidden aria-label="Category reveal animation"></canvas>
       <nav class="camera-bar" aria-label="Camera views"><button data-view="show" class="selected">STUDIO</button><button data-view="board">PUZZLE</button><button data-view="wheel">WHEEL</button><button data-view="orbit">EXPLORE</button></nav>
       <div class="scoreboard" id="scoreboard" aria-label="Player scores"></div>
       <section class="console">
@@ -39,7 +40,7 @@
         <div id="bonus-hint" hidden>R S T L N E are yours. Pick three consonants and one vowel, then solve.</div>
       </section>
     </section>
-    <dialog id="studio-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><div class="eyebrow">MAKE IT YOUR STUDIO</div><h2>Backstage</h2><label>Change set<select id="change-stage"></select></label><label>Graphics<select id="quality"><option value="high">High</option><option value="low">Battery saver</option></select></label><p>Drag to look around in Explore. Scroll or pinch to zoom. Choose letters with your keyboard, or tap the buttons.</p><button id="restart">NEW GAME</button><details><summary>Asset library & credits</summary><p id="credits"></p><p>Independent fan recreation from locally extracted NPUA80137 assets. Original assets belong to their respective owners. Browser gameplay is newly written; this is not the PS3 executable.</p><a href="README.md">Build notes and source coverage</a><div id="library"></div></details></dialog>
+    <dialog id="studio-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><div class="eyebrow">MAKE IT YOUR STUDIO</div><h2>Backstage</h2><label>Change set<select id="change-stage"></select></label><label>Camera<select id="camera-mode"><option value="auto">Automatic (game-state director)</option><option value="manual">Manual views</option></select></label><label>Graphics<select id="quality"><option value="high">High</option><option value="low">Battery saver</option></select></label><p>Automatic cameras follow spins, letters, and solves. Selecting a view switches to manual. Drag in Explore; scroll or pinch to zoom. Choose letters with your keyboard, or tap the buttons.</p><button id="restart">NEW GAME</button><details><summary>Asset library & credits</summary><p id="credits"></p><p>Independent fan recreation from locally extracted NPUA80137 assets. Original assets belong to their respective owners. Flash board behavior and presentation are recovered; browser gameplay is newly written, not the PS3 executable.</p><a href="README.md">Build notes and source coverage</a><div id="library"></div></details></dialog>
     <footer class="footer"><span>3D STUDIO / PS3 ASSET EDITION</span><span id="studio-name">CLASSIC STUDIO</span></footer>
   </main>
   <script type="module" src="app.js"></script>

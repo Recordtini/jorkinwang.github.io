@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {WEDGES, money} from './game.js';
+import {Reflector} from 'three/addons/objects/Reflector.js';
+import {money} from './game.js';
+import {boardTransition} from './presentation.js';
 
 const SCALE = .01;
 const colors = ['#e87555','#f4c94e','#65a1ef'];
@@ -60,7 +62,7 @@ export class Studio {
     this.wheelAngle = 0; this.view = 'show'; this.cameraTween = null; this.spinTween = null;
     this.lastTime = performance.now(); this.frameCount = 0;
     new ResizeObserver(()=>this.resize()).observe(canvas);
-    this.resize(); this.drawWheel(WEDGES);
+    this.resize();
     this.renderer.setAnimationLoop(time=>this.animate(time));
     canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();this.onProgress('Graphics paused. Reload the page to reopen the studio.',0);});
   }
@@ -82,10 +84,14 @@ export class Studio {
     root.traverse(object=>{
       if(object.isLight) {object.visible=false;return;}
       if (!object.isMesh) return;
-      object.castShadow=!/swf|glow|flare/i.test(object.name); object.receiveShadow=true;
+      // The rig is already baked into the source atlas. A second sun shadow
+      // from it creates unrelated stripes on the backdrop and black floors.
+      object.castShadow=/^(podium|wheel_|bonus_|letterboard|puzzleboard)/i.test(object.name)&&!/swf|glow|flare/i.test(object.name);
+      object.receiveShadow=!/background|backdrop|ceiling|truss|light_/i.test(object.name);
       object.material=object.material.clone();
       object.material.roughness=Math.min(object.material.roughness??.7,.78);
       object.material.metalness=Math.min(object.material.metalness??0,.25);
+      if(/reflect.*floor|floor.*reflect/i.test(object.name))object.material.aoMapIntensity=.25;
       if(object.material.map) object.material.map.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());
       if(/glow|flare/i.test(object.name)) {object.material.depthWrite=false;object.castShadow=false;}
     });
@@ -93,6 +99,17 @@ export class Studio {
   }
   async initialize(manifest) {
     this.manifest=manifest;
+    const response=await fetch('assets/presentation/presentation.json');
+    if(!response.ok)throw new Error('The recovered Flash presentation could not load');
+    this.presentation=await response.json();
+    const picture=async url=>{const image=new Image();image.src=url;await image.decode();return image;};
+    [this.wheelImages,this.tileImage,this.categoryImage]=await Promise.all([
+      Promise.all(this.presentation.wheels.map(picture)),picture(this.presentation.tile.url),picture(this.presentation.category.url)
+    ]);
+    await Promise.all(Object.entries(this.presentation.fonts).map(async([name,url])=>{
+      const face=new FontFace(name==='board'?'Retail Board':'Retail Category',`url("${url}")`);await face.load();document.fonts.add(face);
+    }));
+    this.drawWheel();
     this.base=await this.load('assets/models/mesh/wof_base.glb');
     this.scene.add(this.base);this.base.updateMatrixWorld(true);
     this.bindDynamicSurfaces();
@@ -177,8 +194,24 @@ export class Studio {
     if(generation!==this.stageGeneration) return;
     if(this.environment)this.scene.remove(this.environment);
     this.environment=environment;if(environment)this.scene.add(environment);
+    this.bindFloor();
     this.stage=id;
     document.querySelector('#studio-name').textContent=entry.name.toUpperCase();
+  }
+  bindFloor(){
+    if(this.floorReflection){this.scene.remove(this.floorReflection);this.floorReflection.dispose();this.floorReflection.geometry.dispose();this.floorReflection=null;}
+    this.floor=null;
+    this.environment?.updateMatrixWorld(true);
+    this.environment?.traverse(mesh=>{if(mesh.isMesh&&/reflect.*floor|floor.*reflect/i.test(mesh.name))this.floor=mesh;});
+    if(!this.floor)return;
+    const bounds=new THREE.Box3().setFromObject(this.floor),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+    this.floorReflection=new Reflector(new THREE.PlaneGeometry(size.x,size.z),{color:0x81909b,textureWidth:768,textureHeight:768,clipBias:.003,multisample:0});
+    this.floorReflection.rotation.x=-Math.PI/2;this.floorReflection.position.set(center.x,bounds.min.y-.002,center.z);
+    this.scene.add(this.floorReflection);
+    // Retain the authored tile image, UVs and contact shading over the planar
+    // reflection instead of replacing a near-black specular floor with grey.
+    this.floor.material.transparent=true;this.floor.material.opacity=.72;
+    if(this.lowQuality)this.floorReflection.getRenderTarget().setSize(256,256);
   }
   setView(view,instant=false) {
     this.view=view;this.controls.enabled=view==='orbit';
@@ -201,34 +234,47 @@ export class Studio {
     if(instant){this.camera.position.copy(position);this.controls.target.copy(target);this.controls.update();return;}
     this.cameraTween={start:performance.now(),from:this.camera.position.clone(),fromTarget:this.controls.target.clone(),position,target};
   }
-  drawWheel(wedges) {
-    const {context:c,texture}=this.wheelCanvas;const size=1024,center=512,radius=500;
-    c.clearRect(0,0,size,size);const step=Math.PI*2/wedges.length;
-    wedges.forEach((wedge,i)=>{
-      const angle=i*step-Math.PI/2;
-      c.beginPath();c.moveTo(center,center);c.arc(center,center,radius,angle-step/2,angle+step/2);c.closePath();
-      c.fillStyle=wedge.color;c.fill();c.strokeStyle='#e9da94';c.lineWidth=3;c.stroke();
-      c.save();c.translate(center,center);c.rotate(angle+Math.PI/2);
-      c.fillStyle=['BANKRUPT'].includes(wedge.value)?'#fff':'#172030';c.textAlign='center';c.textBaseline='middle';
-      const label=typeof wedge.value==='number'?money(wedge.value):wedge.value;
-      c.font=`bold ${label.length>7?20:32}px Georgia`;
-      if(label.length>8){label.split(' ').forEach((word,j)=>c.fillText(word,0,-390+j*25));}else c.fillText(label,0,-385);
-      c.restore();
-    });
-    c.beginPath();c.arc(center,center,100,0,Math.PI*2);c.fillStyle='#edd08a';c.fill();c.strokeStyle='#fff4bd';c.lineWidth=8;c.stroke();
-    c.fillStyle='#20324c';c.font='bold 24px Georgia';c.textAlign='center';c.fillText('WHEEL',512,506);c.fillText('OF FORTUNE',512,535);texture.needsUpdate=true;
+  drawWheel() {
+    if(!this.wheelImages)return;
+    const round=Math.min(4,this.game?.state?.round??1);if(this.wheelRound===round)return;
+    const {context:c,texture}=this.wheelCanvas;
+    c.clearRect(0,0,1024,1024);c.save();c.beginPath();c.arc(512,512,510,0,Math.PI*2);c.clip();
+    c.drawImage(this.wheelImages[round-1],0,0,1024,1024);c.restore();
+    texture.needsUpdate=true;this.wheelRound=round;
   }
-  drawBoard(state) {
+  drawBoard(state,time=performance.now()) {
     const {context:c,texture}=this.boardCanvas,w=128,h=128;
-    c.fillStyle='#061e15';c.fillRect(0,0,1792,512);
+    const sequence=this.boardSequence,elapsed=sequence?time-sequence.start:Infinity;
+    const used=sequence?.used??state.used;
+    c.fillStyle='#020a07';c.fillRect(0,0,1792,512);
     state.puzzle.rows.forEach((row,r)=>[...row].forEach((letter,col)=>{
       const x=col*w,y=r*h,active=letter!==' ';
-      const revealed=active && (!/[A-Z]/i.test(letter)||state.used.includes(letter.toUpperCase()));
-      c.fillStyle=active?(revealed?'#f3f0dc':'#eceee3'):'#155d44';c.fillRect(x+5,y+5,w-10,h-10);
-      if(!active){const gradient=c.createLinearGradient(x,y,x+w,y+h);gradient.addColorStop(0,'#34826a');gradient.addColorStop(.5,'#1c5644');gradient.addColorStop(1,'#133f35');c.fillStyle=gradient;c.fillRect(x+10,y+10,w-20,h-20);}
-      c.strokeStyle=active?'#bdc8c1':'#57aa81';c.lineWidth=3;c.strokeRect(x+6,y+6,w-12,h-12);
-      if(revealed){c.fillStyle='#11283e';c.font='bold 92px Georgia';c.textAlign='center';c.textBaseline='middle';c.fillText(letter.toUpperCase(),x+w/2,y+h/2+5);}
+      let revealed=active&&(!/[A-Z]/i.test(letter)||used.includes(letter.toUpperCase()));
+      let frame=active?revealed?38:14:3;
+      const tile=sequence?.tiles.find(t=>t.index===r*14+col);
+      if(tile&&elapsed<sequence.duration){
+        if(tile.kind==='open'){
+          frame=elapsed<tile.at?3:Math.min(14,8+Math.floor((elapsed-tile.at)*30/1000));
+          if(elapsed<tile.at+200)revealed=false;
+        }else if(elapsed<tile.at){frame=31;revealed=false;}
+        else frame=Math.min(38,37+Math.floor((elapsed-tile.at)*30/1000));
+      }
+      const atlas=this.presentation.tile,index=atlas.frames.indexOf(frame);
+      c.drawImage(this.tileImage,(index%atlas.columns)*atlas.width,Math.floor(index/atlas.columns)*atlas.height,atlas.width,atlas.height,x+2,y+2,w-4,h-4);
+      if(revealed){c.fillStyle='#000';c.font='96px "Retail Board"';c.textAlign='center';c.textBaseline='middle';c.fillText(letter.toUpperCase(),x+w/2,y+h/2+3);}
     }));texture.needsUpdate=true;
+  }
+  drawCategory(time){
+    const canvas=document.querySelector('#category-reveal'),c=canvas.getContext('2d'),clip=this.categorySequence;
+    if(!clip)return;
+    const elapsed=Math.max(0,time-clip.start),atlas=this.presentation.category;
+    if(elapsed>2800){canvas.hidden=true;this.categorySequence=null;return;}
+    canvas.hidden=false;c.clearRect(0,0,640,100);
+    const i=Math.min(atlas.frames.length-1,Math.floor(elapsed*atlas.fps/1000));
+    c.drawImage(this.categoryImage,(i%atlas.columns)*640,Math.floor(i/atlas.columns)*100,640,100,0,0,640,100);
+    const key=atlas.text[i];c.save();c.translate(336,44);c.scale(key.scale,1);c.globalAlpha=key.alpha;
+    c.textAlign='center';c.textBaseline='middle';c.font='20px "Retail Category"';c.fillStyle='#fff';c.shadowColor='#1e4351';c.shadowBlur=3;
+    c.fillText(clip.text,0,0,460);c.restore();
   }
   drawScreens(state) {
     const {context:c,texture}=this.screenCanvas;
@@ -245,9 +291,21 @@ export class Studio {
     if(this.bonusRoot)this.bonusRoot.visible=visible;
     this.base?.traverse(object=>{if(/^(bonus_baseShape|bonuswheel_handrestShape|bonus_flipperShape)/.test(object.name))object.visible=visible;});
   }
-  update(state) {this.setBonusVisible(state.round===5);this.drawBoard(state);this.drawScreens(state);this.drawWheel(this.game.wedges());}
+  update(state,event) {
+    const previous=this.boardSnapshot,transition=boardTransition(previous,state,event,this.presentation.timing);
+    this.boardSequence={...transition,start:performance.now()};
+    this.boardSnapshot={id:state.puzzle.id,used:transition.used};
+    this.boardState={puzzle:state.puzzle,used:transition.used};
+    if(transition.opening&&event!=='restore')this.categorySequence={start:performance.now(),text:state.puzzle.category};
+    this.setBonusVisible(state.round===5);this.drawBoard(this.boardState);this.drawScreens(state);this.drawWheel();
+    return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0);
+  }
+  cancelPresentation(){
+    this.boardSequence=null;this.boardSnapshot=null;this.categorySequence=null;document.querySelector('#category-reveal').hidden=true;
+    for(const name of ['spinTween','bonusTween']){this[name]?.resolve();this[name]=null;}
+  }
   spin(index,wedges,onTick) {
-    this.setView('wheel');this.drawWheel(wedges);
+    this.drawWheel();
     // Stop at the selected wedge under the first original flipper.
     const flippers=[[6.755,-1.713],[7.18,-1.153],[7.214,-.427]];
     const [px,pz]=flippers[this.game.state.turn];
@@ -258,7 +316,6 @@ export class Studio {
     return new Promise(resolve=>{this.spinTween={start:performance.now(),duration:4800,from:this.wheelAngle,to:this.wheelAngle+Math.PI*2*5+delta,resolve,onTick,lastIndex:-1};});
   }
   spinBonus(onTick){
-    this.setView('bonus');
     return new Promise(resolve=>{this.bonusTween={start:performance.now(),from:this.bonusRoot.rotation.y,to:this.bonusRoot.rotation.y+Math.PI*2*(4+Math.random()),resolve,onTick,lastIndex:-1};});
   }
   async previewPart(entry) {
@@ -269,12 +326,14 @@ export class Studio {
     const holder=new THREE.Group();holder.add(root);holder.position.set(0,0,4);this.scene.add(holder);this.preview=holder;
     this.controls.enabled=true;this.camera.position.set(0,2.4,9);this.controls.target.set(0,1,4);this.controls.update();
   }
-  quality(value){this.renderer.setPixelRatio(value==='low'?1:Math.min(devicePixelRatio,1.5));this.renderer.shadowMap.enabled=value!=='low';this.resize();}
+  quality(value){this.lowQuality=value==='low';this.renderer.setPixelRatio(this.lowQuality?1:Math.min(devicePixelRatio,1.5));this.renderer.shadowMap.enabled=!this.lowQuality;if(this.floorReflection)this.floorReflection.getRenderTarget().setSize(this.lowQuality?256:768,this.lowQuality?256:768);this.resize();}
   animate(time) {
+    if(this.boardSequence&&!this.boardSequence.done&&time-(this.boardDrawTime??0)>30){this.drawBoard(this.boardState,time);this.boardDrawTime=time;this.boardSequence.done=time-this.boardSequence.start>=this.boardSequence.duration;}
+    if(this.categorySequence)this.drawCategory(time);
     if(this.cameraTween){const t=Math.min(1,(time-this.cameraTween.start)/1000),smooth=t*t*(3-2*t);this.camera.position.lerpVectors(this.cameraTween.from,this.cameraTween.position,smooth);this.controls.target.lerpVectors(this.cameraTween.fromTarget,this.cameraTween.target,smooth);if(t===1)this.cameraTween=null;}
     if(this.spinTween){const spin=this.spinTween;const t=Math.min(1,(time-spin.start)/spin.duration);this.wheelAngle=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));this.wheelGroup.rotation.y=this.wheelAngle;const index=Math.floor(this.wheelAngle/(Math.PI*2/24));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.spinTween=null;spin.resolve();}}
     if(this.bonusTween){const spin=this.bonusTween,t=Math.min(1,(time-spin.start)/4200);this.bonusRoot.rotation.y=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));const index=Math.floor(this.bonusRoot.rotation.y/.3);if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.bonusTween=null;spin.resolve();}}
     this.controls.update();this.renderer.render(this.scene,this.camera);this.frameCount++;
   }
-  diagnostics(){return {stage:this.stage,view:this.view,frames:this.frameCount,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,boardBounds:this.boardBounds};}
+  diagnostics(){return {stage:this.stage,view:this.view,frames:this.frameCount,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,boardBounds:this.boardBounds,retailFont:document.fonts.check('96px "Retail Board"'),wheelRound:this.wheelRound,reflectiveFloor:!!this.floorReflection?.visible};}
 }
