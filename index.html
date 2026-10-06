@@ -14,14 +14,28 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #393939; /* Gray background */
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: "Comic Sans Local", "Comic Sans MS", "Comic Sans", cursive;
+            color: #1A1A1A;
         }
 
-        a {
+        main {
+            padding: 32px 20px;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        a, summary {
             font-family: "Comic Sans Local", "Comic Sans MS", "Comic Sans", cursive;
             color: #1A1A1A; /* Light gray text */
             font-size: 3vw; /* Scales with screen size */
@@ -30,13 +44,29 @@
             transition: color 0.2s;
         }
 
-        a:hover {
+        summary {
+            cursor: pointer;
+            list-style: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .pages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 8px 0 16px;
+        }
+
+        a:hover, a:focus-visible, summary:hover, summary:focus-visible {
             color: #ffffff; /* Brightens when you hover over it */
         }
 
         /* Fallback for very small screens */
         @media (max-width: 600px) {
-            a {
+            a, summary {
                 font-size: 24px;
             }
         }
@@ -44,7 +74,31 @@
 </head>
 <body>
 
-    <a href="n64.html">welcome to jorkin.wang</a>
+    <main>
+        <details>
+            <summary>welcome to jorkin.wang</summary>
+            <nav aria-label="all the pages">
+                <details>
+                    <summary>gamespot</summary>
+                    <div class="pages">
+                        <a href="n64.html">nintendo 64</a>
+                        <a href="ps1.html">playstation</a>
+                        <a href="ps2_badges.html">playstation 2 badges</a>
+                        <a href="dreamcast.html">dreamcast</a>
+                        <a href="saturn.html">saturn</a>
+                        <a href="gbc.html">game boy color</a>
+                        <a href="ngage.html">n-gage</a>
+                    </div>
+                </details>
+                <details>
+                    <summary>stuff</summary>
+                    <div class="pages">
+                        <a href="dicks.html">dicks</a>
+                    </div>
+                </details>
+            </nav>
+        </details>
+    </main>
 
 </body>
 </html>
