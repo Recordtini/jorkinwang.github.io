@@ -1,0 +1,267 @@
+{
+  "Accurate Emulation": {
+    "src": "ps2_badges_files/good_accurate_emulation_s.gif",
+    "title": "Accurate Emulation: Because everything old is new again. Thanks to the trend of digital downloads and the constant reoffering of old games on new platforms, we felt the need to call out games that are properly emulated on their new homes.",
+    "anchor": "good_accurate_emulation_s"
+  },
+  "Art House": {
+    "src": "ps2_badges_files/good_art_house_s.gif",
+    "title": "Art House: As modern rock radio proves to us every day, you don't need to actually be independent to convey some form of indie appeal. Games that manage to do this without being totally soul-sucking along the way are few and far between, and these fall into our Art House category. Now stop reading this and go get a haircut, you neo-hippie!",
+    "anchor": "good_art_house_s"
+  },
+  "Better Than the Sum of Its Parts": {
+    "src": "ps2_badges_files/good_better_sumofparts_s.gif",
+    "title": "Better Than the Sum of Its Parts: This game might not sound like anything special, but its various run-of-the-mill pieces come together in an interesting way, resulting in a game that's better than you might think.",
+    "anchor": "good_better_sumofparts_s"
+  },
+  "Family-Friendly Fun": {
+    "src": "ps2_badges_files/good_family_fun_s.gif",
+    "title": "Family-Friendly Fun: It's safe for kids, but not so kid-oriented that adults can't enjoy it. This game is something that the whole family can get behind. So when you find your grandmother huddled around the television at 4 a.m., try to understand, OK?",
+    "anchor": "good_family_fun_s"
+  },
+  "Good for Kids": {
+    "src": "ps2_badges_files/good_for_kids_s.gif",
+    "title": "Good for Kids: Not every game is suitable for the young ones, but there are certainly more kid-friendly games out there than you'd think. Now, we aren't kids, but by giving this medal, we think there's a pretty good chance that kids will like this game.",
+    "anchor": "good_for_kids_s"
+  },
+  "Funny": {
+    "src": "ps2_badges_files/good_funny_s.gif",
+    "title": "Funny: Being funny is legitimately tough. Why did the humor-based game cross the road? To get stuck with this fantastic medallion. See, that wasn't funny at all. But when a game manages to get its jokes across, it ends up on this list.",
+    "anchor": "good_funny_s"
+  },
+  "Great at Parties": {
+    "src": "ps2_badges_files/good_good_groups_s.gif",
+    "title": "Great at Parties: Some games were made to be enjoyed in large groups. Games that are best suited for a group setting earn this commendation.",
+    "anchor": "good_good_groups_s"
+  },
+  "Great Licensed Soundtrack": {
+    "src": "ps2_badges_files/good_great_licensed_soundtrack_s.gif",
+    "title": "Great Licensed Soundtrack: Any chucklebuster can toss together a bunch of songs onto a mixtape, but it takes special care to create, maintain, and shift moods. Games that were obviously created with that special care are rewarded with this medal.",
+    "anchor": "good_great_licensed_soundtrack_s"
+  },
+  "Great Original Soundtrack": {
+    "src": "ps2_badges_files/good_great_sound_track_s.gif",
+    "title": "Great Original Soundtrack: A great original score or soundtrack for a video game strikes a balance between playing a background role when things are quiet and pumping up into something huge when the action kicks off. Games that deliver breathtaking music earn this special commendation.",
+    "anchor": "good_great_sound_track_s"
+  },
+  "Great Story": {
+    "src": "ps2_badges_files/good_great_story_s.gif",
+    "title": "Great Story: Not every game needs a story to work, but when games can tell good stories, and tell them in effective, interesting ways, it's worth pointing out.",
+    "anchor": "good_great_story_s"
+  },
+  "Great Sequel": {
+    "src": "ps2_badges_files/good_greatsequel_s.gif",
+    "title": "Great Sequel: Games may be the only medium in which the sequel is routinely better than the previous installment--but just tweaking a few things and adding two moves isn't enough to merit this commendation. Sequels that make significant, exciting improvements are what we're looking for.",
+    "anchor": "good_greatsequel_s"
+  },
+  "Innovative": {
+    "src": "ps2_badges_files/good_innovative_s.gif",
+    "title": "Innovative: Let's hear it for doing things differently! Games marked with the Innovative medal take at least one aspect of game design and push it forward.",
+    "anchor": "good_innovative_s"
+  },
+  "Just Right": {
+    "src": "ps2_badges_files/good_just_right_s.gif",
+    "title": "Just Right: Not too difficult but not too easy, this game puts up a good fight without feeling unfair or cheap along the way.",
+    "anchor": "good_just_right_s"
+  },
+  "Get More Than Your Money's Worth": {
+    "src": "ps2_badges_files/good_moremoneythanworth_s.gif",
+    "title": "Get More Than Your Money's Worth: Games are expensive, and games that don't give you enough bang for your buck are a real bummer. That's why we've decided to give special attention to games that pack in a lot of great stuff by way of this commendation.",
+    "anchor": "good_moremoneythanworth_s"
+  },
+  "Strong Competitive Multiplayer": {
+    "src": "ps2_badges_files/good_multiplayer_s.gif",
+    "title": "Strong Competitive Multiplayer: Games that receive this medal really tear it up with excellent multiplayer options that pit you against other players. Some games are at their best when you're fighting against equally skilled human opponents, and it's highly likely that the winner of this award is such a game.",
+    "anchor": "good_multiplayer_s"
+  },
+  "Oh Snap!": {
+    "src": "ps2_badges_files/good_ohsnap_s.gif",
+    "title": "Oh Snap!: At some point during the review process, our editor encountered something so insanely cool that he or she couldn't stop from shouting something similar to \"Oh, snap!\" But, given our review team, it's a safe bet that whatever was shouted, it was way dirtier.",
+    "anchor": "good_ohsnap_s"
+  },
+  "Outstanding Visual Design": {
+    "src": "ps2_badges_files/good_outstanding_design_s.gif",
+    "title": "Outstanding Visual Design: Games that receive this commendation use their engines as a canvas to convey high-quality artistic design.",
+    "anchor": "good_outstanding_design_s"
+  },
+  "Outstanding Gameplay": {
+    "src": "ps2_badges_files/good_outstanding_gameplay_s.gif",
+    "title": "Outstanding Gameplay: Some games play better than others. Regardless of whether it's an exciting new development or an extremely refined collection of gameplay systems that you've seen before, games that go above and beyond the call of duty earn this special commendation.",
+    "anchor": "good_outstanding_gameplay_s"
+  },
+  "Plays Well With Others": {
+    "src": "ps2_badges_files/good_plays_well_with_others_s.gif",
+    "title": "Plays Well With Others: Sometimes you just can't do it alone. Well, maybe that's not true--but in some games, it's just a lot more fun to get things done with a friend or three. For those games that use cooperative modes in superexciting ways, we present the medal for games with outstanding co-op gameplay.",
+    "anchor": "good_plays_well_with_others_s"
+  },
+  "Sharp Control": {
+    "src": "ps2_badges_files/good_sharp_control_s.gif",
+    "title": "Sharp Control: Modern games that earn the Sharp Control medal do for their respective games what Super Mario Bros. did for midair control. In the end, it just <i>feels</i> right.",
+    "anchor": "good_sharp_control_s"
+  },
+  "Solid Extras": {
+    "src": "ps2_badges_files/good_solid_extras_s.gif",
+    "title": "Solid Extras: Sometimes there's more to a game than just the game itself. Bonus missions, extra levels, commentary, totally sweet cloth maps--games that go the extra mile with extra content might find themselves earning this extra merit.",
+    "anchor": "good_solid_extras_s"
+  },
+  "Good Start": {
+    "src": "ps2_badges_files/good_start_s.gif",
+    "title": "Good Start: This new game introduces us to a lot of new things, and the end result is that we're left wanting more. Games that we'd like to see bigger and brighter things from in the future are tagged with the Good Start medal.",
+    "anchor": "good_start_s"
+  },
+  "Sucks You In": {
+    "src": "ps2_badges_files/good_sucks_you_in_s.gif",
+    "title": "Sucks You In: A good game can really suck you in and make you feel like you're a part of its world. Games that pull off this tricky feat, duping you into playing them for hours or days at a time, win this award. Wait, is this sort of life-stealing action really a good thing? Best not to think about it too hard.",
+    "anchor": "good_sucks_you_in_s"
+  },
+  "Terrific Voice Acting": {
+    "src": "ps2_badges_files/good_terrific_voiceacting_s.gif",
+    "title": "Terrific Voice Acting: Great voice acting can make even the worst game scripts more engaging, making them a key part of a story-driven game's audio. But, as we've all heard in various games, it's definitely not easy to pull off a believable performance. The games that manage to get a great voice cast who can deliver their lines with feeling are remembered with this special commendation.",
+    "anchor": "good_terrific_voiceacting_s"
+  },
+  "Undeniable Charm": {
+    "src": "ps2_badges_files/good_undeniable_charm_s.gif",
+    "title": "Undeniable Charm: Sometimes you just want to grab a game by the cheek and squeeze it silly. But then you realize that games don't have cheeks. Don't worry, we've got the next best thing: Games that are undeniably charming earn this snazzy medal that, somehow, makes them that much more enticing.",
+    "anchor": "good_undeniable_charm_s"
+  },
+  "Unique": {
+    "src": "ps2_badges_files/good_unique_s.gif",
+    "title": "Unique: It's been said that everything has been done before, and that there's nothing left that's truly unique. There might be something to that, but a game that manages to feel absolutely unlike anything else on the market still gets pinned with this sweet medal.",
+    "anchor": "good_unique_s"
+  },
+  "Great Sound Effects": {
+    "src": "ps2_files/good_greatsoundeffects_s.gif",
+    "title": "Great Sound Effects::Games have come a long way since the days of coin-collection noises and the door-opening sound from Doom. Games with mind-blowing sound effects and/or effective surround sound placement earn our Great Sound Effects award.",
+    "anchor": "good_greatsoundeffects_s"
+  },
+  "Technically Proficient Graphics": {
+    "src": "ps2_files/good_t_proficient_graphics_s.gif",
+    "title": "Technically Proficient Graphics::Making games look good is a double-sided blade. This medal is awarded when the side that keeps frame rates running smoothly, physics moving properly, and all the other technical wizardry that goes into how a game looks does its job in a spectacular fashion.",
+    "anchor": "good_t_proficient_graphics_s"
+  },
+  "Annoying Characters": {
+    "src": "ps2_badges_files/bad_annoying_characters_s.gif",
+    "title": "Annoying Characters: Maybe it's a grating voice, maybe it's a bunch of awful facial expressions. Whatever it is, the games marked with this medal have some characters that will really get on your nerves.",
+    "anchor": "bad_annoying_characters_s"
+  },
+  "Blatant In-Game Advertising": {
+    "src": "ps2_badges_files/bad_blatant_in_g_advertising_s.gif",
+    "title": "Blatant In-Game Advertising: Nothing says \"tense combat on a futuristic alien world\" quite like an ad for a 2007 automobile, or some lame television show about the military that debuts this Sunday. Games that blatantly advertise are marked down via this handy demerit.",
+    "anchor": "bad_blatant_in_g_advertising_s"
+  },
+  "Blatant Product Placement": {
+    "src": "ps2_badges_files/bad_blatent_product_placement_s.gif",
+    "title": "Blatant Product Placement: Some games need the placement of actual, licensed products for the sake of realism. What would a skateboarding game be without actual skate gear? Or a football game without realistic pads? But some games cross this precarious line and drop into blatant product placement. At this point, you're supposed to imagine us drinking a delicious, ice-cold can of Coca-Cola and smirking.",
+    "anchor": "bad_blatent_product_placement_s"
+  },
+  "Busted, Broken, and Buggy": {
+    "src": "ps2_badges_files/bad_busted_buggy_broke_s.gif",
+    "title": "Busted, Broken, and Buggy: Busted. Broken. Buggy. The three Bs mean that this game shipped in some sort of unfinished state. If you're playing it, maybe you'll luck out and a patch will fix the problem. Or maybe it'll be that way forever.",
+    "anchor": "bad_busted_buggy_broke_s"
+  },
+  "Busted Graphics, Technical": {
+    "src": "ps2_badges_files/bad_bustedgraphics-technical_s.gif",
+    "title": "Busted Graphics, Technical: Sometimes a game's engine just can't handle what's going on onscreen. Bad frame rates, swimming textures, buggy animation--all of this rolls together into a big ball of busted graphics on the technical side.",
+    "anchor": "bad_bustedgraphics-technical_s"
+  },
+  "Busted Graphics, Artistic": {
+    "src": "ps2_badges_files/bad_bustedgraphics_s.gif",
+    "title": "Busted Graphics, Artistic: The world's greatest technology isn't going to help if your art direction is busted. Poor character design, ugly textures, plain-looking environments, and more all contribute to games that \"win\" this \"award.\"",
+    "anchor": "bad_bustedgraphics_s"
+  },
+  "Bad Camera": {
+    "src": "ps2_badges_files/bad_camera_s.gif",
+    "title": "Bad Camera: One of the more aggravating things that games do is obscure the action with a camera that simply can't keep up or can't deliver a meaningful view of what's going on. Games guilty of this problem are forever marked with this demerit.",
+    "anchor": "bad_camera_s"
+  },
+  "Derivative": {
+    "src": "ps2_badges_files/bad_derivative_s.gif",
+    "title": "Derivative: Sometimes, it's as easy as looking at what the other guy is doing and trying to clone it as best you can. That certainly happens in the video game world, and games that shamelessly copy other games without bringing an exciting new twist to the action are forever branded as derivative.",
+    "anchor": "bad_derivative_s"
+  },
+  "Disappointing": {
+    "src": "ps2_badges_files/bad_disappointing_s.gif",
+    "title": "Disappointing: Plenty of games out there just aren't living up to their full potential. Games with a lot of potential that fall markedly short will earn this demerit for their troubles.",
+    "anchor": "bad_disappointing_s"
+  },
+  "Looooooooong load times": {
+    "src": "ps2_badges_files/bad_longload_times_s.gif",
+    "title": "Looooooooong load times: This demerit goes to games that take so long between levels or environments that you might as well put the controller down and go make a sandwich. Make us one!",
+    "anchor": "bad_longload_times_s"
+  },
+  "Bad Music": {
+    "src": "ps2_badges_files/bad_music_s.gif",
+    "title": "Bad Music: Some bad game music is grating. Some of it is weirdly nonexistent. And some of it just doesn't fit the action. Whatever the case, the worst of the worst music can detract from a game's overall quality more than you'd think.",
+    "anchor": "bad_music_s"
+  },
+  "Poor Control": {
+    "src": "ps2_badges_files/bad_poor_control_s.gif",
+    "title": "Poor Control: Whether it's a game with overly complicated control or unresponsive action, something about the control in a game that takes on this demerit is just jacked up.",
+    "anchor": "bad_poor_control_s"
+  },
+  "Same As Last Year": {
+    "src": "ps2_badges_files/bad_same_aslastyear_s.gif",
+    "title": "Same As Last Year: Haven't you played this game before? This demerit is reserved for annual (or nearly annual) franchises that fail to make significant changes from one game to the next.",
+    "anchor": "bad_same_aslastyear_s"
+  },
+  "Shallow": {
+    "src": "ps2_badges_files/bad_shallow_s.gif",
+    "title": "Shallow: There's something to be said for keeping it simple, but some games take this to a negative extreme. If you're just mashing on a button for a long time or repeating the same basic action from start to finish, you might be playing a game that falls into this category.",
+    "anchor": "bad_shallow_s"
+  },
+  "Short": {
+    "src": "ps2_badges_files/bad_short_s.gif",
+    "title": "Short: Sort of like this description, the game that gets this demerit is too short.",
+    "anchor": "bad_short_s"
+  },
+  "Bad Sound Effects": {
+    "src": "ps2_badges_files/bad_sound_fx_s.gif",
+    "title": "Bad Sound Effects: Because explosions should sound like explosions, not tinny scraps of white noise.",
+    "anchor": "bad_sound_fx_s"
+  },
+  "Steep Learning Curve": {
+    "src": "ps2_badges_files/bad_steep_learning_s.gif",
+    "title": "Steep Learning Curve: This game just takes too much effort to figure out. After hours of gameplay, you still have to wrap your mind around what, exactly, you need to do. Maybe a better tutorial or a more gradual difficulty slope would have helped.",
+    "anchor": "bad_steep_learning_s"
+  },
+  "Stripped": {
+    "src": "ps2_badges_files/bad_stripped_s.gif",
+    "title": "Stripped: Ever feel like you're playing a half-finished game? Games that are noticeably missing common features win this half-finished demerit.",
+    "anchor": "bad_stripped_s"
+  },
+  "Terrible First Impression": {
+    "src": "ps2_badges_files/bad_terrible_first_impression_s.gif",
+    "title": "Terrible First Impression: Games marked with this demerit pick up at least a little later on, but they definitely don't start strong.",
+    "anchor": "bad_terrible_first_impression_s"
+  },
+  "Too Easy": {
+    "src": "ps2_badges_files/bad_too_easy_s.gif",
+    "title": "Too Easy: Total cakewalk, and as we all know, walking with a cake is way too easy.",
+    "anchor": "bad_too_easy_s"
+  },
+  "Bad Value": {
+    "src": "ps2_badges_files/bad_value_s.gif",
+    "title": "Bad Value: Short, repetitive, or overly expensive games come up short in the value column. That's not to say that these games are terrible, but there are probably more effective ways to spend your money.",
+    "anchor": "bad_value_s"
+  },
+  "Bad Voice Acting": {
+    "src": "ps2_badges_files/bad_voice_acting_s.gif",
+    "title": "Bad Voice Acting: You never know what you're going to get when you're dealing with a game's voice cast. Are you going to get some Hollywood has-been who phones in his lines with all the enthusiasm of a sedated patient on his way to surgery, or an overexcited anime voice actress who can't inflect? This game is saddled with one or more cases of bad voice acting.",
+    "anchor": "bad_voice_acting_s"
+  },
+  "Waste of Celebrity Talent": {
+    "src": "ps2_badges_files/bad_wasteceleb_talent_s.gif",
+    "title": "Waste of Celebrity Talent: Great--you spent your entire audio budget securing some big-name celebrities! Too bad they weren't directed properly, or showed up just after getting some heavy dental work done. Either way, now they sound like drugged-up mumble-mouths who can barely get the lines of dialogue out. For these games, we created this very special medal.",
+    "anchor": "bad_wasteceleb_talent_s"
+  },
+  "Weak Story": {
+    "src": "ps2_badges_files/bad_weakstory_s.gif",
+    "title": "Weak Story: The story in a game that earns this demerit is, just like the sign says, weak. But please note, for a game to collect this mark, the story must be a main component of the game.",
+    "anchor": "bad_weakstory_s"
+  },
+  "Xtreme Baditude": {
+    "src": "ps2_badges_files/bad_xtreme_baditude_s.gif",
+    "title": "Xtreme Baditude: The symptoms of baditude are immediately recognizable: the hackneyed \"in your face\" attitude, the relentless desire to prove how \"street\" or \"cool\" you are, and an annoying tendency to put everything in \"air quotes.\" This demerit is for the games that serve as the digital equivalent of slamming an energy drink while skysurfing.",
+    "anchor": "bad_xtreme_baditude_s"
+  }
+}
