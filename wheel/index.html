@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07192d">
-  <meta name="description" content="Play Wheel of Fortune in 3D with the original PS3 sets, puzzle bank, and sounds. Solo and local three-player games.">
+  <meta name="description" content="Play Wheel of Fortune in 3D with the original PS3 sets, puzzle bank, and sounds. Single player and custom local/CPU lineups.">
   <title>Wheel of Fortune · 3D Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261006-cuts">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
 </head>
 <body>
@@ -21,8 +21,12 @@
     <section id="lobby" class="overlay" hidden>
       <div class="lobby-card"><div class="eyebrow">THE SPOTLIGHT IS YOURS</div><h1>Take a spin.</h1><p>Original sets. Thousands of puzzles.<br>Your very own night on the wheel.</p>
         <form id="setup-form">
-          <label>Your name<input id="player-name" maxlength="18" value="Player 1" autocomplete="nickname" required></label>
-          <div class="setup-row"><label>Play<select id="mode"><option value="solo">Solo + two computer players</option><option value="local">Three players · same device</option></select></label><label>Studio<select id="stage-select"></select></label></div>
+          <div class="setup-row"><label>Play<select id="mode"><option value="solo">Local + two CPU players</option><option value="single">Single player · no opponents</option><option value="local">Three local players</option><option value="custom">Custom player lineup</option></select></label><label>Studio<select id="stage-select"></select></label></div>
+          <div id="player-setup" class="player-setup">
+            <div class="roster-row"><label>Red podium<input id="player-name" maxlength="18" value="Player 1" autocomplete="nickname" required></label><label>Control<select id="player-type-0"><option value="local">Local</option><option value="cpu">CPU</option><option value="off">Empty</option></select></label></div>
+            <div class="roster-row"><label>Yellow podium<input id="player-name-1" maxlength="18" value="Kelly"></label><label>Control<select id="player-type-1"><option value="local">Local</option><option value="cpu" selected>CPU</option><option value="off">Empty</option></select></label></div>
+            <div class="roster-row"><label>Blue podium<input id="player-name-2" maxlength="18" value="Jason"></label><label>Control<select id="player-type-2"><option value="local">Local</option><option value="cpu" selected>CPU</option><option value="off">Empty</option></select></label></div>
+          </div><p id="setup-error" role="alert" hidden></p>
           <button class="primary start" type="submit">ENTER THE STUDIO <span>→</span></button>
         </form><small id="asset-count">Loading asset library...</small>
       </div>
@@ -33,16 +37,16 @@
       <nav class="camera-bar" aria-label="Camera views"><button data-view="show" class="selected">STUDIO</button><button data-view="board">PUZZLE</button><button data-view="wheel">WHEEL</button><button data-view="orbit">EXPLORE</button></nav>
       <div class="scoreboard" id="scoreboard" aria-label="Player scores"></div>
       <section class="console">
-        <div class="status-line"><span class="live-dot"></span><b id="turn-label"></b><span id="message" role="status" aria-live="polite"></span></div>
+        <div class="status-line"><span class="live-dot"></span><b id="turn-label"></b><span class="host-name">PAT</span><span id="message" role="status" aria-live="polite"></span></div>
         <div class="actions"><button id="spin" class="primary">SPIN THE WHEEL <kbd>SPACE</kbd></button><button id="vowel">BUY A VOWEL <span>$250</span></button><button id="solve">SOLVE</button><button id="next" class="primary" hidden>NEXT ROUND</button></div>
         <div id="alphabet" class="alphabet" aria-label="Choose a letter"></div>
-        <form id="solve-form" hidden><label class="sr-only" for="answer">Your solution</label><input id="answer" placeholder="Your solution..." autocomplete="off" maxlength="100"><button class="primary" type="submit">LOCK IT IN</button><button type="button" id="cancel-solve">CANCEL</button></form>
+        <form id="solve-form" hidden><p>Fill the missing letters. Revealed letters are already yours.</p><div id="solve-tiles" aria-label="Fill in the puzzle"></div><div class="solve-actions"><button class="primary" id="lock-solve" type="submit">LOCK IT IN</button><button type="button" id="cancel-solve">CANCEL</button></div></form>
         <div id="bonus-hint" hidden>R S T L N E are yours. Pick three consonants and one vowel, then solve.</div>
       </section>
     </section>
-    <dialog id="studio-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><div class="eyebrow">MAKE IT YOUR STUDIO</div><h2>Backstage</h2><label>Change set<select id="change-stage"></select></label><label>Camera<select id="camera-mode"><option value="auto">Automatic (game-state director)</option><option value="manual">Manual views</option></select></label><label>Graphics<select id="quality"><option value="high">High</option><option value="low">Battery saver</option></select></label><p>Automatic cameras follow spins, letters, and solves. Selecting a view switches to manual. Drag in Explore; scroll or pinch to zoom. Choose letters with your keyboard, or tap the buttons.</p><button id="restart">NEW GAME</button><details><summary>Asset library & credits</summary><p id="credits"></p><p>Independent fan recreation from locally extracted NPUA80137 assets. Original assets belong to their respective owners. Flash board behavior and presentation are recovered; browser gameplay is newly written, not the PS3 executable.</p><a href="README.md">Build notes and source coverage</a><div id="library"></div></details></dialog>
+    <dialog id="studio-dialog"><form method="dialog"><button class="close" aria-label="Close">×</button></form><div class="eyebrow">MAKE IT YOUR STUDIO</div><h2>Backstage</h2><label>Change set<select id="change-stage"></select></label><label>Camera<select id="camera-mode"><option value="auto">Automatic cuts (original cameras)</option><option value="manual">Manual views</option></select></label><label>Original camera inspector<select id="source-camera"><option value="">Choose a recovered camera...</option></select></label><label>Graphics<select id="quality"><option value="high">High</option><option value="low">Battery saver</option></select></label><p>Pat hosts the game. Automatic cameras cut to the active podium, puzzle, and wheel amount. Selecting a view switches to manual. Drag in Explore; scroll or pinch to zoom.</p><button id="restart">NEW GAME</button><details><summary>Asset library & credits</summary><p id="credits"></p><p>Independent fan recreation from locally extracted NPUA80137 assets. Original assets belong to their respective owners. Flash board behavior and presentation are recovered; browser gameplay is newly written, not the PS3 executable.</p><a href="README.md">Build notes and source coverage</a><div id="library"></div></details></dialog>
     <footer class="footer"><span>3D STUDIO / PS3 ASSET EDITION</span><span id="studio-name">CLASSIC STUDIO</span></footer>
   </main>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20261006-cuts"></script>
 </body>
 </html>

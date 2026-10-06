@@ -32,6 +32,27 @@ export function automaticView(state, event) {
   return 'show';
 }
 
+export function solveTiles(state) {
+  return state.puzzle.rows.flatMap((row,r)=>[...row].map((letter,c)=>{
+    const editable=/[A-Z]/i.test(letter)&&!state.used.includes(letter.toUpperCase());
+    return {index:r*14+c,row:r,column:c,editable,text:editable?'':letter};
+  }));
+}
+
+export function fillSolution(state, entries) {
+  const tiles=solveTiles(state);
+  if(tiles.some(t=>t.editable&&!/^[A-Z]$/.test(entries[t.index]??'')))return null;
+  return Array.from({length:4},(_,r)=>tiles.slice(r*14,r*14+14).map(t=>t.editable?entries[t.index]:t.text).join('').trim()).filter(Boolean).join(' ');
+}
+
+// NiAlphaProperty uses bit 0 for blending, bit 9 for alpha testing. Merely
+// having an alpha property (or an image alpha channel) does not enable blending.
+export function materialAlpha(source) {
+  const flags=source?.alphaFlags??0;
+  return {blend:!!(flags&1),test:!!(flags&512),func:(flags>>10)&7,
+    threshold:(source?.alphaThreshold??0)/255,src:(flags>>1)&15,dst:(flags>>5)&15};
+}
+
 // Source wheel clockwise from the top Lose A Turn wedge. Index and texture
 // orientation share this definition, so a visual landing matches the payout.
 export const RETAIL_WHEEL = ['LOSE A TURN',800,350,450,700,300,600,2500,600,500,300,500,800,550,400,300,900,500,300,900,'BANKRUPT',600,400,300];

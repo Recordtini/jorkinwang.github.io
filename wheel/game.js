@@ -1,4 +1,4 @@
-import {wheelValues} from './presentation.js';
+import {wheelValues} from './presentation.js?v=20261006-cuts';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const WEDGES = wheelValues().map(value=>({value}));
@@ -15,8 +15,13 @@ export class WheelGame {
   }
   emit(event = 'update') { this.onChange(this.state, event); }
   start(names, mode = 'solo') {
+    if (!Array.isArray(names) || names.length < 1 || names.length > 3) throw new Error('Choose one to three players.');
+    const players = names.map((entry, i) => typeof entry === 'string'
+      ? {name:entry, ai:mode === 'solo' && i > 0, slot:i}
+      : {name:String(entry.name || `Player ${i+1}`).trim().slice(0,18), ai:entry.ai === true, slot:entry.slot ?? i});
+    if (players.every(p=>p.ai) || players.some(p=>!Number.isInteger(p.slot)||p.slot<0||p.slot>2) || new Set(players.map(p=>p.slot)).size!==players.length) throw new Error('Choose at least one local player and distinct podiums.');
     this.usedPuzzles.clear();
-    this.state = {version: 1, mode, players: names.map((name, i) => ({name, bank: 0, cash: 0, ai: mode === 'solo' && i > 0})),
+    this.state = {version: 2, mode, players: players.map(p=>({...p, bank:0, cash:0})),
       round: 1, turn: 0, used: [], phase: 'action', lastWedge: null, jackpot: 5000,
       bonusChoices: [], bonusPrize: 0, message: 'Spin the wheel, buy a vowel, or solve the puzzle.'};
     this.selectPuzzle(false);
@@ -165,7 +170,7 @@ export class WheelGame {
       this.state.phase = 'bonus-spin';
       this.state.message = `${this.player.name} reaches the bonus round! Spin the bonus wheel.`;
     } else {
-      this.state.turn = (this.state.round - 1) % 3;
+      this.state.turn = (this.state.round - 1) % this.state.players.length;
       this.selectPuzzle(false);
       this.state.phase = 'action';
       this.state.message = `Round ${this.state.round}. Spin the wheel!`;
@@ -192,9 +197,12 @@ export class WheelGame {
     try {
       const {state, used} = JSON.parse(serialized);
       const puzzle = this.puzzles.find(p => p.id === state?.puzzle?.id);
-      if (state?.version !== 1 || !puzzle || state.players?.length !== 3 || !Number.isInteger(state.round) || state.round < 1 || state.round > 5 || !Number.isInteger(state.turn) || state.turn < 0 || state.turn > 2) return false;
+      if (![1,2].includes(state?.version) || !puzzle || !Array.isArray(state.players) || state.players.length < 1 || state.players.length > 3 || !Number.isInteger(state.round) || state.round < 1 || state.round > 5 || !Number.isInteger(state.turn) || state.turn < 0 || state.turn >= state.players.length) return false;
       if (!['action','spinning','consonant','vowel','mystery','round-over','bonus-spin','spinning-bonus','bonus-select','bonus-solve','finished'].includes(state.phase) || !Array.isArray(state.used) || state.players.some(p => !Number.isFinite(p.cash) || !Number.isFinite(p.bank) || typeof p.name !== 'string')) return false;
       state.bonusChoices=Array.isArray(state.bonusChoices)?state.bonusChoices:[];
+      if(state.version===1)state.players.forEach((p,i)=>{p.slot=i;p.ai=!!p.ai;});
+      if(state.players.some(p=>typeof p.ai!=='boolean'||!Number.isInteger(p.slot)||p.slot<0||p.slot>2)||state.players.every(p=>p.ai)||new Set(state.players.map(p=>p.slot)).size!==state.players.length)return false;
+      state.version=2;
       state.puzzle = puzzle;
       if (state.phase === 'spinning') state.phase = 'action';
       if (state.phase === 'spinning-bonus') state.phase = 'bonus-spin';

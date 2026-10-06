@@ -44,3 +44,20 @@ test('reload preserves bank and resets interrupted wheel spin', () => {
 test('the original top Lose A Turn wedge passes without clearing cash',()=>{const g=game();g.player.cash=200;g.beginSpin();g.finishSpin(0);assert.equal(g.state.turn,1);assert.equal(g.state.players[0].cash,200);});
 test('mystery risk can lose round cash without losing bank',()=>{const g=game();g.state.round=3;g.player.bank=5000;g.beginSpin();g.finishSpin(11);g.guess('L');assert.equal(g.state.phase,'mystery');g.mystery(true);assert.equal(g.state.turn,1);assert.equal(g.state.players[0].bank,5000);assert.equal(g.state.players[0].cash,0);});
 test('solution normalization retains numerals',()=>{assert.equal(normalizeAnswer('Route 66!'),'ROUTE66');assert.notEqual(normalizeAnswer('Route 66'),normalizeAnswer('Route'));});
+test('single player survives misses, all rounds, and save restoration',()=>{
+  const g=new WheelGame(puzzles,{random:()=>1/24});g.start([{name:'Only Me',slot:1,ai:false}],'single');
+  g.solve('wrong');assert.equal(g.state.turn,0);assert.equal(g.player.slot,1);
+  for(let round=1;round<=4;round++){assert.equal(g.state.round,round);g.solve('HELLO WORLD');g.nextRound();assert.equal(g.state.turn,0);}
+  const restored=new WheelGame(puzzles);assert.equal(restored.restore(g.save()),true);assert.equal(restored.state.players.length,1);
+});
+test('mixed local and CPU players keep their physical podium slots',()=>{
+  const g=new WheelGame(puzzles);g.start([{name:'A',slot:0,ai:false},{name:'B',slot:1,ai:false},{name:'C',slot:2,ai:true}],'custom');
+  g.solve('wrong');assert.equal(g.player.ai,false);g.solve('wrong');assert.equal(g.player.ai,true);
+  const two=new WheelGame(puzzles);two.start([{name:'A',slot:0,ai:false},{name:'C',slot:2,ai:true}],'custom');
+  two.solve('HELLO WORLD');two.nextRound();assert.equal(two.state.turn,1);assert.equal(two.player.slot,2);
+  assert.throws(()=>g.start([{name:'CPU',ai:true,slot:0}],'custom'),/local player/);
+});
+test('version-one three-player saves migrate without losing scores',()=>{
+  const g=game(),save=JSON.parse(g.save());save.state.version=1;save.state.players.forEach(p=>delete p.slot);save.state.players[1].bank=1234;
+  assert.equal(g.restore(JSON.stringify(save)),true);assert.equal(g.state.players[1].bank,1234);assert.equal(g.state.players[2].slot,2);
+});

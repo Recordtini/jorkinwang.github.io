@@ -6,13 +6,22 @@ and assets load relative to this directory.
 
 ## Play
 
-Choose a set and solo or local three-player mode. Spin, select
+Choose a set and one to three players. Each physical podium can independently
+be Local, CPU, or Empty; presets include true single player with no opponents,
+one local plus two CPUs, and three locals. Spin, select
 consonants, buy vowels for $250, and solve. Round earnings become banked winnings
 only when a player solves. Four rounds lead to the original bonus wheel and a 30-second bonus puzzle with
 RSTLNE plus three consonants and one vowel. Jackpot, Mystery, Bankrupt,
 and Lose a Turn are supported. Reloading offers a saved-game resume button.
 
-Automatic cameras follow spins, letter selections, reveals and solves by default.
+Pat's prompts guide play. Solving fills only missing letter cells, with known
+letters, punctuation, and numbers locked. Typing advances through the blanks;
+arrow keys, backspace and paste are supported. Inactive podium displays and score
+cards dim so the current player remains clear.
+
+Automatic cameras cut between spins, letter selections, reveals and solves by default.
+Regular spins use the active podium's original camera and cut closer to the
+landed amount, holding it before letter selection. They do not interpolate.
 Selecting Studio, Puzzle, Wheel, or Explore switches to manual; Backstage can
 re-enable automatic cameras. Explore supports drag,
 scroll, and touch. Backstage switches sets and offers a viewer for recovered
@@ -32,6 +41,13 @@ intentionally omitted.
 - Original green/white/blue board tiles and their transition frames, plus the
   embedded Swis721 BlkCn BT board font and Cosmos Medium category font.
 - The original masked category-reveal timeline, including text-scale/alpha keys.
+- All 37 base-scene cameras, 16 camera-role groups and 30 parent-controller
+  tracks, including original positions, direction/up axes and frusta. Backstage
+  provides an original-camera inspector.
+- Original Bink logo, Jackpot, Mystery and fireworks movies, transcoded to MP4
+  for the large/center monitors; small monitors retain their native texture art.
+- Native NIF alpha flags for the base, all 11 sets and animated props, distinguishing opaque
+  wheel steps from blended decorative blades. Blended surfaces do not write depth.
 - Board sequencing ported from `doShowWhitePanels`, `doFindLetters`,
   `doShowFoundLetters` and `handlePuzzleSolved`: column-first opening at 50ms,
   blue matching tiles, then row-first letter reveals at 750ms intervals.
@@ -51,9 +67,11 @@ Lighting uses browser lights and converted material maps, with planar floor
 reflections over the original tile texture. The floor's baked dark map is no
 longer used as full-strength AO, and baked backdrops do not receive a second
 shadow from the overhead rig. This is not a verified 1:1 retail renderer.
-Original camera records remain in the GLBs; the game-state director frames
-recovered geometry, not the original cinematic camera tracks. Retail skeletal
-clips and set-prop `.kf` animation tracks are not played.
+The director uses recovered camera poses and wheel push-track endpoints; source
+tracks are cataloged, not continuously played. The puzzle camera uses source FOV
+with adapted framing to leave room for web controls, especially on phones.
+Monitor movie selection is browser logic, not a verified retail state-machine
+port. Retail skeletal clips and set-prop `.kf` animation tracks are not played.
 
 `assets/manifest.json` lists packaged assets and conversion errors. This is an
 independent fan recreation. Wheel of Fortune and the original game assets belong
@@ -67,6 +85,7 @@ From `E:\Python Projects\JEOPARDY`:
 .\.venv\Scripts\python.exe web-site\wheel\tools\build_assets.py
 powershell -File web-site\wheel\tools\vendor_three.ps1
 .\.venv\Scripts\python.exe web-site\wheel\tools\recover_presentation.py
+.\.venv\Scripts\python.exe web-site\wheel\tools\recover_scene.py
 ```
 
 The extractor checks the decoded puzzle bank against the existing extracted
@@ -81,6 +100,10 @@ release at `wheel_web_tools/ffdec/ffdec.jar`, or an explicit `--ffdec` path.
 workspace, decodes external DDS alongside each GFX, and exports native frames,
 fonts and scripts without changing the original dump. `--reuse-exports` only
 repackages a completed local extraction. FFDec is not shipped with the website.
+Scene recovery uses the workspace NIF reader/PyFFI and FFmpeg. It writes
+`cameras.json` with decoded source SHA-256, controller keys and material flags,
+plus the browser screen movies and a native still fallback. `--skip-video`
+rebuilds only the camera/material catalog. Source dumps and GLBs are untouched.
 
 For a local preview, serve the repository root with an HTTP server, then open
 `http://127.0.0.1:8127/wheel/`. ES modules need HTTP, not `file://`.

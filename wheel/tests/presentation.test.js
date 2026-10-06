@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {boardTransition,displayLetters,automaticView,wheelValues} from '../presentation.js';
+import {boardTransition,displayLetters,automaticView,wheelValues,solveTiles,fillSolution,materialAlpha} from '../presentation.js';
 const source=JSON.parse(await readFile(new URL('../assets/presentation/presentation.json',import.meta.url)));
 const timing=source.timing;
 const state={round:1,phase:'action',used:[],bonusChoices:[],puzzle:{id:1,rows:['              ','   HELLO      ','    WORLD     ','              ']}};
@@ -9,6 +9,34 @@ test('opening follows retail column-then-row order and 50ms spacing',()=>{
   const sequence=boardTransition(null,state,'round',timing);
   assert.deepEqual(sequence.tiles.slice(0,4).map(t=>[t.r,t.c]),[[1,3],[1,4],[2,4],[1,5]]);
   assert.equal(sequence.tiles[1].at-sequence.tiles[0].at,50);
+});
+test('fill-in solving locks revealed letters and preserves punctuation and numbers',()=>{
+  const s={...state,used:['L'],puzzle:{rows:['              ',' HELLO WORLD  ',' ROUTE 66!    ','              ']}};
+  const tiles=solveTiles(s);assert.ok(tiles.filter(t=>t.text==='L').every(t=>!t.editable));
+  assert.equal(fillSolution(s,{}),null);
+  const entries=Object.fromEntries(tiles.filter(t=>t.editable).map(t=>[t.index,s.puzzle.rows[t.row][t.column]]));
+  assert.equal(fillSolution(s,entries),'HELLO WORLD ROUTE 66!');entries[15]='X';assert.equal(fillSolution(s,entries),'XELLO WORLD ROUTE 66!');
+});
+test('source flags distinguish opaque wheel steps from transparent blue blades',()=>{
+  assert.equal(materialAlpha({alphaFlags:11500,alphaThreshold:0}).blend,false);
+  const blue=materialAlpha({alphaFlags:237,alphaThreshold:0});assert.equal(blue.blend,true);assert.equal(blue.src,6);assert.equal(blue.dst,7);
+});
+test('all 37 original cameras, controller keys, roles and screen movies are packaged',async()=>{
+  const catalog=JSON.parse(await readFile(new URL('../assets/presentation/cameras.json',import.meta.url)));
+  assert.equal(catalog.cameras.length,37);assert.equal(Object.keys(catalog.roles).length,16);
+  assert.equal(catalog.cameras.reduce((total,c)=>total+c.tracks.length,0),30);
+  for(const c of catalog.cameras){
+    assert.ok([...c.position,...c.forward,...c.up,c.fov,c.aspect].every(Number.isFinite));
+    assert.ok(Math.abs(Math.hypot(...c.forward)-1)<1e-5);
+    assert.ok(c.fov>0&&c.fov<180);
+  }
+  for(let slot=0;slot<3;slot++){
+    const camera=catalog.cameras.find(c=>c.name===catalog.roles[`spin_player${slot}`][0]);
+    assert.ok(camera.position[1]>5);assert.ok(camera.forward[1]<-.98);assert.ok(camera.tracks[0].translation.keys.length>=2);
+  }
+  assert.equal(catalog.materials.wheel_baseShape.alphaFlags,11500);
+  assert.equal(catalog.materials['wheel_bonus_rig/bonus_wheelShape:1'].alphaFlags,null);
+  for(const name of ['game_logo','jackpot_intro','mystery_intro','fireworks']){const data=await readFile(new URL(`../assets/presentation/screens/${name}.mp4`,import.meta.url));assert.equal(data.toString('ascii',4,8),'ftyp');}
 });
 test('matching letters go blue before the source 750ms letter sequence',()=>{
   const next={...state,used:['L']},s=boardTransition({id:1,used:[]},next,'letter',timing);
