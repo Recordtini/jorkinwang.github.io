@@ -78,6 +78,12 @@ export function materialAlpha(source) {
     threshold:(source?.alphaThreshold??0)/255,src:(flags>>1)&15,dst:(flags>>5)&15};
 }
 
+export function nativeDepthState(source){
+  const z=source.zBufferFlags,draw=source.stencilFlags===null||source.stencilFlags===undefined?1:(source.stencilFlags>>10)&3;
+  return {test:z===null||z===undefined?true:!!(z&1),write:z===null||z===undefined?true:!!(z&2),
+    func:z===null||z===undefined?3:(z>>2)&7,side:draw===2?1:draw===3?2:0};
+}
+
 // Source wheel clockwise from the top Lose A Turn wedge. Index and texture
 // orientation share this definition, so a visual landing matches the payout.
 export const RETAIL_WHEEL = ['LOSE A TURN',800,350,450,700,300,600,2500,600,500,300,1000,800,550,400,300,900,1000,300,900,'BANKRUPT',600,400,300];

@@ -342,15 +342,24 @@ def materials():
     result = {}
     texture_dir = OUT / 'materials'
     texture_dir.mkdir(exist_ok=True)
-    decoder = nif.TextureStore(nif.GLTF2(), bytearray(), None)
     for path in sorted((GAME / 'models/sets/mesh').glob('*.nif.soe')):
+        # Atlas names are local to each NIF, not global across studios.
+        decoder = nif.TextureStore(nif.GLTF2(), bytearray(), None)
         data = nif.NifFormat.Data()
         data.read(io.BytesIO(nif.decode_soe(path)))
+        parents = nif.build_parent_lookup(data)
         for mesh in data.blocks:
             if type(mesh).__name__ != 'NiMesh':
                 continue
-            props = {type(p).__name__:p for p in mesh.properties if p}
+            props, current, visited = {}, mesh, set()
+            while current is not None and id(current) not in visited:
+                visited.add(id(current))
+                for p in getattr(current, 'properties', []):
+                    if p:
+                        props.setdefault(type(p).__name__, p)
+                current = parents.get(id(current))
             m, tex, vertex = (props.get(k) for k in ['NiMaterialProperty', 'NiTexturingProperty', 'NiVertexColorProperty'])
+            zbuffer, stencil = props.get('NiZBufferProperty'), props.get('NiStencilProperty')
             stage = path.name.removesuffix('.nif.soe')
             textures = {}
             for slot in ['base','dark','glow','gloss']:
@@ -360,9 +369,15 @@ def materials():
                 entry = dict(source=name(desc.source.file_name), uvSet=nif.texture_desc_uv_set(desc, data.version))
                 if slot in ['dark', 'glow']:
                     filename = stage + '_' + nif.sanitize_name(entry['source'], 'texture') + '.png'
-                    if not (texture_dir / filename).exists():
-                        decoder._decode_source_texture(desc.source).save(texture_dir / filename)
+                    image = decoder._decode_source_texture(desc.source).convert('RGBA')
+                    pixel_hash = hashlib.sha256(image.tobytes()).hexdigest()
+                    output = texture_dir / filename
+                    existing_hash = hashlib.sha256(Image.open(output).convert('RGBA').tobytes()).hexdigest() if output.exists() else None
+                    if existing_hash != pixel_hash:
+                        image.save(output)
                     entry['url'] = 'assets/presentation/materials/' + filename
+                    entry['pixelsSha256'] = pixel_hash
+                    entry['size'] = list(image.size)
                 textures[slot] = entry
             # Three.js removes these reserved binding characters from GLTF names.
             runtime_name = name(mesh.name).translate(str.maketrans('', '', '[] .:/')).replace(' ', '')
@@ -377,6 +392,8 @@ def materials():
                 applyMode=int(tex.apply_mode) if tex and data.version <= 0x14000005 else None,
                 vertexMode=int(vertex.vertex_mode) if vertex else None,
                 lightingMode=int(vertex.lighting_mode) if vertex else None,
+                zBufferFlags=int(zbuffer.flags) if zbuffer else None,
+                stencilFlags=int(stencil.flags) if stencil else None,
                 textures=textures)
         print('Material source', path.stem, flush=True)
     (OUT / 'materials.json').write_text(json.dumps(result, indent=2) + '\n')

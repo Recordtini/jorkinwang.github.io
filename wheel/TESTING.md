@@ -3,7 +3,7 @@
 ## Automated Checks
 
 Run `node --test wheel/tests/*.test.js` from the site repository.
-Current result: 52 passing tests. Earlier recheck sections below are historical.
+Current result: 63 passing tests. Earlier recheck sections below are historical.
 
 - Game state: spin outcomes, per-letter payments, duplicate-letter rejection,
   vowel costs, misses, bankruptcies, banked winnings, special wedges, bonus
@@ -181,7 +181,7 @@ Verified in isolated local Chrome at 1440 x 900 and touch viewport 390 x 844:
   Two O tiles dinged 750 ms apart, then `NoMoreVowels` played and the native banner
   appeared. The Buy Vowel button disabled with unused A/I/U buttons still present.
 - All 11 studios loaded with reflective floors and no JavaScript/shader errors.
-  Rear blades used source 0.9 opacity, blend flags, no depth writes, RGB dark maps
+  Rear blades then used source 0.9 opacity, blend flags, no depth writes, RGB dark maps
   on UV set 1, and base textures on UV set 0. Native controller bindings normalize
   GLTF-reserved punctuation and compact clamp/UV flags.
 - All 36 audio files were measured before/after leveling. Decoded output true
@@ -199,3 +199,30 @@ Evidence in ignored `qa/`: `native-power-meter.png`, `no-more-vowels.png`,
 `mobile-bonus-landing-unobstructed.png`, and `panels-baked-front.png`.
 Road Trip, native executable CPU/physics, full shell callbacks, and exact retail
 rendering remain unverified/unported; no claim of complete PS3 emulation is made.
+
+## Audio And Layer Recheck
+
+63 Node tests pass, including production audio-bus routing, priority/overlap
+ducking, smooth interrupted recovery, mute handling, native depth/culling flags,
+and stage-local atlas identities and PNG dimensions.
+
+- Isolated local Chrome loaded and rendered all 11 themed sets after regeneration.
+  Production LA panels retain 0.9 opacity, but now write depth and cull back faces
+  like the source NIF defaults. Close-ups show the heavy floor-overlay bleed is
+  gone without forcing the panels opaque. This supersedes the no-depth-write
+  behavior in the earlier recheck.
+- The material extractor had reused a filename-keyed decoder across studios.
+  New York's Group2a was consequently the wrong 1024-square atlas; its own source
+  is 2048 x 1024. Per-NIF decoding and pixel comparison repaired the affected
+  atlases. Source and exported UV1 arrays matched exactly, so no speculative UV
+  flips were applied. Zuma and Bejeweled poster close-ups no longer have those
+  unrelated black patches. Baked surfaces do not receive a second browser shadow.
+- A correct solve through the real per-cell UI played PuzzleWin while the music
+  bus gain fell to 0.2, then recovered to 1 after the cue ended. Music remained
+  playing. Short wheel/selection ticks do not duck; overlapping effects retain
+  the strongest reduction. Audio-clock envelopes respect context suspension.
+
+Evidence in ignored `qa/`: `la-floor-layer-final.png`, `ny-posters-final.png`.
+Camera placement for these close-ups is a diagnostic fixture, not retail camera
+acceptance. Ducking parameters are browser-authored. These checks do not prove
+physical speaker volume, listening quality, or exact PS3 renderer/mixer parity.

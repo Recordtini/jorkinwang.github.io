@@ -40,7 +40,12 @@ set props, 15 native help pages, and an audio library for all 36 original tracks
 Music has its own persistent toggle; Sound mutes the entire mix. Every file is
 loudness-leveled with true-peak headroom, including library previews. Music and
 effects share a compressor and a -1 dBFS sample ceiling. The mixer cannot control
-speaker hardware volume. Per-tile letter dings follow the reveal timeline,
+speaker hardware volume. Music ducks under effects, with deeper reduction for
+answer/result cues and lighter reduction for letter reveals. Overlapping cues
+retain the strongest reduction until they end, then music recovers smoothly.
+Wheel clicks and letter-selection ticks do not pump the music volume. These
+mixing envelopes are browser-authored, not recovered PS3 mix parameters.
+Per-tile letter dings follow the reveal timeline,
 and wheel clicks follow peg crossings. Native no-more-vowels/only-vowels-remain
 banners and cues check the remaining puzzle letters, not unused alphabet buttons.
 Assets are loaded on demand. Player bodies and character creation are
@@ -69,12 +74,15 @@ intentionally omitted.
   provides an original-camera inspector.
 - Original Bink logo, Jackpot, Mystery and fireworks movies, transcoded to MP4
   for the large/center monitors; small monitors retain their native texture art.
-- Native NIF alpha flags for the base, all 11 sets and animated props, distinguishing opaque
-  wheel steps from blended decorative blades. Blended surfaces do not write depth.
+- Native NIF alpha, depth and face-culling flags for the base and all 11 sets,
+  distinguishing opaque wheel steps from blended decorative blades. Blending
+  preserves the source depth-write state, preventing floor-layer bleed-through.
 - Original RGB baked dark maps with the compact TexDesc UV indices, not grayscale
   glTF AO. Native alpha is retained. Reserved characters in GLTF node names are
   normalized for source-property/controller lookup. Teal studio blades use a
   baked texture path rather than receiving an additional glossy PBR light layer.
+  Embedded atlas decoding is scoped per NIF, since different studios reuse
+  filenames for different images. Exported maps record dimensions and pixel hashes.
 - All 30 set-prop KF clips, 328 controller links, native set-animation categories,
   and texture-transform/alpha playback on the nine recovered animated actors.
 - All 18 native screen movies, native collectible wheel overlays, shell artwork,

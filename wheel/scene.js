@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView} from './presentation.js?v=20261006-recovery';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState} from './presentation.js?v=20261006-layers';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 import {sampleScalar,clipTime,animationCategory,textureMatrix} from './animations.js?v=20261006-recovery';
 
@@ -97,7 +97,7 @@ export class Studio {
       if(bakedBlade){const old=object.material;object.material=new THREE.MeshBasicMaterial({name:old.name,map:old.map,side:old.side,color:0xffffff,opacity:native.alpha,toneMapped:false});}
       if(source){
         const alpha=materialAlpha(source),m=object.material;
-        m.transparent=alpha.blend;m.depthWrite=!alpha.blend;m.opacity=native?.alpha??m.opacity;
+        m.transparent=alpha.blend;m.opacity=native?.alpha??m.opacity;
         m.alphaTest=0;
         if(alpha.blend){
           const factors=[THREE.OneFactor,THREE.ZeroFactor,THREE.SrcColorFactor,THREE.OneMinusSrcColorFactor,THREE.DstColorFactor,THREE.OneMinusDstColorFactor,THREE.SrcAlphaFactor,THREE.OneMinusSrcAlphaFactor,THREE.DstAlphaFactor,THREE.OneMinusDstAlphaFactor,THREE.SrcAlphaSaturateFactor];
@@ -111,6 +111,12 @@ export class Studio {
       }
       if(native){
         const m=object.material;
+        const depth=nativeDepthState(native);
+        m.depthTest=depth.test;m.depthWrite=depth.write;m.side=depth.side;m.forceSinglePass=true;
+        m.depthFunc=[THREE.AlwaysDepth,THREE.LessDepth,THREE.EqualDepth,THREE.LessEqualDepth,THREE.GreaterDepth,THREE.NotEqualDepth,THREE.GreaterEqualDepth,THREE.NeverDepth][depth.func];
+        // Blending does not disable native depth writes. Otherwise the floor's
+        // transparent overlay can paint over nearer backdrop panels.
+        if(native.textures.dark)object.receiveShadow=false;
         // The old GLB's AO is a grayscale approximation. Use the original RGB
         // dark map and its compact TexDesc UV index, not a guessed UV channel.
         if(native.textures.dark?.url)nativeTextures.push(this.nativeTexture(native.textures.dark).then(texture=>{
@@ -135,7 +141,7 @@ export class Studio {
   }
   nativeTexture(entry,srgb=false){
     this.nativeTextures??=new Map();
-    if(!this.nativeTextures.has(entry.url))this.nativeTextures.set(entry.url,new THREE.TextureLoader().loadAsync(entry.url));
+    if(!this.nativeTextures.has(entry.url))this.nativeTextures.set(entry.url,new THREE.TextureLoader().loadAsync(entry.url+'?v=20261006-atlases'));
     return this.nativeTextures.get(entry.url).then(source=>{const texture=source.clone();texture.flipY=false;texture.channel=entry.uvSet;texture.colorSpace=srgb?THREE.SRGBColorSpace:THREE.NoColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.needsUpdate=true;return texture;});
   }
   async initialize(manifest) {
@@ -149,7 +155,7 @@ export class Studio {
     const runtimeName=name=>name.replace(/[\[\].: /]/g,'');
     for(const [actor,nodes] of Object.entries(this.animationData.bindings))this.animationData.bindings[actor]=Object.fromEntries(Object.entries(nodes).map(([name,node])=>[runtimeName(name),node]));
     for(const clips of Object.values(this.animationData.clips))for(const clip of Object.values(clips))for(const track of clip.tracks)track.node=runtimeName(track.node);
-    this.materialData=await fetch('assets/presentation/materials.json').then(r=>r.json());
+    this.materialData=await fetch('assets/presentation/materials.json?v=20261006-atlases').then(r=>r.json());
     this.noticeData=await fetch('assets/presentation/notices.json').then(r=>r.json());
     this.collectibleData=await fetch('assets/presentation/collectibles/collectibles.json').then(r=>r.json());
     this.sceneData=await fetch('assets/scenes.json').then(r=>r.json());

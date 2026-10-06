@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {boardTransition,displayLetters,automaticView,cameraAutomation,wheelValues,solveTiles,fillSolution,materialAlpha} from '../presentation.js';
+import {boardTransition,displayLetters,automaticView,cameraAutomation,wheelValues,solveTiles,fillSolution,materialAlpha,nativeDepthState} from '../presentation.js';
 const source=JSON.parse(await readFile(new URL('../assets/presentation/presentation.json',import.meta.url)));
 const timing=source.timing;
 const state={round:1,phase:'action',used:[],bonusChoices:[],puzzle:{id:1,rows:['              ','   HELLO      ','    WORLD     ','              ']}};
@@ -20,6 +20,32 @@ test('fill-in solving locks revealed letters and preserves punctuation and numbe
 test('source flags distinguish opaque wheel steps from transparent blue blades',()=>{
   assert.equal(materialAlpha({alphaFlags:11500,alphaThreshold:0}).blend,false);
   const blue=materialAlpha({alphaFlags:237,alphaThreshold:0});assert.equal(blue.blend,true);assert.equal(blue.src,6);assert.equal(blue.dst,7);
+});
+test('blended native panels retain default depth writes and front-face culling',()=>{
+  assert.deepEqual(nativeDepthState({alphaFlags:237}),{test:true,write:true,func:3,side:0});
+  assert.deepEqual(nativeDepthState({zBufferFlags:null,stencilFlags:null}),{test:true,write:true,func:3,side:0});
+});
+test('explicit native depth and stencil flags override defaults',()=>{
+  assert.deepEqual(nativeDepthState({zBufferFlags:1|(6<<2),stencilFlags:2<<10}),{test:true,write:false,func:6,side:1});
+  assert.deepEqual(nativeDepthState({zBufferFlags:2,stencilFlags:3<<10}),{test:false,write:true,func:0,side:2});
+});
+test('studio-local atlas identities and image dimensions are preserved',async()=>{
+  const materials=JSON.parse(await readFile(new URL('../assets/presentation/materials.json',import.meta.url)));
+  const atlases=new Map();
+  for(const [name,m] of Object.entries(materials))for(const texture of Object.values(m.textures)){
+    if(!texture.url)continue;
+    assert.ok(texture.url.split('/').at(-1).startsWith(name.split('/')[0]+'_'));
+    assert.match(texture.pixelsSha256,/^[a-f0-9]{64}$/);
+    atlases.set(texture.url,texture);
+  }
+  for(const [url,t] of atlases){
+    const png=await readFile(new URL('../'+url,import.meta.url));
+    assert.deepEqual([png.readUInt32BE(16),png.readUInt32BE(20)],t.size);
+  }
+  const ny=atlases.get('assets/presentation/materials/wof_ny_Group2a_LightingMap.png');
+  const base=atlases.get('assets/presentation/materials/wof_base_Group2a_LightingMap.png');
+  assert.deepEqual(ny.size,[2048,1024]);
+  assert.notEqual(ny.pixelsSha256,base.pixelsSha256);
 });
 test('all 37 original cameras, controller keys, roles and screen movies are packaged',async()=>{
   const catalog=JSON.parse(await readFile(new URL('../assets/presentation/cameras.json',import.meta.url)));
