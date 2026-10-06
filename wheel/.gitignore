@@ -1,4 +1,5 @@
 node_modules/
 qa/
+__pycache__/
 assets/models/avatars/
 assets/avatars.json

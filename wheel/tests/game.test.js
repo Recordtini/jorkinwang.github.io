@@ -42,7 +42,7 @@ test('reload preserves bank and resets interrupted wheel spin', () => {
   assert.equal(h.restore('{broken'),false);
 });
 test('the original top Lose A Turn wedge passes without clearing cash',()=>{const g=game();g.player.cash=200;g.beginSpin();g.finishSpin(0);assert.equal(g.state.turn,1);assert.equal(g.state.players[0].cash,200);});
-test('mystery risk can lose round cash without losing bank',()=>{const g=game();g.state.round=3;g.player.bank=5000;g.beginSpin();g.finishSpin(11);g.guess('L');assert.equal(g.state.phase,'mystery');g.mystery(true);assert.equal(g.state.turn,1);assert.equal(g.state.players[0].bank,5000);assert.equal(g.state.players[0].cash,0);});
+test('mystery risk can lose round cash without losing bank',()=>{const g=game();g.state.round=3;g.state.mysteryWinSector=23;g.player.bank=5000;g.beginSpin();g.finishSpin(11);g.guess('L');assert.equal(g.state.phase,'mystery');g.mystery(true);assert.equal(g.state.turn,1);assert.equal(g.state.players[0].bank,5000);assert.equal(g.state.players[0].cash,0);});
 test('solution normalization retains numerals',()=>{assert.equal(normalizeAnswer('Route 66!'),'ROUTE66');assert.notEqual(normalizeAnswer('Route 66'),normalizeAnswer('Route'));});
 test('single player survives misses, all rounds, and save restoration',()=>{
   const g=new WheelGame(puzzles,{random:()=>1/24});g.start([{name:'Only Me',slot:1,ai:false}],'single');

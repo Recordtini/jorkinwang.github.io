@@ -1,0 +1,578 @@
+{
+  "tossup": {
+    "targetLUFS": -22,
+    "gainDB": -3.96,
+    "source": {
+      "input_i": -18.04,
+      "input_tp": -1.67,
+      "input_lra": 3.1
+    },
+    "output": {
+      "input_i": -22.26,
+      "input_tp": -5.91,
+      "input_lra": 3.1
+    },
+    "sourceSha256": "2d76e4227615318860ce71fcfed49487fa3933f305fd68a0220fc6521a8cb4cc",
+    "outputSha256": "f00238eacc07cace7aa5bf0812daf4926ed11fcd5c2d67f640e67e09aa1b640b"
+  },
+  "Wof8BarTheme": {
+    "targetLUFS": -22,
+    "gainDB": -6.81,
+    "source": {
+      "input_i": -15.19,
+      "input_tp": -0.56,
+      "input_lra": 2.0
+    },
+    "output": {
+      "input_i": -22.22,
+      "input_tp": -7.5,
+      "input_lra": 1.9
+    },
+    "sourceSha256": "d0c815a3dd57381bc2f56046d84ab28b52e8d44159f01a4fd8bdbcdce3b036cb",
+    "outputSha256": "110851a0e488a3e888a4e670629cf81c715970d9b96c30e35f43b4c4ae14883e"
+  },
+  "ApplauseLong": {
+    "targetLUFS": -20,
+    "gainDB": -0.09,
+    "source": {
+      "input_i": -20.5,
+      "input_tp": -1.91,
+      "input_lra": 0.5
+    },
+    "output": {
+      "input_i": -20.92,
+      "input_tp": -2.49,
+      "input_lra": 0.5
+    },
+    "sourceSha256": "afe4ef8698352363731aec65214f8d42ec9bfe77422d0398bbb1294ead6fb507",
+    "outputSha256": "fadaefcdc1d240a5b2bd55544a6d1138025e186a6925eb305263421ed0be8ec8"
+  },
+  "WheelClick": {
+    "targetLUFS": -20,
+    "gainDB": 9.55,
+    "source": {
+      "input_i": -29.55,
+      "input_tp": -15.31,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.35,
+      "input_tp": -6.01,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "46a044c745c898bac1b1a503216707bedec36076b6810512b86156f8d9efd8af",
+    "outputSha256": "94944ea8a11fb1ea34cb283186863bade291724e3ec2211d09389c8fadd21de2"
+  },
+  "PuzzleReveal": {
+    "targetLUFS": -20,
+    "gainDB": -7.66,
+    "source": {
+      "input_i": -12.34,
+      "input_tp": -1.86,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.25,
+      "input_tp": -9.78,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "bf4d4d5aafd094f605a4e42567d00b092db4c6c10931caa9e3772b42a720192e",
+    "outputSha256": "ea571751c0ec31aeff2f48ace27d4da8f7df97a9e5c66b48291909e46c4ee2ba"
+  },
+  "Incorrect": {
+    "targetLUFS": -20,
+    "gainDB": -7.33,
+    "source": {
+      "input_i": -12.67,
+      "input_tp": -0.43,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.29,
+      "input_tp": -8.08,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "49566db1673d7e57a1e032863629fbd22c7fa133b4f2a17b5bf4de810df7ab4a",
+    "outputSha256": "fd1021d02a220708758bba889eae3f906b9e3846b6eb4be1cac40af752a01671"
+  },
+  "Applause1": {
+    "targetLUFS": -20,
+    "gainDB": -6.81,
+    "source": {
+      "input_i": -13.19,
+      "input_tp": -0.39,
+      "input_lra": 3.3
+    },
+    "output": {
+      "input_i": -20.21,
+      "input_tp": -7.51,
+      "input_lra": 3.4
+    },
+    "sourceSha256": "d0f4e53e76e7347d38fb7ea0d52faa89a48285ef84b27a9b22f9aac40fd62f70",
+    "outputSha256": "123701b07cb82840f96656f27713b933645cfa156a57d230868871ab4c9bebc4"
+  },
+  "LetterConsonant": {
+    "targetLUFS": -20,
+    "gainDB": 23.37,
+    "source": {
+      "input_i": -44.19,
+      "input_tp": -25.37,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -21.09,
+      "input_tp": -2.27,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "ce835cae23dff726a17822eff234be7437579501968bdc24c8e4b0bb43a57d6a",
+    "outputSha256": "b2372d86d67ee99569760807d373805926640d522da0de750abffa2aa508bad7"
+  },
+  "Applause5": {
+    "targetLUFS": -20,
+    "gainDB": -6.09,
+    "source": {
+      "input_i": -13.91,
+      "input_tp": -0.81,
+      "input_lra": 4.1
+    },
+    "output": {
+      "input_i": -20.32,
+      "input_tp": -7.11,
+      "input_lra": 4.0
+    },
+    "sourceSha256": "c4680b25494844981891b1c8a7ae464cfd7104ad1fe87e1717abb27e069a6ff7",
+    "outputSha256": "9006c48b7aac2cf9a7a27292c30bf888c496d84c55a2cb7cd4b96cfa9bbd09ce"
+  },
+  "LandOnMysteryWedge": {
+    "targetLUFS": -20,
+    "gainDB": -5.69,
+    "source": {
+      "input_i": -14.31,
+      "input_tp": 0.67,
+      "input_lra": 8.1
+    },
+    "output": {
+      "input_i": -20.39,
+      "input_tp": -5.54,
+      "input_lra": 8.2
+    },
+    "sourceSha256": "b1b52073907ac6f570b7ea92355d52810b16a0b455c90f08ce9e01511f670939",
+    "outputSha256": "b8b8d4ba3e87098007c1376987d8d107b7f54c1e964d2ba1f89aff193ccb392a"
+  },
+  "SlightDisappointment2": {
+    "targetLUFS": -20,
+    "gainDB": -3.49,
+    "source": {
+      "input_i": -16.51,
+      "input_tp": -5.53,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -9.3,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "4f2ca0bf1931790941aed8e57a0bd15d04c0ee69dc45cf65ff95ceaad0c49bc1",
+    "outputSha256": "f558112a52a08d70d73785955648aaab979ae05b1277b1cbf1a9380d121838e4"
+  },
+  "BonusRoundTotal": {
+    "targetLUFS": -20,
+    "gainDB": -15.35,
+    "source": {
+      "input_i": -4.65,
+      "input_tp": 2.72,
+      "input_lra": 1.5
+    },
+    "output": {
+      "input_i": -20.34,
+      "input_tp": -13.02,
+      "input_lra": 1.4
+    },
+    "sourceSha256": "fe73e17b08cfb794c6a479b3a2a08b4d42b7028772dc1180e1e2399c021287aa",
+    "outputSha256": "65f5e21e97067ae8a3cca002fa6b96b6faad43ca49b5065ddbe1e75ca63ea4a9"
+  },
+  "ApplauseCheer2": {
+    "targetLUFS": -20,
+    "gainDB": -6.24,
+    "source": {
+      "input_i": -13.76,
+      "input_tp": -0.07,
+      "input_lra": 9.7
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -6.58,
+      "input_lra": 9.7
+    },
+    "sourceSha256": "74e949d1760b6fa39cd4e75adf1ce44e06498b54c88e6e942b97c4d132dc6725",
+    "outputSha256": "7ae35b4cce1f65a166c42e399176f8c7e415336bf458df7879681de76fa2a24f"
+  },
+  "LetterVowel": {
+    "targetLUFS": -20,
+    "gainDB": 14.89,
+    "source": {
+      "input_i": -40.01,
+      "input_tp": -16.89,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -25.4,
+      "input_tp": -2.26,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "1f369b678ce0192686cda2820ffdc6408fb4aec3cd1f50a398f4d4accac126a1",
+    "outputSha256": "40fa76259d7671a3342caa5507342bc19ea4f3bce687853528f19f61bfbf32b4"
+  },
+  "Disappointment3": {
+    "targetLUFS": -20,
+    "gainDB": -8.52,
+    "source": {
+      "input_i": -11.48,
+      "input_tp": -0.29,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.24,
+      "input_tp": -9.07,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "824bc5d3abfa51897c74e4cdda6a2c3ecd5777d207692c66ecb0944b364fbf5b",
+    "outputSha256": "5b0344579955a4f32ebdfb424fe88d0296013bf98c218b4800de8ba490d9fd3e"
+  },
+  "Applause2": {
+    "targetLUFS": -20,
+    "gainDB": -5.14,
+    "source": {
+      "input_i": -14.86,
+      "input_tp": 0.01,
+      "input_lra": 7.8
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -5.71,
+      "input_lra": 7.8
+    },
+    "sourceSha256": "71975455dd1ac7676b510e71d5f960d63a5f3797d82cda0963d98fa3116a86b4",
+    "outputSha256": "8212e70beb6bc079dd02c6095ff521954805fca6f5b7ccde89bec0ed3b456910"
+  },
+  "SlightDisappointment5": {
+    "targetLUFS": -20,
+    "gainDB": -1.81,
+    "source": {
+      "input_i": -18.19,
+      "input_tp": -6.72,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.25,
+      "input_tp": -8.86,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "95174c71bef45214d4d6d793ff4cd9db1491117247be9481f5f58cca42ae8cff",
+    "outputSha256": "508b3994e9427310ebaaeefc416276e52645d80eb4a4197bd96a699ac7d19260"
+  },
+  "TimesUp": {
+    "targetLUFS": -20,
+    "gainDB": -4.14,
+    "source": {
+      "input_i": -15.86,
+      "input_tp": -1.96,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.36,
+      "input_tp": -6.35,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "92b7ef70eec9dc818bf6c93822c209922c2d0a298bf11e45b1510c08d5098540",
+    "outputSha256": "23d24928ac0958cd37859e1f7f7f9d17e409ac6a95a3eba1b48c7a1f9a4cf633"
+  },
+  "ApplauseCheer3": {
+    "targetLUFS": -20,
+    "gainDB": -6.48,
+    "source": {
+      "input_i": -13.52,
+      "input_tp": 0.02,
+      "input_lra": 4.9
+    },
+    "output": {
+      "input_i": -20.3,
+      "input_tp": -6.84,
+      "input_lra": 4.8
+    },
+    "sourceSha256": "d4486218e88eefb5940d0d687a730c58aa015077eb9420f455680420fa76413a",
+    "outputSha256": "c959927cc6736d8cec38c2b7a7f8733e574268bfaa9d2fcdb357a41702f5d0e4"
+  },
+  "SlightDisappointment1": {
+    "targetLUFS": -20,
+    "gainDB": -4.17,
+    "source": {
+      "input_i": -15.83,
+      "input_tp": -4.02,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -8.42,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "0b4b4131e9f47b8759c02051e1537def1cba99897027dd5455178d25e8d56215",
+    "outputSha256": "3274fb513504a3c643c472a8642e007041652e52a1480886a05f10ad5b80766f"
+  },
+  "NoMoreVowels": {
+    "targetLUFS": -20,
+    "gainDB": -5.91,
+    "source": {
+      "input_i": -14.09,
+      "input_tp": -3.44,
+      "input_lra": 1.2
+    },
+    "output": {
+      "input_i": -20.31,
+      "input_tp": -9.65,
+      "input_lra": 1.2
+    },
+    "sourceSha256": "86cbd225945930ac4a4defc144712c8d33e417615e14711345c9dbd008a47065",
+    "outputSha256": "dd6d65411597e7b117691153ab874923502340df621f23341ea890b4ad5bba3f"
+  },
+  "LetterDing": {
+    "targetLUFS": -20,
+    "gainDB": -8.39,
+    "source": {
+      "input_i": -11.61,
+      "input_tp": -3.75,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.29,
+      "input_tp": -12.4,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "66c89231cb15c38d7d43ebdc6cf42bfb260d4ef3e0b897cf3ad10b526cfbc852",
+    "outputSha256": "afdcebf72d40e6e0971d63e8f5cacd45da59b467b3b56280ff83664ccca6b3f3"
+  },
+  "Disappointment2": {
+    "targetLUFS": -20,
+    "gainDB": -9.04,
+    "source": {
+      "input_i": -10.96,
+      "input_tp": -0.19,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -9.53,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "58026ff575077ff8e9d74f35f0abb91608ae89f92383ac6f93eb0998d231f279",
+    "outputSha256": "17182949009815fe8ecb68ee6a66e5703dc2adb5a94dd965832fba7144ff58f4"
+  },
+  "Applause3": {
+    "targetLUFS": -20,
+    "gainDB": -4.52,
+    "source": {
+      "input_i": -15.48,
+      "input_tp": 0.29,
+      "input_lra": 9.0
+    },
+    "output": {
+      "input_i": -20.31,
+      "input_tp": -4.34,
+      "input_lra": 8.9
+    },
+    "sourceSha256": "c1a9279ecb4ca149f6b3ab5e75a1eee6b2e30d46085648ecfb0cfc48110e9851",
+    "outputSha256": "c294a01b06f51aae43d2121c1629e013a68a0573714e4a962a8df74dfd0417b9"
+  },
+  "SlightDisappointment4": {
+    "targetLUFS": -20,
+    "gainDB": -3.7,
+    "source": {
+      "input_i": -16.3,
+      "input_tp": -5.1,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.25,
+      "input_tp": -9.08,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "0a02cade1631b8241e9744e65502f85d9d38bbd27990cf466ae28b947ef2334d",
+    "outputSha256": "1d22c8935552311814a43fcc1adf801be82c4c94d144835066c27f2fa7e45101"
+  },
+  "WofChant": {
+    "targetLUFS": -20,
+    "gainDB": -6.91,
+    "source": {
+      "input_i": -13.09,
+      "input_tp": -0.78,
+      "input_lra": 1.6
+    },
+    "output": {
+      "input_i": -20.26,
+      "input_tp": -7.96,
+      "input_lra": 1.5
+    },
+    "sourceSha256": "318131c97ebc48e16715a5ec0154957ff037e937834982d41b9c14a59f43bba2",
+    "outputSha256": "f36afda498ed2ae1220bd8bcb03a1405d8a274cf295591b0667e0e54171f8bc0"
+  },
+  "ApplauseCheer4": {
+    "targetLUFS": -20,
+    "gainDB": -5.92,
+    "source": {
+      "input_i": -14.08,
+      "input_tp": -0.67,
+      "input_lra": 0.2
+    },
+    "output": {
+      "input_i": -20.29,
+      "input_tp": -7.12,
+      "input_lra": 0.3
+    },
+    "sourceSha256": "a3c9af6729ebdbd5dd089529f2c5a81d6d6817626d3d9d83c463efc1c9820da5",
+    "outputSha256": "a181d9150585706c5dbd03839483cb45cc9b148b0c8c9e3cf2c8e6f601342c2f"
+  },
+  "Bankrupt": {
+    "targetLUFS": -20,
+    "gainDB": -9.36,
+    "source": {
+      "input_i": -10.64,
+      "input_tp": -1.61,
+      "input_lra": 1.1
+    },
+    "output": {
+      "input_i": -20.26,
+      "input_tp": -11.23,
+      "input_lra": 1.2
+    },
+    "sourceSha256": "9a46fad47212d1f17607c70de3aba89db6e51542ab417c5ce91e20b3581d3086",
+    "outputSha256": "7973f3ab2a07325f2d063f70747df2a0e7178dcaa2217fc98e2ecb87fe67d28b"
+  },
+  "OnlyVowelsRemain": {
+    "targetLUFS": -20,
+    "gainDB": -9.33,
+    "source": {
+      "input_i": -10.67,
+      "input_tp": -2.28,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -11.88,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "265c319779ac4b55aabce0c68720a8144c21215c90663475e8551444a1b7170e",
+    "outputSha256": "23df109040ce6e97c631558dff7a6e56041df0b3c8fdb3372e968c426bdad603"
+  },
+  "Disappointment1": {
+    "targetLUFS": -20,
+    "gainDB": -8.85,
+    "source": {
+      "input_i": -11.15,
+      "input_tp": -0.41,
+      "input_lra": 0.5
+    },
+    "output": {
+      "input_i": -20.26,
+      "input_tp": -9.53,
+      "input_lra": 0.4
+    },
+    "sourceSha256": "c419f544046c0bf2cd2b1adcd72f80ad599b2dd0663ee355e583ca7f85629597",
+    "outputSha256": "2bd79a3ee5f9d84e85ec11c9e588fcb619b3c561c941323336dd375616dfb779"
+  },
+  "PuzzleWin": {
+    "targetLUFS": -20,
+    "gainDB": -9.14,
+    "source": {
+      "input_i": -10.86,
+      "input_tp": -0.03,
+      "input_lra": 4.3
+    },
+    "output": {
+      "input_i": -20.34,
+      "input_tp": -9.49,
+      "input_lra": 4.4
+    },
+    "sourceSha256": "796dfd261f4fae12e8cacee7cbdd165aaa95f30b5eaba567b03c9aeed6ea57ae",
+    "outputSha256": "3f7c23f0b2e4397fc22b3d1bf7a2a03b508fa01eaaa50d08fcbbd6a1ed4df6b1"
+  },
+  "Letter": {
+    "targetLUFS": -20,
+    "gainDB": -4.83,
+    "source": {
+      "input_i": -15.17,
+      "input_tp": -5.03,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -10.16,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "ba2258c52276de2defa76fb64649f566508d398cdae8658127af3aea69bc5a48",
+    "outputSha256": "8446e55b3afbcb63dc4a727a65c03549b58e9ad3ec3dc0520af3e19cb1679bf0"
+  },
+  "Applause4": {
+    "targetLUFS": -20,
+    "gainDB": -6.63,
+    "source": {
+      "input_i": -13.37,
+      "input_tp": -0.45,
+      "input_lra": 5.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -7.41,
+      "input_lra": 5.1
+    },
+    "sourceSha256": "b4f16ac7ae7ec09b9b87335f56a86d2031e5cbc75d8aa69bd56bf17ed2d90838",
+    "outputSha256": "f22b2bd2b2dd8363dd3c2e1a5ff26adf5f4efe6c862248b30c20bbb81361b4eb"
+  },
+  "SlightDisappointment3": {
+    "targetLUFS": -20,
+    "gainDB": -3.63,
+    "source": {
+      "input_i": -16.37,
+      "input_tp": -4.25,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.27,
+      "input_tp": -8.09,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "dc3eb2e923ffcc7fa12ee613e6c42189d9e0789552e445e50402a791df68dac0",
+    "outputSha256": "7cc7a72285e9aaa17e987c753c901a36c594f885378724d3543c77c3b6e7a5a2"
+  },
+  "LetterSelect": {
+    "targetLUFS": -20,
+    "gainDB": 16.25,
+    "source": {
+      "input_i": -36.25,
+      "input_tp": -19.12,
+      "input_lra": 0.0
+    },
+    "output": {
+      "input_i": -20.25,
+      "input_tp": -3.14,
+      "input_lra": 0.0
+    },
+    "sourceSha256": "f8a79d082ea9f219bf029cfc58316f6235bcd056ed29e131c1817193fbb62011",
+    "outputSha256": "e6f188bbfdf40225d91d9e094352e68e7bc2b36c3525ea7d95f0d7848b963767"
+  },
+  "ApplauseCheer1": {
+    "targetLUFS": -20,
+    "gainDB": -6.85,
+    "source": {
+      "input_i": -13.15,
+      "input_tp": -0.0,
+      "input_lra": 5.1
+    },
+    "output": {
+      "input_i": -20.52,
+      "input_tp": -7.07,
+      "input_lra": 5.2
+    },
+    "sourceSha256": "87669ca0ae5833bbc5863a2766b90a8ddda9dfe45252a02059fb7483382eec13",
+    "outputSha256": "472d27aacea8c3d601498d331c2176cb60f6bc8ea0c7f7d0f0cc8d6973bfe658"
+  }
+}

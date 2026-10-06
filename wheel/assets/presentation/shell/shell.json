@@ -1,0 +1,3928 @@
+{
+  "startshell": {
+    "fps": 20.0,
+    "sprites": [
+      {
+        "id": 2,
+        "frames": 41,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lShow"
+          },
+          {
+            "frame": 18,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 5,
+        "frames": 58,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lDisable"
+          },
+          {
+            "frame": 13,
+            "name": "lShow"
+          },
+          {
+            "frame": 36,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 9,
+        "frames": 58,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lDisable"
+          },
+          {
+            "frame": 13,
+            "name": "lShow"
+          },
+          {
+            "frame": 36,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 13,
+        "frames": 58,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lDisable"
+          },
+          {
+            "frame": 13,
+            "name": "lShow"
+          },
+          {
+            "frame": 36,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 19,
+        "frames": 58,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lDisable"
+          },
+          {
+            "frame": 13,
+            "name": "lShow"
+          },
+          {
+            "frame": 36,
+            "name": "lHide"
+          }
+        ]
+      }
+    ],
+    "functions": [
+      "callback",
+      "handleHideScreenComplete",
+      "handleKeyEnter",
+      "handleShowScreenComplete",
+      "handleSplashTimer",
+      "hideScreen",
+      "init_startshell",
+      "showNextScreen",
+      "showScreen",
+      "soeEnableTrace",
+      "soeInit",
+      "soeIsGame",
+      "soeTRACE",
+      "startListeners",
+      "startshell_EnableEnter"
+    ],
+    "commands": {
+      "postSOELogoEnter": 1,
+      "postSonyPicturesScreenEnter": 1,
+      "postMiddleLogoScreenEnter": 1,
+      "postLegalScreenEnter": 1,
+      "postGameLogoEnter": 1,
+      "postSOELogoDisplayed": 1,
+      "postSonyPicturesScreenDisplayed": 1,
+      "postMiddleLogoScreenDisplayed": 1,
+      "postLegalScreenDisplayed": 1,
+      "postGameLogoDisplayed": 1,
+      "postSOELogoExit": 1,
+      "postSonyPicturesScreenExit": 1,
+      "postMiddleLogoScreenExit": 1,
+      "postLegalScreenExit": 1,
+      "postGameLogoExit": 1,
+      "soeTRACE ": 1
+    }
+  },
+  "gameshell": {
+    "fps": 30.0,
+    "sprites": [
+      {
+        "id": 10,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 14,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 17,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 20,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 23,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 26,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 30,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 33,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 36,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 39,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 42,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 45,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 48,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 51,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 54,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 56,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 58,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 60,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 62,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 64,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 66,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 68,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 70,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 72,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 74,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 76,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 78,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 80,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 82,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 84,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 86,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 88,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 90,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 95,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 97,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 102,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 106,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 108,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 113,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 115,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 120,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 122,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 126,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 128,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 130,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 132,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 135,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 138,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 140,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 142,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 144,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 146,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 148,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 150,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 152,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 154,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 156,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 159,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 161,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 164,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 166,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 169,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 171,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 174,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 176,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 180,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 184,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 186,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 189,
+        "frames": 2,
+        "labels": []
+      },
+      {
+        "id": 195,
+        "frames": 32,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 199,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 203,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 207,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 211,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 215,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 219,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 223,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 227,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 231,
+        "frames": 29,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Empty"
+          },
+          {
+            "frame": 10,
+            "name": "Deselected"
+          },
+          {
+            "frame": 18,
+            "name": "idle"
+          },
+          {
+            "frame": 23,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 233,
+        "frames": 21,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "Ready"
+          }
+        ]
+      },
+      {
+        "id": 236,
+        "frames": 5,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "Animation"
+          }
+        ]
+      },
+      {
+        "id": 238,
+        "frames": 82,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "R0"
+          },
+          {
+            "frame": 7,
+            "name": "R1"
+          },
+          {
+            "frame": 11,
+            "name": "R2"
+          },
+          {
+            "frame": 15,
+            "name": "R3"
+          },
+          {
+            "frame": 19,
+            "name": "R4"
+          },
+          {
+            "frame": 23,
+            "name": "R5"
+          },
+          {
+            "frame": 27,
+            "name": "R6"
+          },
+          {
+            "frame": 31,
+            "name": "R7"
+          },
+          {
+            "frame": 35,
+            "name": "R8"
+          },
+          {
+            "frame": 39,
+            "name": "R9"
+          },
+          {
+            "frame": 43,
+            "name": "L0"
+          },
+          {
+            "frame": 47,
+            "name": "L9"
+          },
+          {
+            "frame": 51,
+            "name": "L8"
+          },
+          {
+            "frame": 55,
+            "name": "L7"
+          },
+          {
+            "frame": 59,
+            "name": "L6"
+          },
+          {
+            "frame": 63,
+            "name": "L5"
+          },
+          {
+            "frame": 67,
+            "name": "L4"
+          },
+          {
+            "frame": 71,
+            "name": "L3"
+          },
+          {
+            "frame": 75,
+            "name": "L2"
+          },
+          {
+            "frame": 79,
+            "name": "L1"
+          }
+        ]
+      },
+      {
+        "id": 245,
+        "frames": 22,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 7,
+            "name": "Animate"
+          }
+        ]
+      },
+      {
+        "id": 250,
+        "frames": 22,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 7,
+            "name": "Animate"
+          }
+        ]
+      },
+      {
+        "id": 255,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 258,
+        "frames": 38,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 7,
+            "name": "Selected"
+          },
+          {
+            "frame": 15,
+            "name": "ArrowAnimation"
+          }
+        ]
+      },
+      {
+        "id": 259,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 262,
+        "frames": 46,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 7,
+            "name": "Selected"
+          },
+          {
+            "frame": 15,
+            "name": "ArrowAnimation"
+          }
+        ]
+      },
+      {
+        "id": 265,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 266,
+        "frames": 31,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 6,
+            "name": "Selected"
+          },
+          {
+            "frame": 16,
+            "name": "DoneAnim"
+          },
+          {
+            "frame": 24,
+            "name": "Deselected"
+          }
+        ]
+      },
+      {
+        "id": 269,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 272,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 273,
+        "frames": 90,
+        "labels": []
+      },
+      {
+        "id": 274,
+        "frames": 10,
+        "labels": []
+      },
+      {
+        "id": 279,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 281,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 283,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 284,
+        "frames": 10,
+        "labels": []
+      },
+      {
+        "id": 285,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 286,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 288,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 289,
+        "frames": 10,
+        "labels": []
+      },
+      {
+        "id": 291,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 292,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 293,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 300,
+        "frames": 46,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Idle"
+          },
+          {
+            "frame": 7,
+            "name": "Selected"
+          },
+          {
+            "frame": 15,
+            "name": "ArrowAnimation"
+          }
+        ]
+      },
+      {
+        "id": 301,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 304,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 305,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 306,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 307,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 309,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 312,
+        "frames": 10,
+        "labels": []
+      },
+      {
+        "id": 315,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 330,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 332,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 334,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 336,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 338,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 340,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 342,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 344,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 346,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 348,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 350,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 352,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 354,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 355,
+        "frames": 50,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Ready"
+          }
+        ]
+      },
+      {
+        "id": 359,
+        "frames": 45,
+        "labels": []
+      },
+      {
+        "id": 360,
+        "frames": 11,
+        "labels": []
+      },
+      {
+        "id": 361,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 368,
+        "frames": 16,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Default"
+          },
+          {
+            "frame": 9,
+            "name": "Winner"
+          }
+        ]
+      },
+      {
+        "id": 384,
+        "frames": 121,
+        "labels": []
+      },
+      {
+        "id": 420,
+        "frames": 99,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "SanFrancisco"
+          },
+          {
+            "frame": 10,
+            "name": "LosAngeles"
+          },
+          {
+            "frame": 19,
+            "name": "LasVegas"
+          },
+          {
+            "frame": 28,
+            "name": "Phoenix"
+          },
+          {
+            "frame": 37,
+            "name": "Denver"
+          },
+          {
+            "frame": 46,
+            "name": "Dallas"
+          },
+          {
+            "frame": 55,
+            "name": "NewOrleans"
+          },
+          {
+            "frame": 64,
+            "name": "FortLauderdale"
+          },
+          {
+            "frame": 73,
+            "name": "Charleston"
+          },
+          {
+            "frame": 82,
+            "name": "Philadelphia"
+          },
+          {
+            "frame": 91,
+            "name": "NewYork"
+          }
+        ]
+      },
+      {
+        "id": 429,
+        "frames": 200,
+        "labels": []
+      },
+      {
+        "id": 431,
+        "frames": 1200,
+        "labels": []
+      },
+      {
+        "id": 435,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 445,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 450,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 452,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 458,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 464,
+        "frames": 17,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Default"
+          },
+          {
+            "frame": 10,
+            "name": "Winner"
+          }
+        ]
+      },
+      {
+        "id": 470,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 474,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 476,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 478,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 479,
+        "frames": 910,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lDefault"
+          },
+          {
+            "frame": 11,
+            "name": "lTimer"
+          }
+        ]
+      },
+      {
+        "id": 483,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 485,
+        "frames": 15,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "NotReady"
+          },
+          {
+            "frame": 9,
+            "name": "Ready"
+          }
+        ]
+      },
+      {
+        "id": 498,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 510,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 521,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 526,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 533,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 536,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 541,
+        "frames": 6,
+        "labels": []
+      },
+      {
+        "id": 544,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 548,
+        "frames": 21,
+        "labels": []
+      },
+      {
+        "id": 552,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 555,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 556,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 559,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 562,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 563,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 564,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 567,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 570,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 574,
+        "frames": 40,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Deselected"
+          },
+          {
+            "frame": 11,
+            "name": "Selected"
+          }
+        ]
+      },
+      {
+        "id": 577,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 590,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 599,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 602,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 605,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 608,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 611,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 624,
+        "frames": 100,
+        "labels": []
+      },
+      {
+        "id": 632,
+        "frames": 100,
+        "labels": []
+      },
+      {
+        "id": 641,
+        "frames": 100,
+        "labels": []
+      },
+      {
+        "id": 644,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 645,
+        "frames": 10,
+        "labels": []
+      },
+      {
+        "id": 646,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 647,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 648,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 649,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 651,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 657,
+        "frames": 100,
+        "labels": []
+      },
+      {
+        "id": 658,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 662,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 665,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 669,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 673,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 675,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 677,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 680,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 682,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 683,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 685,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 688,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 691,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 693,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 694,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 695,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 697,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 698,
+        "frames": 1,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "mainMenuIndexLegend"
+          }
+        ]
+      },
+      {
+        "id": 705,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 708,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 709,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 712,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 713,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 715,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 717,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 719,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 720,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 722,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 747,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 748,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 749,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 750,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 751,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 752,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 753,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 754,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 755,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 756,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 757,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 758,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 759,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 760,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 761,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 762,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 763,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 764,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 765,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 766,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 767,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 768,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 769,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 770,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 771,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 772,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 773,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 774,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 775,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 776,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 777,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 778,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 779,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 780,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 781,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 782,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 783,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 784,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 785,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 786,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 787,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 788,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 789,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 790,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 791,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 792,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 793,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 794,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 795,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 796,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 797,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 798,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 799,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 800,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 801,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 802,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 803,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 804,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 805,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 806,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 807,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 808,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 809,
+        "frames": 0,
+        "labels": []
+      }
+    ],
+    "functions": [
+      "AddTweensCompleted",
+      "Advance",
+      "ApplySelectedTextFormat",
+      "AutoScroll",
+      "AuxFunctions",
+      "CalculatePlayerTotal",
+      "CategoryBox",
+      "CharacterLibraryScreen",
+      "CompareScores",
+      "CreateControlBoxes",
+      "CreditsScreen",
+      "Data",
+      "EndSingleGameScreen",
+      "EnterGameScreen",
+      "Equations",
+      "FinishedTween",
+      "FlipPage",
+      "FocusManager",
+      "FormatScore",
+      "FormatScores",
+      "FormatValue",
+      "French",
+      "GameControlsScreen",
+      "GameInterface",
+      "GameIntroMovieScreen",
+      "German",
+      "GetActiveSelectionIndex",
+      "GetCurrentBarOptionIndex",
+      "GetCurrentScreenActiveBarOptionIndex",
+      "GetCurrentSelectedBoxIndex",
+      "GetLocalReadyStatus",
+      "GetSelectedBoxValue",
+      "GreenRoomScreen",
+      "HelpOptionsScreen",
+      "HideConfirmationScreen",
+      "HideMe",
+      "HowToPlayScreen",
+      "Initialize",
+      "Interval",
+      "IsEveryoneReady",
+      "Italian",
+      "Jeop_Data",
+      "Jeop_English",
+      "KeyManager",
+      "KeyMap",
+      "LegalSplashScreen",
+      "MC",
+      "MCButton",
+      "MainMenuScreen",
+      "MiddleLogoSplashScreen",
+      "ModifyCharacterScreen",
+      "MovieClipButton",
+      "MultipleChoice",
+      "MultipleChoiceButton",
+      "Netherlands",
+      "ObjCmd",
+      "PauseScreen",
+      "PlayGameOnline",
+      "PlayGameScreen",
+      "PlayerSetupScreen",
+      "PlayerSetupScreenHostOnline",
+      "PlayerSetupScreenJoinOnline",
+      "PlayerSetupScreenLocal",
+      "Portugal",
+      "PropertyInfoObj",
+      "Proxy",
+      "ReRegisterKeys",
+      "ResetScroller",
+      "ResetTrophiesPos",
+      "RoadTripScreen",
+      "RoadTripSummary",
+      "Russian",
+      "Screen",
+      "ScrollButtonsDown",
+      "ScrollButtonsUp",
+      "ScrollPage",
+      "SelectBoxToTheLeft",
+      "SelectBoxToTheRight",
+      "SetDefaultReadyStates",
+      "SetInitiaBoxIndex",
+      "SetLocalReady",
+      "SetReadyState",
+      "SetSelectedBoxAnimationState",
+      "SetVoiceChatSettings",
+      "SettingsScreen",
+      "SetupButtons",
+      "SetupCatBoxes",
+      "SetupScroller",
+      "SetupTitle",
+      "SetupTrophies",
+      "ShowBars",
+      "ShowConfirmationScreen",
+      "SideSelector",
+      "SlidePage",
+      "SoeSplashMovieScreen",
+      "SoftwareLicenseScreen",
+      "SortButtonOrder",
+      "Spanish",
+      "SpecialPropertiesDefault",
+      "SpecialPropertyModifier",
+      "SpecialPropertySplitter",
+      "StartRoomScreen",
+      "TextFlipper",
+      "TrophiesScreen",
+      "TweenListObj",
+      "Tweener",
+      "UnloadTextScreens",
+      "UpdateCatBoxes",
+      "UpdateCategory",
+      "WheelSelector",
+      "WoF_Data",
+      "WoF_English",
+      "_autoAlpha_get",
+      "_autoAlpha_set",
+      "_colorTransform_splitter",
+      "_color_property_get",
+      "_color_property_set",
+      "_color_splitter",
+      "_filter_property_get",
+      "_filter_property_set",
+      "_filter_splitter",
+      "_frame_get",
+      "_frame_set",
+      "_sound_pan_get",
+      "_sound_pan_set",
+      "_sound_volume_get",
+      "_sound_volume_set",
+      "addCaller",
+      "addDropShadowToText",
+      "addFocus",
+      "addListener",
+      "addTween",
+      "advanceToNextScreen",
+      "affectTweens",
+      "alignText",
+      "alignTitleText",
+      "applySelectedTextFormat",
+      "applyWinnerTextFormat",
+      "autoScaleText",
+      "backToPreviousScreen",
+      "clear",
+      "clone",
+      "closeScreen",
+      "create",
+      "debug_getList",
+      "disable",
+      "dispatch",
+      "displayLegend",
+      "easeInBack",
+      "easeInBounce",
+      "easeInCirc",
+      "easeInCubic",
+      "easeInElastic",
+      "easeInExpo",
+      "easeInOutBack",
+      "easeInOutBounce",
+      "easeInOutCirc",
+      "easeInOutCubic",
+      "easeInOutElastic",
+      "easeInOutExpo",
+      "easeInOutQuad",
+      "easeInOutQuart",
+      "easeInOutQuint",
+      "easeInOutSine",
+      "easeInQuad",
+      "easeInQuart",
+      "easeInQuint",
+      "easeInSine",
+      "easeNone",
+      "easeOutBack",
+      "easeOutBounce",
+      "easeOutCirc",
+      "easeOutCubic",
+      "easeOutElastic",
+      "easeOutExpo",
+      "easeOutInBack",
+      "easeOutInBounce",
+      "easeOutInCirc",
+      "easeOutInCubic",
+      "easeOutInElastic",
+      "easeOutInExpo",
+      "easeOutInQuad",
+      "easeOutInQuart",
+      "easeOutInQuint",
+      "easeOutInSine",
+      "easeOutQuad",
+      "easeOutQuart",
+      "easeOutQuint",
+      "easeOutSine",
+      "enable",
+      "endGameTRACE",
+      "enterGameScreenTRACE",
+      "focus",
+      "getFocus",
+      "getObjectLength",
+      "getPlayerReady",
+      "getPlayerSlot",
+      "getPlayerString",
+      "getPropertyValue",
+      "getSlotPlayer",
+      "getSlotReady",
+      "getTweenCount",
+      "getTweens",
+      "getValue",
+      "getVersion",
+      "goToScreen",
+      "hide",
+      "init",
+      "initData",
+      "initFunctions",
+      "initGlobalFunctions",
+      "initLabels",
+      "initialize",
+      "insert",
+      "isInArray",
+      "isPlayerValid",
+      "isSlotValid",
+      "isTweening",
+      "keyBACKSPACE",
+      "keyDOWN",
+      "keyEND",
+      "keyENTER",
+      "keyENTER1",
+      "keyENTER2",
+      "keyENTER3",
+      "keyHOME",
+      "keyLEFT",
+      "keyLEFT1",
+      "keyLEFT2",
+      "keyLEFT3",
+      "keyRIGHT",
+      "keyRIGHT1",
+      "keyRIGHT2",
+      "keyRIGHT3",
+      "keyUP",
+      "killInterval",
+      "loadPauseScreen",
+      "navFun",
+      "nextOpenSlotLeft",
+      "nextOpenSlotRight",
+      "nextScreen",
+      "numberToB",
+      "numberToG",
+      "numberToR",
+      "onAnimationComplete",
+      "onChangeGender",
+      "onColorUpdate",
+      "onEnterFrame",
+      "onFocus",
+      "onFunctionCall",
+      "onHidefscommand",
+      "onMultipleChoiceUpdate",
+      "onOptionChange",
+      "onScreenUpdate",
+      "onShowComplete",
+      "onShowfscommand",
+      "onUnfocus",
+      "openScreen",
+      "pauseAllTweens",
+      "pauseTweenByIndex",
+      "pauseTweens",
+      "playersetupTRACE",
+      "press",
+      "processKeyEnter",
+      "processKeyLeft",
+      "processKeyRight",
+      "registerKeys",
+      "registerKeysForConfirmationScreen",
+      "registerSpecialProperty",
+      "registerSpecialPropertySplitter",
+      "registerTransition",
+      "remove",
+      "removeAll",
+      "removeAllTweens",
+      "removeListener",
+      "removeTweenByIndex",
+      "removeTweens",
+      "removeTweensByTime",
+      "resetTextFormat",
+      "resumeAllTweens",
+      "resumeTweenByIndex",
+      "resumeTweens",
+      "rollOut",
+      "rollOver",
+      "scrollFun",
+      "select",
+      "setAvatar",
+      "setButtonIndex",
+      "setFocus",
+      "setGlobalLanguage",
+      "setLegends",
+      "setPlayerSelection",
+      "setPropertyValue",
+      "setScreenOrder",
+      "setSignature",
+      "setSlotPlayer",
+      "setSlotReady",
+      "setTimeOut",
+      "setTimeScale",
+      "setToggleLegendButtons",
+      "setUIFocusElements",
+      "setValue",
+      "shadeUnselected",
+      "show",
+      "soeEnableTrace",
+      "soeTRACE",
+      "splashMovieComplete",
+      "splitTweens",
+      "splitValues",
+      "startEngine",
+      "startMenuAnimations",
+      "stopEngine",
+      "stopMenuAnimations",
+      "toString",
+      "unfocus",
+      "updateTime",
+      "updateTweenByIndex",
+      "updateTweens",
+      "updateValue"
+    ],
+    "commands": {
+      "soeTRACE ": 1,
+      "onScreenUpdate ERROR: next screen id = ": 1,
+      "postPlaySound": 28,
+      " + this.fscommandMethod + ": 2,
+      "postGreenRoomScreenPressedBack": 1,
+      "postReadyToggle": 1,
+      "postPressedPlayGame": 2,
+      "postStartGame": 2,
+      "postGreenRoomScreenEnter": 1,
+      "postGreenRoomScreenExit": 1,
+      "postPressedInvitePlayer": 1,
+      "postGameControlsScreenEnter": 1,
+      "postGameControlsScreenExit": 1,
+      "postHelpOptionsScreenEnter": 1,
+      "postHelpOptionsScreenExit": 1,
+      "postAvatarSelection": 2,
+      "postCharacterLibraryScreenEnter": 1,
+      "postCharacterLibraryScreenExit": 1,
+      "postLegalScreenEnter": 1,
+      "postLegalScreenExit": 1,
+      "postMainMenuEnter": 1,
+      "postMainMenuExit": 1,
+      "postMiddleLogoScreenEnter": 1,
+      "postMiddleLogoScreenExit": 1,
+      "postPauseScreenEnter": 1,
+      "postPauseScreenExit": 1,
+      "postVoiceChatSettingsChangedOpp1": 1,
+      "postVoiceChatSettingsChangedOpp0": 1,
+      "postPressedChangeName": 1,
+      "postPressRandomize": 1,
+      "postModifyCharacterScreenEnter": 1,
+      "postModifyCharacterScreenExit": 1,
+      "postSignatureFocus": 1,
+      "postGenderFocus": 1,
+      "postAvatarFocus": 1,
+      "postHairStyleFocus": 1,
+      "postHairColorFocus": 1,
+      "postFacialHairFocus": 1,
+      "postGlassesStyleFocus": 1,
+      "postClothesStyleFocus": 1,
+      "postRoadTripScreenEnter": 1,
+      "postRoadTripScreenExit": 1,
+      "endGameTRACE ": 2,
+      "postRoadTripSummaryScreenEnter": 1,
+      "postRoadTripSummaryScreenExit": 1,
+      "postPlayGameScreenEnter": 1,
+      "postPlayGameScreenExit": 1,
+      "postPlayerSetupScreenJoinOnlineEnter": 1,
+      "postPlayerSetupScreenJoinOnlineExit": 1,
+      "postPlayerSetupScreenOnlineInvalidController": 4,
+      "postMultiplayerRanked": 2,
+      "postMultiplayerReservedSeats": 11,
+      "postGameRoadTrip": 9,
+      "postPressedJoinRoomNow": 1,
+      "playersetupTRACE ": 1,
+      "postPlayerReadyChanged": 1,
+      "postPlayerSetupScreenEnter": 1,
+      "postPlayerSetupScreenExit": 1,
+      "postPlayerSetupScreenHostOnlineEnter": 1,
+      "postPlayerSetupScreenHostOnlineExit": 1,
+      "postPressedStartAndJoin": 1,
+      "postHowToPlayScreenEnter": 1,
+      "postHowToPlayScreenExit": 1,
+      "postCreditScreenEnter": 1,
+      "postCreditScreenExit": 1,
+      "postSoftwareLicenseScreenEnter": 1,
+      "postSoftwareLicenseScreenExit": 1,
+      "postSettingsScreenEnter": 1,
+      "postSettingsScreenExit": 1,
+      "postStartRoomScreenEnter": 1,
+      "postStartRoomScreenExit": 1,
+      "postSOELogoEnter": 1,
+      "postSOELogoExit": 1,
+      "postTrophyScreenEnter": 1,
+      "postTrophyScreenExit": 1,
+      "postGameLogoEnter": 1,
+      "postGameLogoExit": 1,
+      "enterGameScreenTRACE ": 1,
+      "postEnterGameScreenEnter": 1,
+      "postEnterGameScreenExit": 1,
+      "postPressedMainMenu": 1,
+      "postResumeOnlineGame": 1,
+      "postLeaveEndGameScreen": 2,
+      "===>Setting char name for player ": 1,
+      "postEndSingleGameScreenEnter": 1,
+      "postEndSingleGameScreenExit": 1,
+      " iMax = ": 1,
+      "postInitGameShellComplete": 1
+    }
+  },
+  "gui": {
+    "fps": 30.0,
+    "sprites": [
+      {
+        "id": 6,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 7,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 17,
+        "frames": 200,
+        "labels": []
+      },
+      {
+        "id": 18,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 22,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 24,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 25,
+        "frames": 14,
+        "labels": []
+      },
+      {
+        "id": 26,
+        "frames": 106,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lOut"
+          },
+          {
+            "frame": 9,
+            "name": "lPlayIn"
+          },
+          {
+            "frame": 63,
+            "name": "lIn"
+          },
+          {
+            "frame": 72,
+            "name": "lPlayOut"
+          }
+        ]
+      },
+      {
+        "id": 36,
+        "frames": 160,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lHide"
+          },
+          {
+            "frame": 21,
+            "name": "lDefault"
+          },
+          {
+            "frame": 41,
+            "name": "lShow0"
+          },
+          {
+            "frame": 61,
+            "name": "lShow1"
+          },
+          {
+            "frame": 81,
+            "name": "lShow2"
+          },
+          {
+            "frame": 101,
+            "name": "lHide0"
+          },
+          {
+            "frame": 121,
+            "name": "lHide1"
+          },
+          {
+            "frame": 141,
+            "name": "lHide2"
+          }
+        ]
+      },
+      {
+        "id": 43,
+        "frames": 50,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lHide"
+          },
+          {
+            "frame": 11,
+            "name": "lDefault"
+          },
+          {
+            "frame": 21,
+            "name": "lShow0"
+          },
+          {
+            "frame": 31,
+            "name": "lShow1"
+          },
+          {
+            "frame": 41,
+            "name": "lShow2"
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "frames": 40,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lHide"
+          },
+          {
+            "frame": 10,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 20,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 30,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 98,
+        "frames": 78,
+        "labels": []
+      },
+      {
+        "id": 103,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 114,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 125,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 140,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 155,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 166,
+        "frames": 26,
+        "labels": []
+      },
+      {
+        "id": 170,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 177,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 184,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 193,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 202,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 208,
+        "frames": 26,
+        "labels": []
+      },
+      {
+        "id": 209,
+        "frames": 70,
+        "labels": [
+          {
+            "frame": 7,
+            "name": "lDisabled"
+          },
+          {
+            "frame": 16,
+            "name": "lOut"
+          },
+          {
+            "frame": 25,
+            "name": "lOver"
+          },
+          {
+            "frame": 37,
+            "name": "lDown"
+          },
+          {
+            "frame": 48,
+            "name": "lSelected"
+          },
+          {
+            "frame": 61,
+            "name": "lFlash"
+          }
+        ]
+      },
+      {
+        "id": 210,
+        "frames": 65,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lDisable"
+          },
+          {
+            "frame": 14,
+            "name": "lIn"
+          },
+          {
+            "frame": 20,
+            "name": "lPlayOut"
+          },
+          {
+            "frame": 48,
+            "name": "lOut"
+          },
+          {
+            "frame": 56,
+            "name": "lPlayIn"
+          }
+        ]
+      },
+      {
+        "id": 211,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 220,
+        "frames": 50,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisabled"
+          },
+          {
+            "frame": 11,
+            "name": "lFreeSpin"
+          },
+          {
+            "frame": 21,
+            "name": "lWildCard"
+          },
+          {
+            "frame": 31,
+            "name": "l10k"
+          },
+          {
+            "frame": 41,
+            "name": "lMillion"
+          }
+        ]
+      },
+      {
+        "id": 221,
+        "frames": 49,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 11,
+            "name": "lHide"
+          },
+          {
+            "frame": 24,
+            "name": "lShow"
+          }
+        ]
+      },
+      {
+        "id": 222,
+        "frames": 31,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 10,
+            "name": "lShow"
+          },
+          {
+            "frame": 25,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 225,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 226,
+        "frames": 38,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lDefault"
+          },
+          {
+            "frame": 9,
+            "name": "lShow"
+          },
+          {
+            "frame": 23,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 229,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 230,
+        "frames": 38,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lDefault"
+          },
+          {
+            "frame": 9,
+            "name": "lShow"
+          },
+          {
+            "frame": 23,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 292,
+        "frames": 431,
+        "labels": [
+          {
+            "frame": 16,
+            "name": "lIn"
+          }
+        ]
+      },
+      {
+        "id": 294,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 295,
+        "frames": 42,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lOut"
+          },
+          {
+            "frame": 11,
+            "name": "lPlayIn"
+          },
+          {
+            "frame": 26,
+            "name": "lIn"
+          }
+        ]
+      },
+      {
+        "id": 308,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 366,
+        "frames": 450,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lOut"
+          },
+          {
+            "frame": 10,
+            "name": "lPlayIn"
+          },
+          {
+            "frame": 34,
+            "name": "lIn"
+          }
+        ]
+      },
+      {
+        "id": 373,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 376,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 379,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 380,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 386,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 390,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 392,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 395,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 398,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 401,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 402,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 411,
+        "frames": 301,
+        "labels": []
+      },
+      {
+        "id": 417,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 418,
+        "frames": 301,
+        "labels": []
+      },
+      {
+        "id": 428,
+        "frames": 135,
+        "labels": []
+      },
+      {
+        "id": 431,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 432,
+        "frames": 33,
+        "labels": [
+          {
+            "frame": 4,
+            "name": "lDisabled"
+          },
+          {
+            "frame": 12,
+            "name": "lShow"
+          },
+          {
+            "frame": 22,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 442,
+        "frames": 14,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lHide"
+          },
+          {
+            "frame": 8,
+            "name": "lShow"
+          }
+        ]
+      },
+      {
+        "id": 450,
+        "frames": 2,
+        "labels": []
+      },
+      {
+        "id": 451,
+        "frames": 2,
+        "labels": []
+      },
+      {
+        "id": 455,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 458,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 459,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 462,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 465,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 468,
+        "frames": 0,
+        "labels": []
+      },
+      {
+        "id": 471,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 472,
+        "frames": 50,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Legend0"
+          },
+          {
+            "frame": 11,
+            "name": "Legend1"
+          },
+          {
+            "frame": 21,
+            "name": "Legend2"
+          },
+          {
+            "frame": 31,
+            "name": "Legend3"
+          },
+          {
+            "frame": 41,
+            "name": "Legend4"
+          }
+        ]
+      },
+      {
+        "id": 481,
+        "frames": 25,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "Icon0"
+          },
+          {
+            "frame": 6,
+            "name": "Icon1"
+          },
+          {
+            "frame": 11,
+            "name": "Icon2"
+          },
+          {
+            "frame": 16,
+            "name": "Icon3"
+          },
+          {
+            "frame": 21,
+            "name": "Icon4"
+          }
+        ]
+      },
+      {
+        "id": 486,
+        "frames": 82,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lHide"
+          },
+          {
+            "frame": 15,
+            "name": "lShow0"
+          },
+          {
+            "frame": 32,
+            "name": "lShow1"
+          },
+          {
+            "frame": 56,
+            "name": "lShow2"
+          }
+        ]
+      },
+      {
+        "id": 496,
+        "frames": 3,
+        "labels": []
+      },
+      {
+        "id": 499,
+        "frames": 201,
+        "labels": []
+      },
+      {
+        "id": 503,
+        "frames": 74,
+        "labels": [
+          {
+            "frame": 4,
+            "name": "lDisable"
+          },
+          {
+            "frame": 17,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 33,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 50,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 509,
+        "frames": 200,
+        "labels": []
+      },
+      {
+        "id": 515,
+        "frames": 300,
+        "labels": []
+      },
+      {
+        "id": 520,
+        "frames": 72,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 15,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 31,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 48,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 524,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 529,
+        "frames": 150,
+        "labels": []
+      },
+      {
+        "id": 532,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 534,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 535,
+        "frames": 53,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 14,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 23,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 33,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 537,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 538,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 541,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 542,
+        "frames": 33,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lX"
+          },
+          {
+            "frame": 6,
+            "name": "lO"
+          },
+          {
+            "frame": 11,
+            "name": "lTriangle"
+          },
+          {
+            "frame": 17,
+            "name": "lSquare"
+          },
+          {
+            "frame": 26,
+            "name": "lDisable"
+          }
+        ]
+      },
+      {
+        "id": 543,
+        "frames": 46,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 11,
+            "name": "lHide"
+          },
+          {
+            "frame": 24,
+            "name": "lShow"
+          }
+        ]
+      },
+      {
+        "id": 544,
+        "frames": 30,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 10,
+            "name": "lShow"
+          },
+          {
+            "frame": 25,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 551,
+        "frames": 23,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 9,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 18,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 555,
+        "frames": 18,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lPlayer0"
+          },
+          {
+            "frame": 7,
+            "name": "lPlayer1"
+          },
+          {
+            "frame": 13,
+            "name": "lPlayer2"
+          }
+        ]
+      },
+      {
+        "id": 562,
+        "frames": 81,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lNormal"
+          },
+          {
+            "frame": 15,
+            "name": "lFlash"
+          }
+        ]
+      },
+      {
+        "id": 565,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 566,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 567,
+        "frames": 131,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lHide"
+          },
+          {
+            "frame": 29,
+            "name": "lShow"
+          },
+          {
+            "frame": 73,
+            "name": "lLoop"
+          }
+        ]
+      },
+      {
+        "id": 569,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 570,
+        "frames": 55,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 12,
+            "name": "lHide"
+          },
+          {
+            "frame": 20,
+            "name": "lHideQuick"
+          },
+          {
+            "frame": 31,
+            "name": "lShow"
+          }
+        ]
+      },
+      {
+        "id": 572,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 573,
+        "frames": 55,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lDisable"
+          },
+          {
+            "frame": 12,
+            "name": "lHide"
+          },
+          {
+            "frame": 31,
+            "name": "lShow"
+          }
+        ]
+      }
+    ],
+    "functions": [
+      "OnScoreChange",
+      "addGameControl",
+      "addPlayerCollectible",
+      "autoScaleText",
+      "bonus_init",
+      "category_init",
+      "doActivatePowerMeter",
+      "doHideBackground",
+      "doHideCategory",
+      "doHideCollectibleMsgBox",
+      "doHideJackpot",
+      "doHideLetterboard",
+      "doHidePlayerNames",
+      "doHidePlayers",
+      "doHidePowerMeter",
+      "doHidePuzzleboardWindow",
+      "doHideTossUpRoundBar",
+      "doPickLetter",
+      "doSelectLetter",
+      "doSelectNextLetter",
+      "doSelectPreviousLetter",
+      "doSetBonusLetter",
+      "doSetJackpotScore",
+      "doSetPlayerScore",
+      "doShowBackground",
+      "doShowCategory",
+      "doShowCategoryQuick",
+      "doShowCollectibleMsgBox",
+      "doShowJackpot",
+      "doShowLetterboard",
+      "doShowLetterboardLetter",
+      "doShowPlayer",
+      "doShowPlayerNames",
+      "doShowPowerMeter",
+      "doShowPuzzleboardWindow",
+      "doShowTossUpRoundBar",
+      "doToggleNoMoreConsonantsState",
+      "doToggleNoMoreVowelsState",
+      "flashLetter",
+      "getCategoryText",
+      "getCurrentPlayer",
+      "getCurrentPlayerCollectibles",
+      "getNewPlayer",
+      "getNewPlayerCollectibles",
+      "getPowerMeterLevel",
+      "getSelectLetter",
+      "getSelectedLetter",
+      "getStrLetter",
+      "gui_init",
+      "handleDeselectLetter",
+      "handleHideLetterboardComplete",
+      "handlePickLetter",
+      "handleSelectLetter",
+      "handleShowCategoryComplete",
+      "handleShowLetterboardComplete",
+      "handleTransitionToNewPlayerComplete",
+      "hasCollectibles",
+      "hideGameControls",
+      "hideGameTips",
+      "hideQuickGameTips",
+      "hideRoundIntro",
+      "initCategory",
+      "initJackpot",
+      "initLetterboard",
+      "initLetterboardArrays",
+      "initPlayers",
+      "initSelection",
+      "isPlayerLocal",
+      "jackpot_init",
+      "onTimer",
+      "playCurrentPlayerGraphics",
+      "removePlayerCollectible",
+      "resetArrays",
+      "resetLetterArrayState",
+      "resetLetterState",
+      "setAllLettersActive",
+      "setAllLettersInactive",
+      "setButton",
+      "setCategoryType",
+      "setCollectible",
+      "setConsonantsActive",
+      "setConsonantsInactive",
+      "setDisplayScore",
+      "setLetterArrayState",
+      "setLetterState",
+      "setPlayerName",
+      "setPlayerText",
+      "setVowelsActive",
+      "setVowelsInactive",
+      "showCollectibles",
+      "showGameControlsBegin",
+      "showGameControlsEnd",
+      "showGameTips",
+      "showRoundIntro",
+      "soeEnableTrace",
+      "soeInit",
+      "soeIsGame",
+      "soeTRACE",
+      "startListeners",
+      "startListenersGui",
+      "startListenersPlayerNames",
+      "startTimer",
+      "stopListeners",
+      "stopTimer",
+      "testCollectibles",
+      "updateSelectedLetters",
+      "updateTipText"
+    ],
+    "commands": {
+      "soeTRACE _global.bToggleLegendButtons: ": 7,
+      "soeTRACE iBase._visible: ": 1,
+      "postShowCategoryComplete": 1,
+      "postPickLetter": 1,
+      "postSelectLetter": 3,
+      "postShowLetterboardComplete": 1,
+      "postHideLetterboardComplete": 1,
+      "postPowerMeterLevel": 1,
+      "soeTRACE ": 1,
+      "postInitGuiComplete": 1
+    }
+  },
+  "wheel": {
+    "fps": 60.0,
+    "sprites": [
+      {
+        "id": 29,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 31,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 38,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 40,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 45,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 47,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 49,
+        "frames": 51,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lShow"
+          },
+          {
+            "frame": 11,
+            "name": "lOn"
+          },
+          {
+            "frame": 21,
+            "name": "l10k"
+          },
+          {
+            "frame": 31,
+            "name": "lBankrupt"
+          },
+          {
+            "frame": 41,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 57,
+        "frames": 111,
+        "labels": []
+      },
+      {
+        "id": 62,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 64,
+        "frames": 30,
+        "labels": [
+          {
+            "frame": 1,
+            "name": "lShow"
+          },
+          {
+            "frame": 11,
+            "name": "lOn"
+          },
+          {
+            "frame": 21,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 69,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 70,
+        "frames": 23,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lShow"
+          },
+          {
+            "frame": 10,
+            "name": "lOn"
+          },
+          {
+            "frame": 17,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 76,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 77,
+        "frames": 23,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lShow"
+          },
+          {
+            "frame": 10,
+            "name": "lOn"
+          },
+          {
+            "frame": 17,
+            "name": "lHide"
+          }
+        ]
+      },
+      {
+        "id": 81,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 83,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 87,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 89,
+        "frames": 1,
+        "labels": []
+      }
+    ],
+    "functions": [
+      "doSetBigMoneyAmount",
+      "doSetBigMoneyGlowAnimationState",
+      "doSetRound",
+      "init_wheel",
+      "setWedgeState",
+      "soeEnableTrace",
+      "soeInit",
+      "soeIsGame",
+      "soeTRACE"
+    ],
+    "commands": {
+      "soeTRACE ": 1
+    }
+  },
+  "puzzleboard": {
+    "fps": 30.0,
+    "sprites": [
+      {
+        "id": 1,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 4,
+        "frames": 1,
+        "labels": []
+      },
+      {
+        "id": 5,
+        "frames": 96,
+        "labels": [
+          {
+            "frame": 2,
+            "name": "lStatic"
+          },
+          {
+            "frame": 9,
+            "name": "lForward"
+          },
+          {
+            "frame": 14,
+            "name": "lLoop"
+          },
+          {
+            "frame": 78,
+            "name": "lLightsOn"
+          },
+          {
+            "frame": 88,
+            "name": "lBackward"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "frames": 73,
+        "labels": [
+          {
+            "frame": 3,
+            "name": "lOff"
+          },
+          {
+            "frame": 8,
+            "name": "lWhite"
+          },
+          {
+            "frame": 15,
+            "name": "lWhiteFast"
+          },
+          {
+            "frame": 30,
+            "name": "lBlue"
+          },
+          {
+            "frame": 37,
+            "name": "lLetter"
+          },
+          {
+            "frame": 46,
+            "name": "lSolve"
+          },
+          {
+            "frame": 59,
+            "name": "lSelected"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "frames": 1,
+        "labels": []
+      }
+    ],
+    "functions": [
+      "doCheckConsonants",
+      "doCheckSolveForFoundLetters",
+      "doCheckSolveForSolveMode",
+      "doCheckVowels",
+      "doEndSolveMode",
+      "doFindAllLetters",
+      "doFindLetters",
+      "doGetCurrentShowIndex",
+      "doGetNextPanel",
+      "doGetSolvePanelLetter",
+      "doPlayerBuzzedIn",
+      "doQueryLetterCount",
+      "doReset",
+      "doRevealIsReady",
+      "doSetSolveLetter",
+      "doSetSolvePanel",
+      "doShowFoundLetters",
+      "doShowFoundPanels",
+      "doShowTossupLetters",
+      "doShowWhitePanels",
+      "doStartSolveMode",
+      "doStopReveal",
+      "findPanelByLetter",
+      "findPanelByStatus",
+      "getIndexInPuzzle",
+      "getPanelFromPuzzleIndex",
+      "getPreviousPanel",
+      "handleKeyBack",
+      "handleKeyDelete",
+      "handleKeyDown",
+      "handleKeyEnter",
+      "handleKeyLeft",
+      "handleKeyRight",
+      "handleKeyUp",
+      "handlePuzzleSolved",
+      "handleRandomArray",
+      "handleShowPanels",
+      "handleShowPanelsComplete",
+      "hideSolvePanels",
+      "initArrays",
+      "initFoundPanelsArray",
+      "initPuzzleRow",
+      "initPuzzleboard",
+      "initRevealTimer",
+      "init_puzzleboard",
+      "onInterval",
+      "onLetterRelease",
+      "onTimer",
+      "randomizeArray",
+      "randomizeTossupArray",
+      "setFoundPanelsArray",
+      "setFoundPanelsArrayHor",
+      "setPuzzleRowLetters",
+      "showSolvePanels",
+      "soeEnableTrace",
+      "soeInit",
+      "soeIsGame",
+      "soeTRACE",
+      "startInterval",
+      "startListeners",
+      "startRevealTimer",
+      "startTimer",
+      "stopInterval",
+      "stopListeners",
+      "stopRevealTimer",
+      "stopTimer"
+    ],
+    "commands": {
+      "postGetRandomArray": 1,
+      "postFindLettersComplete": 2,
+      "postFindAllLettersComplete": 1,
+      "postSymbolRevealed": 1,
+      "postLetterRevealed": 1,
+      "postShowWhitePanelsComplete": 1,
+      "postNoMoreVowels": 1,
+      "postNoMoreConsonants": 1,
+      "postPuzzleSolved": 1,
+      "postIsPuzzleboardRevealReady": 1,
+      "soeTRACE ": 1
+    }
+  },
+  "strings": {
+    "MSGID_CAPTION": "Wheel of Fortune",
+    "MSGID_JOIN_ROOM_INVITATION": "You have been invited to join my public room to play Wheel of Fortune.",
+    "MSGID_JOIN_ROOM_INVITATION_PRIVATE": "You have been invited to join my private room to play Wheel of Fortune.",
+    "MSGID_QUERY_FREESPIN": "Would you like to use your Free Spin now?",
+    "MSGID_QUERY_WILDCARD": "Would you like to use your Wild Card now?",
+    "MSGID_QUERY_MYSTERY": "Would you like to turn over the Mystery wedge at a chance for $10,000 or Bankrupt?",
+    "MSGID_QUERY_JACKPOT": "Would you like to solve to win the Jackpot?",
+    "STRID_GAMECONTROL_SPIN": "SPIN",
+    "STRID_GAMECONTROL_BUYVOWEL": "BUY VOWEL",
+    "STRID_GAMECONTROL_SOLVE": "SOLVE",
+    "STRID_GAMECONTROL_SELECT": "SELECT",
+    "STRID_GAMECONTROL_BACK": "BACK",
+    "STRID_GAMECONTROL_DONE": "DONE",
+    "STRID_GAMETIP_WAITING": "WAITING FOR PLAYER",
+    "STRID_GAMETIP_SPIN": "PRESS TO SPIN THE WHEEL",
+    "STRID_GAMETIP_CONSONANT": "SELECT A CONSONANT",
+    "STRID_GAMETIP_VOWEL": "SELECT A VOWEL",
+    "STRID_GAMETIP_SOLVE": "SELECT LETTERS TO SOLVE THE PUZZLE",
+    "STRID_GAMETIP_SELECT": "SELECT LETTERS AND A VOWEL",
+    "STRID_GAMETIP_TOSSUP1": "GET READY FOR THE 1ST TOSS-UP ROUND!",
+    "STRID_GAMETIP_TOSSUP2": "GET READY FOR THE 2ND TOSS-UP ROUND!",
+    "STRID_GAMETIP_TOSSUP3": "GET READY FOR THE 3RD TOSS-UP ROUND!",
+    "STRID_GAMETIP_ROUND1": "GET READY FOR ROUND 1!",
+    "STRID_GAMETIP_ROUND2": "GET READY FOR THE JACKPOT ROUND!",
+    "STRID_GAMETIP_ROUND3": "GET READY FOR THE MYSTERY ROUND!",
+    "STRID_GAMETIP_ROUND4": "GET READY FOR ROUND 4!",
+    "STRID_GAMETIP_BONUS": "GET READY FOR THE BONUS ROUND!",
+    "STRID_GAMETIP_TIEBREAKER": "GET READY FOR THE TIE-BREAKER ROUND!",
+    "STRID_GAMETIP_PLAYER1": "PLAYER 1 IT'S YOUR TURN",
+    "STRID_GAMETIP_PLAYER2": "PLAYER 2 IT'S YOUR TURN",
+    "STRID_GAMETIP_PLAYER3": "PLAYER 3 IT'S YOUR TURN",
+    "STRID_GAMETIP_LETTER0": "Sorry, there are no %ss in the puzzle.",
+    "STRID_GAMETIP_LETTER1": "Yes, there is 1 %s in the puzzle.",
+    "STRID_GAMETIP_LETTER2": "There are %d %ss in the puzzle."
+  },
+  "help": [
+    {
+      "page": 0,
+      "url": "assets/presentation/shell/help-0.png",
+      "sourceSprite": 54
+    },
+    {
+      "page": 1,
+      "url": "assets/presentation/shell/help-1.png",
+      "sourceSprite": 51
+    },
+    {
+      "page": 2,
+      "url": "assets/presentation/shell/help-2.png",
+      "sourceSprite": 48
+    },
+    {
+      "page": 3,
+      "url": "assets/presentation/shell/help-3.png",
+      "sourceSprite": 45
+    },
+    {
+      "page": 4,
+      "url": "assets/presentation/shell/help-4.png",
+      "sourceSprite": 42
+    },
+    {
+      "page": 5,
+      "url": "assets/presentation/shell/help-5.png",
+      "sourceSprite": 39
+    },
+    {
+      "page": 6,
+      "url": "assets/presentation/shell/help-6.png",
+      "sourceSprite": 36
+    },
+    {
+      "page": 7,
+      "url": "assets/presentation/shell/help-7.png",
+      "sourceSprite": 33
+    },
+    {
+      "page": 8,
+      "url": "assets/presentation/shell/help-8.png",
+      "sourceSprite": 30
+    },
+    {
+      "page": 9,
+      "url": "assets/presentation/shell/help-9.png",
+      "sourceSprite": 26
+    },
+    {
+      "page": 10,
+      "url": "assets/presentation/shell/help-10.png",
+      "sourceSprite": 23
+    },
+    {
+      "page": 11,
+      "url": "assets/presentation/shell/help-11.png",
+      "sourceSprite": 20
+    },
+    {
+      "page": 12,
+      "url": "assets/presentation/shell/help-12.png",
+      "sourceSprite": 17
+    },
+    {
+      "page": 13,
+      "url": "assets/presentation/shell/help-13.png",
+      "sourceSprite": 14
+    },
+    {
+      "page": 14,
+      "url": "assets/presentation/shell/help-14.png",
+      "sourceSprite": 10
+    }
+  ]
+}

@@ -46,7 +46,7 @@ export class PodiumDisplay {
     const effect=podiumEffect(event),slot=state.players[state.turn].slot;
     let duration=0;
     for(let i=0;i<3;i++){
-      const cash=state.players.find(p=>p.slot===i)?.cash??0;
+      const player=state.players.find(p=>p.slot===i),cash=(['tossup','tiebreaker'].includes(state.stageType)||state.phase==='finished'?player?.bank:player?.cash)??0;
       if(!quick&&cash!==scores[i]){
         this.transitions[i]={old:scores[i],value:cash,start:time,mode:'score'};
         duration=Math.max(duration,this.data.scoreFrames*1000/this.data.fps);
@@ -61,7 +61,7 @@ export class PodiumDisplay {
       this.effect={name:effect,slot:previousSlot,start:time};
       duration=Math.max(duration,this.data[effect].frames.length*1000/this.data.fps);
     }
-    this.nextActive=['round-over','finished'].includes(state.phase)?null:slot;
+    this.nextActive=['round-over','finished','tossup','tossup-over'].includes(state.phase)?null:slot;
     const active=this.effect?null:this.nextActive;
     if(this.active!==active){this.active=active;this.turnStart=time;}
     this.dirty=true;this.draw(time);

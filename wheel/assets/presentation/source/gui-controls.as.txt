@@ -1,0 +1,1250 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function initLetterboard()
+{
+   initLetterboardArrays();
+   if(!soeIsGame())
+   {
+      startListeners();
+   }
+}
+function getStrLetter(inLetterObject)
+{
+   var _loc1_ = inLetterObject._parent._parent.index;
+   if(String(inLetterObject._name).substring(0,16) == "mcSelectedLetter")
+   {
+      if(!isNaN(currentPlayer) && currentPlayer >= 0)
+      {
+         _loc1_ += currentPlayer * 26;
+      }
+   }
+   inLetterObject.gotoAndStop(_loc1_ + 1);
+}
+function updateSelectedLetters()
+{
+   var _loc2_ = 0;
+   var _loc3_;
+   while(_loc2_ < 26)
+   {
+      _loc3_ = _root.iLetterboard["iLetter" + _loc2_];
+      if(_loc3_.state == "Selected" && !isNaN(currentPlayer) && currentPlayer >= 0)
+      {
+         _loc3_.iLetter.mcSelectedLetter3.gotoAndStop(_loc2_ + currentPlayer * 26 + 1);
+      }
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function initLetterboardArrays()
+{
+   mLettersArray = new Array();
+   mConsonantsArray = new Array();
+   mVowelsArray = new Array();
+   var _loc2_ = 0;
+   var _loc3_;
+   while(_loc2_ < 26)
+   {
+      _loc3_ = _root.iLetterboard["iLetter" + _loc2_];
+      mLettersArray.push(_loc3_);
+      if(_loc2_ == 0 || _loc2_ == 4 || _loc2_ == 8 || _loc2_ == 14 || _loc2_ == 20)
+      {
+         _loc3_.vowel = true;
+         mVowelsArray.push(_loc3_);
+      }
+      else
+      {
+         _loc3_.vowel = false;
+         mConsonantsArray.push(_loc3_);
+      }
+      _loc3_.index = _loc2_;
+      _loc3_.strLetter = chr(_loc2_ + 65);
+      resetLetterState(_loc3_);
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function doPickLetter()
+{
+   soeTRACE("in doPickLetter");
+   var _loc1_ = selectionArray[selectionIndex].strLetter;
+   fscommand("postPickLetter",_loc1_);
+   if(!soeIsGame())
+   {
+      handlePickLetter(_loc1_);
+   }
+}
+function getSelectLetter()
+{
+   return selectionArray[selectionIndex].strLetter;
+}
+function doSelectLetter(strLetter)
+{
+   var _loc5_ = 0;
+   var _loc2_ = 0;
+   var _loc4_ = selectionArray.length;
+   var _loc1_;
+   while(_loc2_ < _loc4_)
+   {
+      _loc1_ = selectionArray[_loc2_];
+      if(_loc1_.strLetter == strLetter)
+      {
+         if(_loc1_.state != "Selected")
+         {
+            selectionIndex = _loc2_;
+            fscommand("postSelectLetter",strLetter);
+            _loc5_ = 1;
+         }
+         else
+         {
+            soeTRACE("doSelectLetter - strLetter: " + strLetter + " oLetter: " + _loc1_ + " oLetter.state: " + _loc1_.state);
+         }
+         break;
+      }
+      _loc2_ = _loc2_ + 1;
+   }
+   return _loc5_;
+}
+function handleDeselectLetter()
+{
+   setLetterState(oCurrentSelection,"Out");
+   oCurrentSelection = null;
+}
+function handleSelectLetter(inString)
+{
+   var _loc2_ = ord(inString) - 65;
+   var _loc1_ = mLettersArray[_loc2_];
+   if(_loc1_ != oCurrentSelection)
+   {
+      setLetterState(oCurrentSelection,"Out");
+      setLetterState(_loc1_,"Over");
+      oCurrentSelection = _loc1_;
+   }
+}
+function handlePickLetter(inString)
+{
+   soeTRACE("in handlePickLetter");
+   var _loc2_ = ord(inString) - 65;
+   var _loc1_ = mLettersArray[_loc2_];
+   if(_loc1_.state != "Disabled" && _loc1_.state != "Selected" && selectionArray != mLettersArray)
+   {
+      setLetterState(_loc1_,"Selected");
+   }
+   else if(selectionArray == mLettersArray)
+   {
+      flashLetter(_loc1_);
+   }
+   if(selectionArray != mLettersArray)
+   {
+      setAllLettersInactive();
+   }
+}
+function doShowLetterboard()
+{
+   soeTRACE("doShowLetterboard - begin");
+   resetLetterArrayState();
+   timerType = "showLetterboard";
+   arrShowLetterboard = mLettersArray.slice();
+   doShowLetterboardLetter();
+   soeTRACE("doShowLetterboard - end");
+}
+function doShowLetterboardLetter()
+{
+   var _loc3_ = arrShowLetterboard.pop();
+   _loc3_.gotoAndPlay("lPlayIn");
+   if(arrShowLetterboard.length > 0)
+   {
+      _root.iTimer.startTimer(this,0.00005);
+   }
+   else
+   {
+      _root.iTimer.stopTimer();
+      handleShowLetterboardComplete();
+   }
+}
+function handleShowLetterboardComplete()
+{
+   fscommand("postShowLetterboardComplete");
+}
+function doHideLetterboard()
+{
+   soeTRACE("doHideLetterboard - begin");
+   resetLetterArrayState();
+   arrShowLetterboard = mLettersArray.slice();
+   var _loc1_;
+   while(arrShowLetterboard.length > 0)
+   {
+      _loc1_ = arrShowLetterboard.pop();
+      _loc1_.gotoAndPlay("lOut");
+   }
+   soeTRACE("doHideLetterboard - end");
+}
+function handleHideLetterboardComplete()
+{
+   fscommand("postHideLetterboardComplete");
+}
+function setConsonantsActive()
+{
+   setLetterArrayState(mConsonantsArray,"Out");
+   initSelection(mConsonantsArray);
+}
+function setConsonantsInactive()
+{
+   handleDeselectLetter();
+   setLetterArrayState(mConsonantsArray,"Disabled");
+}
+function setVowelsActive()
+{
+   setLetterArrayState(mVowelsArray,"Out");
+   initSelection(mVowelsArray);
+}
+function setVowelsInactive()
+{
+   handleDeselectLetter();
+   setLetterArrayState(mVowelsArray,"Disabled");
+}
+function setAllLettersActive()
+{
+   setLetterArrayState(mLettersArray,"Out");
+   initSelection(mLettersArray);
+}
+function setAllLettersInactive()
+{
+   handleDeselectLetter();
+   setLetterArrayState(mLettersArray,"Disabled");
+}
+function setLetterArrayState(inArray, inState)
+{
+   var _loc1_ = 0;
+   while(_loc1_ < inArray.length)
+   {
+      setLetterState(inArray[_loc1_],inState);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function setLetterState(inLetter, inState)
+{
+   if(inLetter.state != "Selected")
+   {
+      inLetter.state = inState;
+      inLetter.iLetter.gotoAndPlay("l" + inLetter.state);
+   }
+}
+function flashLetter(inLetter)
+{
+   inLetter.iLetter.gotoAndPlay("lFlash");
+}
+function resetLetterArrayState()
+{
+   soeTRACE("resetLetterArrayState");
+   var _loc1_ = 0;
+   while(_loc1_ < mLettersArray.length)
+   {
+      resetLetterState(mLettersArray[_loc1_]);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function resetLetterState(inLetter)
+{
+   inLetter.state = "Disabled";
+   inLetter.iLetter.gotoAndPlay("l" + inLetter.state);
+}
+function initSelection(inArray)
+{
+   selectionIndex = 0;
+   selectionArray = inArray;
+   var _loc1_ = selectionArray[selectionIndex];
+   if(_loc1_.state == "Selected")
+   {
+      doSelectNextLetter();
+      oCurrentSelect = 0;
+   }
+   else
+   {
+      setLetterState(_loc1_,"Over");
+      oCurrentSelection = _loc1_;
+   }
+}
+function doSelectNextLetter()
+{
+   var _loc1_ = null;
+   while(_loc1_.state == "Selected" || _loc1_ == null)
+   {
+      if(selectionIndex < selectionArray.length)
+      {
+         selectionIndex++;
+      }
+      else
+      {
+         selectionIndex = 0;
+      }
+      _loc1_ = selectionArray[selectionIndex];
+   }
+   fscommand("postSelectLetter",_loc1_.strLetter);
+   if(!soeIsGame())
+   {
+      handleSelectLetter(_loc1_.strLetter);
+   }
+}
+function doSelectPreviousLetter()
+{
+   var _loc2_ = selectionArray[selectionIndex];
+   var _loc1_ = null;
+   while(_loc1_.state == "Selected" || _loc1_ == null)
+   {
+      if(selectionIndex > 0)
+      {
+         selectionIndex--;
+      }
+      else
+      {
+         selectionIndex = selectionArray.length - 1;
+      }
+      _loc1_ = selectionArray[selectionIndex];
+   }
+   fscommand("postSelectLetter",_loc1_.strLetter);
+   if(!soeIsGame())
+   {
+      handleSelectLetter(_loc1_.strLetter);
+   }
+}
+function stopListeners()
+{
+}
+function startListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+            doSelectNextLetter();
+            break;
+         case 37:
+            doSelectPreviousLetter();
+            break;
+         case 38:
+            handleKeyUp();
+            break;
+         case 40:
+            handleKeyDown();
+            break;
+         case 13:
+            doPickLetter();
+            break;
+         case 8:
+            handleKeyBack();
+            break;
+         case 36:
+            break;
+         case 35:
+            handleKeyDelete();
+      }
+      if(!(Key.getAscii() >= 97 && Key.getAscii() <= 122))
+      {
+         switch(chr(Key.getAscii()))
+         {
+            case "1":
+               if(bShowLetterboard)
+               {
+                  bShowLetterboard = 0;
+                  doHideLetterboard();
+               }
+               else
+               {
+                  bShowLetterboard = 1;
+                  doShowLetterboard();
+               }
+               break;
+            case "2":
+               if(bSetVowelsActive)
+               {
+                  bSetVowelsActive = 0;
+                  setVowelsInactive();
+               }
+               else
+               {
+                  bSetVowelsActive = 1;
+                  setVowelsActive();
+               }
+               break;
+            case "3":
+               if(bSetConsonantsActive)
+               {
+                  bSetConsonantsActive = 0;
+                  setConsonantsInactive();
+               }
+               else
+               {
+                  bSetConsonantsActive = 1;
+                  setConsonantsActive();
+               }
+               break;
+            case "4":
+               if(bSetAllLettersActive)
+               {
+                  bSetAllLettersActive = 0;
+                  setAllLettersInactive();
+               }
+               else
+               {
+                  bSetAllLettersActive = 1;
+                  setAllLettersActive();
+               }
+               break;
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            default:
+               return;
+         }
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function initPlayers()
+{
+   arrPlayers = new Array();
+   arrGameControls = new Array(5);
+   currentPlayer = -1;
+   newPlayer = -1;
+   var _loc2_ = 0;
+   var _loc1_;
+   while(_loc2_ < 3)
+   {
+      _loc1_ = new Object();
+      _loc1_.name = "";
+      _loc1_.score = "0";
+      _loc1_.arrCollectibles = new Array();
+      _loc1_.arrDisplayCollectibles = new Array();
+      arrPlayers.push(_loc1_);
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function doShowPlayerNames()
+{
+   gotoAndStop("lShow");
+   play();
+}
+function doHidePlayerNames()
+{
+   gotoAndStop("lHide");
+   play();
+}
+function doShowPlayer(inPlayer)
+{
+   if(currentPlayer != inPlayer)
+   {
+      newPlayer = inPlayer;
+      gotoAndStop("lNewPlayer");
+      play();
+   }
+}
+function doHidePlayers()
+{
+   newPlayer = -1;
+   gotoAndStop("lNewPlayer");
+   play();
+}
+function isPlayerLocal()
+{
+   return arrPlayers[newPlayer].local;
+}
+function setPlayerName(inPlayer, inName, inLocal)
+{
+   arrPlayers[inPlayer].name = inName.toUpperCase();
+   arrPlayers[inPlayer].local = inLocal;
+   arrPlayers[inPlayer].score = 0;
+   mcTossUpRoundBar["tfPlayer" + inPlayer].text = inName;
+}
+function doSetPlayerScore(inPlayer, inRoundScore, inTotalScore)
+{
+   arrPlayers[inPlayer].score = inRoundScore;
+   if(iCurrentPlayerName.tfScore.text != "")
+   {
+      iCurrentPlayerName.tfScore.text = inRoundScore;
+      OnScoreChange(iCurrentPlayerName.tfScore);
+   }
+   if(arrPlayers[inPlayer].name == "")
+   {
+      mcTossUpRoundBar["tfScore" + inPlayer].text = "";
+   }
+   else
+   {
+      mcTossUpRoundBar["tfScore" + inPlayer].text = inTotalScore;
+      OnScoreChange(mcTossUpRoundBar["tfScore" + inPlayer]);
+   }
+}
+function testCollectibles()
+{
+   soeTRACE("===> testCollectibles()");
+   addPlayerCollectible(0,"Disabled");
+   addPlayerCollectible(0,"FreeSpin");
+   addPlayerCollectible(0,"WildCard");
+   addPlayerCollectible(0,"10K");
+   currentPlayer = 0;
+}
+function addPlayerCollectible(inPlayer, inCollectibleName)
+{
+   soeTRACE("addPlayerCollectible - inPlayer: " + inPlayer + " inCollectibleName: " + inCollectibleName);
+   var _loc2_ = arrPlayers[inPlayer];
+   var _loc4_ = _loc2_.arrCollectibles.length;
+   var _loc1_ = 0;
+   while(_loc1_ < _loc4_)
+   {
+      if(_loc2_.arrCollectibles[_loc1_] == "Disabled")
+      {
+         _loc2_.arrCollectibles[_loc1_] = inCollectibleName;
+         break;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   if(_loc1_ == _loc2_.arrCollectibles.length)
+   {
+      _loc2_.arrCollectibles.push(inCollectibleName);
+   }
+}
+function removePlayerCollectible(inPlayer, inCollectible)
+{
+   soeTRACE("removePlayerCollectible - inPlayer: " + inPlayer + " inCollectible: " + inCollectible);
+   var _loc3_ = arrPlayers[inPlayer];
+   var _loc2_ = 0;
+   var _loc6_ = _loc3_.arrCollectibles.length;
+   var _loc4_;
+   while(_loc2_ < _loc6_)
+   {
+      if(_loc3_.arrCollectibles[_loc2_] == inCollectible)
+      {
+         soeTRACE("====> removing Player Collectible for player " + inPlayer + " collectible:" + inCollectible);
+         if(inPlayer == currentPlayer)
+         {
+            _loc3_.arrCollectibles[_loc2_] = "Disabled";
+            _loc4_ = iCurrentCollectibles["iCollectible" + _loc2_];
+            _loc4_.gotoAndPlay("lHide");
+            if(_loc6_ == 1)
+            {
+               _root.mcPuzzleboardWnd.mcPuzzleboardWnd.mcPipTopFrame.gotoAndPlay("lHide" + currentPlayer);
+            }
+         }
+         _loc3_.arrCollectibles.splice(_loc2_,1);
+         break;
+      }
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function hasCollectibles(inPlayer)
+{
+   if(arrPlayers[inPlayer].arrCollectibles.length < 1)
+   {
+      return false;
+   }
+   var _loc1_ = 0;
+   while(_loc1_ < arrPlayers[inPlayer].arrCollectibles.length)
+   {
+      if(arrPlayers[inPlayer].arrCollectibles[_loc1_] != "Disabled")
+      {
+         return true;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   return false;
+}
+function getCurrentPlayerCollectibles(inObject)
+{
+   if(currentPlayer != -1)
+   {
+      showCollectibles(currentPlayer,inObject);
+   }
+}
+function getNewPlayerCollectibles(inObject)
+{
+   if(newPlayer != -1)
+   {
+   }
+}
+function getNewPlayer(inObject)
+{
+   var _loc1_ = "";
+   var _loc3_ = "";
+   var _loc2_ = "lDisable";
+   if(newPlayer != -1)
+   {
+      _loc1_ = arrPlayers[newPlayer].name;
+      _loc3_ = arrPlayers[newPlayer].score;
+      _loc2_ = "lPlayer" + newPlayer;
+   }
+   setPlayerText(inObject,_loc1_,_loc3_);
+   inObject.gotoAndPlay(_loc2_);
+}
+function getCurrentPlayer(inObject)
+{
+   var _loc1_ = "";
+   var _loc3_ = "";
+   var _loc2_ = "lDisable";
+   if(newPlayer != -1)
+   {
+      if(currentPlayer != -1)
+      {
+         _loc1_ = arrPlayers[currentPlayer].name;
+         _loc3_ = arrPlayers[currentPlayer].score;
+      }
+      _loc2_ = "lPlayer" + currentPlayer;
+   }
+   setPlayerText(inObject,_loc1_,_loc3_);
+   inObject.gotoAndPlay(_loc2_);
+}
+function playCurrentPlayerGraphics(inObject)
+{
+   var _loc1_;
+   if(newPlayer != -1)
+   {
+      _loc1_ = "lPlayer" + currentPlayer;
+   }
+   else
+   {
+      _loc1_ = "lDisable";
+   }
+   inObject.gotoAndPlay(_loc1_);
+}
+function setPlayerText(inObject, inName, inScore)
+{
+   inObject.tText.text = inName;
+   var _loc6_ = inObject._x;
+   var _loc3_ = 300;
+   var _loc2_ = inObject.tText.textWidth;
+   var _loc4_ = 1;
+   if(_loc2_ > _loc3_)
+   {
+      _loc4_ = _loc3_ / _loc2_;
+   }
+   autoScaleText(inObject.tText);
+   if(inScore != undefined)
+   {
+      inObject.tfScore.text = inScore;
+      OnScoreChange(inObject.tfScore);
+   }
+}
+function handleTransitionToNewPlayerComplete()
+{
+   currentPlayer = newPlayer;
+   gotoAndStop("lCurrentPlayer");
+   play();
+}
+function showCollectibles(inPlayer, inObject)
+{
+   soeTRACE("showCollectibles - inPlayer: " + inPlayer + " inObject: " + inObject);
+   inObject._visible = true;
+   var _loc2_ = arrPlayers[inPlayer];
+   var _loc6_ = _loc2_.arrCollectibles.length;
+   soeTRACE("showCollectibles - oPlayer: " + _loc2_ + " nbCollectibles: " + _loc6_);
+   var _loc8_ = inPlayer <= 1 ? 400 : -352;
+   var _loc5_ = 0;
+   var _loc1_ = 0;
+   var _loc3_;
+   var _loc4_;
+   while(_loc1_ < _loc6_)
+   {
+      _loc3_ = _loc2_.arrCollectibles[_loc1_];
+      soeTRACE("showCollectibles - oIndex: " + _loc1_ + " oCollectibleName: " + _loc3_);
+      if(_loc3_ == "Disabled")
+      {
+         _loc2_.arrCollectibles.splice(_loc1_,1);
+      }
+      else
+      {
+         _loc4_ = inObject["iCollectible" + _loc1_];
+         _loc4_.gotoAndPlay("lShow");
+         if(_loc1_ > 0)
+         {
+            if(_loc2_.arrCollectibles[_loc1_ - 1] == "Million" || _loc2_.arrCollectibles[_loc1_ - 1] == "10k" || _loc2_.arrCollectibles[_loc1_] == "Million" || _loc2_.arrCollectibles[_loc1_] == "10k")
+            {
+               _loc5_ -= 20;
+            }
+         }
+         setCollectible(_loc4_,_loc3_,_loc1_,_loc8_,_loc5_);
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function setCollectible(inCollectible, inState, inPosition, inStartingX, inOffset)
+{
+   soeTRACE("setCollectible - inCollectible: " + inCollectible);
+   soeTRACE("   inState: " + inState + " inPosition: " + inPosition + " inStartingX: " + inStartingX);
+   inCollectible._x = inStartingX + inPosition * 85 + inOffset;
+   inCollectible.iCollectible.gotoAndStop("l" + inState);
+}
+function updateTipText(inObject)
+{
+   inObject.tText.text = s_strTipText;
+}
+function showGameTips(inTextString)
+{
+   hideGameControls();
+   s_strTipText = inTextString;
+   updateTipText(iGameTips.iGameTipsText);
+   iGameTips.gotoAndPlay("lShow");
+   s_bShowingGameTips = true;
+}
+function hideGameTips()
+{
+   if(s_bShowingGameTips)
+   {
+      iGameTips.gotoAndPlay("lHide");
+   }
+   s_bShowingGameTips = false;
+}
+function hideQuickGameTips()
+{
+   if(s_bShowingGameTips)
+   {
+      iGameTips.gotoAndPlay("lHideQuick");
+   }
+   s_bShowingGameTips = false;
+}
+function showRoundIntro(inRoundID)
+{
+   iRoundIntro.gotoAndPlay("lShow");
+}
+function hideRoundIntro()
+{
+   iRoundIntro.gotoAndPlay("lHide");
+}
+function hideGameControls()
+{
+   if(s_bShowingGameControls)
+   {
+      iGameControls.gotoAndPlay("lHide");
+   }
+   s_bShowingGameControls = false;
+}
+function showGameControlsBegin()
+{
+   hideGameTips();
+   s_nGameControls = 0;
+}
+function addGameControl(nButton, strText)
+{
+   var _loc1_ = "Disable";
+   switch(nButton)
+   {
+      case 0:
+         _loc1_ = "X";
+         break;
+      case 1:
+         _loc1_ = "O";
+         break;
+      case 2:
+         _loc1_ = "Triangle";
+         break;
+      case 3:
+         _loc1_ = "Square";
+   }
+   setButton(s_nGameControls,_loc1_,strText);
+   s_nGameControls++;
+}
+function showGameControlsEnd()
+{
+   while(s_nGameControls < 4)
+   {
+      setButton(s_nGameControls,"Disable","");
+      s_nGameControls++;
+   }
+   var _loc3_ = 0;
+   var _loc9_ = 470;
+   var _loc6_ = 50;
+   var _loc7_ = 0;
+   var _loc8_ = 0;
+   var _loc2_;
+   var _loc1_;
+   var _loc4_;
+   var _loc5_;
+   while(_loc3_ < 4)
+   {
+      _loc2_ = iGameControls["iPS3_button" + _loc3_];
+      _loc2_._x = _loc7_;
+      _loc1_ = _loc2_.iButton.iBase._width * _loc2_._xscale / 100;
+      if(isNaN(_loc1_))
+      {
+         _loc1_ = 0;
+      }
+      _loc4_ = _loc2_.iButton.iText.tText;
+      _loc5_ = _loc4_.textWidth;
+      _loc7_ += _loc6_ + _loc1_ + _loc5_;
+      _loc8_ += _loc1_ + _loc6_;
+      _loc3_ = _loc3_ + 1;
+   }
+   iGameControls.gotoAndPlay("lShow");
+   s_bShowingGameControls = true;
+}
+function setButton(inIndex, inIcon, inText)
+{
+   var _loc1_ = iGameControls["iPS3_button" + inIndex];
+   var _loc2_ = _loc1_.iButton.iText.tText;
+   _loc1_.iButton.gotoAndPlay("l" + inIcon);
+   _loc2_.text = inText;
+}
+function stopListeners()
+{
+   Mouse.removelistener(mouseDownListener);
+   Key.removelistener(keyDownListener);
+   Key.removelistener(keyUpListener);
+}
+function startListenersPlayerNames()
+{
+   testIndex = 0;
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(chr(Key.getAscii()))
+      {
+         case "9":
+            doShowPlayer(0);
+            break;
+         case "0":
+            doShowPlayer(1);
+            break;
+         case "-":
+            doShowPlayer(2);
+            break;
+         case "=":
+            doHidePlayers();
+            break;
+         case "[":
+            showRoundIntro(testIndex);
+            break;
+         case "]":
+            hideRoundIntro();
+            testIndex++;
+            break;
+         case ";":
+            addPlayerCollectible(0,"WildCard");
+            break;
+         case "\'":
+            addPlayerCollectible(0,"10k");
+            break;
+         case "\\":
+            addPlayerCollectible(0,"FreeSpin");
+            break;
+         case ",":
+            removePlayerCollectible(0,"WildCard");
+            break;
+         case ".":
+            removePlayerCollectible(0,"10k");
+            break;
+         case "/":
+            removePlayerCollectible(0,"FreeSpin");
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function OnScoreChange(tfScore)
+{
+   var _loc1_;
+   var _loc3_;
+   if(tfScore != undefined && tfScore.text != undefined)
+   {
+      _loc1_ = Number(tfScore.text);
+      if(!isNaN(_loc1_))
+      {
+         if(_loc1_ >= 1000)
+         {
+            tfScore.text = "";
+            _loc3_ = 1;
+            while(_loc1_ >= 1)
+            {
+               if(_loc1_ >= 10 && _loc3_ % 3 == 0)
+               {
+                  tfScore.text = "," + String(Math.floor(_loc1_ % 10)) + tfScore.text;
+               }
+               else
+               {
+                  tfScore.text = String(Math.floor(_loc1_ % 10)) + tfScore.text;
+               }
+               _loc1_ = Math.floor(_loc1_ / 10);
+               _loc3_ = _loc3_ + 1;
+            }
+         }
+         tfScore.text = "$" + tfScore.text;
+      }
+   }
+}
+function gui_init()
+{
+   soeInit("gui");
+   _global.bToggleLegendButtons = true;
+   _global.m_bShowPowerMeterButton = true;
+}
+function doShowPowerMeter(nShowButton)
+{
+   var _loc2_ = 0;
+   if(iPowerMeter != undefined)
+   {
+      iPowerMeter.gotoAndPlay("lShow");
+      iPowerMeter.mcNotch.gotoAndPlay("lPlayer" + currentPlayer);
+      iPowerMeter.mcSpinPower.gotoAndPlay("lPlayer" + currentPlayer);
+      if(nShowButton == 0)
+      {
+         _global.m_bShowPowerMeterButton = false;
+      }
+      else
+      {
+         _global.m_bShowPowerMeterButton = true;
+      }
+      soeTRACE("_global.m_bShowPowerMeterButton: " + _global.m_bShowPowerMeterButton);
+      _loc2_ = 1;
+   }
+   return _loc2_;
+}
+function doHidePowerMeter()
+{
+   iPowerMeter.gotoAndPlay("lHide");
+}
+function doActivatePowerMeter()
+{
+   var _loc2_ = 0;
+   var _loc1_ = getPowerMeterLevel();
+   if(_loc1_ > 10)
+   {
+      iPowerMeter.stop();
+      fscommand("postPowerMeterLevel",_loc1_);
+      _loc2_ = 1;
+   }
+   return _loc2_;
+}
+function getPowerMeterLevel()
+{
+   var _loc1_ = 0;
+   var _loc2_;
+   var _loc4_;
+   var _loc3_;
+   if(iPowerMeter != undefined && iPowerMeter.iPowerMeter != undefined)
+   {
+      _loc2_ = Math.max(0,iPowerMeter.iPowerMeter._width - iPowerMeter.MinWidth);
+      _loc4_ = iPowerMeter.MaxWidth - iPowerMeter.MinWidth;
+      _loc3_ = _loc2_ / _loc4_;
+      _loc1_ = Math.round(_loc3_ * 90) + 10;
+      soeTRACE("getPowerMeterLevel - MinWidth: " + iPowerMeter.MinWidth + " _width: " + iPowerMeter.iPowerMeter._width + " MaxWidth: " + iPowerMeter.MaxWidth);
+      soeTRACE("getPowerMeterLevel - fCurrent: " + _loc2_ + " fMax: " + _loc4_ + " fRatio: " + _loc3_ + " nReturn: " + _loc1_);
+   }
+   return _loc1_;
+}
+function doShowBackground()
+{
+   iBackground.gotoAndPlay("lShow");
+}
+function doHideBackground()
+{
+   iBackground.gotoAndPlay("lHide");
+}
+function stopListeners()
+{
+}
+function startListenersGui()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(chr(Key.getAscii()))
+      {
+         case "1":
+         case "2":
+         case "3":
+         case "4":
+         case "5":
+         case "6":
+         case "7":
+         case "8":
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function onTimer(inTimer)
+{
+   var _loc0_;
+   if((_loc0_ = timerType) === "showLetterboard")
+   {
+      doShowLetterboardLetter();
+   }
+}
+function doShowTossUpRoundBar()
+{
+   mcTossUpRoundBar.gotoAndStop("lShow");
+}
+function doHideTossUpRoundBar()
+{
+   mcTossUpRoundBar.gotoAndStop("lHide");
+}
+function doToggleNoMoreConsonantsState(iState)
+{
+   switch(iState)
+   {
+      case 0:
+         mcNoMoreConsonants.gotoAndPlay("lHide");
+         return;
+      case -1:
+         mcNoMoreConsonants.gotoAndPlay("lDefault");
+         return;
+      default:
+         mcNoMoreConsonants.gotoAndPlay("lShow");
+         return;
+   }
+}
+function doToggleNoMoreVowelsState(iState)
+{
+   switch(iState)
+   {
+      case 0:
+         mcNoMoreVowels.gotoAndPlay("lHide");
+         return;
+      case -1:
+         mcNoMoreVowels.gotoAndPlay("lDefault");
+         return;
+      default:
+         mcNoMoreVowels.gotoAndPlay("lShow");
+         return;
+   }
+}
+function doShowPuzzleboardWindow(nPlayer)
+{
+   mcPuzzleboardWnd.gotoAndPlay("lPlayer" + nPlayer);
+}
+function doHidePuzzleboardWindow()
+{
+   _root.iCurrentCollectibles._visible = false;
+   _root.iCurrentCollectibles.gotoAndPlay("lDisable");
+   mcPuzzleboardWnd.gotoAndStop("lHide");
+}
+function doShowCollectibleMsgBox(inPlayer, inMsg, inIcon)
+{
+   mcCollectibleMsgBox.gotoAndStop("lShow" + inPlayer);
+   mcCollectibleMsgBox.tText.text = inMsg;
+   mcCollectibleMsgBox.mcIcons.gotoAndStop("Icon" + inIcon);
+   mcCollectibleMsgBox.mcLegends.gotoAndStop("Legend" + inIcon);
+   mcCollectibleMsgBox._visible = true;
+}
+function doHideCollectibleMsgBox()
+{
+   mcCollectibleMsgBox.gotoAndStop("lHide");
+}
+function autoScaleText(oText)
+{
+   var _loc10_;
+   var _loc9_;
+   var _loc6_;
+   var _loc7_;
+   var _loc8_;
+   var _loc2_;
+   var _loc5_;
+   var _loc4_;
+   var _loc3_;
+   if(oText != undefined && oText.text != "")
+   {
+      if(oText.soeCenterY == undefined)
+      {
+         oText.soeCenterY = oText._y + oText.textHeight / 2;
+      }
+      _loc10_ = oText.textHeight;
+      _loc9_ = oText.getNewTextFormat();
+      _loc6_ = oText.text;
+      _loc7_ = oText._width;
+      _loc8_ = oText._height;
+      _loc2_ = _loc9_.size;
+      while(_loc2_ <= 128)
+      {
+         _loc5_ = oText.textWidth;
+         _loc4_ = oText.textHeight;
+         if(!(_loc4_ < _loc8_ || _loc5_ < _loc7_))
+         {
+            break;
+         }
+         _loc2_ += 4;
+         _loc3_ = new TextFormat();
+         oText.text = "";
+         _loc3_.size = _loc2_;
+         oText.setNewTextFormat(_loc3_);
+         oText.text = _loc6_;
+      }
+      while(_loc2_ >= 8)
+      {
+         _loc5_ = oText.textWidth;
+         _loc4_ = oText.textHeight;
+         if(!(_loc4_ >= _loc8_ || _loc5_ >= _loc7_))
+         {
+            break;
+         }
+         _loc2_ -= 4;
+         _loc3_ = new TextFormat();
+         oText.text = "";
+         _loc3_.size = _loc2_;
+         oText.setNewTextFormat(_loc3_);
+         oText.text = _loc6_;
+      }
+      oText._y += oText.soeCenterY - (oText._y + oText.textHeight / 2);
+   }
+}
+_global.s_bSoeEnableTrace = true;
+_global.soe_Init = function(strComment)
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_soe[" + strComment + "] _global.gfxExtensions " + _global.gfxExtensions);
+};
+_global.soe_EnableTrace = function(bEnable)
+{
+   _global.s_bSoeEnableTrace = bEnable;
+};
+_global.soe_TRACE = function(strText)
+{
+   if(_global.s_bSoeEnableTrace)
+   {
+      if(_global.gfxExtensions)
+      {
+         fscommand("soeTRACE " + strText,"");
+      }
+      else
+      {
+         trace(strText);
+      }
+   }
+};
+initLetterboard();
+var s_strTipText = "";
+var s_nGameControls = 0;
+var s_bShowingGameTips = false;
+var s_bShowingGameControls = false;
+_global.handleToggleLegendButtons = function(nToggle)
+{
+   if(nToggle == 0)
+   {
+      _global.bToggleLegendButtons = false;
+   }
+   else
+   {
+      _global.bToggleLegendButtons = true;
+   }
+   soeTRACE("_global.handleToggleLegendButtons - nToggle: " + nToggle + " _global.bToggleLegendButtons: " + _global.bToggleLegendButtons);
+};
+mcTimer._visible = false;
+doUpdateCountDownTime = function(seconds)
+{
+   if(Number(seconds) >= 0)
+   {
+      if(currentPlayer >= 0)
+      {
+         mcTimer.gotoAndStop(currentPlayer + 1);
+      }
+      mcTimer.tText.text = String(seconds);
+      mcTimer._visible = true;
+   }
+   else
+   {
+      mcTimer._visible = false;
+   }
+};
+gui_init();

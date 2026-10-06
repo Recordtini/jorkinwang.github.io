@@ -1,0 +1,241 @@
+function soeInit(strComment)
+{
+   _global.soe_Init(strComment);
+}
+function soeTRACE(strText)
+{
+   _global.soe_TRACE(strText);
+}
+function soeEnableTrace(bEnable)
+{
+   _global.soe_EnableTrace(bEnable);
+}
+function soeIsGame()
+{
+   return _global.gfxExtensions;
+}
+function init_startshell()
+{
+   soeInit("startshell");
+   showScreen();
+   startListeners();
+}
+function startshell_EnableEnter(nEnable)
+{
+   s_nEnterEnabled = nEnable;
+   soeTRACE("startshell_EnableEnter: s_nEnterEnabled " + s_nEnterEnabled);
+}
+function showNextScreen()
+{
+   s_nScreen++;
+   soeTRACE("showNextScreen: s_nScreen " + s_nScreen);
+   showScreen();
+}
+function showScreen()
+{
+   switch(s_nScreen)
+   {
+      case 0:
+         iSOELogo.gotoAndPlay("lShow");
+         fscommand("postSOELogoEnter");
+         break;
+      case 1:
+         iSOELogo.gotoAndPlay("lDisable");
+         iSOELogo._visible = false;
+         iSonyPictures.gotoAndPlay("lShow");
+         fscommand("postSonyPicturesScreenEnter");
+         break;
+      case 2:
+         iSonyPictures.gotoAndPlay("lDisable");
+         iSonyPictures._visible = false;
+         iMiddleware.gotoAndPlay("lShow");
+         fscommand("postMiddleLogoScreenEnter");
+         break;
+      case 3:
+         iMiddleware.gotoAndPlay("lDisable");
+         iMiddleware._visible = false;
+         iLegal.gotoAndPlay("lShow");
+         fscommand("postLegalScreenEnter");
+         break;
+      case 4:
+         iLegal.gotoAndPlay("lDisable");
+         fscommand("postGameLogoEnter");
+         handleShowScreenComplete();
+      default:
+         return;
+   }
+}
+function handleShowScreenComplete()
+{
+   soeTRACE("handleShowScreenComplete: " + s_nScreen);
+   switch(s_nScreen)
+   {
+      case 0:
+         fscommand("postSOELogoDisplayed");
+         break;
+      case 1:
+         fscommand("postSonyPicturesScreenDisplayed");
+         break;
+      case 2:
+         fscommand("postMiddleLogoScreenDisplayed");
+         break;
+      case 3:
+         fscommand("postLegalScreenDisplayed");
+         break;
+      case 4:
+         fscommand("postGameLogoDisplayed");
+      default:
+         return;
+   }
+}
+function hideScreen()
+{
+   soeTRACE("hideScreen: " + s_nScreen);
+   switch(s_nScreen)
+   {
+      case 0:
+         iSOELogo.gotoAndPlay("lHide");
+         break;
+      case 1:
+         iSonyPictures.gotoAndPlay("lHide");
+         break;
+      case 2:
+         iMiddleware.gotoAndPlay("lHide");
+         break;
+      case 3:
+         iLegal.gotoAndPlay("lHide");
+         break;
+      case 4:
+         handleHideScreenComplete();
+      default:
+         return;
+   }
+}
+function handleHideScreenComplete()
+{
+   soeTRACE("handleHideScreenComplete: " + s_nScreen);
+   switch(s_nScreen)
+   {
+      case 0:
+         fscommand("postSOELogoExit");
+         showNextScreen();
+         break;
+      case 1:
+         fscommand("postSonyPicturesScreenExit");
+         showNextScreen();
+         break;
+      case 2:
+         fscommand("postMiddleLogoScreenExit");
+         showNextScreen();
+         break;
+      case 3:
+         fscommand("postLegalScreenExit");
+         showNextScreen();
+         break;
+      case 4:
+         fscommand("postGameLogoExit");
+      default:
+         return;
+   }
+}
+function handleSplashTimer(inTimer)
+{
+   clearInterval(s_nIntervalID);
+   soeTRACE("===> inTimer: " + inTimer);
+   s_nIntervalID = setInterval(callback,inTimer);
+   soeTRACE("===> handleSplashTimer(" + inTimer + ")");
+}
+function callback()
+{
+   clearInterval(s_nIntervalID);
+   soeTRACE("===> callback(), about to hide currently s_nScreen:" + s_nScreen);
+   hideScreen();
+}
+function handleKeyEnter()
+{
+   soeTRACE("handleKeyEnter: s_nEnterEnabled " + s_nEnterEnabled);
+   if(s_nEnterEnabled)
+   {
+      clearInterval(s_nIntervalID);
+      handleHideScreenComplete();
+   }
+}
+function startListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      soeTRACE("keyDownListener.onKeyDown: Key.getCode " + Key.getCode());
+      switch(Key.getCode())
+      {
+         case 32:
+            if(!_global.gfxExtensions)
+            {
+               handleKeyEnter();
+            }
+            break;
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+            handleKeyEnter();
+            break;
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+_global.s_bSoeEnableTrace = true;
+_global.soe_Init = function(strComment)
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_soe[" + strComment + "] _global.gfxExtensions " + _global.gfxExtensions);
+};
+_global.soe_EnableTrace = function(bEnable)
+{
+   _global.s_bSoeEnableTrace = bEnable;
+};
+_global.soe_TRACE = function(strText)
+{
+   if(_global.s_bSoeEnableTrace)
+   {
+      if(_global.gfxExtensions)
+      {
+         fscommand("soeTRACE " + strText,"");
+      }
+      else
+      {
+         trace(strText);
+      }
+   }
+};
+var s_nScreen = 0;
+var s_nIntervalID = 0;
+var s_nEnterEnabled = 1;

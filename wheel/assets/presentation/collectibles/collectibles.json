@@ -1,0 +1,38 @@
+{
+  "Million": {
+    "url": "assets/presentation/collectibles/iMillion.png",
+    "sector": 12,
+    "bbox": [
+      442,
+      710,
+      581,
+      1024
+    ],
+    "sourceSprite": 64,
+    "state": "lOn"
+  },
+  "WildCard": {
+    "url": "assets/presentation/collectibles/iWildCard.png",
+    "sector": 4,
+    "bbox": [
+      822,
+      228,
+      964,
+      357
+    ],
+    "sourceSprite": 70,
+    "state": "lOn"
+  },
+  "FreeSpin": {
+    "url": "assets/presentation/collectibles/iFreeSpin.png",
+    "sector": 18,
+    "bbox": [
+      64,
+      470,
+      147,
+      554
+    ],
+    "sourceSprite": 77,
+    "state": "lOn"
+  }
+}

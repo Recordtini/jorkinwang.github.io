@@ -3,7 +3,7 @@
 ## Automated Checks
 
 Run `node --test wheel/tests/*.test.js` from the site repository.
-Current result: 25 passing tests.
+Current result: 52 passing tests. Earlier recheck sections below are historical.
 
 - Game state: spin outcomes, per-letter payments, duplicate-letter rejection,
   vowel costs, misses, bankruptcies, banked winnings, special wedges, bonus
@@ -69,10 +69,11 @@ Selected board behaviors and presentation frames are recovered from Flash;
 gameplay rules, CPU decisions, camera-state selection, and lighting remain JavaScript.
 Converted textures inherit any remaining source-export limitations. Original
 camera poses are used for fixed cuts; puzzle framing is adapted for the HUD.
-Full camera and KF set-prop tracks are not played, and collectible Million,
-Wildcard and Free Spin overlays are hidden until their full rules are ported.
+Camera animation is intentionally converted to fixed cuts. Native KF texture and
+alpha tracks now play; collectible overlays and their inventory are enabled.
 Character creation, player bodies, retail skeletal/cinematic animations,
-online play, and toss-up rounds are not implemented. Touch viewport testing is
+online play, and Road Trip's three-game flow are not implemented. Toss-ups are
+implemented. Touch viewport testing is
 not a physical-phone performance test. Audio decode checks do not certify
 speaker output or exact retail mixing.
 
@@ -160,3 +161,41 @@ override carrying into a new single-player match, then verified the fix:
   specify these movie callbacks.
 
 Evidence: `single-auto-amount-fixed.png` and `mobile-auto-start-fixed.png`.
+
+## Remaining Recovery Recheck
+
+Verified in isolated local Chrome at 1440 x 900 and touch viewport 390 x 844:
+
+- Fresh single-player start cut to the toss-up board. Actual buzz and per-cell
+  input awarded $1,000; the full UI flow passed both initial toss-ups, all four
+  regular rounds, the third toss-up, and entry to the bonus wheel without errors.
+- Bonus spin cut to `cam5_bonuswheel_detail` on landing and returned to the board.
+  Scores/alphabet do not cover the landing shot. A separate bonus-entry fixture
+  selected four letters through the UI and filled the automatically opened timed
+  solve form, winning $35,000 and playing the matching native prize movie.
+- Both spin presses worked, selecting 30% strength and a 4.9-second spin in one
+  run. Backstage paused the meter; it resumed without advancing while paused.
+- Original help viewer offered all 15 pages. Music toggle stopped the music
+  independently of effects and persisted across reloads.
+- A local puzzle fixture bought its last vowel through the real controls.
+  Two O tiles dinged 750 ms apart, then `NoMoreVowels` played and the native banner
+  appeared. The Buy Vowel button disabled with unused A/I/U buttons still present.
+- All 11 studios loaded with reflective floors and no JavaScript/shader errors.
+  Rear blades used source 0.9 opacity, blend flags, no depth writes, RGB dark maps
+  on UV set 1, and base textures on UV set 0. Native controller bindings normalize
+  GLTF-reserved punctuation and compact clamp/UV flags.
+- All 36 audio files were measured before/after leveling. Decoded output true
+  peaks remained below -1 dBTP. An OfflineAudioContext stress test mixed 28 cues
+  simultaneously through the production output graph: peak 0.889999986,
+  -1.0122 dBFS, zero clipped samples. This is digital audio evidence, not a physical
+  speaker-volume or frame-perfect retail-cue comparison.
+- Browser decoding also succeeded for all 36 normalized files. All nine animated
+  actors bound 50 texture slots with finite UV matrices. Original wheel artwork
+  verified the two cyan $1,000 spaces and the $300 space under Mystery 2; payouts
+  now match those images rather than the old $500/$1,000 substitutions.
+
+Evidence in ignored `qa/`: `native-power-meter.png`, `no-more-vowels.png`,
+`mobile-tossup-start.png`, `mobile-tossup-solve.png`,
+`mobile-bonus-landing-unobstructed.png`, and `panels-baked-front.png`.
+Road Trip, native executable CPU/physics, full shell callbacks, and exact retail
+rendering remain unverified/unported; no claim of complete PS3 emulation is made.
