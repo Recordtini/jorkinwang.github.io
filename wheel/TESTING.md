@@ -285,3 +285,29 @@ Ignored evidence: `qa/wheel-500-landing.png`, `qa/wheel-500-slot-1.png`,
 `qa/wheel-500-slot-2.png`, `qa/vowel-notice-desktop-final.png`,
 `qa/vowel-notice-mobile-final.png`, `qa/board-win-loop.png`,
 `qa/fireworks-alpha-fixed.png`, `qa/jackpot-alpha-orientation-final.png`.
+
+## Letter Audio, HUD And Stage Visibility Follow-Up
+
+The 74-test suite covers gameplay suppression of LetterSelect, LetterVowel
+and LetterConsonant before fetching/decoding; explicit library previews remain
+available. An isolated browser used actual button and keyboard selections:
+successful L played three tile LetterDings, vowel E played one, and a missing
+Z played Incorrect. No immediate selection cue or forbidden audio request
+occurred. These are mixer/trigger checks, not a listening comparison.
+
+The native meter renders a 388x55 bar-only crop without O/X controller prompts.
+Full native notice frames render transparently above the player scores, not
+inside controls. Measured canvas alpha mass grows during show, decreases
+during hide, reaches zero, clears, and does not replay on a normal update.
+Desktop and 390x844 mobile screenshots verify the notice and simplified HUD.
+
+Browser QA clicks Spin on a controlled bonus-round fixture, verifies the
+overhead cam5_bonuswheel_detail during rotation and landing, and resizes
+mid-spin without losing that camera. Native SCX culls hide Denver's left,
+right and medium center actors and flattened meshes, preserving screen_big;
+switching back to LA restores previously visible screens. No page errors.
+
+Ignored QA script: `qa/verify_letter_audio.cjs`. Evidence:
+`qa/power-meter-no-controller-prompts.png`,
+`qa/vowel-notice-above-scores.png`, `qa/vowel-notice-above-scores-mobile.png`,
+`qa/bonus-spin-overhead-desktop.png`, `qa/denver-native-screen-culls.png`.

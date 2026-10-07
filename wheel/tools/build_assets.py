@@ -114,13 +114,18 @@ def build_source_catalog():
                             "bytes": source.stat().st_size,
                             "sha256": hashlib.sha256(source.read_bytes()).hexdigest()})
     write_json(OUT / "source-catalog.json", catalog)
+    build_scene_configs()
+
+
+def build_scene_configs():
     configs = {}
     for short in STAGES:
         source = GAME / f"data/wof_{short}.scx"
         root = ET.parse(source).getroot()
         spin = root.find("WheelSpin")
         configs[short] = {"spin": dict(spin.attrib) if spin is not None else {},
-                          "actors": [dict(node.attrib) for node in root.findall("Actor")]}
+                          "actors": [dict(node.attrib) for node in root.findall("Actor")],
+                          "culls": [node.get("Name") for node in root.findall("Cull") if node.get("Name")]}
     write_json(OUT / "scenes.json", configs)
 def main():
     OUT.mkdir(parents=True, exist_ok=True)

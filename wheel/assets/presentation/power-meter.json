@@ -2,6 +2,7 @@
   "url": "assets/presentation/power-meter.png",
   "width": 464,
   "height": 55,
+  "displayBounds": [76, 0, 464, 55],
   "columns": 8,
   "fps": 30,
   "players": [

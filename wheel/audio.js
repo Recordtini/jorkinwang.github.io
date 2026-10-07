@@ -1,5 +1,6 @@
 export const MIX = {music:.28,effects:.7,wheel:.24,ceiling:.89};
 export const DUCK = {attack:.012,hold:.12,release:.15};
+const SELECTION_CUES = new Set(['LetterSelect','LetterVowel','LetterConsonant']);
 
 export function musicDuckRatio(id){
   if(['WheelClick','LetterSelect','tossup','Wof8BarTheme'].includes(id))return 1;
@@ -68,7 +69,12 @@ export class RetailAudio {
     if(!this.buffers.has(id))this.buffers.set(id,fetch(entry.url+'?v=20261006-levels').then(r=>{if(!r.ok)throw new Error('Audio asset failed: '+id);return r.arrayBuffer();}).then(b=>this.context.decodeAudioData(b)));
     return this.buffers.get(id);
   }
-  async play(id,volume=1){
+  play(id,volume=1){
+    // These are selectable library assets, not letter-choice gameplay feedback.
+    if(SELECTION_CUES.has(id))return Promise.resolve();
+    return this.preview(id,volume);
+  }
+  async preview(id,volume=1){
     if(this.muted||!this.context)return;
     volume=Math.max(0,Math.min(1,Number(volume)||0));if(!volume)return;
     const entry=this.entries.find(e=>e.id===id);if(!entry)return;

@@ -12,7 +12,7 @@ function context(){
 
 async function mixer(){
   const c=context(),old=globalThis.window;
-  const a=new RetailAudio(['PuzzleWin','LetterDing','WheelClick','LetterSelect','tossup','Wof8BarTheme'].map(id=>({id})));
+  const a=new RetailAudio(['PuzzleWin','LetterDing','WheelClick','LetterSelect','LetterVowel','LetterConsonant','tossup','Wof8BarTheme'].map(id=>({id})));
   try{globalThis.window={AudioContext:class {constructor(){return c;}}};await a.activate();}finally{if(old===undefined)delete globalThis.window;else globalThis.window=old;}
   a.buffer=async()=>({duration:1});return {a,c};
 }
@@ -71,4 +71,19 @@ test('muted and zero-volume effects cannot trigger a duck; wheel ticks never low
   a.setMuted(false);await a.play('PuzzleWin',0);assert.equal(a.musicDucker.active.size,0);
   await a.play('WheelClick');await a.play('LetterSelect');assert.equal(a.musicDucker.active.size,0);
   assert.equal(a.musicDucker.envelope.target,1);
+});
+
+test('all letter-selection cues are blocked before fetching or decoding during gameplay',async()=>{
+  const {a,c}=await mixer();let decodes=0;a.buffer=async()=>{decodes++;return {duration:1};};
+  for(const id of ['LetterSelect','LetterVowel','LetterConsonant'])await a.play(id);
+  assert.equal(decodes,0);assert.equal(c.sources.length,0);assert.deepEqual(a.cues,[]);
+  assert.equal(a.musicDucker.active.size,0);
+  await a.play('LetterDing');assert.equal(decodes,1);assert.deepEqual(a.cues.map(cue=>cue.id),['LetterDing']);
+});
+
+test('suppressed selection sounds remain available only through explicit library previews',async()=>{
+  const {a,c}=await mixer();
+  for(const id of ['LetterSelect','LetterVowel','LetterConsonant'])await a.preview(id,.5);
+  assert.deepEqual(a.cues.map(cue=>cue.id),['LetterSelect','LetterVowel','LetterConsonant']);
+  assert.equal(c.sources.length,3);assert.ok(c.sources.every(source=>source.started));
 });

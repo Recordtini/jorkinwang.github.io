@@ -17,9 +17,9 @@ test('cash payouts match the 24 clockwise spaces in the original wheel art',()=>
   assert.equal(g.wedges()[11].value,1000);assert.equal(g.wedges()[23].value,300);
 });
 
-test('bonus landing cuts to the recovered detail camera, not the approach shot',async()=>{
+test('bonus spin and landing both use the recovered overhead detail camera',async()=>{
   const catalog=JSON.parse(await readFile(new URL('../assets/presentation/cameras.json',import.meta.url)));
-  assert.equal(nativeCameraForView('bonus',0,false),'cam6_bonus_wheel_front');
+  assert.equal(nativeCameraForView('bonus',0,false),'cam5_bonuswheel_detail');
   assert.equal(nativeCameraForView('bonus',0,true),'cam5_bonuswheel_detail');
   for(const slot of [0,1,2]){
     assert.equal(nativeCameraForView('wheel',slot,true),`cam5_wheel_detail_player${slot}_animation_push`);

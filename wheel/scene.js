@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle} from './presentation.js?v=20261006-presentation';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle,stageCullMatches} from './presentation.js?v=20261006-letter-audio';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 import {sampleScalar,clipTime,animationCategory,animationClamped,textureMatrix} from './animations.js?v=20261006-presentation';
 
@@ -161,7 +161,7 @@ export class Studio {
     this.materialData=await fetch('assets/presentation/materials.json?v=20261006-atlases').then(r=>r.json());
     this.noticeData=await fetch('assets/presentation/notices.json?v=20261006-presentation').then(r=>r.json());
     this.collectibleData=await fetch('assets/presentation/collectibles/collectibles.json').then(r=>r.json());
-    this.sceneData=await fetch('assets/scenes.json').then(r=>r.json());
+    this.sceneData=await fetch('assets/scenes.json?v=20261006-letter-audio').then(r=>r.json());
     const picture=async url=>{const image=new Image();image.src=url;await image.decode();return image;};
     this.noticeImages={};for(const [name,entry] of Object.entries(this.noticeData))this.noticeImages[name]=await picture(entry.url+'?v=20261006-presentation');
     [this.wheelImages,this.tileImage,this.categoryImage]=await Promise.all([
@@ -284,9 +284,19 @@ export class Studio {
     if(generation!==this.stageGeneration) return;
     if(this.environment)this.scene.remove(this.environment);
     this.environment=environment;if(environment)this.scene.add(environment);
+    this.applyStageCulls(id);
     this.bindFloor();
     this.stage=id;
-    document.querySelector('#studio-name').textContent=entry.name.toUpperCase();
+  }
+  applyStageCulls(id){
+    for(const [object,visible] of this.stageCulled??[])object.visible=visible;
+    this.stageCulled=new Map();
+    const culls=this.sceneData[id]?.culls??[];
+    const hide=object=>{if(!this.stageCulled.has(object))this.stageCulled.set(object,object.visible);object.visible=false;};
+    for(const [name,root] of this.actorRoots)if(culls.some(target=>stageCullMatches(name,target)))hide(root);
+    for(const root of [this.base,this.environment,...this.actorRoots.values()].filter(Boolean)){
+      root.traverse(object=>{if(culls.some(target=>stageCullMatches(object.name,target)))hide(object);});
+    }
   }
   bindFloor(){
     if(this.floorReflection){this.scene.remove(this.floorReflection);this.floorReflection.dispose();this.floorReflection.geometry.dispose();this.floorReflection=null;}
@@ -481,16 +491,15 @@ export class Studio {
     if(this.noticeSeen.has(name))return;
     this.noticeSeen.add(name);this.notice={name,start:performance.now()};
     canvas.setAttribute('aria-label',name==='mcNoMoreVowels'?'No more vowels':'Only vowels remain');
-    const entry=this.noticeData[name],box=entry.settledBounds;
-    canvas.width=box[2]-box[0];canvas.height=box[3]-box[1];
+    const entry=this.noticeData[name];
+    canvas.width=entry.width;canvas.height=entry.height;
     canvas.hidden=false;
   }
   drawNotice(time){
     if(!this.notice)return;
     const {name,start}=this.notice,entry=this.noticeData[name],i=noticeFrame(entry,time-start),canvas=document.querySelector('#letter-notice'),c=canvas.getContext('2d');
     if(i===null){canvas.hidden=true;this.notice=null;return;}
-    const [x,y]=entry.settledBounds;
-    c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(this.noticeImages[name],i%entry.columns*entry.width,Math.floor(i/entry.columns)*entry.height,entry.width,entry.height,-x,-y,entry.width,entry.height);
+    c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(this.noticeImages[name],i%entry.columns*entry.width,Math.floor(i/entry.columns)*entry.height,entry.width,entry.height,0,0,entry.width,entry.height);
   }
   pause(){if(this.pausedAt)return;this.pausedAt=performance.now();this.screenVideos?.forEach(e=>e.video.pause());}
   resume(){

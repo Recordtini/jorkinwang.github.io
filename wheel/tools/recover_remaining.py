@@ -293,7 +293,8 @@ def power_meter():
     shape = next(t for t in original.getroot().find('tags') if t.get('shapeId') == '560')
     bounds = shape.find('shapeBounds')
     native_width = (int(bounds.get('Xmax')) - int(bounds.get('Xmin'))) / 20
-    data = dict(url='assets/presentation/power-meter.png',width=cell[0],height=cell[1],columns=8,fps=30,
+    # O/X prompts animate independently; show only the native bar on the web.
+    data = dict(url='assets/presentation/power-meter.png',width=cell[0],height=cell[1],displayBounds=[76,0,cell[0],cell[1]],columns=8,fps=30,
                 players=urls,frames=list(range(73,120)),levels=[max(10,min(100,round(10+90*max(0,v*native_width-50)/300))) for v in widths],
                 source='gui.gfx/DefineSprite_567',nativeMinWidth=50,nativeMaxWidth=350,nativeBarWidth=native_width)
     (OUT / 'power-meter.json').write_text(json.dumps(data, indent=2)+'\n')

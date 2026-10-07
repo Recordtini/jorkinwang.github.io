@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import * as THREE from '../vendor/three.module.js';
-import {samplePower,noticeFrame,wheelLandingAngle,wheelValues} from '../presentation.js';
+import {samplePower,powerMeterFrame,noticeFrame,wheelLandingAngle,wheelValues,stageCullMatches} from '../presentation.js';
 import {WheelGame} from '../game.js';
 import {animationClamped,clipTime} from '../animations.js';
 const load=async path=>JSON.parse(await readFile(new URL('../'+path,import.meta.url)));
@@ -19,6 +19,16 @@ test('meter samples only the native lLoop segment with fixed player-color atlase
   for(const url of data.players)assert.ok((await readFile(new URL('../'+url,import.meta.url))).length>1000);
 });
 
+test('meter rendering crops O/X prompts out of every atlas cell without changing strength',async()=>{
+  const data=await load('assets/presentation/power-meter.json');
+  assert.deepEqual(data.displayBounds,[76,0,464,55]);
+  for(let i=0;i<data.frames.length;i++){
+    const frame=powerMeterFrame(data,i);
+    assert.deepEqual(frame,{x:i%8*464+76,y:Math.floor(i/8)*55,width:388,height:55});
+    assert.equal(samplePower(data,i*1000/data.fps+.01).level,data.levels[i]);
+  }
+});
+
 test('notices show, hold and play the native hide timeline exactly once',async()=>{
   for(const entry of Object.values(await load('assets/presentation/notices.json'))){
     assert.deepEqual(entry.frames,Array.from({length:30},(_,i)=>9+i));
@@ -27,6 +37,20 @@ test('notices show, hold and play the native hide timeline exactly once',async()
     assert.equal(noticeFrame(entry,14*1000/30+entry.holdMs+.01),14);
     assert.equal(noticeFrame(entry,30*1000/30+entry.holdMs+.01),null);
   }
+});
+
+test('stage culls retain native per-set screen rules and sanitized mesh names',async()=>{
+  const data=await load('assets/scenes.json');
+  assert.deepEqual(data.dn.culls,['|screen_left','|screen_left_panel','|screen_right','|screen_right_panel','|screen_center','|screen_center_panel']);
+  assert.deepEqual(data.la.culls,[]);assert.deepEqual(data.base.culls,[]);
+  assert.ok(data.lv.culls.includes('|screen_big'));assert.ok(!data.da.culls.includes('|screen_center'));
+  assert.ok(stageCullMatches('screen_left_panelShape','|screen_left_panel'));
+  assert.ok(stageCullMatches('screen_left_swfShape','|screen_left'));
+  assert.ok(stageCullMatches('screen_left_frameShape0','|screen_left'));
+  assert.ok(stageCullMatches('screen_center_frameShape0','wof_base|screen_center_frame'));
+  assert.ok(stageCullMatches('screen_center_frameShape','wof_base|screen_center_frame'));
+  assert.ok(stageCullMatches('front_screenshape1','front_screenshape:1'));
+  assert.ok(!stageCullMatches('screen_big_panelShape','|screen_left_panel'));
 });
 
 test('circle UVs and landing angle place each native cash wedge at every player pointer',()=>{

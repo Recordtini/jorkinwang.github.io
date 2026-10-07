@@ -40,7 +40,7 @@ export function cameraAutomation(current,event){
 
 export function nativeCameraForView(view,slot=0,endpoint=false){
   if(view==='wheel')return `cam5_wheel_detail_player${slot}_animation_push`;
-  if(view==='bonus')return endpoint?'cam5_bonuswheel_detail':'cam6_bonus_wheel_front';
+  if(view==='bonus')return 'cam5_bonuswheel_detail';
   if(view==='show')return 'cam2_all_players_zoomed_out';
   return null;
 }
@@ -73,6 +73,18 @@ export function fillSolution(state, entries) {
 export function samplePower(data,elapsed){
   const index=Math.floor(Math.max(0,elapsed)*data.fps/1000)%data.frames.length;
   return {index,level:data.levels[index]};
+}
+
+export function powerMeterFrame(data,index){
+  const [left,top,right,bottom]=data.displayBounds??[0,0,data.width,data.height];
+  return {x:index%data.columns*data.width+left,y:Math.floor(index/data.columns)*data.height+top,width:right-left,height:bottom-top};
+}
+
+export function stageCullMatches(name,target){
+  const normalize=value=>value.split('|').at(-1).replace(/[\[\].: /]/g,'').toLowerCase().replace(/shape(?=\d*$)/,'');
+  const node=normalize(name),branch=normalize(target);
+  // Flattened GLBs retain branch prefixes but drop the original parent nodes.
+  return node===branch||node.startsWith(branch+'_')||(node.startsWith(branch)&&/^\d+$/.test(node.slice(branch.length)));
 }
 
 export function noticeFrame(entry,elapsed){
