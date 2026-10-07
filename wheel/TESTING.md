@@ -334,6 +334,7 @@ remain at render order 0 with native depth writes enabled after switching sets.
 
 The category is still visible on its settled native purple frame after eight
 seconds, and is restored settled rather than hidden after loading a saved state.
+The persistent canvas exposes the puzzle category as its accessible name.
 Measured 1440x900, 1100x800 and 390x844 layouts keep the round label below the
 banner art and controls separate. Desktop controls have exact 16px top/right
 insets; mobile controls sit below the round label. No page errors were recorded.

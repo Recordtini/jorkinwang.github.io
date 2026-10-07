@@ -427,6 +427,7 @@ export class Studio {
     const elapsed=Math.max(0,time-clip.start),atlas=this.presentation.category;
     canvas.hidden=false;
     const i=categoryFrame(atlas,elapsed);
+    if(clip.lastFrame===undefined)canvas.setAttribute('aria-label','Category: '+clip.text);
     if(clip.lastFrame===i)return;
     clip.lastFrame=i;c.clearRect(0,0,640,100);
     c.drawImage(this.categoryImage,(i%atlas.columns)*640,Math.floor(i/atlas.columns)*100,640,100,0,0,640,100);
