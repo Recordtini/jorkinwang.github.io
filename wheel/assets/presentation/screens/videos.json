@@ -1,0 +1,146 @@
+{
+  "1000tossup": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2002,
+    "sourceSha256": "31e2af7a7a3ce6034e7d4d2b748a086728bd653fb321647af137f397bd4a6f65",
+    "url": "assets/presentation/screens/1000tossup-alpha.mp4"
+  },
+  "2000tossup": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2002,
+    "sourceSha256": "41911c55e91cf80bb36c5f5123ec2f9faa6572166a3dff4ddd0d352f368e2dbb",
+    "url": "assets/presentation/screens/2000tossup-alpha.mp4"
+  },
+  "3000tossup": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2035,
+    "sourceSha256": "1beffe2976ce856c0f52d4a88d20a27036d67a33e19c8fb71e98a1745b602c33",
+    "url": "assets/presentation/screens/3000tossup-alpha.mp4"
+  },
+  "bonus_100000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "c72836fe838c45fdf0db822299627409442b0b6506e13adf5dae7b504e66b900",
+    "url": "assets/presentation/screens/bonus_100000-alpha.mp4"
+  },
+  "bonus_1000000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "11bbdaf385777809d36ca0b9bad3b3f6f624c0b1b308ebcce5efec28e73b5cfd",
+    "url": "assets/presentation/screens/bonus_1000000-alpha.mp4"
+  },
+  "bonus_25000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "dac98fde6901345cf90cfae7f3905c8a5ac06d040e2820514f2783fa9bfceec8",
+    "url": "assets/presentation/screens/bonus_25000-alpha.mp4"
+  },
+  "bonus_30000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "86a76838dd36f6298a94258af8d31a39b28b1757ff9bf0056477f6bfedd2b3e2",
+    "url": "assets/presentation/screens/bonus_30000-alpha.mp4"
+  },
+  "bonus_35000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "4f80a03d333c5b517362a726edd125ca10ad5ec6c8bc72b55d79fbefb6d2e025",
+    "url": "assets/presentation/screens/bonus_35000-alpha.mp4"
+  },
+  "bonus_40000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "a5ce8b03681ab5aeaeec4a817db6fdedabfa2729325d466f4815fcf6de6172d7",
+    "url": "assets/presentation/screens/bonus_40000-alpha.mp4"
+  },
+  "bonus_45000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "c777e2cc1272662d71c4512d94640e0256294ee36d3ffe8cf844723b4c2e6aaa",
+    "url": "assets/presentation/screens/bonus_45000-alpha.mp4"
+  },
+  "bonus_50000": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 7000,
+    "sourceSha256": "2e8d07275918787fdb67e21705e20bf8e2188efc39d2ae0c9f2fff70de46d596",
+    "url": "assets/presentation/screens/bonus_50000-alpha.mp4"
+  },
+  "fireworks": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 5438,
+    "sourceSha256": "e3bb9ba9918288ad1dd4c001d68dd51327b4c239693196ddce03cfbaf4a851c1",
+    "url": "assets/presentation/screens/fireworks-alpha.mp4"
+  },
+  "game_logo": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 8842,
+    "sourceSha256": "8f03a032b2ded4f92a00f97b498a84759029983d362d6da4c60fa821857f4b56",
+    "url": "assets/presentation/screens/game_logo-alpha.mp4"
+  },
+  "jackpot_intro": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2668,
+    "sourceSha256": "38c9d781fc837ae1faa8aa5bed600d82fa9592574ba9664f3b90848d53c10925",
+    "url": "assets/presentation/screens/jackpot_intro-alpha.mp4"
+  },
+  "jackpot_intro2": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2368,
+    "sourceSha256": "a8880fecb6b3b0a362e8e45359cb239380f7d7aa4be185a1e83b254b5f9c8187",
+    "url": "assets/presentation/screens/jackpot_intro2-alpha.mp4"
+  },
+  "mystery_intro": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 1668,
+    "sourceSha256": "02fe068ba6c7c1c2ee302bbcddcd566a38820869e5e11240bf16714ff8b01f09",
+    "url": "assets/presentation/screens/mystery_intro-alpha.mp4"
+  },
+  "mystery_intro2": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 2369,
+    "sourceSha256": "23f317f73957f6f606171db5fd8a3b11ad421a65702c4453755bf8d021e4213f",
+    "url": "assets/presentation/screens/mystery_intro2-alpha.mp4"
+  },
+  "transition": {
+    "alpha": true,
+    "width": 768,
+    "height": 432,
+    "durationMs": 950,
+    "sourceSha256": "f7d07a814e387bf0e83d75ac2dacc4a0d8417d7c6bf77c23db51734e461eb4f6",
+    "url": "assets/presentation/screens/transition-alpha.mp4"
+  }
+}

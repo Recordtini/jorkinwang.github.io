@@ -29,6 +29,11 @@ export function animationCategory(state,event){
   return null;
 }
 
+export function animationClamped(category,entry){
+  const boardCelebration=entry.actor.startsWith('puzzleboard_')&&['end_round','end_game'].includes(category);
+  return entry.clamp===true||(!['idle','big_spin','bonus_spin'].includes(category)&&!boardCelebration);
+}
+
 // OpenGL's native T(center) R S T(translation) T(-center), in row-major order.
 export function textureMatrix({center=[0,0],translation=[0,0],scale=[1,1],rotation=0}){
   const [cx,cy]=center,[u,v]=translation,[sx,sy]=scale,c=Math.cos(rotation),s=Math.sin(rotation);

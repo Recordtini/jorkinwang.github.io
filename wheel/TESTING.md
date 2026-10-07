@@ -247,3 +247,41 @@ including genuinely blended Las Vegas and Phoenix surfaces.
 Evidence in ignored `qa/`: `la-column-border-before.png`,
 `la-column-border-final.png`, and `la-column-side-final.png`. Close-up cameras
 are diagnostic fixtures; exact retail rendering remains unverified.
+
+## Meter, Notices, Wedges And Alpha Movies
+
+70 Node tests pass. New regressions cover the 47 native meter loop frames,
+three fixed player-color exports, width-based power samples, notice show/hold/
+hide timing, all 24 circle-UV landing angles, $500 Jackpot-round payouts,
+source-alpha media packaging, and persistent native board celebration loops.
+
+Isolated Chromium browser checks used real setup, spin/stop, Backstage, vowel
+purchase, letter-selection, fill-in solving and Next Round controls. Local QA
+fixtures selected a repeatable puzzle and spin result; they are not random
+gameplay or retail execution proof. All three physical player cameras showed
+$500 under the active flipper, matching the landing message. Backstage held
+meter power at 14 and it resumed on closing; stop sampled 15, not a stale 55.
+Audio trigger recording confirmed the last-vowel purchase played LetterDing
+and NoMoreVowels, not LetterSelect or LetterVowel. Listening comparison remains
+unverified, including WheelClick cadence and perceived balance.
+
+The notice was inspected at 1440x900 and 390x844, inside the controls rather
+than over puzzle letters. Both viewports fit the board, score and controls
+without page overflow. It clears after its presentation and does not replay
+on a normal update. Board texture transforms still changed over 100 seconds
+after a win (native loop period about 1.667 seconds), stopping on Next Round.
+
+Fireworks were inspected over the original monitor poster with the background
+visible through native alpha, not a black rectangle. Jackpot also appeared as
+a full-screen alpha overlay during the next-round transition. A played, paused
+frame fixture verified upright overlay UVs and correct alpha after catching an
+initial upside-down render. All 18 alpha movies retain source dimensions,
+durations and SHA-256; exact PS3 movie-target/trigger parity is not established.
+No page or shader errors were recorded in these checks. The preview server
+does not serve byte ranges, so video-frame fixtures used playback then pause,
+not seeking, which returned to frame zero in this local server setup.
+
+Ignored evidence: `qa/wheel-500-landing.png`, `qa/wheel-500-slot-1.png`,
+`qa/wheel-500-slot-2.png`, `qa/vowel-notice-desktop-final.png`,
+`qa/vowel-notice-mobile-final.png`, `qa/board-win-loop.png`,
+`qa/fireworks-alpha-fixed.png`, `qa/jackpot-alpha-orientation-final.png`.

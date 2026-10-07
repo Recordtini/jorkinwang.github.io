@@ -242,9 +242,10 @@ def power_meter():
         if tag.get('depth') == '5' and tag.find('matrix') is not None:
             current = float(tag.find('matrix').get('scaleX', '1'))
         if tag.get('type') == 'ShowFrameTag':
-            if 73 <= frame <= 130:
+            if 73 <= frame < 120:
                 widths.append(current)
             frame += 1
+    original = copy.deepcopy(doc)
     for tag in list(tags):
         if not tag.get('type').startswith('Define') and tag.get('type') not in ['ExporterInfo', 'FileAttributesTag']:
             tags.remove(tag)
@@ -252,24 +253,49 @@ def power_meter():
     for _ in range(130):
         ET.SubElement(tags, 'item', {'type': 'ShowFrameTag'})
     doc.getroot().set('frameCount', '130')
-    xml, gfx = QA / 'power-meter.xml', QA / 'gui/power-meter.gfx'
-    doc.write(xml, encoding='utf-8', xml_declaration=True)
     env = dict(os.environ, APPDATA=str(ROOT / 'wheel_web_tools/ffdec-home/AppData/Roaming'))
     command = ['C:/Program Files/Java/jdk-17/bin/java.exe', '-Djava.awt.headless=true', '-jar', str(ROOT / 'wheel_web_tools/ffdec/ffdec.jar')]
-    subprocess.run(command + ['-xml2swf', str(xml), str(gfx)], env=env, check=True)
-    subprocess.run(command + ['-select', '73-130', '-export', 'frame', str(QA / 'power-meter'), str(gfx)], env=env, check=True)
-    images = [Image.open(QA / 'power-meter' / f'{frame}.png').convert('RGBA') for frame in range(73,131)]
+    players = []
+    for slot in range(3):
+        player = copy.deepcopy(doc)
+        # Frame export does not execute stop(), so freeze both color clips at
+        # their native lPlayerN stop frames before rendering the parent loop.
+        for sid, stop in [('551', [3, 10, 19][slot]), ('555', [2, 8, 14][slot]), ('562', 3)]:
+            child = next(t for t in player.getroot().find('tags') if t.get('spriteId') == sid)
+            sub = child.find('subTags')
+            f = 1
+            for t in list(sub):
+                if t.get('type') == 'ShowFrameTag':
+                    f += 1
+                    sub.remove(t)
+                elif f > stop or t.get('type') in ['DoActionTag', 'FrameLabelTag']:
+                    sub.remove(t)
+            ET.SubElement(sub, 'item', {'type': 'ShowFrameTag'})
+            child.set('frameCount', '1')
+        xml, gfx = QA / f'power-meter-{slot}.xml', QA / f'gui/power-meter-{slot}.gfx'
+        player.write(xml, encoding='utf-8', xml_declaration=True)
+        subprocess.run(command + ['-xml2swf', str(xml), str(gfx)], env=env, check=True)
+        folder = QA / f'power-meter-{slot}'
+        subprocess.run(command + ['-select', '73-119', '-export', 'frame', str(folder), str(gfx)], env=env, check=True)
+        players.append([Image.open(folder / f'{f}.png').convert('RGBA') for f in range(73, 120)])
+    images = [im for frames in players for im in frames]
     boxes = [im.getbbox() for im in images]
     bbox = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
     cell = (bbox[2]-bbox[0], bbox[3]-bbox[1])
-    atlas = Image.new('RGBA', (cell[0]*8, cell[1]*8))
-    for i, im in enumerate(images):
-        atlas.paste(im.crop(bbox), (i%8*cell[0], i//8*cell[1]))
-    atlas.save(OUT / 'power-meter.png', optimize=True)
-    low, high = min(widths), max(widths)
+    urls = []
+    for slot, frames in enumerate(players):
+        atlas = Image.new('RGBA', (cell[0]*8, cell[1]*6))
+        for i, im in enumerate(frames):
+            atlas.paste(im.crop(bbox), (i%8*cell[0], i//8*cell[1]))
+        dest = 'power-meter.png' if slot == 0 else f'power-meter-{slot}.png'
+        atlas.save(OUT / dest, optimize=True)
+        urls.append('assets/presentation/' + dest)
+    shape = next(t for t in original.getroot().find('tags') if t.get('shapeId') == '560')
+    bounds = shape.find('shapeBounds')
+    native_width = (int(bounds.get('Xmax')) - int(bounds.get('Xmin'))) / 20
     data = dict(url='assets/presentation/power-meter.png',width=cell[0],height=cell[1],columns=8,fps=30,
-                frames=list(range(73,131)),levels=[round(10+90*(v-low)/(high-low)) for v in widths],
-                source='gui.gfx/DefineSprite_567',nativeMinWidth=50,nativeMaxWidth=350)
+                players=urls,frames=list(range(73,120)),levels=[max(10,min(100,round(10+90*max(0,v*native_width-50)/300))) for v in widths],
+                source='gui.gfx/DefineSprite_567',nativeMinWidth=50,nativeMaxWidth=350,nativeBarWidth=native_width)
     (OUT / 'power-meter.json').write_text(json.dumps(data, indent=2)+'\n')
     shutil.copyfile(QA / 'gui-export/scripts/frame_1/DoAction_2.as', OUT / 'source/gui-controls.as.txt')
     print('Native power meter', cell, widths[:4], flush=True)
@@ -277,7 +303,22 @@ def power_meter():
 
 def videos():
     folder = OUT / 'screens'
+    catalog = {}
     for source in sorted((GAME / 'video').glob('*.bik')):
+        probe = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-show_streams', '-of', 'json', str(source)]))
+        stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
+        alpha = 'a' in stream['pix_fmt'].removeprefix('yuv')
+        catalog[source.stem] = dict(alpha=alpha, width=stream['width'], height=stream['height'],
+                                   durationMs=round(float(stream.get('duration', 0))*1000),sourceSha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+                                   url=f'assets/presentation/screens/{source.stem}{"-alpha" if alpha else ""}.mp4')
+        if alpha:
+            dest = folder / (source.stem + '-alpha.mp4')
+            if dest.exists():
+                continue
+            subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-i', str(source), '-an',
+                            '-filter_complex', '[0:v]split[c][a];[c]format=rgb24[color];[a]alphaextract,format=rgb24[alpha];[color][alpha]hstack',
+                            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-movflags', '+faststart', str(dest)], check=True)
+            continue
         dest = folder / (source.stem + '.mp4')
         if dest.exists():
             continue
@@ -285,6 +326,7 @@ def videos():
                         '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23',
                         '-movflags', '+faststart', str(dest)], check=True)
         print('Converted movie', source.stem, flush=True)
+    (folder / 'videos.json').write_text(json.dumps(catalog, indent=2) + '\n')
 
 
 def notices():
@@ -301,23 +343,28 @@ def notices():
             if not t.get('type').startswith('Define') and t.get('type') not in ['ExporterInfo','FileAttributesTag']:
                 tags.remove(t)
         tags.append(placement)
-        for _ in range(22):
+        for _ in range(38):
             ET.SubElement(tags, 'item', {'type':'ShowFrameTag'})
-        doc.getroot().set('frameCount', '22')
+        doc.getroot().set('frameCount', '38')
         xml, gfx = QA / (target+'.xml'), QA / 'gui' / (target+'.gfx')
         doc.write(xml, encoding='utf-8', xml_declaration=True)
         subprocess.run(command + ['-xml2swf', str(xml), str(gfx)], env=env, check=True)
         folder = QA / target
-        subprocess.run(command + ['-select', '9-22', '-export','frame',str(folder),str(gfx)], env=env, check=True)
-        images = [Image.open(folder / f'{f}.png').convert('RGBA') for f in range(9,23)]
+        subprocess.run(command + ['-select', '9-38', '-export','frame',str(folder),str(gfx)], env=env, check=True)
+        images = [Image.open(folder / f'{f}.png').convert('RGBA') for f in range(9,39)]
         boxes = [im.getbbox() for im in images if im.getbbox()]
         box = (min(b[0] for b in boxes),min(b[1] for b in boxes),max(b[2] for b in boxes),max(b[3] for b in boxes))
         w,h = box[2]-box[0],box[3]-box[1]
-        atlas = Image.new('RGBA',(w*8,h*2))
+        atlas = Image.new('RGBA',(w*8,h*4))
         for i,im in enumerate(images):
             atlas.paste(im.crop(box),(i%8*w,i//8*h))
         atlas.save(OUT / (target+'.png'), optimize=True)
-        catalog[target] = dict(url='assets/presentation/'+target+'.png',width=w,height=h,columns=8,fps=30,frames=list(range(9,23)))
+        # Barely visible burst particles inflate the movie bounds and make the
+        # actual caption tiny when fitted to the browser's compact controls.
+        settled = images[13].getchannel('A').point(lambda a: 255 if a > 32 else 0).getbbox()
+        catalog[target] = dict(url='assets/presentation/'+target+'.png',width=w,height=h,columns=8,fps=30,
+                              frames=list(range(9,39)),showFrames=14,holdMs=2200,
+                              settledBounds=[settled[0]-box[0],settled[1]-box[1],settled[2]-box[0],settled[3]-box[1]])
     (OUT / 'notices.json').write_text(json.dumps(catalog,indent=2)+'\n')
 
 

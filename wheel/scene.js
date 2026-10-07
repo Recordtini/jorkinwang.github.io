@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState} from './presentation.js?v=20261006-layers';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle} from './presentation.js?v=20261006-presentation';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
-import {sampleScalar,clipTime,animationCategory,textureMatrix} from './animations.js?v=20261006-recovery';
+import {sampleScalar,clipTime,animationCategory,animationClamped,textureMatrix} from './animations.js?v=20261006-presentation';
 
 const SCALE = .01;
 function canvasTexture(width, height) {
@@ -68,6 +68,7 @@ export class Studio {
   resize() {
     const width=this.canvas.clientWidth,height=this.canvas.clientHeight;
     this.renderer.setSize(width,height,false);this.camera.aspect=width/height;this.camera.updateProjectionMatrix();
+    if(this.movieAspect&&this.moviePlane)this.moviePlane.scale.set(Math.min(1,this.movieAspect/this.camera.aspect),Math.min(1,this.camera.aspect/this.movieAspect),1);
     if(this.view==='source')this.setSourceCamera(this.sourceCamera);
     else if(this.boardBounds&&this.view!=='orbit')this.setView(this.view,true);
   }
@@ -158,11 +159,11 @@ export class Studio {
     for(const [actor,nodes] of Object.entries(this.animationData.bindings))this.animationData.bindings[actor]=Object.fromEntries(Object.entries(nodes).map(([name,node])=>[runtimeName(name),node]));
     for(const clips of Object.values(this.animationData.clips))for(const clip of Object.values(clips))for(const track of clip.tracks)track.node=runtimeName(track.node);
     this.materialData=await fetch('assets/presentation/materials.json?v=20261006-atlases').then(r=>r.json());
-    this.noticeData=await fetch('assets/presentation/notices.json').then(r=>r.json());
+    this.noticeData=await fetch('assets/presentation/notices.json?v=20261006-presentation').then(r=>r.json());
     this.collectibleData=await fetch('assets/presentation/collectibles/collectibles.json').then(r=>r.json());
     this.sceneData=await fetch('assets/scenes.json').then(r=>r.json());
     const picture=async url=>{const image=new Image();image.src=url;await image.decode();return image;};
-    this.noticeImages={};for(const [name,entry] of Object.entries(this.noticeData))this.noticeImages[name]=await picture(entry.url);
+    this.noticeImages={};for(const [name,entry] of Object.entries(this.noticeData))this.noticeImages[name]=await picture(entry.url+'?v=20261006-presentation');
     [this.wheelImages,this.tileImage,this.categoryImage]=await Promise.all([
       Promise.all(this.presentation.wheels.map(picture)),picture(this.presentation.tile.url),picture(this.presentation.category.url)
     ]);
@@ -183,6 +184,12 @@ export class Studio {
     this.screenPoster=await new THREE.TextureLoader().loadAsync('assets/presentation/screens/game_logo.png');
     this.screenPoster.colorSpace=THREE.SRGBColorSpace;this.screenPoster.flipY=false;
     this.screenVideos=new Map();
+    this.videoData=await fetch('assets/presentation/screens/videos.json?v=20261006-presentation').then(r=>r.json());
+    this.movieScene=new THREE.Scene();this.movieCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+    this.moviePlane=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));
+    const movieUV=this.moviePlane.geometry.getAttribute('uv');
+    for(let i=0;i<movieUV.count;i++)movieUV.setY(i,1-movieUV.getY(i));
+    this.moviePlane.visible=false;this.movieScene.add(this.moviePlane);
     this.screenMaterials=[];
     this.base=await this.load('assets/models/mesh/wof_base.glb');
     this.scene.add(this.base);this.base.updateMatrixWorld(true);
@@ -250,6 +257,8 @@ export class Studio {
     this.base.traverse(object=>{if(object.isMesh && /^(wheel_rimShape|wheel_swfShape)$/.test(object.name))spinning.push(object);});
     for(const mesh of spinning){this.wheelGroup.attach(mesh);if(mesh.name==='wheel_swfShape')mesh.visible=false;}
     const face=new THREE.Mesh(new THREE.CircleGeometry(1.166,96),new THREE.MeshBasicMaterial({map:this.wheelCanvas.texture,side:THREE.DoubleSide,toneMapped:false}));
+    // Circle UVs need bottom-up texture sampling; the board/podium canvases do not.
+    this.wheelCanvas.texture.flipY=true;this.wheelCanvas.texture.needsUpdate=true;
     face.rotation.x=-Math.PI/2;face.position.y=.0015;this.wheelGroup.add(face);
     const bind=object=>{
       if (!object.isMesh) return;
@@ -388,20 +397,41 @@ export class Studio {
   }
   restScreen(){
     this.screenVideos?.forEach(entry=>entry.video.pause());this.screenMovie=null;
-    this.screenMaterials?.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});
+    this.screenMaterials?.forEach(m=>{m.map=this.screenPoster;m.onBeforeCompile=()=>{};m.customProgramCacheKey=()=> 'movie-poster';m.needsUpdate=true;});
+    if(this.moviePlane)this.moviePlane.visible=false;
   }
   playScreen(name='game_logo'){
     if(this.screenMovie===name)return;
+    this.restScreen();
     this.screenVideos.forEach(entry=>entry.video.pause());this.screenMovie=name;
     if(!this.screenVideos.has(name)){
-      const video=document.createElement('video');video.src=`assets/presentation/screens/${name}.mp4`;video.muted=true;video.playsInline=true;video.preload='auto';
+      const video=document.createElement('video');video.src=this.videoData[name]?.url??`assets/presentation/screens/${name}.mp4`;video.muted=true;video.playsInline=true;video.preload='auto';
       const texture=new THREE.VideoTexture(video);texture.colorSpace=THREE.SRGBColorSpace;texture.flipY=false;
-      video.onloadeddata=()=>{if(this.screenMovie===name)this.screenMaterials.forEach(m=>{m.map=texture;m.needsUpdate=true;});};
+      video.onloadeddata=()=>{if(this.screenMovie===name)this.bindMovie(name,texture);};
+      video.onerror=()=>{if(this.screenMovie===name)this.restScreen();};
       video.onended=()=>{if(this.screenMovie===name)this.restScreen();};this.screenVideos.set(name,{video,texture});
     }
     const {video,texture}=this.screenVideos.get(name);video.loop=false;video.currentTime=0;
-    if(video.readyState>=2)this.screenMaterials.forEach(m=>{m.map=texture;m.needsUpdate=true;});
-    video.play().catch(()=>{this.screenMaterials.forEach(m=>{m.map=this.screenPoster;m.needsUpdate=true;});});
+    if(video.readyState>=2)this.bindMovie(name,texture);
+    video.play().catch(()=>{if(this.screenMovie===name)this.restScreen();});
+  }
+  bindMovie(name,texture){
+    const onScreen=['game_logo','fireworks'].includes(name),alpha=this.videoData[name]?.alpha===true;
+    const entry=this.videoData[name];this.movieAspect=entry?entry.width/entry.height:16/9;
+    this.moviePlane.scale.set(Math.min(1,this.movieAspect/this.camera.aspect),Math.min(1,this.camera.aspect/this.movieAspect),1);
+    this.moviePlane.visible=!onScreen;
+    // Packed RGB + original Bink alpha is portable even where WebM alpha decoding is absent.
+    for(const material of onScreen?this.screenMaterials:[this.moviePlane.material]){
+      material.map=texture;material.transparent=!onScreen&&alpha;
+      material.onBeforeCompile=shader=>{
+        if(!alpha)return;
+        shader.uniforms.moviePoster={value:this.screenPoster};
+        shader.fragmentShader='uniform sampler2D moviePoster;\n'+shader.fragmentShader;
+        const map=THREE.ShaderChunk.map_fragment.replace('vMapUv','vec2(vMapUv.x*0.5,vMapUv.y)');
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',map+'\nfloat movieAlpha=texture2D(map,vec2(0.5+vMapUv.x*0.5,vMapUv.y)).r;\n'+(onScreen?'diffuseColor.rgb=mix(sRGBTransferEOTF(texture2D(moviePoster,vMapUv)).rgb,diffuseColor.rgb,movieAlpha);':'diffuseColor.a*=movieAlpha;'));
+      };
+      material.customProgramCacheKey=()=>`movie-${onScreen}-${alpha}`;material.needsUpdate=true;
+    }
   }
   setSolveDraft(entries,cursor=null){this.solveDraft=entries;this.solveCursor=cursor;if(this.boardState)this.drawBoard(this.boardState);}
   drawScreens(state,event='restore') {
@@ -432,7 +462,8 @@ export class Studio {
     if(event==='tossup-win')this.playScreen('fireworks');
     const category=animationCategory(state,event);if(category)this.playSetCategory(category);
     this.setBonusVisible(state.round===5);this.drawBoard(this.boardState);const podiumDuration=this.drawScreens(state,event);this.drawWheel();
-    return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0,podiumDuration);
+    const movieMs=this.screenMovie&&!['game_logo','fireworks'].includes(this.screenMovie)&&['round','win'].includes(event)?this.videoData[this.screenMovie]?.durationMs??0:0;
+    return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0,podiumDuration,movieMs);
   }
   cancelPresentation(){
     this.podiums?.reset();
@@ -441,17 +472,25 @@ export class Studio {
     this.restScreen();
     this.playSetCategory('idle');
     this.showNotice(null);
+    this.noticePuzzle=null;this.noticeSeen=new Set();
   }
-  showNotice(name){
+  showNotice(name,puzzle){
     const canvas=document.querySelector('#letter-notice');
+    if(this.noticePuzzle!==puzzle){this.noticePuzzle=puzzle;this.noticeSeen=new Set();}
     if(!name){canvas.hidden=true;this.notice=null;return;}
-    if(this.notice?.name!==name){this.notice={name,start:performance.now()};canvas.setAttribute('aria-label',name==='mcNoMoreVowels'?'No more vowels':'Only vowels remain');}
+    if(this.noticeSeen.has(name))return;
+    this.noticeSeen.add(name);this.notice={name,start:performance.now()};
+    canvas.setAttribute('aria-label',name==='mcNoMoreVowels'?'No more vowels':'Only vowels remain');
+    const entry=this.noticeData[name],box=entry.settledBounds;
+    canvas.width=box[2]-box[0];canvas.height=box[3]-box[1];
     canvas.hidden=false;
   }
   drawNotice(time){
     if(!this.notice)return;
-    const {name,start}=this.notice,entry=this.noticeData[name],i=Math.min(entry.frames.length-1,Math.floor((time-start)*entry.fps/1000)),canvas=document.querySelector('#letter-notice'),c=canvas.getContext('2d');
-    c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(this.noticeImages[name],i%entry.columns*entry.width,Math.floor(i/entry.columns)*entry.height,entry.width,entry.height,0,0,canvas.width,canvas.height);
+    const {name,start}=this.notice,entry=this.noticeData[name],i=noticeFrame(entry,time-start),canvas=document.querySelector('#letter-notice'),c=canvas.getContext('2d');
+    if(i===null){canvas.hidden=true;this.notice=null;return;}
+    const [x,y]=entry.settledBounds;
+    c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(this.noticeImages[name],i%entry.columns*entry.width,Math.floor(i/entry.columns)*entry.height,entry.width,entry.height,-x,-y,entry.width,entry.height);
   }
   pause(){if(this.pausedAt)return;this.pausedAt=performance.now();this.screenVideos?.forEach(e=>e.video.pause());}
   resume(){
@@ -464,7 +503,7 @@ export class Studio {
     this.setCategory=category;
     for(const entry of this.animationData.categories[category]??[]){
       const clip=this.animationData.clips[entry.actor]?.[entry.clip];
-      if(clip)this.actorTimelines.set(entry.actor,{clip,start:performance.now(),clamp:entry.clamp||!['idle','big_spin','bonus_spin'].includes(category)});
+      if(clip)this.actorTimelines.set(entry.actor,{clip,start:performance.now(),clamp:animationClamped(category,entry)});
     }
   }
   animateSet(time){
@@ -495,7 +534,7 @@ export class Studio {
     const flippers=[[6.755,-1.713],[7.18,-1.153],[7.214,-.427]];
     const [px,pz]=flippers[this.game.player.slot];
     const pointer=Math.atan2(pz-this.wheelGroup.position.z,px-this.wheelGroup.position.x);
-    const target=((index+(this.game.state.landingThird??0)/3)*Math.PI*2/24-Math.PI/2-pointer)%(Math.PI*2);
+    const target=wheelLandingAngle(index,pointer,this.game.state.landingThird??0)%(Math.PI*2);
     const current=((this.wheelAngle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
     const delta=((target-current)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
     const source=this.sceneData[this.stage]?.spin?.MinTime?this.sceneData[this.stage].spin:this.sceneData.base.spin;
@@ -517,7 +556,7 @@ export class Studio {
   }
   quality(value){this.lowQuality=value==='low';this.renderer.setPixelRatio(this.lowQuality?1:Math.min(devicePixelRatio,1.5));this.renderer.shadowMap.enabled=!this.lowQuality;if(this.floorReflection)this.floorReflection.getRenderTarget().setSize(this.lowQuality?256:768,this.lowQuality?256:768);this.resize();}
   animate(time) {
-    if(this.pausedAt){this.renderer.render(this.scene,this.camera);return;}
+    if(this.pausedAt){this.renderScene();return;}
     this.onFrame?.(time);this.drawNotice(time);
     this.animateSet(time);
     if(this.podiums?.draw(time))this.podiumCanvas.texture.needsUpdate=true;
@@ -525,7 +564,11 @@ export class Studio {
     if(this.categorySequence)this.drawCategory(time);
     if(this.spinTween){const spin=this.spinTween;const t=Math.min(1,(time-spin.start)/spin.duration);this.wheelAngle=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));this.wheelGroup.rotation.y=this.wheelAngle;const index=Math.floor(this.wheelAngle/(Math.PI*2/72));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.spinTween=null;spin.resolve();}}
     if(this.bonusTween){const spin=this.bonusTween,t=Math.min(1,(time-spin.start)/4200);this.bonusRoot.rotation.y=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));const index=Math.floor(this.bonusRoot.rotation.y/.3);if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.bonusTween=null;spin.resolve();}}
-    if(this.controls.enabled)this.controls.update();this.renderer.render(this.scene,this.camera);this.frameCount++;
+    if(this.controls.enabled)this.controls.update();this.renderScene();this.frameCount++;
+  }
+  renderScene(){
+    this.renderer.render(this.scene,this.camera);
+    if(this.moviePlane?.visible){this.renderer.autoClear=false;this.renderer.clearDepth();this.renderer.render(this.movieScene,this.movieCamera);this.renderer.autoClear=true;}
   }
   diagnostics(){return {stage:this.stage,view:this.view,frames:this.frameCount,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,boardBounds:this.boardBounds,retailFont:document.fonts.check('96px "Retail Board"'),wheelRound:this.wheelRound,reflectiveFloor:!!this.floorReflection?.visible};}
 }

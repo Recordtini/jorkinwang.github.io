@@ -51,7 +51,7 @@ test('all sounds have measured normalized output and true-peak headroom',async()
 test('baked panel maps use the compact UV flag and original opacity',async()=>{
   const m=JSON.parse(await readFile(new URL('../assets/presentation/materials.json',import.meta.url)));
   const panel=m['wof_la/screenblade_fat_leftShape0'];assert.equal(panel.textures.base.uvSet,0);assert.equal(panel.textures.dark.uvSet,1);assert.ok(Math.abs(panel.alpha-.9)<1e-5);
-  const p=JSON.parse(await readFile(new URL('../assets/presentation/power-meter.json',import.meta.url)));assert.equal(p.frames.length,58);assert.equal(Math.min(...p.levels),10);assert.equal(Math.max(...p.levels),100);
+  const p=JSON.parse(await readFile(new URL('../assets/presentation/power-meter.json',import.meta.url)));assert.equal(p.frames.length,47);assert.ok(Math.min(...p.levels)>=10);assert.equal(Math.max(...p.levels),100);
   for(const url of [panel.textures.dark.url,p.url,'assets/presentation/mcNoMoreVowels.png','assets/presentation/mcNoMoreConsonants.png'])assert.ok((await readFile(new URL('../'+url,import.meta.url))).length>1000);
 });
 

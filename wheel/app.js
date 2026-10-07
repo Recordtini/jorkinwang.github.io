@@ -1,12 +1,12 @@
-import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-layers';
-import {Studio} from './scene.js?v=20261006-columns';
-import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability} from './presentation.js?v=20261006-layers';
+import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-presentation';
+import {Studio} from './scene.js?v=20261006-presentation';
+import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower} from './presentation.js?v=20261006-presentation';
 import {RetailAudio} from './audio.js?v=20261006-ducking';
 
 const $ = selector => document.querySelector(selector);
 const colors=['#e87555','#f4c94e','#65a1ef'];
 let studio, game, manifest, puzzles, muted=false, started=false, aiTimer=null, bonusTimer=null, bonusEnd=0, audioContext;
-let music,audio,musicMuted=false,powerData,powerImage,powerStart=null,powerLevel=55;
+let music,audio,musicMuted=false,powerData,powerImages,powerStart=null,powerLevel=55;
 let presenting=false, presentationTimer=null, presentationGeneration=0, automaticCamera=true,presentationEnd=0,presentationEvent;
 let solving=false, solveDraft={}, solveCursor=null;
 let tossupTimer=null,pausedAt=null;
@@ -82,7 +82,7 @@ function render(state,event,completed=false){
   $('#spin').firstChild.textContent=state.phase==='power'?'STOP / SPIN ':state.round===5?'SPIN THE BONUS WHEEL ':'SPIN THE WHEEL ';
   if(state.phase!=='power'){powerStart=null;$('#power-meter').hidden=true;}
   const notice=!game.isBonus&&!game.isTossup&&!presenting&&['action','consonant','vowel'].includes(state.phase)?available.notice:null;
-  studio.showNotice(notice);
+  studio.showNotice(notice,state.puzzle.id);
   if(completed&&event==='letter'&&notice&&state.announcedNotice!==notice){state.announcedNotice=notice;playSound(notice==='mcNoMoreVowels'?'NoMoreVowels':'OnlyVowelsRemain',.85);}
   $('#bonus-hint').hidden=state.phase!=='bonus-select';
   $('#bonus-hint').textContent=`R S T L N E are yours. Pick ${state.bonusConsonants??3} consonants and one vowel, then solve.`;
@@ -103,7 +103,7 @@ function render(state,event,completed=false){
   if(!completed&&automaticCamera)setCamera(automaticView(state,event));
   if(!completed){
     if(event==='win')playSound('PuzzleWin',.7);
-    if(['letter','mystery','bonus-ready'].includes(event))playSound(VOWELS.includes(state.used.at(-1))?'LetterVowel':'LetterConsonant',.8);
+    if(['letter','mystery','bonus-ready'].includes(event)&&!VOWELS.includes(state.used.at(-1)))playSound('LetterConsonant',.8);
     if(event==='miss'||event==='lose-turn')playSound('Incorrect',.5);
     if(event==='bankrupt')playSound('Bankrupt',.7);
     if(event==='start')playSound('WofChant',.35);
@@ -190,8 +190,10 @@ function openSolve(){
 async function spin(){
   if(presenting||pausedAt)return;
   if(!game.isBonus&&!game.player.ai&&game.state.phase==='action'){
-    powerStart=performance.now();game.beginPower();return;
+    powerStart=performance.now();powerLevel=samplePower(powerData,0).level;
+    if(!game.beginPower())powerStart=null;return;
   }
+  if(game.state.phase==='power'&&powerStart!==null)powerLevel=samplePower(powerData,performance.now()-powerStart).level;
   if(game.state.phase==='power'&&powerLevel<=10)return;
   const session=presentationGeneration;
   if(game.isBonus){
@@ -261,7 +263,8 @@ async function boot(){
     [manifest,puzzles]=await Promise.all(['manifest','puzzles'].map(name=>fetch(`assets/${name}.json`).then(response=>{if(!response.ok)throw new Error('The game assets could not be loaded. Please reload.');return response.json();})));
     audio=new RetailAudio(manifest.audio);music={pause:()=>audio.stopMusic(),play:()=>{setMusic();return Promise.resolve();}};
     muted=stored('wheel3d-muted')==='true';musicMuted=stored('wheel3d-music-muted')==='true';audio.setMuted(muted);audio.setMusicMuted(musicMuted);
-    powerData=await fetch('assets/presentation/power-meter.json').then(r=>r.json());powerImage=new Image();powerImage.src=powerData.url;await powerImage.decode();
+    powerData=await fetch('assets/presentation/power-meter.json?v=20261006-presentation').then(r=>r.json());
+    powerImages=await Promise.all(powerData.players.map(async url=>{const image=new Image();image.src=url+'?v=20261006-presentation';await image.decode();return image;}));
     studio=new Studio($('#scene'),(text,progress)=>{$('#load-status').textContent=text;$('#load-progress').value=progress;});
     game=new WheelGame(puzzles,{onChange:render});studio.game=game;
     // Manual views are a current-match override, not a sticky new-game default.
@@ -289,10 +292,10 @@ async function boot(){
     }
     $('#asset-count').textContent=`${manifest.puzzleCount.toLocaleString()} original puzzles · ${manifest.stages.length-1} themed studios · original game audio`;
     $('#credits').textContent=`Recovered: ${manifest.models.length} set and prop models, ${manifest.audio.length} audio tracks, and ${manifest.puzzleCount.toLocaleString()} puzzles.`;
-    for(const letter of LETTERS){const button=document.createElement('button');button.textContent=letter;button.setAttribute('aria-label',`Choose ${letter}`);button.onclick=()=>{if(!presenting&&game.canGuess(letter)){playSound('LetterSelect',.8);game.guess(letter);}};$('#alphabet').append(button);}
+    for(const letter of LETTERS){const button=document.createElement('button');button.textContent=letter;button.setAttribute('aria-label',`Choose ${letter}`);button.onclick=()=>{if(!presenting&&game.canGuess(letter))game.guess(letter);};$('#alphabet').append(button);}
     await studio.initialize(manifest);await studio.setStage($('#stage-select').value);
     studio.onLetterRevealed=()=>playSound('LetterDing',.65);
-    studio.onFrame=time=>{if(powerStart!==null&&!pausedAt){const i=Math.floor((time-powerStart)*powerData.fps/1000)%powerData.frames.length;powerLevel=powerData.levels[i];const canvas=$('#power-meter'),c=canvas.getContext('2d');canvas.hidden=false;c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(powerImage,i%powerData.columns*powerData.width,Math.floor(i/powerData.columns)*powerData.height,powerData.width,powerData.height,0,0,canvas.width,canvas.height);canvas.setAttribute('aria-label',`Spin power ${powerLevel}%`);}};
+    studio.onFrame=time=>{if(powerStart!==null&&!pausedAt){const {index:i,level}=samplePower(powerData,time-powerStart);powerLevel=level;const canvas=$('#power-meter'),c=canvas.getContext('2d');canvas.hidden=false;c.clearRect(0,0,canvas.width,canvas.height);c.drawImage(powerImages[game.player.slot],i%powerData.columns*powerData.width,Math.floor(i/powerData.columns)*powerData.height,powerData.width,powerData.height,0,0,canvas.width,canvas.height);canvas.setAttribute('aria-valuenow',String(level));canvas.setAttribute('aria-label',`Spin power ${level}%`);}};
     studio.drawScreens(null);
     for(const camera of studio.cameraCatalog.cameras)$('#source-camera').append(new Option(camera.name,camera.name));
     studio.drawBoard({puzzle:{rows:['              ','    WHEEL     ','  OF FORTUNE  ','              ']},used:[...LETTERS]});
@@ -347,8 +350,8 @@ async function boot(){
     for(const entry of shell.help)$('#help-page').append(new Option(`Original help page ${entry.page+1}`,entry.url));
     $('#help-image').src=$('#help-page').value;$('#help-page').onchange=()=>{$('#help-image').src=$('#help-page').value;};
     document.addEventListener('keydown',event=>{
-      if(presenting||!started||$('#studio-dialog').open||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||event.ctrlKey||event.metaKey||event.altKey||game.player.ai)return;
-      const letter=event.key.toUpperCase();if(letter.length===1&&LETTERS.includes(letter)){if(solving)enterSolveLetter(letter);else if(game.canGuess(letter)){playSound('LetterSelect',.8);game.guess(letter);}}
+      if(event.repeat||presenting||!started||$('#studio-dialog').open||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||event.ctrlKey||event.metaKey||event.altKey||game.player.ai)return;
+      const letter=event.key.toUpperCase();if(letter.length===1&&LETTERS.includes(letter)){if(solving)enterSolveLetter(letter);else if(game.canGuess(letter))game.guess(letter);}
       if(event.code==='Space'&&!$('#spin').disabled){event.preventDefault();spin().catch(messageError);}
     });
     document.addEventListener('visibilitychange',()=>{if(document.hidden){music?.pause();audioContext?.suspend();}else if(started&&!muted){audioContext?.resume();music?.play().catch(()=>{});}});

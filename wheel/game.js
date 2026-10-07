@@ -1,4 +1,4 @@
-import {wheelValues,letterAvailability} from './presentation.js?v=20261006-layers';
+import {wheelValues,letterAvailability} from './presentation.js?v=20261006-presentation';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const WEDGES = wheelValues().map(value=>({value}));

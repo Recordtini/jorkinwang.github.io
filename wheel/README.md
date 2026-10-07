@@ -182,3 +182,32 @@ node --test web-site/wheel/tests/*.test.js
 ```
 
 See `TESTING.md` for the browser checks and remaining fidelity limitations.
+
+### Native Meter And Alpha Movies
+
+The meter now follows `gui.gfx` sprite 567 frames 73-119; frame 120 jumps back
+to `lLoop` and plays. Sprite 551/555 player-color stops and sprite 562's normal
+fill stop are resolved before raster export, so exported submovies cannot
+flash through unrelated player colors or the unused tail of the timeline.
+Power is sampled at the stop input, using the original 50/350 width formula.
+
+Letter notices play the recovered show frames, hold for a browser-authored
+2.2 seconds, then play the hide segment and clear. Each kind is shown once per
+puzzle. Nearly transparent particle margins are cropped for readable placement
+inside the controls, not over the board. Board frame `solve_end_round` loops
+remain active until Continue; the other set actors retain their prior behavior.
+
+`recover_remaining.py` preserves original Bink alpha in `*-alpha.mp4`:
+RGB occupies the left half and alpha the right half. The shader composites
+the original alpha, rather than keying black pixels or relying on browser WebM
+alpha support. `screens/videos.json` records source dimensions, durations and
+SHA-256. Fireworks composite over the original monitor poster. Toss-up, Jackpot,
+Mystery and bonus-prize movies use an aspect-preserving full-screen overlay;
+these target choices are browser adaptations, not verified PS3 draw-call parity.
+Movie files remain silent; normalized recovered sound banks supply game audio.
+`LetterSelect` and `LetterVowel` remain available in the asset library but are
+not triggered by gameplay. Letter reveals retain `LetterDing`.
+
+The wheel's circle uses bottom-up canvas sampling separately from the board's
+native top-down UVs. This makes the visible wedge under the active flipper match
+the sector used for payout, including ordinary $500 spaces in the Jackpot round.

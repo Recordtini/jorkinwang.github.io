@@ -70,6 +70,24 @@ export function fillSolution(state, entries) {
   return Array.from({length:4},(_,r)=>tiles.slice(r*14,r*14+14).map(t=>t.editable?entries[t.index]:t.text).join('').trim()).filter(Boolean).join(' ');
 }
 
+export function samplePower(data,elapsed){
+  const index=Math.floor(Math.max(0,elapsed)*data.fps/1000)%data.frames.length;
+  return {index,level:data.levels[index]};
+}
+
+export function noticeFrame(entry,elapsed){
+  const show=entry.showFrames??entry.frames.length,hold=entry.holdMs??2200;
+  const showMs=show*1000/entry.fps;
+  if(elapsed<showMs)return Math.floor(Math.max(0,elapsed)*entry.fps/1000);
+  if(elapsed<showMs+hold)return show-1;
+  const index=show+Math.floor((elapsed-showMs-hold)*entry.fps/1000);
+  return index<entry.frames.length?index:null;
+}
+
+export function wheelLandingAngle(index,pointer,third=0){
+  return (index+third/3)*Math.PI*2/24-Math.PI/2-pointer;
+}
+
 // NiAlphaProperty uses bit 0 for blending, bit 9 for alpha testing. Merely
 // having an alpha property (or an image alpha channel) does not enable blending.
 export function materialAlpha(source) {
