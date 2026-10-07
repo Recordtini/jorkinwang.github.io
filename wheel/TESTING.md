@@ -343,3 +343,37 @@ Ignored evidence: `qa/new-orleans-center-back.png`, `qa/new-orleans-decal-fixed.
 `qa/new-orleans-decal-legacy.png`, `qa/new-orleans-decal-hidden.png`,
 `qa/persistent-category-1440.png`, `qa/persistent-category-1100.png`,
 `qa/persistent-category-390.png`.
+
+## Native Rules Recovery: October 7, 2026
+
+The supplied executable was decrypted locally with RPCS3 and analyzed in
+headless Ghidra. Formula/table/branch addresses and remaining parity boundaries
+are recorded in `RETAIL-RULES.md`; executable and decompiler files stay outside
+the published repository.
+
+All 86 Node tests pass. New checks cover the native power blend, SCX overrides,
+quartic curve, continuous successive rotation, 72 physical landing cells at
+all three podium flippers, weighted 48-entry bonus table, Million replacement,
+CPU band shuffles/thresholds/knowledge rolls, bonus priorities, and saved profiles.
+
+Headless Chrome at 1440x900 exercised the actual two-press controls. A 25%
+regular spin with deterministic random 0.5 produced range 0.275, 4.825 seconds,
+and 1.5125 turns. The physical landing was the pink $300 space; engine payout,
+sector 15, side-third -1, and final scene/saved angles agreed. The image was
+visually checked against the active flipper.
+
+The bonus meter cut to `cam5_bonuswheel_detail`, used the same native curve,
+held its final overhead shot, and retained the preselected secret prize before
+returning to bonus letter selection. Repeated at 390x844, with a visually checked
+mobile landing image. No page errors were recorded.
+
+A real puzzle with a deterministic hard CPU exercised missing-tile filling,
+the recovered two-second cadence, a 1.2-second Backstage pause, and continuation
+without discarding its draft. It solved and banked the round minimum. Reloading
+and the explicit Resume button retained that CPU profile. The earlier checks
+also verified completed orientations and secret prize stability.
+
+Ignored evidence: `qa/verify_native_rules.cjs`, `qa/native-physics-landing.png`,
+`qa/native-bonus-physics-landing.png`, `qa/native-bonus-physics-mobile.png`, and
+`qa/native-cpu-fill.png`. This verifies the browser integration, not a live PS3
+side-by-side comparison or frame-perfect flipper/audio/envelope choreography.

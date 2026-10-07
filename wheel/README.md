@@ -15,9 +15,11 @@ four regular rounds and the bonus round. Rules allow shorter matches, no toss-up
 no bonus, and CPU difficulty selection. Jackpot, Mystery, Million Dollar,
 Free Spin and Wild Card inventory are supported. Reloading offers saved-game resume.
 
-Regular spins use the original two-press power meter: press Spin/Space to start
-the meter, then again to spin. The recovered 30-fps meter drives browser spin
-strength, distance and duration; this is not recovered PS3 rigid-body physics.
+Regular and bonus spins use the original two-press power meter: press Spin/Space
+to start the meter, then again to spin. The recovered 30-fps meter now feeds
+the native executable's power blend, travel range and quartic deceleration.
+The landing comes from continuous rotation, rather than steering to a randomly
+chosen wedge. Retail uses a timed spin curve, not rigid-body wheel physics.
 Toss-ups reveal individual tiles every second. Buzz in and fill missing letters;
 a wrong answer locks that player out. Tied finalists play another toss-up.
 
@@ -59,6 +61,9 @@ intentionally omitted.
   export and including the empty player-library scene records.
 - Music and sound effects from the two FSB4 banks, transcoded to browser MP3.
 - Scene actor records and spin settings from the `.scx` files.
+- Native executable wheel formulas, 72/48 spoke counts, CPU letter priorities,
+  difficulty shuffle bands and decision thresholds, and the weighted 48-entry
+  bonus-prize table. See [native recovery details](RETAIL-RULES.md).
 - Native Flash wheel artwork for all four played rounds, including vector dollar
   labels and external DDS glitter images, with sector values matching gameplay.
 - Original green/white/blue board tiles and their transition frames, plus the
@@ -96,7 +101,8 @@ intentionally omitted.
   including the executable, shaders, movies, and animation resources.
 
 The web gameplay is JavaScript, with selected board behavior ported from the
-recovered ActionScript. Flash/Scaleform bytecode and the PS3 executable are not
+recovered ActionScript and wheel/CPU rules traced in the native executable.
+Flash/Scaleform bytecode and the PS3 executable are not
 executed. `assets/presentation/source/` preserves the recovered root scripts;
 `presentation.json` records decoded source hashes, frame indices, timing and
 exporter version. Dynamic displays use CanvasTexture on recovered meshes.

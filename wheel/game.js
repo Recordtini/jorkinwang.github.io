@@ -1,4 +1,5 @@
-import {wheelValues,letterAvailability} from './presentation.js?v=20261006-presentation';
+import {wheelValues,letterAvailability} from './presentation.js?v=20261006-native-rules';
+import {spinPlan,wheelLanding,wrapAngle,bonusPrize,cpuProfile,validCPUProfile} from './retail-rules.js?v=20261006-native-rules';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const WEDGES = wheelValues().map(value=>({value}));
@@ -24,9 +25,10 @@ export class WheelGame {
     this.usedPuzzles.clear();
     const rules={tossups:options.tossups===true,rounds:Math.max(1,Math.min(4,Math.trunc(options.rounds)||4)),bonus:options.bonus!==false,difficulty:['easy','medium','hard'].includes(options.difficulty)?options.difficulty:'medium',collectibles:options.collectibles===true};
     this.state = {version: 2, mode, rules, stageType:'regular', players: players.map(p=>({...p, bank:0, cash:0,prizes:0,freeSpin:false,wildCard:false,million:false,millionRound:null})),
-      round: 1, turn: 0, used: [], phase: 'action', lastWedge: null, jackpot: 5000,
+      round: 1, turn: 0, used: [], phase: 'action', lastWedge: null, jackpot: 5000,wheelAngle:0,bonusAngle:0,
       availableCollectibles:{Million:true,WildCard:true,FreeSpin:true},mysteryTaken:false,mysteryWinSector:this.random()<.5?11:23,firstRoundTurn:0,jackpotEligible:false,
       bonusChoices: [], bonusPrize: 0, message: 'Spin the wheel, buy a vowel, or solve the puzzle.'};
+    this.state.players.forEach(p=>{if(p.ai)p.cpu=cpuProfile(rules.difficulty,this.random);});
     if(rules.tossups)this.startTossup(1);else this.selectPuzzle(false);
     this.emit('start');
   }
@@ -52,14 +54,15 @@ export class WheelGame {
     return values.map(value=>({value}));
   }
   beginPower(){
-    if(this.state.phase!=='action'||!letterAvailability(this.state).consonants)return false;
+    if(this.isBonus?this.state.phase!=='bonus-spin':this.state.phase!=='action'||!letterAvailability(this.state).consonants)return false;
     this.state.phase='power';this.state.message='Press spin again to stop the power meter.';this.emit('power');return true;
   }
-  beginSpin(power=55) {
-    if (!['action','power'].includes(this.state.phase)||!letterAvailability(this.state).consonants) return null;
-    this.state.spinPower=Math.max(11,Math.min(100,Math.round(power)||55));
-    const index = Math.floor(this.random() * WEDGES.length);
-    this.state.landingThird=this.wedges()[index].value==='MILLION DOLLAR'?Math.floor(this.random()*3)-1:0;
+  beginSpin(power=55,settings) {
+    if (this.isBonus||this.isTossup||!['action','power'].includes(this.state.phase)||!letterAvailability(this.state).consonants) return null;
+    const plan=spinPlan(power,this.state.wheelAngle,settings,this.random);
+    const {index,third}=wheelLanding(plan.to,this.player.slot);
+    this.state.spinPower=plan.power;this.state.spinPlan=plan;
+    this.state.landingThird=third;
     this.state.phase = 'spinning';
     this.state.jackpotEligible=false;
     this.state.message = 'Round and round it goes...';
@@ -68,6 +71,7 @@ export class WheelGame {
   }
   finishSpin(index) {
     if (this.state.phase !== 'spinning' || !Number.isInteger(index) || index < 0 || index >= WEDGES.length) return;
+    if(this.state.spinPlan)this.state.wheelAngle=wrapAngle(this.state.spinPlan.to);
     const wedge = this.landingValue(index);
     this.state.lastSpinIndex=index;
     this.state.lastWedge = wedge;
@@ -210,12 +214,14 @@ export class WheelGame {
     }
     this.emit('round');
   }
-  beginBonusSpin(){
-    if(this.state.phase!=='bonus-spin')return false;
+  beginBonusSpin(power=55,settings){
+    if(!['bonus-spin','power'].includes(this.state.phase)||!this.isBonus)return false;
+    this.state.bonusPlan=spinPlan(power,this.state.bonusAngle,settings,this.random);
     this.state.phase='spinning-bonus';this.state.message='Spinning for your bonus prize...';this.emit('spin');return true;
   }
   finishBonusSpin(){
     if(this.state.phase!=='spinning-bonus')return;
+    this.state.bonusAngle=wrapAngle(this.state.bonusPlan.to);
     this.state.phase=this.player.wildCard?'bonus-wildcard':'bonus-select';this.state.message=this.player.wildCard?'Would you like to use your Wild Card for an extra bonus consonant?':'RSTLNE are yours. Pick three consonants and one vowel.';this.emit('bonus-letters');
   }
   finishBonus(won) {
@@ -280,8 +286,7 @@ export class WheelGame {
     this.state.turn=winner;
     if(this.state.rules?.bonus===false){this.state.phase='finished';this.state.message=`${this.player.name} wins with ${money(this.player.bank)}!`;this.emit('win');return;}
     Object.assign(this.state,{round:5,stageType:'bonus',bonusChoices:[],bonusConsonants:3,lastWedge:null});
-    const prizes=[25000,30000,35000,40000,45000,50000,this.player.million?1000000:100000];
-    this.state.bonusPrize=prizes[Math.floor(this.random()*prizes.length)];
+    this.state.bonusPrize=bonusPrize(this.random,this.player.million);
     this.selectPuzzle(true);this.state.phase='bonus-spin';this.state.message=`${this.player.name} reaches the bonus round! Spin the bonus wheel.`;this.emit('round');
   }
   restore(serialized) {
@@ -301,13 +306,16 @@ export class WheelGame {
       state.stageType??=state.round===5?'bonus':'regular';state.bonusConsonants??=3;
       state.availableCollectibles??={Million:true,WildCard:true,FreeSpin:true};state.mysteryTaken??=false;
       state.players.forEach(p=>{p.prizes=Number.isFinite(p.prizes)?p.prizes:0;for(const k of ['freeSpin','wildCard','million'])p[k]=p[k]===true;});
+      for(const key of ['wheelAngle','bonusAngle'])state[key]=Number.isFinite(state[key])?wrapAngle(state[key]):0;
+      state.players.forEach(p=>{if(p.ai&&!validCPUProfile(p.cpu))p.cpu=cpuProfile(state.rules.difficulty,this.random);});
+      delete state.spinPlan;delete state.bonusPlan;
       if(['tossup','tossup-solve','tossup-over'].includes(state.phase)){
         if(!Array.isArray(state.tossupOrder)||!Array.isArray(state.revealedTiles)||!Array.isArray(state.tossupLocked)||!Array.isArray(state.tossupEligible)||[...state.tossupOrder,...state.revealedTiles].some(i=>!Number.isInteger(i)||i<0||i>=56)||state.tossupEligible.some(i=>!Number.isInteger(i)||!state.players[i]))return false;
         if(state.phase==='tossup-solve')state.phase='tossup';
       }
       if(state.phase==='free-spin'&&(!state.pendingTurn||typeof state.pendingTurn.message!=='string'))return false;
       state.puzzle = puzzle;
-      if (['spinning','power'].includes(state.phase)) state.phase = 'action';
+      if (['spinning','power'].includes(state.phase)) state.phase = state.round===5?'bonus-spin':'action';
       if (state.phase === 'spinning-bonus') state.phase = 'bonus-spin';
       if (state.phase === 'bonus-solve') state.phase = 'bonus-select';
       this.state = state; this.usedPuzzles = new Set(used); this.emit('restore'); return true;

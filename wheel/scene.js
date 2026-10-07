@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from './presentation.js?v=20261006-center-screen';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from './presentation.js?v=20261006-native-rules';
+import {spinAngle} from './retail-rules.js?v=20261006-native-rules';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 import {sampleScalar,clipTime,animationCategory,animationClamped,textureMatrix} from './animations.js?v=20261006-presentation';
 
@@ -485,6 +486,11 @@ export class Studio {
     this.base?.traverse(object=>{if(/^(bonus_baseShape|bonuswheel_handrestShape|bonus_flipperShape)/.test(object.name))object.visible=visible;});
   }
   update(state,event) {
+    if(['start','round','restore'].includes(event)||state.phase==='finished'){this.solveDraft=null;this.solveCursor=null;}
+    if(['start','restore'].includes(event)){
+      this.wheelAngle=state.wheelAngle;this.wheelGroup.rotation.y=this.wheelAngle;
+      this.bonusRoot.rotation.y=state.bonusAngle;
+    }
     const previous=this.boardSnapshot,transition=boardTransition(previous,state,event,this.presentation.timing);
     this.boardSequence={...transition,start:performance.now()};
     this.boardSnapshot={id:state.puzzle.id,used:transition.used};
@@ -567,23 +573,13 @@ export class Studio {
       }
     }
   }
-  spin(index,wedges,onTick) {
+  spin(plan,onTick) {
     this.drawWheel();
-    // Stop at the selected wedge under the first original flipper.
-    const flippers=[[6.755,-1.713],[7.18,-1.153],[7.214,-.427]];
-    const [px,pz]=flippers[this.game.player.slot];
-    const pointer=Math.atan2(pz-this.wheelGroup.position.z,px-this.wheelGroup.position.x);
-    const target=wheelLandingAngle(index,pointer,this.game.state.landingThird??0)%(Math.PI*2);
-    const current=((this.wheelAngle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
-    const delta=((target-current)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
-    const source=this.sceneData[this.stage]?.spin?.MinTime?this.sceneData[this.stage].spin:this.sceneData.base.spin;
-    const power=(this.game.state.spinPower??55)/100;
-    const duration=(Number(source.MinTime)+(Number(source.MaxTime)-Number(source.MinTime))*power)*1000;
-    const turns=3+Math.round(power*4);
-    return new Promise(resolve=>{this.spinTween={start:performance.now(),duration,from:this.wheelAngle,to:this.wheelAngle+Math.PI*2*turns+delta,resolve,onTick,lastIndex:-1};});
+    return new Promise(resolve=>{this.spinTween={...plan,start:performance.now(),resolve,onTick,lastIndex:Math.floor(plan.from/(Math.PI*2/72))};});
   }
-  spinBonus(onTick){
-    return new Promise(resolve=>{this.bonusTween={start:performance.now(),from:this.bonusRoot.rotation.y,to:this.bonusRoot.rotation.y+Math.PI*2*(4+Math.random()),resolve,onTick,lastIndex:-1};});
+  spinSettings(){return {...this.sceneData.base.spin,...this.sceneData[this.stage]?.spin};}
+  spinBonus(plan,onTick){
+    return new Promise(resolve=>{this.bonusTween={...plan,start:performance.now(),resolve,onTick,lastIndex:Math.floor(plan.from/(Math.PI*2/48))};});
   }
   async previewPart(entry) {
     if(this.preview)this.scene.remove(this.preview);
@@ -601,8 +597,8 @@ export class Studio {
     if(this.podiums?.draw(time))this.podiumCanvas.texture.needsUpdate=true;
     if(this.boardSequence&&!this.boardSequence.done&&time-(this.boardDrawTime??0)>30){const seq=this.boardSequence;for(const tile of seq.tiles)if(tile.kind==='letter'&&!tile.sounded&&time-seq.start>=tile.at){tile.sounded=true;if(seq.duration>300)this.onLetterRevealed?.(tile.index);}this.drawBoard(this.boardState,time);this.boardDrawTime=time;this.boardSequence.done=time-this.boardSequence.start>=this.boardSequence.duration;}
     if(this.categorySequence)this.drawCategory(time);
-    if(this.spinTween){const spin=this.spinTween;const t=Math.min(1,(time-spin.start)/spin.duration);this.wheelAngle=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));this.wheelGroup.rotation.y=this.wheelAngle;const index=Math.floor(this.wheelAngle/(Math.PI*2/72));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.spinTween=null;spin.resolve();}}
-    if(this.bonusTween){const spin=this.bonusTween,t=Math.min(1,(time-spin.start)/4200);this.bonusRoot.rotation.y=THREE.MathUtils.lerp(spin.from,spin.to,1-Math.pow(1-t,4));const index=Math.floor(this.bonusRoot.rotation.y/.3);if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(t===1){this.bonusTween=null;spin.resolve();}}
+    if(this.spinTween){const spin=this.spinTween;this.wheelAngle=spinAngle(spin,time-spin.start);this.wheelGroup.rotation.y=this.wheelAngle;const index=Math.floor(this.wheelAngle/(Math.PI*2/72));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(time-spin.start>=spin.duration){this.spinTween=null;spin.resolve();}}
+    if(this.bonusTween){const spin=this.bonusTween;this.bonusRoot.rotation.y=spinAngle(spin,time-spin.start);const index=Math.floor(this.bonusRoot.rotation.y/(Math.PI*2/48));if(index!==spin.lastIndex){spin.onTick?.();spin.lastIndex=index;}if(time-spin.start>=spin.duration){this.bonusTween=null;spin.resolve();}}
     if(this.controls.enabled)this.controls.update();this.renderScene();this.frameCount++;
   }
   renderScene(){

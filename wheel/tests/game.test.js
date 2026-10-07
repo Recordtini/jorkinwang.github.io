@@ -7,8 +7,8 @@ const puzzles = [
 ];
 function game(random = () => 1/24) { const g = new WheelGame(puzzles, {random}); g.start(['A','B','C'],'local'); return g; }
 test('spin awards per occurrence and rejects duplicate letters', () => {
-  const g = game(); const index = g.beginSpin(); assert.equal(index,1);
-  g.finishSpin(index); assert.equal(g.state.phase,'consonant');
+  const g = game(); g.beginSpin();
+  g.finishSpin(1); assert.equal(g.state.phase,'consonant');
   assert.equal(g.guess('L'),true); assert.equal(g.player.cash,2400);
   assert.equal(g.guess('L'),false); assert.equal(g.player.cash,2400);
 });

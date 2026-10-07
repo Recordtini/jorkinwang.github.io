@@ -1,6 +1,7 @@
-import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-presentation';
-import {Studio} from './scene.js?v=20261006-center-screen-2';
-import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261006-center-screen';
+import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-native-rules';
+import {Studio} from './scene.js?v=20261006-native-rules';
+import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261006-native-rules';
+import {cpuSpinPower,cpuLetter,cpuAction,revealedFraction,CPU_SOLVE_DELAY} from './retail-rules.js?v=20261006-native-rules';
 import {RetailAudio} from './audio.js?v=20261006-letter-audio';
 
 const $ = selector => document.querySelector(selector);
@@ -9,7 +10,7 @@ let studio, game, manifest, puzzles, muted=false, started=false, aiTimer=null, b
 let music,audio,musicMuted=false,powerData,powerImages,powerStart=null,powerLevel=55;
 let presenting=false, presentationTimer=null, presentationGeneration=0, automaticCamera=true,presentationEnd=0,presentationEvent;
 let solving=false, solveDraft={}, solveCursor=null;
-let tossupTimer=null,pausedAt=null;
+let tossupTimer=null,pausedAt=null,cpuSolution=null;
 const nameInput=slot=>$(slot===0?'#player-name':`#player-name-${slot}`);
 function roster(){return Array.from({length:3},(_,slot)=>({slot,name:nameInput(slot).value.trim()||`Player ${slot+1}`,type:$(`#player-type-${slot}`).value}));}
 function updateRoster(){for(const {slot,type} of roster()){nameInput(slot).disabled=type==='off';nameInput(slot).closest('.roster-row').classList.toggle('empty',type==='off');}}
@@ -84,7 +85,7 @@ function render(state,event,completed=false){
   $('#next').disabled=presenting;
   $('#next').hidden=!['round-over','finished','tossup-over'].includes(state.phase);
   $('#next').textContent=state.phase==='finished'?'MAIN MENU':game.isTossup?'CONTINUE':state.round===(state.rules?.rounds??4)?'FINAL ROUND':'NEXT ROUND';
-  $('#spin').hidden=game.isTossup||state.round===5&&state.phase!=='bonus-spin'&&state.phase!=='spinning-bonus';$('#vowel').hidden=game.isTossup||state.round===5;
+  $('#spin').hidden=game.isTossup||state.round===5&&!['bonus-spin','spinning-bonus','power'].includes(state.phase);$('#vowel').hidden=game.isTossup||state.round===5;
   $('#solve').hidden=game.isTossup&&state.phase!=='tossup-solve';
   $('#spin').firstChild.textContent=state.phase==='power'?'STOP / SPIN ':state.round===5?'SPIN THE BONUS WHEEL ':'SPIN THE WHEEL ';
   if(state.phase!=='power'){powerStart=null;$('#power-meter').hidden=true;}
@@ -142,9 +143,10 @@ function startTossupClock(){
   tossupTimer=setInterval(()=>{
     if(pausedAt||presenting||!started||game.state.phase!=='tossup')return;
     game.revealTossup();if(game.state.phase!=='tossup')return;
-    const state=game.state,difficulty=state.rules.difficulty,threshold={easy:.8,medium:.6,hard:.4}[difficulty];
-    const candidates=state.tossupEligible.filter(i=>state.players[i].ai&&!state.tossupLocked.includes(i));
-    if(candidates.length&&state.revealedTiles.length/state.tossupOrder.length>=threshold&&Math.random()<.5){game.buzz(candidates[Math.floor(Math.random()*candidates.length)]);}
+    const state=game.state,ratio=revealedFraction(state);
+    const candidates=state.tossupEligible.filter(i=>state.players[i].ai&&!state.tossupLocked.includes(i)&&ratio>=state.players[i].cpu.solve)
+      .sort((a,b)=>state.players[a].cpu.solve-state.players[b].cpu.solve||state.players[a].slot-state.players[b].slot);
+    if(candidates.length)game.buzz(candidates[0]);
   },studio.presentation.timing.mTimeBetweenTossupLetters??1000);
 }
 function showMystery(){
@@ -195,54 +197,75 @@ function openSolve(){
 }
 async function spin(){
   if(presenting||pausedAt)return;
-  if(!game.isBonus&&!game.player.ai&&game.state.phase==='action'){
+  if(!game.player.ai&&(game.isBonus?game.state.phase==='bonus-spin':game.state.phase==='action')){
     powerStart=performance.now();powerLevel=samplePower(powerData,0).level;
     if(!game.beginPower())powerStart=null;return;
   }
   if(game.state.phase==='power'&&powerStart!==null)powerLevel=samplePower(powerData,performance.now()-powerStart).level;
   if(game.state.phase==='power'&&powerLevel<=10)return;
   const session=presentationGeneration;
+  const power=game.player.ai?cpuSpinPower(game.random):powerLevel;
   if(game.isBonus){
-    if(!game.beginBonusSpin())return;
-    await studio.spinBonus(()=>playSound('WheelClick',1));
+    if(!game.beginBonusSpin(power,studio.spinSettings()))return;
+    await studio.spinBonus(game.state.bonusPlan,()=>playSound('WheelClick',1));
     if(automaticCamera&&started&&session+1===presentationGeneration){studio.setView('bonus',true,true);$('#message').textContent='The bonus wheel has landed. Your prize stays secret until the end.';await new Promise(resolve=>setTimeout(resolve,1400));}
     while(pausedAt)await new Promise(resolve=>setTimeout(resolve,100));
     if(started&&session+1===presentationGeneration)game.finishBonusSpin();return;
   }
-  const index=game.beginSpin(game.player.ai?30+Math.random()*65:powerLevel);if(index===null)return;
-  await studio.spin(index,game.wedges(),()=>playSound('WheelClick',1));
+  const index=game.beginSpin(power,studio.spinSettings());if(index===null)return;
+  await studio.spin(game.state.spinPlan,()=>playSound('WheelClick',1));
   if(automaticCamera&&started&&session+1===presentationGeneration){studio.setView('wheel',true,true);const value=game.landingValue(index);$('#message').textContent=`${typeof value==='number'?money(value):value}. The wheel has landed.`;await new Promise(resolve=>setTimeout(resolve,1400));}
   while(pausedAt)await new Promise(resolve=>setTimeout(resolve,100));
   if(started&&session+1===presentationGeneration)game.finishSpin(index);
 }
+function solveCPU(){
+  const state=game.state,turn=state.turn,phase=state.phase;
+  if(!cpuSolution)cpuSolution={state,turn,phase,draft:{},tiles:solveTiles(state).filter(tile=>tile.editable),cursor:0,nextAt:performance.now()};
+  const solution=cpuSolution,{tiles,draft}=solution;
+  if(automaticCamera)setCamera('board');
+  const step=()=>{
+    if(!started||pausedAt||game.state!==state||state.turn!==turn||state.phase!==phase||cpuSolution!==solution)return;
+    const finish=()=>{cpuSolution=null;studio.setSolveDraft(null);game.solve(state.puzzle.answer);};
+    if(solution.cursor===tiles.length){finish();return;}
+    const tile=tiles[solution.cursor++];draft[tile.index]=state.puzzle.rows[tile.row][tile.column];
+    studio.setSolveDraft(draft,tiles[solution.cursor]?.index??null);
+    if(solution.cursor===tiles.length){finish();return;}
+    solution.nextAt=performance.now()+CPU_SOLVE_DELAY;
+    aiTimer=setTimeout(step,CPU_SOLVE_DELAY);
+  };
+  aiTimer=setTimeout(step,Math.max(0,solution.nextAt-performance.now()));
+}
 function scheduleAI(){
   clearTimeout(aiTimer);
+  if(cpuSolution&&(game.state!==cpuSolution.state||game.state.turn!==cpuSolution.turn||game.state.phase!==cpuSolution.phase)){
+    if(studio.solveDraft===cpuSolution.draft)studio.setSolveDraft(null);
+    cpuSolution=null;
+  }
   const state=game.state;if(pausedAt||presenting||!started||!game.player.ai||['spinning','spinning-bonus','round-over','finished','tossup','tossup-over'].includes(state.phase))return;
+  if(cpuSolution){solveCPU();return;}
   const currentTurn=state.turn,phase=state.phase;
   aiTimer=setTimeout(()=>{
     if(game.state.turn!==currentTurn||game.state.phase!==phase)return;
-    const unknown=[...state.puzzle.answer.toUpperCase()].filter(l=>LETTERS.includes(l)&&!state.used.includes(l));
+    const profile=game.player.cpu,ratio=revealedFraction(state);
     const remaining=[...LETTERS].filter(l=>game.canGuess(l));
-    const priority='RSTLNCDBMPHGFYWVZKJXQAEIOU';
-    const choose=()=>remaining.sort((a,b)=>priority.indexOf(a)-priority.indexOf(b))[0];
     if(phase==='action'){
-      const total=[...state.puzzle.answer].filter(l=>/[A-Z]/.test(l)).length;
-      if(unknown.length/total<{easy:.18,medium:.36,hard:.5}[state.rules.difficulty]){game.solve(state.puzzle.answer);}
-      else if(!letterAvailability(state).consonants){if(game.player.cash>=250)game.buyVowel();else game.solve(state.puzzle.answer);}
-      else if(game.player.cash>=500 && letterAvailability(state).vowels && Math.random()<.4)game.buyVowel();
+      const action=cpuAction(state,profile);
+      if(action==='solve')solveCPU();
+      else if(game.player.wildCard&&state.lastWedge!==null&&state.wildCardValue>0&&ratio>=profile.wildCard)game.useWildCard();
+      else if(action==='vowel')game.buyVowel();
       else spin().catch(messageError);
     }else if(phase==='bonus-spin')spin().catch(messageError);
     else if(phase==='consonant'||phase==='vowel'||phase==='bonus-select'){
-      if(remaining.length)game.guess(choose());else if(phase==='consonant')game.solve(state.puzzle.answer);
-    }else if(phase==='mystery')game.mystery(game.player.cash<3500);
-    else if(phase==='free-spin')game.useFreeSpin(true);
+      const letter=cpuLetter(state,profile,remaining,game.random);
+      if(letter)game.guess(letter);
+    }else if(phase==='mystery')game.mystery(ratio<=profile.mystery);
+    else if(phase==='free-spin')game.useFreeSpin(ratio>=profile.freeSpin);
     else if(phase==='bonus-wildcard')game.useWildCard(true);
-    else if(phase==='tossup-solve')game.solve(Math.random()<({easy:.75,medium:.9,hard:1}[state.rules.difficulty])?state.puzzle.answer:'NOT THE ANSWER');
+    else if(phase==='tossup-solve')solveCPU();
     else if(phase==='bonus-solve'){
-      if(unknown.length<=Math.max(3,state.puzzle.answer.length*.4))game.solve(state.puzzle.answer);
-      else game.finishBonus(false);
+      if(ratio>=profile.solve)solveCPU();
     }
-  },phase==='bonus-solve'?4500:1400);
+  },phase==='bonus-select'?750:2000);
 }
 async function startGame(){
   clearInterval(tossupTimer);tossupTimer=null;
@@ -331,7 +354,7 @@ async function boot(){
     $('#sound').onclick=()=>{muted=!muted;audio.setMuted(muted);store('wheel3d-muted',String(muted));soundLabels();if(muted)music?.pause();else{activateSound();if(started)setMusic();}};
     $('#music').onclick=()=>{musicMuted=!musicMuted;audio.setMusicMuted(musicMuted);store('wheel3d-music-muted',String(musicMuted));soundLabels();if(!musicMuted){activateSound();if(started)setMusic();}};
     $('#settings').onclick=()=>{pausedAt=performance.now();studio.pause();clearTimeout(aiTimer);if(presenting)clearTimeout(presentationTimer);music?.pause();$('#studio-dialog').showModal();};
-    $('#studio-dialog').addEventListener('close',()=>{const elapsed=pausedAt?performance.now()-pausedAt:0;if(bonusEnd)bonusEnd+=elapsed;if(powerStart!==null)powerStart+=elapsed;if(presenting){presentationEnd+=elapsed;const generation=presentationGeneration;presentationTimer=setTimeout(()=>{if(generation!==presentationGeneration||!started)return;presenting=false;render(game.state,presentationEvent,true);},Math.max(0,presentationEnd-performance.now()));}pausedAt=null;studio.resume();if(started&&!muted)music?.play().catch(()=>{});if(started)scheduleAI();});
+    $('#studio-dialog').addEventListener('close',()=>{const elapsed=pausedAt?performance.now()-pausedAt:0;if(bonusEnd)bonusEnd+=elapsed;if(powerStart!==null)powerStart+=elapsed;if(cpuSolution)cpuSolution.nextAt+=elapsed;if(presenting){presentationEnd+=elapsed;const generation=presentationGeneration;presentationTimer=setTimeout(()=>{if(generation!==presentationGeneration||!started)return;presenting=false;render(game.state,presentationEvent,true);},Math.max(0,presentationEnd-performance.now()));}pausedAt=null;studio.resume();if(started&&!muted)music?.play().catch(()=>{});if(started)scheduleAI();});
     $('#quality').onchange=()=>studio.quality($('#quality').value);
     $('#camera-mode').onchange=()=>setAutomaticCamera($('#camera-mode').value==='auto');
     $('#camera-director').onclick=()=>setAutomaticCamera(!automaticCamera);

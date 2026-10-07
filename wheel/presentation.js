@@ -3,7 +3,7 @@
 export function displayLetters(state) {
   if(['tossup','tiebreaker'].includes(state.stageType))return [];
   if (state.round !== 5) return [...state.used];
-  if (['bonus-spin','spinning-bonus'].includes(state.phase)) return [];
+  if (['bonus-spin','spinning-bonus','power'].includes(state.phase)) return [];
   if (state.phase === 'bonus-select') return state.used.filter(l => !state.bonusChoices.includes(l));
   return [...state.used];
 }
@@ -27,7 +27,7 @@ export function boardTransition(previous, state, event, timing) {
 
 export function automaticView(state, event) {
   if(['tossup','tossup-solve','tossup-over','bonus-wildcard','free-spin'].includes(state.phase))return 'board';
-  if (['power','spinning'].includes(state.phase)) return 'wheel';
+  if (['power','spinning'].includes(state.phase)) return state.round===5?'bonus':'wheel';
   if (['bonus-spin','spinning-bonus'].includes(state.phase)) return 'bonus';
   if (['consonant','vowel','bonus-select','bonus-solve','round-over','finished','mystery'].includes(state.phase)) return 'board';
   if (['letter','bonus-letters','bonus-ready','start','round','restore'].includes(event)) return 'board';

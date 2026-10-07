@@ -31,7 +31,7 @@ test('bonus spin and landing both use the recovered overhead detail camera',asyn
 test('power arms without choosing a wedge; second press commits a bounded strength',()=>{
   const g=make();assert.equal(g.beginPower(),true);assert.equal(g.state.phase,'power');assert.equal(automaticView(g.state),'wheel');assert.equal(g.buyVowel(),false);assert.equal(g.solve('HELLO WORLD'),false);
   const h=make();assert.equal(h.restore(g.save()),true);assert.equal(h.state.phase,'action');
-  assert.equal(g.beginSpin(84),12);assert.equal(g.state.spinPower,84);assert.equal(g.beginSpin(),null);
+  assert.equal(g.beginSpin(84),10);assert.equal(g.state.spinPower,84);assert.equal(g.beginSpin(),null);
 });
 test('vowel exhaustion uses remaining puzzle letters, not all five used buttons',()=>{
   const g=make();g.state.used=['E'];g.player.cash=1000;assert.equal(g.buyVowel(),true);g.guess('O');
