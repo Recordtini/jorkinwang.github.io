@@ -87,6 +87,21 @@ export function stageCullMatches(name,target){
   return node===branch||node.startsWith(branch+'_')||(node.startsWith(branch)&&/^\d+$/.test(node.slice(branch.length)));
 }
 
+export function categoryFrame(atlas,elapsed){
+  return Math.min(atlas.frames.length-1,Math.floor(Math.max(0,elapsed)*atlas.fps/1000));
+}
+
+export function stageMovieSurface(model,name,material){
+  return model==='wof_no'&&name==='Front_screenShape1'&&material?.textures.base?.source==='tex__screen_logo.dds';
+}
+
+export function floorOverlayOrder(bounds,floor,transparent){
+  if(!transparent||bounds.max.y-bounds.min.y>.02)return 0;
+  const height=bounds.min.y-floor.max.y;
+  const contained=bounds.min.x>=floor.min.x-.05&&bounds.max.x<=floor.max.x+.05&&bounds.min.z>=floor.min.z-.05&&bounds.max.z<=floor.max.z+.05;
+  return height>=-.01&&height<=.25&&contained?2:0;
+}
+
 export function noticeFrame(entry,elapsed){
   const show=entry.showFrames??entry.frames.length,hold=entry.holdMs??2200;
   const showMs=show*1000/entry.fps;

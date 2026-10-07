@@ -230,3 +230,21 @@ including after resize, rather than showing the front approach camera until
 the landing hold. The HUD has no top branding banner or footer labels; the
 category and native reveal sit at the top center, with sound/settings controls
 directly below camera controls.
+
+New Orleans supplies its center-back monitor as `Front_screenShape:1`, not
+the shared `screen_center` actor. Its SCX removes the static logo surface;
+the browser binds a movie surface to that exact geometry, UVs and transform,
+keeping the original placeholder culled. This is a browser runtime binding,
+not proof of the PS3 code's movie-target selection. Stage changes unregister
+and dispose that movie material before installing the next set's surfaces.
+
+The native category reveal now holds its final purple frame until the next
+puzzle or the lobby, including saved-game restoration. Round text stays below.
+Desktop controls sit 16 pixels from the top-right corner; smaller layouts
+reserve separate space for the banner and controls without overlapping them.
+
+The reflective floor draws its tinted tile layer before nearby flat alpha
+decals. Native decal blending and depth writes remain intact. Otherwise the
+decal's zero-alpha pixels could write depth first and block the later floor
+tint across a rectangular region. Vertical translucent panels retain their
+normal render order and native depth, rather than receiving a global override.

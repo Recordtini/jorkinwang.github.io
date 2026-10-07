@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle,stageCullMatches} from './presentation.js?v=20261006-letter-audio';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,wheelLandingAngle,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from './presentation.js?v=20261006-center-screen';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 import {sampleScalar,clipTime,animationCategory,animationClamped,textureMatrix} from './animations.js?v=20261006-presentation';
 
@@ -282,11 +282,33 @@ export class Studio {
     let environment=null;
     if(id!=='base') environment=await this.load(entry.url);
     if(generation!==this.stageGeneration) return;
+    const oldScreens=new Set(this.stageScreenMaterials??[]);
+    this.screenMaterials=this.screenMaterials.filter(material=>!oldScreens.has(material));
+    oldScreens.forEach(material=>material.dispose());
     if(this.environment)this.scene.remove(this.environment);
     this.environment=environment;if(environment)this.scene.add(environment);
     this.applyStageCulls(id);
+    this.bindStageScreens(entry.url?.split('/').at(-1).replace('.glb',''));
     this.bindFloor();
     this.stage=id;
+  }
+  bindStageScreens(model){
+    this.stageScreenMaterials=[];
+    const surfaces=[];
+    this.environment?.traverse(mesh=>{
+      if(mesh.isMesh&&stageMovieSurface(model,mesh.name,this.materialData[model+'/'+mesh.name]))surfaces.push(mesh);
+    });
+    for(const source of surfaces){
+      // The SCX culls the static logo placeholder. Our movie uses its authored
+      // surface, not the imported base monitor that this set also culls.
+      const screen=source.clone(false);
+      screen.name='retail-movie-surface';screen.visible=true;screen.castShadow=false;screen.receiveShadow=false;
+      screen.material=new THREE.MeshBasicMaterial({map:this.screenPoster,side:THREE.FrontSide,toneMapped:false});
+      source.visible=false;source.parent.add(screen);
+      this.stageScreenMaterials.push(screen.material);this.screenMaterials.push(screen.material);
+    }
+    const movie=this.screenVideos.get(this.screenMovie);
+    if(movie?.video.readyState>=2&&['game_logo','fireworks'].includes(this.screenMovie))this.bindMovie(this.screenMovie,movie.texture);
   }
   applyStageCulls(id){
     for(const [object,visible] of this.stageCulled??[])object.visible=visible;
@@ -311,6 +333,12 @@ export class Studio {
     // Retain the authored tile image, UVs and contact shading over the planar
     // reflection instead of replacing a near-black specular floor with grey.
     this.floor.material.transparent=true;this.floor.material.opacity=.72;
+    // A zero-alpha decal still writes native depth. Draw the tile overlay first
+    // so that rectangle cannot mask it and expose the untinted reflection.
+    this.floor.renderOrder=1;
+    this.environment.traverse(mesh=>{
+      if(mesh.isMesh&&mesh!==this.floor&&mesh.material.transparent)mesh.renderOrder=floorOverlayOrder(new THREE.Box3().setFromObject(mesh),bounds,true);
+    });
     if(this.lowQuality)this.floorReflection.getRenderTarget().setSize(256,256);
   }
   setSourceCamera(name,endpoint=false){
@@ -397,9 +425,10 @@ export class Studio {
     const canvas=document.querySelector('#category-reveal'),c=canvas.getContext('2d'),clip=this.categorySequence;
     if(!clip)return;
     const elapsed=Math.max(0,time-clip.start),atlas=this.presentation.category;
-    if(elapsed>2800){canvas.hidden=true;this.categorySequence=null;return;}
-    canvas.hidden=false;c.clearRect(0,0,640,100);
-    const i=Math.min(atlas.frames.length-1,Math.floor(elapsed*atlas.fps/1000));
+    canvas.hidden=false;
+    const i=categoryFrame(atlas,elapsed);
+    if(clip.lastFrame===i)return;
+    clip.lastFrame=i;c.clearRect(0,0,640,100);
     c.drawImage(this.categoryImage,(i%atlas.columns)*640,Math.floor(i/atlas.columns)*100,640,100,0,0,640,100);
     const key=atlas.text[i];c.save();c.translate(336,44);c.scale(key.scale,1);c.globalAlpha=key.alpha;
     c.textAlign='center';c.textBaseline='middle';c.font='20px "Retail Category"';c.fillStyle='#fff';c.shadowColor='#1e4351';c.shadowBlur=3;
@@ -459,7 +488,7 @@ export class Studio {
     this.boardSequence={...transition,start:performance.now()};
     this.boardSnapshot={id:state.puzzle.id,used:transition.used};
     this.boardState={...state,used:transition.used};
-    if(transition.opening&&event!=='restore')this.categorySequence={start:performance.now(),text:state.puzzle.category};
+    if(transition.opening)this.categorySequence={start:performance.now()-(event==='restore'?2800:0),text:state.puzzle.category};
     if(event==='start')this.playScreen();
     if(event==='restore')this.restScreen();
     if(event==='round'){

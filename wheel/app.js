@@ -1,6 +1,6 @@
 import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-presentation';
-import {Studio} from './scene.js?v=20261006-letter-audio';
-import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261006-letter-audio';
+import {Studio} from './scene.js?v=20261006-center-screen';
+import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261006-center-screen';
 import {RetailAudio} from './audio.js?v=20261006-letter-audio';
 
 const $ = selector => document.querySelector(selector);

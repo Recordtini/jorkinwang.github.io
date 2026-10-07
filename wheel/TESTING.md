@@ -311,3 +311,34 @@ Ignored QA script: `qa/verify_letter_audio.cjs`. Evidence:
 `qa/power-meter-no-controller-prompts.png`,
 `qa/vowel-notice-above-scores.png`, `qa/vowel-notice-above-scores-mobile.png`,
 `qa/bonus-spin-overhead-desktop.png`, `qa/denver-native-screen-culls.png`.
+
+## Center-Back Screen And Floor Decal Follow-Up
+
+The 77-test suite adds settled category-frame persistence and floor-overlay
+classification, excluding vertical, elevated, opaque and out-of-bounds meshes.
+Browser QA (`qa/verify_center_floor.cjs`) uses the real setup controls, starts
+single-player New Orleans, and verifies its movie surface shares the original
+center-back mesh geometry/UVs/world transform while the placeholder is culled.
+Switching NO -> LA -> LV -> NO leaves no stale screen material registration; posters
+and native movies bind to the themed screen as well as the main display.
+The center-back binding is a browser adaptation, not native engine parity.
+It targets only the NO screen, not logo-textured Florida/Phoenix props or
+the Las Vegas slot machine; the LV browser fixture confirms no replacement.
+
+A static shallow-angle floor fixture reproduces the rectangular tint error
+with legacy render order. At 22 projected points where the decal texture has
+zero alpha, legacy RGB differences from a hidden-decal reference reach 167;
+the corrected order gives zero difference at every sampled point. The decal
+retains native source-alpha blending and depth writes. LA vertical blade meshes
+remain at render order 0 with native depth writes enabled after switching sets.
+
+The category is still visible on its settled native purple frame after eight
+seconds, and is restored settled rather than hidden after loading a saved state.
+Measured 1440x900, 1100x800 and 390x844 layouts keep the round label below the
+banner art and controls separate. Desktop controls have exact 16px top/right
+insets; mobile controls sit below the round label. No page errors were recorded.
+
+Ignored evidence: `qa/new-orleans-center-back.png`, `qa/new-orleans-decal-fixed.png`,
+`qa/new-orleans-decal-legacy.png`, `qa/new-orleans-decal-hidden.png`,
+`qa/persistent-category-1440.png`, `qa/persistent-category-1100.png`,
+`qa/persistent-category-390.png`.

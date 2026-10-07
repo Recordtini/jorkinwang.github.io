@@ -2,10 +2,39 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import * as THREE from '../vendor/three.module.js';
-import {samplePower,powerMeterFrame,noticeFrame,wheelLandingAngle,wheelValues,stageCullMatches} from '../presentation.js';
+import {samplePower,powerMeterFrame,noticeFrame,wheelLandingAngle,wheelValues,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from '../presentation.js';
 import {WheelGame} from '../game.js';
 import {animationClamped,clipTime} from '../animations.js';
 const load=async path=>JSON.parse(await readFile(new URL('../'+path,import.meta.url)));
+
+test('category settles on the native purple frame indefinitely, including restored games',async()=>{
+  const {category}=await load('assets/presentation/presentation.json');
+  assert.equal(categoryFrame(category,-10),0);
+  assert.equal(categoryFrame(category,100),3);
+  for(const elapsed of [2800,10000,3600000])assert.equal(categoryFrame(category,elapsed),category.frames.length-1);
+  assert.equal(category.text.at(-1).alpha,1);assert.equal(category.text.at(-1).scale,1);
+});
+
+test('flat floor decals draw after floor tint, without changing vertical or elevated panels',()=>{
+  const floor={min:{x:-14.4,y:.063,z:-15},max:{x:14.4,y:.063,z:15}};
+  const decal={min:{x:-6.384,y:.191,z:.601},max:{x:-.158,y:.191,z:6.827}};
+  assert.equal(floorOverlayOrder(decal,floor,true),2);
+  assert.equal(floorOverlayOrder(decal,floor,false),0);
+  const tall={min:{...decal.min},max:{...decal.max,y:4}};
+  assert.equal(floorOverlayOrder(tall,floor,true),0);
+  const elevated={min:{...decal.min,y:1},max:{...decal.max,y:1}};
+  assert.equal(floorOverlayOrder(elevated,floor,true),0);
+  const outside={min:{...decal.min,x:-20},max:{...decal.max}};
+  assert.equal(floorOverlayOrder(outside,floor,true),0);
+});
+
+test('New Orleans center-back movie binding does not replace other sets logo-textured props',async()=>{
+  const materials=await load('assets/presentation/materials.json');
+  const selected=Object.entries(materials).filter(([key,material])=>stageMovieSurface(...key.split('/'),material)).map(([key])=>key);
+  assert.deepEqual(selected,['wof_no/Front_screenShape1']);
+  assert.equal(stageMovieSurface('wof_lv','slot_machine_swfShape',materials['wof_lv/slot_machine_swfShape']),false);
+  assert.equal(stageMovieSurface('wof_no','Front_screenShape1',null),false);
+});
 
 test('meter samples only the native lLoop segment with fixed player-color atlases',async()=>{
   const data=await load('assets/presentation/power-meter.json');
