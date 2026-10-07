@@ -1,5 +1,5 @@
 import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-layers';
-import {Studio} from './scene.js?v=20261006-atlases';
+import {Studio} from './scene.js?v=20261006-columns';
 import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability} from './presentation.js?v=20261006-layers';
 import {RetailAudio} from './audio.js?v=20261006-ducking';
 

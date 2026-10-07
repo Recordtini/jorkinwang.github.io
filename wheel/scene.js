@@ -134,7 +134,9 @@ export class Studio {
       object.material.metalness=Math.min(object.material.metalness??0,.25);
       if(/reflect.*floor|floor.*reflect/i.test(object.name))object.material.aoMapIntensity=.25;
       if(object.material.map) object.material.map.anisotropy=Math.min(8,this.renderer.capabilities.getMaxAnisotropy());
-      if(/glow|flare/i.test(object.name)) {object.material.depthWrite=false;object.castShadow=false;}
+      // Emissive geometry is still solid geometry: the opaque glowtube columns
+      // must occlude the floor and rear panel frames using their native depth.
+      if(/glow|flare/i.test(object.name))object.castShadow=false;
     });
     await Promise.all(nativeTextures);
     return root;

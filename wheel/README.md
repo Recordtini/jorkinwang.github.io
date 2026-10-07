@@ -77,6 +77,8 @@ intentionally omitted.
 - Native NIF alpha, depth and face-culling flags for the base and all 11 sets,
   distinguishing opaque wheel steps from blended decorative blades. Blending
   preserves the source depth-write state, preventing floor-layer bleed-through.
+  Emissive columns remain solid depth-writing geometry; glow filenames no longer
+  override their native occlusion state.
 - Original RGB baked dark maps with the compact TexDesc UV indices, not grayscale
   glTF AO. Native alpha is retained. Reserved characters in GLTF node names are
   normalized for source-property/controller lookup. Teal studio blades use a

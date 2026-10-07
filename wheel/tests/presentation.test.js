@@ -29,6 +29,17 @@ test('explicit native depth and stencil flags override defaults',()=>{
   assert.deepEqual(nativeDepthState({zBufferFlags:1|(6<<2),stencilFlags:2<<10}),{test:true,write:false,func:6,side:1});
   assert.deepEqual(nativeDepthState({zBufferFlags:2,stencilFlags:3<<10}),{test:false,write:true,func:0,side:2});
 });
+test('all six LA emissive columns have solid source depth and alpha states',async()=>{
+  const materials=JSON.parse(await readFile(new URL('../assets/presentation/materials.json',import.meta.url)));
+  const catalog=JSON.parse(await readFile(new URL('../assets/presentation/cameras.json',import.meta.url)));
+  const columns=Object.entries(materials).filter(([name])=>/^wof_la\/glowtubeShape/.test(name));
+  assert.equal(columns.length,6);
+  for(const [name,m] of columns){
+    assert.equal(m.alpha,1);assert.equal(nativeDepthState(m).write,true);
+    assert.equal(nativeDepthState(m).test,true);assert.equal(materialAlpha(catalog.materials[name]).blend,false);
+    assert.ok(m.textures.glow);
+  }
+});
 test('studio-local atlas identities and image dimensions are preserved',async()=>{
   const materials=JSON.parse(await readFile(new URL('../assets/presentation/materials.json',import.meta.url)));
   const atlases=new Map();

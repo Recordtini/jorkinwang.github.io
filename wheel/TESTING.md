@@ -3,7 +3,7 @@
 ## Automated Checks
 
 Run `node --test wheel/tests/*.test.js` from the site repository.
-Current result: 63 passing tests. Earlier recheck sections below are historical.
+Current result: 64 passing tests. Earlier recheck sections below are historical.
 
 - Game state: spin outcomes, per-letter payments, duplicate-letter rejection,
   vowel costs, misses, bankruptcies, banked winnings, special wedges, bonus
@@ -226,3 +226,24 @@ Evidence in ignored `qa/`: `la-floor-layer-final.png`, `ny-posters-final.png`.
 Camera placement for these close-ups is a diagnostic fixture, not retail camera
 acceptance. Ducking parameters are browser-authored. These checks do not prove
 physical speaker volume, listening quality, or exact PS3 renderer/mixer parity.
+
+## Column Occlusion Recheck
+
+64 Node tests pass. A source-data regression checks all six LA glowtube columns:
+opaque alpha, enabled depth test/write, and an emissive texture do not imply a
+transparent surface.
+
+The remaining bug was a filename heuristic applied after native depth flags:
+every mesh named glow or flare lost depth writes, including opaque columns.
+Removing this override preserves source depth without changing column geometry,
+panel opacity, or border positions. Same-camera before/after close-ups reproduced
+the floor truncation and rear blade/frame bleed, then showed solid full-height
+columns correctly hiding those rear surfaces. Both side angles were inspected
+again after reloading production code, not just an in-page material fixture.
+
+All 11 sets rendered without JavaScript errors. A runtime audit of 26 glow/flare
+meshes across the sets found no depth-write mismatches against source flags,
+including genuinely blended Las Vegas and Phoenix surfaces.
+Evidence in ignored `qa/`: `la-column-border-before.png`,
+`la-column-border-final.png`, and `la-column-side-final.png`. Close-up cameras
+are diagnostic fixtures; exact retail rendering remains unverified.
