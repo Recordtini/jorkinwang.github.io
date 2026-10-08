@@ -377,3 +377,25 @@ Ignored evidence: `qa/verify_native_rules.cjs`, `qa/native-physics-landing.png`,
 `qa/native-bonus-physics-landing.png`, `qa/native-bonus-physics-mobile.png`, and
 `qa/native-cpu-fill.png`. This verifies the browser integration, not a live PS3
 side-by-side comparison or frame-perfect flipper/audio/envelope choreography.
+
+## Quick Modes And Bonus Clock: October 8, 2026
+
+All 95 Node tests pass, including custom local/CPU lineups, quick-mode saves,
+one-round completion, alternate puzzle selection, direct bonus-wheel entry,
+RSTLNE/bonus letter limits, and no-award reveals in regular/toss-up/bonus states.
+The original timer's three DDS images and Cosmos font are packaged, with source
+sprite IDs and layout documented in `assets/presentation/bonus-clock/SOURCE.md`.
+
+Chrome checks exercise the actual setup and Studio buttons: mixed two-local /
+one-CPU Quick Play, reveal during an active spin without a late payout, normal
+fill-in solve, random replay, direct bonus spin/camera, bonus letter selection,
+30-second countdown, Backstage clock pause, bonus reveal/cancellation, and resume.
+The scoreboard is hidden throughout bonus play. Full-show rule controls retain
+their values when using the quick buttons.
+
+Desktop (1440x900) and mobile (390x844) evidence is under ignored `qa/`:
+`verify_quick_play.cjs`, `quick-studio-desktop.png`, `quick-revealed-desktop.png`,
+`quick-studio-mobile.png`, `quick-lobby-mobile.png`, and
+`quick-bonus-clock-desktop.png` / `quick-bonus-clock-mobile.png`.
+Quick modes are browser conveniences; the badge artwork/font is source-backed,
+but its enlarged responsive position is not the full original HUD layout.

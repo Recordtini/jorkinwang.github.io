@@ -1,6 +1,6 @@
-import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261006-native-rules';
-import {Studio} from './scene.js?v=20261006-native-rules';
-import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261006-native-rules';
+import {WheelGame, LETTERS, VOWELS, money} from './game.js?v=20261008-quick-play';
+import {Studio} from './scene.js?v=20261008-quick-play';
+import {automaticView,cameraAutomation,solveTiles,fillSolution,letterAvailability,samplePower,powerMeterFrame} from './presentation.js?v=20261008-quick-play';
 import {cpuSpinPower,cpuLetter,cpuAction,revealedFraction,CPU_SOLVE_DELAY} from './retail-rules.js?v=20261006-native-rules';
 import {RetailAudio} from './audio.js?v=20261006-letter-audio';
 
@@ -37,6 +37,7 @@ function setAutomaticCamera(enabled,cut=true){
   if(enabled&&cut&&game.state)setCamera(automaticView(game.state));
 }
 function returnToLobby(){
+  $('#bonus-clock').hidden=true;
   powerStart=null;$('#power-meter').hidden=true;audio?.stopMusic();
   clearInterval(tossupTimer);tossupTimer=null;
   clearTimeout(aiTimer);clearInterval(bonusTimer);$('#mystery-choice')?.remove();
@@ -49,6 +50,7 @@ function positionScoreOverlays(){
   const bottom=parseFloat(getComputedStyle(consolePanel).bottom)+consolePanel.getBoundingClientRect().height+16;
   scoreboard.style.bottom=`${bottom}px`;
   $('#studio').style.setProperty('--letter-notice-bottom',`${bottom+scoreboard.getBoundingClientRect().height+8}px`);
+  $('#studio').style.setProperty('--bonus-clock-bottom',`${bottom+scoreboard.getBoundingClientRect().height+12}px`);
 }
 function render(state,event,completed=false){
   if(!state)return;
@@ -60,9 +62,9 @@ function render(state,event,completed=false){
   }
   const current=state.players[state.turn],human=!current.ai;
   const wheelShot=['power','spinning','spinning-bonus'].includes(state.phase);
-  $('#scoreboard').hidden=wheelShot;
+  $('#scoreboard').hidden=wheelShot||game.isBonus;
   if(solving&&(!human||['spinning','spinning-bonus','round-over','finished','bonus-spin','bonus-select','mystery','tossup','tossup-over','free-spin','bonus-wildcard'].includes(state.phase)||event==='miss'&&state.round!==5))closeSolve();
-  $('#round-label').textContent=game.isTossup?(state.tossupNumber?`${money(state.tossupAward)} TOSS-UP`:'TIE-BREAKER'):state.round===5?'BONUS ROUND':`ROUND ${state.round}${state.round===2?' / JACKPOT':state.round===3?' / MYSTERY':''}`;
+  $('#round-label').textContent=state.rules.quickBonus?'QUICK BONUS':state.rules.quickPlay?'QUICK PLAY / ONE ROUND':game.isTossup?(state.tossupNumber?`${money(state.tossupAward)} TOSS-UP`:'TIE-BREAKER'):state.round===5?'BONUS ROUND':`ROUND ${state.round}${state.round===2?' / JACKPOT':state.round===3?' / MYSTERY':''}`;
   $('#category').textContent=state.puzzle.category;
   $('#turn-label').textContent=current.name.toUpperCase();$('#message').textContent=state.message;
   $('#scoreboard').style.setProperty('--score-width',`${state.players.length*210+(state.players.length-1)*9}px`);
@@ -84,7 +86,9 @@ function render(state,event,completed=false){
   $('#wild-card').disabled=presenting||!human||state.phase!=='action'||!state.wildCardValue||state.lastWedge===null;
   $('#next').disabled=presenting;
   $('#next').hidden=!['round-over','finished','tossup-over'].includes(state.phase);
-  $('#next').textContent=state.phase==='finished'?'MAIN MENU':game.isTossup?'CONTINUE':state.round===(state.rules?.rounds??4)?'FINAL ROUND':'NEXT ROUND';
+  $('#next').textContent=state.rules.quickBonus?'ANOTHER BONUS PUZZLE':state.rules.quickPlay?'RANDOM PUZZLE':state.phase==='finished'?'MAIN MENU':game.isTossup?'CONTINUE':state.round===(state.rules?.rounds??4)?state.rules.bonus?'FINAL ROUND':'FINISH GAME':'NEXT ROUND';
+  $('#reveal-puzzle').disabled=['round-over','finished','tossup-over'].includes(state.phase);
+  if(state.phase!=='bonus-solve'||presenting)$('#bonus-clock').hidden=true;
   $('#spin').hidden=game.isTossup||state.round===5&&!['bonus-spin','spinning-bonus','power'].includes(state.phase);$('#vowel').hidden=game.isTossup||state.round===5;
   $('#solve').hidden=game.isTossup&&state.phase!=='tossup-solve';
   $('#spin').firstChild.textContent=state.phase==='power'?'STOP / SPIN ':state.round===5?'SPIN THE BONUS WHEEL ':'SPIN THE WHEEL ';
@@ -161,11 +165,13 @@ function showMystery(){
 }
 function startBonusClock(){
   clearInterval(bonusTimer);bonusEnd=performance.now()+30000;
+  $('#bonus-clock').dataset.slot=game.player.slot;$('#bonus-clock').hidden=false;
+  $('#bonus-seconds').textContent='30';$('#bonus-clock').setAttribute('aria-label','30 seconds remaining');
   bonusTimer=setInterval(()=>{
     if(game.state.phase!=='bonus-solve'){clearInterval(bonusTimer);return;}
     if(pausedAt)return;
     const seconds=Math.max(0,Math.ceil((bonusEnd-performance.now())/1000));
-    $('#message').textContent=`${seconds} seconds. Solve the bonus puzzle!`;
+    $('#bonus-seconds').textContent=String(seconds);$('#bonus-clock').setAttribute('aria-label',`${seconds} seconds remaining`);
     if(!seconds){playSound('TimesUp');game.finishBonus(false);}
   },200);
   if(!game.player.ai)openSolve();
@@ -267,17 +273,19 @@ function scheduleAI(){
     }
   },phase==='bonus-select'?750:2000);
 }
-async function startGame(){
+async function startGame(quick=false){
   clearInterval(tossupTimer);tossupTimer=null;
   clearTimeout(aiTimer);clearInterval(bonusTimer);$('#mystery-choice')?.remove();
   clearTimeout(presentationTimer);presentationGeneration++;presenting=false;studio.cancelPresentation();
   activateSound();
-  const lineup=roster(),players=lineup.filter(p=>p.type!=='off').map(p=>({name:p.name,ai:p.type==='cpu',slot:p.slot}));
+  const lineup=roster(),players=quick&&started?game.state.players:lineup.filter(p=>p.type!=='off').map(p=>({name:p.name,ai:p.type==='cpu',slot:p.slot}));
+  const bonusSlot=started&&!game.player.ai?game.player.slot:undefined;
   if(!players.length||players.every(p=>p.ai)){$('#setup-error').hidden=false;$('#setup-error').textContent='Choose at least one local player.';return;}
-  closeSolve();$('#setup-error').hidden=true;
+  cpuSolution=null;powerStart=null;bonusEnd=0;closeSolve();$('#setup-error').hidden=true;
   started=true;$('#lobby').hidden=true;$('#game-ui').hidden=false;
   const rules={tossups:$('#tossups').checked,rounds:Number($('#rounds').value),bonus:$('#bonus-round').checked,difficulty:$('#difficulty').value,collectibles:$('#collectibles').checked};
-  game.start(players,$('#mode').value,rules);
+  if(quick==='bonus')game.startQuickBonus(players,{...rules,bonusSlot});
+  else if(quick)game.startQuick(players,rules);else game.start(players,$('#mode').value,rules);
   setMusic();
   store('wheel3d-preferences',JSON.stringify({lineup,rules,mode:$('#mode').value,stage:$('#stage-select').value}));
 }
@@ -339,11 +347,21 @@ async function boot(){
       };$('#setup-form').after(resume);
     }
     $('#setup-form').onsubmit=event=>{event.preventDefault();startGame().catch(messageError);};
+    $('#quick-play').onclick=()=>startGame(true).catch(messageError);
+    $('#quick-bonus').onclick=()=>startGame('bonus').catch(messageError);
+    $('#random-puzzle').onclick=()=>{$('#studio-dialog').close();startGame(true).catch(messageError);};
+    $('#random-bonus').onclick=()=>{$('#studio-dialog').close();startGame('bonus').catch(messageError);};
+    $('#reveal-puzzle').onclick=()=>{
+      $('#studio-dialog').close();
+      clearTimeout(aiTimer);cpuSolution=null;clearInterval(bonusTimer);bonusTimer=null;bonusEnd=0;
+      clearTimeout(presentationTimer);presentationGeneration++;presenting=false;studio.cancelPresentation(true);
+      closeSolve();$('#mystery-choice')?.remove();game.revealPuzzle();setCamera('board');
+    };
     $('#stage-select').onchange=()=>changeStage($('#stage-select').value);
     $('#change-stage').onchange=()=>changeStage($('#change-stage').value);
     $('#spin').onclick=()=>{activateSound();spin().catch(messageError);};$('#vowel').onclick=()=>{if(!presenting)game.buyVowel();};$('#solve').onclick=openSolve;
     $('#wild-card').onclick=()=>{if(!presenting)game.useWildCard();};
-    $('#next').onclick=()=>{if(game.state.phase==='finished')returnToLobby();else game.nextRound();};
+    $('#next').onclick=()=>{if(game.state.rules.quickPlay)startGame(game.state.rules.quickBonus?'bonus':true).catch(messageError);else if(game.state.phase==='finished')returnToLobby();else game.nextRound();};
     $('#solve-form').onsubmit=event=>{event.preventDefault();const answer=fillSolution(game.state,solveDraft);if(!presenting&&answer!==null){game.solve(answer);if(game.state.phase!=='bonus-solve')closeSolve();}};
     $('#cancel-solve').onclick=()=>{closeSolve();if(game.state.phase==='tossup-solve')game.releaseBuzz();};
     $('#mode').onchange=()=>preset($('#mode').value);

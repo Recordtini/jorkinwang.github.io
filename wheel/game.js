@@ -1,4 +1,4 @@
-import {wheelValues,letterAvailability} from './presentation.js?v=20261006-native-rules';
+import {wheelValues,letterAvailability} from './presentation.js?v=20261008-quick-play';
 import {spinPlan,wheelLanding,wrapAngle,bonusPrize,cpuProfile,validCPUProfile} from './retail-rules.js?v=20261006-native-rules';
 export const VOWELS = 'AEIOU';
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -22,15 +22,35 @@ export class WheelGame {
       : {name:String(entry.name || `Player ${i+1}`).trim().slice(0,18), ai:entry.ai === true, slot:entry.slot ?? i});
     players.sort((a,b)=>a.slot-b.slot);
     if (players.every(p=>p.ai) || players.some(p=>!Number.isInteger(p.slot)||p.slot<0||p.slot>2) || new Set(players.map(p=>p.slot)).size!==players.length) throw new Error('Choose at least one local player and distinct podiums.');
+    const previousPuzzle=this.state?.puzzle.id;
     this.usedPuzzles.clear();
-    const rules={tossups:options.tossups===true,rounds:Math.max(1,Math.min(4,Math.trunc(options.rounds)||4)),bonus:options.bonus!==false,difficulty:['easy','medium','hard'].includes(options.difficulty)?options.difficulty:'medium',collectibles:options.collectibles===true};
+    if(options.quickPlay&&previousPuzzle!==undefined)this.usedPuzzles.add(previousPuzzle);
+    const rules={tossups:!options.quickPlay&&options.tossups===true,rounds:options.quickPlay?1:Math.max(1,Math.min(4,Math.trunc(options.rounds)||4)),bonus:options.quickBonus===true||!options.quickPlay&&options.bonus!==false,difficulty:['easy','medium','hard'].includes(options.difficulty)?options.difficulty:'medium',collectibles:!options.quickPlay&&options.collectibles===true,quickPlay:options.quickPlay===true,quickBonus:options.quickPlay===true&&options.quickBonus===true};
     this.state = {version: 2, mode, rules, stageType:'regular', players: players.map(p=>({...p, bank:0, cash:0,prizes:0,freeSpin:false,wildCard:false,million:false,millionRound:null})),
       round: 1, turn: 0, used: [], phase: 'action', lastWedge: null, jackpot: 5000,wheelAngle:0,bonusAngle:0,
       availableCollectibles:{Million:true,WildCard:true,FreeSpin:true},mysteryTaken:false,mysteryWinSector:this.random()<.5?11:23,firstRoundTurn:0,jackpotEligible:false,
       bonusChoices: [], bonusPrize: 0, message: 'Spin the wheel, buy a vowel, or solve the puzzle.'};
     this.state.players.forEach(p=>{if(p.ai)p.cpu=cpuProfile(rules.difficulty,this.random);});
-    if(rules.tossups)this.startTossup(1);else this.selectPuzzle(false);
+    if(rules.quickBonus){
+      const active=players.findIndex(p=>!p.ai&&p.slot===options.bonusSlot);
+      this.startFinal(active<0?players.findIndex(p=>!p.ai):active,false);
+    }else if(rules.tossups)this.startTossup(1);else this.selectPuzzle(false);
     this.emit('start');
+  }
+  startQuick(players,options={}){
+    this.start(players,'quick',{...options,quickPlay:true,quickBonus:false});
+  }
+  startQuickBonus(players,options={}){
+    this.start(players,'quick-bonus',{...options,quickPlay:true,quickBonus:true});
+  }
+  revealPuzzle(){
+    if(!this.state||['round-over','finished','tossup-over'].includes(this.state.phase))return false;
+    this.state.used=[...LETTERS];
+    this.state.jackpotEligible=false;
+    if(this.isTossup){this.state.revealedTiles=this.state.tossupOrder.slice();this.state.tossupWinner=null;}
+    this.state.phase=this.isBonus?'finished':this.isTossup?'tossup-over':'round-over';
+    this.state.message=`The answer was ${this.state.puzzle.answer}. Puzzle revealed; no win awarded.`;
+    this.emit('reveal');return true;
   }
   selectPuzzle(bonus) {
     let pool = this.puzzles.filter(p => p.bonus === bonus && !this.usedPuzzles.has(p.id));
@@ -282,12 +302,12 @@ export class WheelGame {
     if(number===2)this.state.firstRoundTurn=winner??0;
     this.selectPuzzle(false);this.emit('round');
   }
-  startFinal(winner){
+  startFinal(winner,emit=true){
     this.state.turn=winner;
     if(this.state.rules?.bonus===false){this.state.phase='finished';this.state.message=`${this.player.name} wins with ${money(this.player.bank)}!`;this.emit('win');return;}
     Object.assign(this.state,{round:5,stageType:'bonus',bonusChoices:[],bonusConsonants:3,lastWedge:null});
     this.state.bonusPrize=bonusPrize(this.random,this.player.million);
-    this.selectPuzzle(true);this.state.phase='bonus-spin';this.state.message=`${this.player.name} reaches the bonus round! Spin the bonus wheel.`;this.emit('round');
+    this.selectPuzzle(true);this.state.phase='bonus-spin';this.state.message=`${this.player.name} reaches the bonus round! Spin the bonus wheel.`;if(emit)this.emit('round');
   }
   restore(serialized) {
     try {

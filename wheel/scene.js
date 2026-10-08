@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Reflector} from 'three/addons/objects/Reflector.js';
-import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from './presentation.js?v=20261006-native-rules';
+import {boardTransition,materialAlpha,tileRevealed,nativeCameraForView,nativeDepthState,noticeFrame,stageCullMatches,categoryFrame,floorOverlayOrder,stageMovieSurface} from './presentation.js?v=20261008-quick-play';
 import {spinAngle} from './retail-rules.js?v=20261006-native-rules';
 import {PodiumDisplay} from './podiums.js?v=20261006-podiums';
 import {sampleScalar,clipTime,animationCategory,animationClamped,textureMatrix} from './animations.js?v=20261006-presentation';
@@ -486,7 +486,7 @@ export class Studio {
     this.base?.traverse(object=>{if(/^(bonus_baseShape|bonuswheel_handrestShape|bonus_flipperShape)/.test(object.name))object.visible=visible;});
   }
   update(state,event) {
-    if(['start','round','restore'].includes(event)||state.phase==='finished'){this.solveDraft=null;this.solveCursor=null;}
+    if(['start','round','restore','reveal'].includes(event)||state.phase==='finished'){this.solveDraft=null;this.solveCursor=null;}
     if(['start','restore'].includes(event)){
       this.wheelAngle=state.wheelAngle;this.wheelGroup.rotation.y=this.wheelAngle;
       this.bonusRoot.rotation.y=state.bonusAngle;
@@ -511,9 +511,10 @@ export class Studio {
     const movieMs=this.screenMovie&&!['game_logo','fireworks'].includes(this.screenMovie)&&['round','win'].includes(event)?this.videoData[this.screenMovie]?.durationMs??0:0;
     return Math.max(transition.duration,transition.opening&&event!=='restore'?2800:0,podiumDuration,movieMs);
   }
-  cancelPresentation(){
+  cancelPresentation(keepBoard=false){
     this.podiums?.reset();
-    this.boardSequence=null;this.boardSnapshot=null;this.categorySequence=null;document.querySelector('#category-reveal').hidden=true;
+    this.boardSequence=null;
+    if(!keepBoard){this.boardSnapshot=null;this.categorySequence=null;document.querySelector('#category-reveal').hidden=true;}
     for(const name of ['spinTween','bonusTween']){this[name]?.resolve();this[name]=null;}
     this.restScreen();
     this.playSetCategory('idle');

@@ -15,6 +15,18 @@ four regular rounds and the bonus round. Rules allow shorter matches, no toss-up
 no bonus, and CPU difficulty selection. Jackpot, Mystery, Million Dollar,
 Free Spin and Wild Card inventory are supported. Reloading offers saved-game resume.
 
+Quick Play keeps your configured local/CPU lineup and difficulty for one random
+regular puzzle, without toss-ups or a bonus round. Quick Bonus skips straight to
+the small wheel, RSTLNE, letter choices, and the 30-second bonus clock for the
+active local player (or first local player from setup). These are web convenience
+modes, not recovered retail menu modes. Studio offers Reveal Puzzle (ends the
+puzzle without a win), Random Puzzle, and Quick Bonus. Quick-mode replay chooses
+a different puzzle when another is available and resets scores for a fresh game;
+your full-show settings remain unchanged. Both shortcuts replace the current save.
+The separate bonus countdown uses the original podium-colored `mcTimer` artwork
+and Cosmos font, enlarged for readability above the web solve controls. Score
+cards are hidden throughout bonus play.
+
 Regular and bonus spins use the original two-press power meter: press Spin/Space
 to start the meter, then again to spin. The recovered 30-fps meter now feeds
 the native executable's power blend, travel range and quartic deceleration.

@@ -10,7 +10,7 @@ export function displayLetters(state) {
 
 export function boardTransition(previous, state, event, timing) {
   const used = displayLetters(state);
-  const opening = !previous || previous.id !== state.puzzle.id || ['start','round'].includes(event);
+  const opening = event!=='reveal'&&(!previous || previous.id !== state.puzzle.id || ['start','round'].includes(event));
   const panels = state.puzzle.rows.flatMap((row,r) => [...row].map((letter,c) => ({r,c,letter,index:r*14+c}))).filter(p=>p.letter!==' ');
   const changes = panels.filter(p=>!/[A-Z]/.test(p.letter) || used.includes(p.letter));
   if (opening) {
@@ -19,7 +19,7 @@ export function boardTransition(previous, state, event, timing) {
     const tiles = ordered.map((p,i)=>({...p,at:delay+i*timing.mTimeBetweenClearLetters,kind:'open'}));
     return {opening:true,used,tiles,duration:delay+ordered.length*timing.mTimeBetweenClearLetters+240};
   }
-  const fresh = changes.filter(p=>/[A-Z]/.test(p.letter)&&!previous.used.includes(p.letter));
+  const fresh = changes.filter(p=>/[A-Z]/.test(p.letter)&&!(previous?.used??[]).includes(p.letter));
   const solved = ['round-over','finished','tossup-over'].includes(state.phase);
   const tiles = fresh.map((p,i)=>({...p,at:solved?0:timing.mTimeAfterBlue+(i+1)*timing.mTimeBetweenLetters,kind:'letter'}));
   return {opening:false,used,tiles,duration:tiles.length?(solved?300:tiles.at(-1).at+200):0};
