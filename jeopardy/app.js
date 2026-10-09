@@ -1,5 +1,5 @@
-import {JeopardyGame,cash} from './game.js?v=20261009-flow2';
-import {JeopardyStudio} from './scene.js?v=20261009-reflection-sync';
+import {JeopardyGame,cash,clueReadingSeconds,timerLightCount} from './game.js?v=20261009-presentation3';
+import {JeopardyStudio} from './scene.js?v=20261009-presentation3';
 import {RetailAudio} from '../wheel/audio.js';
 
 const $=id=>document.getElementById(id),SAVE='jeopardy-3d-save-v1';
@@ -27,7 +27,10 @@ function scheduleResult(){
   if(autoResults&&resultAutoAllowed)later(3000,continueResult);
 }
 function render(s,event){
-  cancel();resultTransition=false;$('clock').hidden=true;studio.update(s);studio.follow(s,event);$('console').classList.remove('board-beat');
+  cancel();resultTransition=false;$('clock').hidden=true;$('response-timer').hidden=true;
+  if(event==='start'||event==='round')studio.categoryIntro.start(s,()=>cue('CategoryReveal'),()=>render(game.state,'category-intro-end'));
+  else if(s.phase!=='board')studio.categoryIntro.stop();
+  studio.update(s);studio.follow(s,event);$('console').classList.remove('board-beat');
   try{localStorage.setItem(SAVE,game.save());}catch{}
   $('round-title').textContent=['','JEOPARDY!','DOUBLE JEOPARDY!','FINAL JEOPARDY!'][s.round];
   $('category').textContent=s.active?.category??s.final?.category.name??'';
@@ -40,7 +43,7 @@ function render(s,event){
   $('board-controls').hidden=s.phase!=='board';$('board-controls').replaceChildren();
   if(s.phase==='board')s.board.forEach((category,c)=>{
     const column=document.createElement('div');column.className='board-column';const title=document.createElement('b');title.textContent=category.name;column.append(title);
-    category.played.forEach((played,r)=>column.append(button(played?'':cash((r+1)*200*s.round),()=>game.select(c,r),played||game.player.ai)));$('board-controls').append(column);
+    category.played.forEach((played,r)=>column.append(button(played?'':cash((r+1)*200*s.round),()=>game.select(c,r),played||game.player.ai||studio.inputLocked)));$('board-controls').append(column);
   });
   const showClue=s.active&&['reading','buzz','answer','final-reading','final-answer'].includes(s.phase);
   $('clue-panel').hidden=!showClue;$('clue-meta').textContent=s.active?(s.active.double?'DAILY DOUBLE / ':'')+s.active.category+(s.round<3?' / '+cash(s.active.value):''):'';
@@ -57,13 +60,21 @@ function render(s,event){
   const wager=['wager','final-wager'].includes(s.phase);$('wager-form').hidden=!wager;
   if(wager){const min=s.phase==='wager'?1:0,max=game.maxWager();$('wager-label').textContent=`${game.player.name}: wager ${cash(min)} to ${cash(max)}${s.phase==='final-wager'?' (pass the device privately)':''}`;$('wager').min=min;$('wager').max=max;$('wager').value=min;$('wager').disabled=game.player.ai;$('wager-form').querySelector('button').disabled=game.player.ai;}
   $('wager-score').hidden=s.phase!=='wager';$('wager-score').textContent=`${game.player.name} / SCORE ${cash(game.player.score)}`;
+  $('wager-opponents').replaceChildren();$('wager-opponents').hidden=s.phase!=='wager'||s.players.length===1;
+  if(s.phase==='wager')s.players.forEach((player,i)=>{
+    if(i===s.turn)return;
+    const score=document.createElement('div'),name=document.createElement('b'),amount=document.createElement('span');
+    name.textContent=player.name;amount.textContent=cash(player.score);score.append(name,amount);$('wager-opponents').append(score);
+  });
+  $('true-daily-double').hidden=s.phase!=='wager';$('true-daily-double').disabled=game.player.ai||game.player.score<=0;
+  $('true-daily-double').textContent=`TRUE DAILY DOUBLE${game.player.score>0?' / '+cash(game.player.score):''}`;
   resultAutoAllowed=outcome&&event!=='reveal';
   $('continue').hidden=!['result','rebound','round-end','final-pass','finished'].includes(s.phase);$('continue').textContent=s.phase==='finished'?'NEW GAME':s.phase==='round-end'?'NEXT ROUND':'CONTINUE';
   if(event==='start'||event==='round')cue('boardfill');if(event==='daily-double')cue('dailydouble');
   if(event==='correct')cue('Applause1');if(event==='incorrect')cue('SlightDisappointment1');if(event==='timeout')cue('timesup');if(event==='finish')cue('ApplauseCheer1');
   music(s.phase==='final-answer'?'ThinkMusic':s.phase==='finished'?'gameover':null);
   if(['reading','final-reading'].includes(s.phase)){
-    const delay=Math.max(2800,Math.min(12000,s.active.clue.question.split(/\s+/).length*230));seconds(delay/1000,()=>game.openBuzzers());
+    seconds(clueReadingSeconds(s.active.clue.question),()=>game.openBuzzers());
   }
   if(s.phase==='buzz'){
     seconds(10,()=>game.timeout());
@@ -80,14 +91,14 @@ function render(s,event){
     });
   }
   if(wager&&game.player.ai)later(1000,()=>game.wager(Math.max(s.phase==='wager'?1:0,Math.floor(game.maxWager()*.5))));
-  if(s.phase==='board'&&game.player.ai)later(1500,()=>{
+  if(s.phase==='board'&&game.player.ai&&!studio.inputLocked)later(1500,()=>{
     const cells=s.board.flatMap((c,column)=>c.played.map((played,row)=>({column,row,played}))).filter(c=>!c.played),cell=cells[Math.floor(Math.random()*cells.length)];game.select(cell.column,cell.row);
   });
   if(outcome)scheduleResult();
   if(s.phase==='final-pass'&&game.player.ai)later(2200,()=>game.next());
   requestAnimationFrame(arrange);
 }
-function lobby(){cancel();music(null);$('options').close();$('game-ui').hidden=true;$('lobby').hidden=false;studio.play('cam_animation_idle',null,true);try{$('resume').hidden=!localStorage.getItem(SAVE);}catch{$('resume').hidden=true;}}
+function lobby(){cancel();studio.categoryIntro.stop();music(null);$('options').close();$('game-ui').hidden=true;$('lobby').hidden=false;studio.play('cam_animation_idle',null,true);try{$('resume').hidden=!localStorage.getItem(SAVE);}catch{$('resume').hidden=true;}}
 function enter(){audio.activate();$('lobby').hidden=true;$('game-ui').hidden=false;}
 function preset(){const types={solo:['local','cpu','cpu'],single:['local','off','off'],local:['local','local','local']}[$('mode').value];if(types)types.forEach((type,i)=>{$(`type-${i}`).value=type;});}
 async function boot(){
@@ -108,6 +119,8 @@ async function boot(){
     $('setup').onsubmit=event=>{event.preventDefault();audio.activate();$('setup-error').textContent='';const players=[];for(let i=0;i<3;i++){const type=$(`type-${i}`).value;if(type!=='off')players.push({slot:i,name:$(`name-${i}`).value,ai:type==='cpu'});}try{studio.auto=true;$('auto').setAttribute('aria-pressed','true');game.start(players,{difficulty:$('difficulty').value});enter();arrange();}catch(error){$('setup-error').textContent=error.message;}};
     $('resume').onclick=()=>{enter();if(!game.restore(localStorage.getItem(SAVE))){lobby();$('setup-error').textContent='The saved show could not be restored.';}};
     $('wager-form').onsubmit=event=>{event.preventDefault();if(!game.player.ai)game.wager(Number($('wager').value));};
+    $('true-daily-double').onclick=()=>{audio.activate();if(!game.player.ai)game.trueDailyDouble();};
+    $('skip-categories').onclick=()=>studio.categoryIntro.stop(true);
     $('continue').onclick=()=>game.state.phase==='finished'?lobby():['result','rebound'].includes(game.state.phase)?continueResult():game.next();
     $('auto').onclick=()=>{studio.auto=!studio.auto;$('auto').setAttribute('aria-pressed',String(studio.auto));if(studio.auto)studio.follow(game.state);};
     document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{studio.auto=false;$('auto').setAttribute('aria-pressed','false');studio.cut(b.dataset.view);});
@@ -117,6 +130,7 @@ async function boot(){
     document.addEventListener('keydown',event=>{
       if(event.repeat||paused()||/INPUT|SELECT|TEXTAREA/.test(event.target.tagName))return;
       const key=event.key.toUpperCase(),s=game.state;
+      if(studio.inputLocked){if(key==='ENTER'){event.preventDefault();studio.categoryIntro.stop(true);}return;}
       if(s.phase==='board'&&!game.player.ai&&(/^ARROW(UP|DOWN|LEFT|RIGHT)$/.test(key)||key==='ENTER')){
         event.preventDefault();studio.cursor??={column:0,row:0};const c=studio.cursor;
         if(key==='ARROWLEFT')c.column=(c.column+5)%6;if(key==='ARROWRIGHT')c.column=(c.column+1)%6;
@@ -133,8 +147,15 @@ async function boot(){
       const due=[];for(const task of scheduled){task.remaining-=elapsed;if(task.remaining<=0)due.push(task);}scheduled=scheduled.filter(task=>task.remaining>0);
       const generation=scheduleGeneration;
       for(const task of due){if(generation!==scheduleGeneration)break;task.callback();}
-      if(clock){clock.remaining=Math.max(0,clock.remaining-elapsed/1000);$('clock').textContent=String(Math.ceil(clock.remaining));$('clock').hidden=!['buzz','answer','final-answer'].includes(game.state.phase);studio.update(game.state,clock.remaining,clock.total);if(clock.remaining===0){const callback=clock.callback;clock=null;callback();}}
-      else $('clock').hidden=true;
+      if(clock){
+        clock.remaining=Math.max(0,clock.remaining-elapsed/1000);$('clock').textContent=String(Math.ceil(clock.remaining));
+        const answering=['answer','final-answer'].includes(game.state.phase),visible=answering||game.state.phase==='buzz';
+        $('clock').hidden=!visible;$('response-timer').hidden=!visible;$('response-timer').dataset.answer=String(answering);
+        const count=answering?timerLightCount(clock.remaining,clock.total):0;
+        $('response-timer').querySelectorAll('[data-level]').forEach(light=>light.classList.toggle('lit',Number(light.dataset.level)<count));
+        studio.update(game.state,clock.remaining,clock.total);if(clock.remaining===0){const callback=clock.callback;clock=null;callback();}
+      }
+      else{$('clock').hidden=true;$('response-timer').hidden=true;}
     },50);
     document.addEventListener('visibilitychange',()=>{if(audio.context){if(document.hidden)audio.context.suspend();else audio.context.resume().catch(()=>{});}});
   }catch(error){console.error(error);$('load-status').textContent=`Could not open the studio: ${error.message}. Reload to retry.`;}

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {JeopardyGame,cash} from './game.js';
+import {JeopardyGame,cash,clueReadingSeconds,dailyDoubleWeights,placeDailyDoubles,timerLightCount} from './game.js';
 const content=JSON.parse(fs.readFileSync(new URL('./assets/content.json',import.meta.url)));
 const players=[{name:'Local',slot:0},{name:'CPU',slot:1,ai:true},{name:'Friend',slot:2}];
 function game(lineup=players){const g=new JeopardyGame(content,{random:()=>.4});g.start(lineup);return g;}
@@ -24,6 +24,49 @@ test('Fresh boards contain six unique source categories and 30 clues',()=>{
 test('Buzzers stay locked during reading and cannot be stolen during answering',()=>{
   const g=game();g.state.doubles=[];g.select(0,0);assert.equal(g.buzz(0),false);g.openBuzzers();assert.equal(g.buzz(1),true);assert.equal(g.buzz(0),false);
 });
+test('Reading time grows with clue length, preserving a short-clue minimum',()=>{
+  assert.equal(clueReadingSeconds('One word'),3);
+  assert.equal(clueReadingSeconds(''),3);
+  assert.equal(clueReadingSeconds(' \n One   word\t'),3);
+  assert.equal(clueReadingSeconds(Array(15).fill('word').join(' ')),6);
+  assert.equal(clueReadingSeconds(Array(27).fill('word').join(' ')),10);
+  assert.ok(clueReadingSeconds(Array(60).fill('word').join(' '))>clueReadingSeconds(Array(40).fill('word').join(' ')),'Long clues hit a fixed timer cap');
+});
+test('Daily Double roulette follows each supplied heatmap cell and never repeats a clue',()=>{
+  for(const round of [1,2]){
+    const weights=dailyDoubleWeights[round],total=weights.flat().reduce((a,b)=>a+b,0);let cumulative=0;
+    for(let row=0;row<5;row++)for(let column=0;column<6;column++){
+      const weight=weights[row][column];if(weight>0){
+        const picks=placeDailyDoubles(round,()=> (cumulative+weight/2)/total);
+        assert.equal(picks[0],column*5+row);assert.equal(new Set(picks).size,round);
+      }
+      cumulative+=weight;
+    }
+    const counts=Array(30).fill(0);let seed=12345;
+    const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2**32;};
+    for(let i=0;i<100000;i++){
+      const picks=placeDailyDoubles(round,random);assert.equal(picks.length,round);assert.equal(new Set(picks).size,round);counts[picks[0]]++;
+    }
+    for(let row=0;row<5;row++)for(let column=0;column<6;column++)assert.ok(Math.abs(counts[column*5+row]/1000-weights[row][column]/total*100)<.25,`Round ${round} cell ${column},${row} distribution drifted`);
+  }
+  assert.deepEqual(dailyDoubleWeights[1][0],[.02,0,0,0,.02,.02]);
+  assert.deepEqual(dailyDoubleWeights[2][3],[7.71,5.09,7.26,6.48,6.95,4.75]);
+});
+test('Five paired timer-light steps extinguish from the edges at each interval',()=>{
+  for(const total of [10,30])for(let step=0;step<=5;step++)assert.equal(timerLightCount(total*(5-step)/5,total),5-step);
+  assert.equal(timerLightCount(-1,10),0);assert.equal(timerLightCount(20,10),5);assert.equal(timerLightCount(1,0),0);
+});
+test('Category introduction and board fonts retain recovered Flash definitions',()=>{
+  const intro=JSON.parse(fs.readFileSync(new URL('./assets/presentation/gui/category-timeline.json',import.meta.url)));
+  assert.equal(intro.fps,30);assert.equal(intro.screen.labels.lPlayIn,11);assert.equal(intro.screen.labels.lPlayOut,121);
+  assert.equal(intro.screen.frames[35].x,0);assert.equal(intro.screen.frames.at(-1).x,-1);
+  assert.equal(intro.graphic.labels.lFadeIn,25);assert.equal(intro.graphic.frames[38].alpha,0);
+  const fonts=fs.readFileSync(new URL('./fonts.css',import.meta.url),'utf8');
+  assert.match(fonts,/font-family:'Jeopardy Score';src:url\('assets\/presentation\/tileboard\/15_Swiss911 UCm BT\.woff'/);
+  assert.match(fonts,/font-family:'Jeopardy Category';src:url\('assets\/presentation\/tileboard\/37_Swiss921 BT\.woff'/);
+  const timer=JSON.parse(fs.readFileSync(new URL('./assets/presentation/podiums/timer-layout.json',import.meta.url)));
+  assert.equal(timer.lights.length,9);assert.equal(timer.lights.filter(light=>light.level===0).length,1,'Native shared center light changed');
+});
 test('Correct response awards value and gives board control to its respondent',()=>{
   const g=game();g.state.doubles=[];g.select(0,4);g.openBuzzers();g.buzz(2);g.answer(correct(g));assert.equal(g.state.players[2].score,1000);assert.equal(g.state.chooser,2);g.next();assert.equal(g.state.phase,'board');assert.equal(g.state.turn,2);assert.equal(g.select(0,4),false);
 });
@@ -41,6 +84,19 @@ test('Daily Double bounds, sole respondent and score arithmetic',()=>{
 });
 test('Daily Double accepts a one-dollar wager, including from a negative score',()=>{
   const g=game();g.player.score=-200;g.state.doubles=[0];g.select(0,0);assert.equal(g.wager(1),true);g.openBuzzers();g.answer(correct(g));assert.equal(g.player.score,-199);
+});
+test('True Daily Double wagers the full positive score, not the house minimum',()=>{
+  for(const score of [1,200,1500]){
+    const g=game();assert.equal(g.trueDailyDouble(),false);g.player.score=score;g.state.doubles=[0];g.select(0,0);
+    assert.equal(g.trueDailyDouble(),true);assert.equal(g.state.phase,'reading');assert.equal(g.state.active.value,score);
+    assert.equal(g.trueDailyDouble(),false);g.openBuzzers();g.answer(correct(g));assert.equal(g.player.score,score*2);
+  }
+  for(const score of [0,-200]){
+    const g=game();g.player.score=score;g.state.doubles=[0];g.select(0,0);
+    assert.equal(g.trueDailyDouble(),false);assert.equal(g.state.phase,'wager');assert.equal(g.wager(1),true);
+  }
+  const g=game();g.player.score=1500;g.state.doubles=[0];g.select(0,0);g.trueDailyDouble();g.openBuzzers();g.timeout();assert.equal(g.player.score,0);
+  g.player.score=1000;g.startFinal();assert.equal(g.trueDailyDouble(),false);
 });
 test('CPU result retains the actual selected response, not just the correct answer',()=>{
   const g=game();g.state.doubles=[];g.select(0,0);g.openBuzzers();g.buzz(1);

@@ -111,5 +111,7 @@ if __name__=='__main__':
     info=content();cameras=stage();flash();sounds=audio()
     from recover_cameras import recover
     recover()
+    from recover_presentation import recover as recover_presentation
+    recover_presentation()
     write(OUT/'manifest.json',dict(game='NPUA80227',content=info,cameras=cameras,audio=sounds))
     print('Recovered',info,'cameras',cameras,'sounds',len(sounds),flush=True)

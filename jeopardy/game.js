@@ -1,4 +1,36 @@
 export const cash=n=>`${n<0?'-':''}$${Math.abs(n).toLocaleString('en-US')}`;
+export function clueReadingSeconds(question){
+  const words=String(question??'').trim().split(/\s+/).filter(Boolean).length;
+  // Browser reading estimate, not a recovered retail host-delivery timer.
+  return Math.max(3,1+words/3);
+}
+export const timerLightCount=(remaining,total)=>total>0?Math.max(0,Math.min(5,Math.ceil(5*remaining/total))):0;
+// Row-major percentages transcribed from the user's two supplied TV heatmaps.
+export const dailyDoubleWeights={
+  1:[
+    [.02,0,0,0,.02,.02],
+    [1.77,1.08,1.45,1.10,1.37,.79],
+    [5.16,3.19,4.45,4.55,4.33,3.24],
+    [7.77,5.03,6.80,6.86,5.70,4.20],
+    [6.58,3.90,5.72,6.27,5.26,3.39]
+  ],
+  2:[
+    [.04,.03,.04,.03,.03,.03],
+    [2.23,1.24,1.80,1.59,1.77,1.26],
+    [6.06,3.77,5.22,5.01,4.89,3.65],
+    [7.71,5.09,7.26,6.48,6.95,4.75],
+    [4.72,2.69,4.35,4.21,3.93,3.20]
+  ]
+};
+export function placeDailyDoubles(round,random=Math.random){
+  const cells=dailyDoubleWeights[round].flatMap((row,r)=>row.map((weight,c)=>({index:c*5+r,weight}))),chosen=[];
+  for(let n=0;n<round;n++){
+    let target=random()*cells.reduce((sum,cell)=>sum+cell.weight,0),i=0;
+    for(;i<cells.length-1;i++){if(target<cells[i].weight)break;target-=cells[i].weight;}
+    chosen.push(cells[i].index);cells.splice(i,1);
+  }
+  return chosen;
+}
 export function shuffled(items,random=Math.random){
   const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;
 }
@@ -17,8 +49,7 @@ export class JeopardyGame{
     if(pool.length<6)throw Error('Not enough original categories for a full board.');
     s.board=shuffled(pool,this.random).slice(0,6).map(c=>({id:c.id,name:c.name,clues:c.clues.slice(0,5),played:[false,false,false,false,false]}));
     s.usedCategories.push(...s.board.map(c=>c.id));
-    const cells=shuffled(Array.from({length:30},(_,i)=>i),this.random);
-    s.doubles=cells.slice(0,s.round===1?1:2);s.active=null;s.phase='board';
+    s.doubles=placeDailyDoubles(s.round,this.random);s.active=null;s.phase='board';
   }
   select(column,row){
     const s=this.state;if(s.phase!=='board'||!Number.isInteger(column)||!Number.isInteger(row)||!s.board[column]||row<0||row>4||s.board[column].played[row])return false;
@@ -28,6 +59,7 @@ export class JeopardyGame{
     this.emit(s.active.double?'daily-double':'clue');return true;
   }
   maxWager(){return this.state.phase==='final-wager'?Math.max(0,this.player.score):Math.max(this.player.score,this.state.round*1000);}
+  trueDailyDouble(){return this.state.phase==='wager'&&this.player.score>0?this.wager(this.player.score):false;}
   wager(amount){
     const s=this.state;if(!['wager','final-wager'].includes(s.phase)||!Number.isInteger(amount)||amount<0||amount>this.maxWager()||(s.phase==='wager'&&amount<1))return false;
     if(s.phase==='final-wager'){

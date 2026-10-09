@@ -29,6 +29,17 @@ try{
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
   page.on('console',m=>{if(/shader error|GL_INVALID|feedback loop/i.test(m.text()))errors.push(m.text());});
   await page.goto(url);await page.locator('#lobby').waitFor({state:'visible',timeout:120000});
+  await page.evaluate(()=>{
+    const audio=window.jeopardy3d.audio,play=audio.play.bind(audio);window.qaCues=[];
+    audio.play=(id,...args)=>{window.qaCues.push(id);return play(id,...args);};
+    window.qaCategories=[];window.qaSlideDirections={incoming:false,outgoing:false};
+    const intro=window.jeopardy3d.studio.categoryIntro,draw=intro.drawCard.bind(intro);
+    intro.drawCard=(column,...args)=>{
+      if(intro.stage==='text'&&!window.qaCategories.includes(column))window.qaCategories.push(column);
+      if(intro.stage==='slide'){if(args[0]>0&&args[0]<1)window.qaSlideDirections.incoming=true;if(args[0]<0&&args[0]>-1)window.qaSlideDirections.outgoing=true;}
+      return draw(column,...args);
+    };
+  });
   await page.screenshot({path:'jeopardy/qa/lobby.png'});
   await page.selectOption('#mode','single');await page.click('#setup button[type=submit]');
   await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
@@ -36,6 +47,14 @@ try{
   const startPose=await page.evaluate(()=>window.jeopardy3d.studio.camera.position.toArray());await page.waitForTimeout(500);
   const movedPose=await page.evaluate(()=>window.jeopardy3d.studio.camera.position.toArray());assert.notDeepEqual(startPose,movedPose,'Recovered intro camera did not animate');
   await page.waitForFunction(()=>!window.jeopardy3d.studio.motion,{timeout:10000});
+  await page.waitForFunction(()=>window.jeopardy3d.studio.categoryIntro.stage==='text');
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.inputLocked),true);
+  await page.keyboard.press(' ');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'board');
+  await page.screenshot({path:'jeopardy/qa/category-intro.png'});
+  await page.waitForFunction(()=>!window.jeopardy3d.studio.categoryIntro.active,{timeout:25000});
+  assert.deepEqual(await page.evaluate(()=>window.qaCategories),[0,1,2,3,4,5]);
+  assert.equal(await page.evaluate(()=>window.qaCues.filter(id=>id==='CategoryReveal').length),6);
+  assert.deepEqual(await page.evaluate(()=>window.qaSlideDirections),{incoming:true,outgoing:true});
   assert.equal(await page.locator('#scores').count(),0);
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_clue_board');
   await page.screenshot({path:'jeopardy/qa/board.png'});
@@ -49,6 +68,9 @@ try{
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.hover),null);
   await clickClue(page,Math.floor(cell/5),cell%5);
   await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='reading');
+  const readingTime=await page.evaluate(async()=>{const {clueReadingSeconds}=await import('./game.js?v=20261009-presentation3');return {total:window.jeopardy3d.clock.total,expected:clueReadingSeconds(window.jeopardy3d.game.clue.question)};});
+  assert.equal(readingTime.total,readingTime.expected);
+  await page.keyboard.press(' ');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');
   assert.equal(await page.locator('#console').evaluate(e=>e.classList.contains('takeover')),true);
   await page.waitForTimeout(350);
   await page.screenshot({path:'jeopardy/qa/clue.png'});
@@ -57,12 +79,23 @@ try{
   assert.equal(await page.locator('#clue-panel').isVisible(),true);
   assert.ok(await page.locator('#clue-panel').evaluate(e=>e.getBoundingClientRect().top<100),'Answering clue is not at the top');
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_podiums_all_players_answering');
+  await page.waitForFunction(()=>document.querySelectorAll('#response-timer .lit').length===10);
+  assert.equal(await page.locator('#response-timer').isVisible(),true);
+  const timerPixels=await page.evaluate(()=>{
+    const s=window.jeopardy3d.studio,snapshot=()=>Array.from(s.podiums.ctx.getImageData(0,0,341,15).data);
+    s.update(s.state,10,10);const full=snapshot();s.update(s.state,4,10);const partial=snapshot();s.update(s.state,0,10);const empty=snapshot();s.update(s.state,10,10);return {full,partial,empty};
+  });
+  const redPixels=data=>data.filter((v,i)=>i%4===0&&v>180&&data[i+1]<70&&data[i+2]<70).length;
+  assert.ok(redPixels(timerPixels.full)>redPixels(timerPixels.partial));assert.ok(redPixels(timerPixels.partial)>redPixels(timerPixels.empty));
+  await page.waitForFunction(()=>document.querySelectorAll('#response-timer .lit').length===8,{timeout:5000});
+  assert.ok(Number(await page.locator('#clock').textContent())<=8);
   await page.screenshot({path:'jeopardy/qa/answer.png'});
   const correct=await page.evaluate(()=>window.jeopardy3d.game.state.choices.indexOf(window.jeopardy3d.game.clue.answer));
   await page.locator('#answers button').nth(correct).click();
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.players[0].score),(cell%5+1)*200);
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_podiums_all_players_answering');
   assert.equal(await page.locator('#clue-panel').isVisible(),false);
+  assert.equal(await page.locator('#response-timer').isVisible(),false);
   await page.screenshot({path:'jeopardy/qa/result.png'});
   assert.equal(await page.locator('#continue').isVisible(),true);
   await page.waitForTimeout(3200);
@@ -152,15 +185,18 @@ try{
   assert.equal(await page.locator('#response-category').textContent(),await page.evaluate(()=>window.jeopardy3d.game.state.active.category));
   assert.ok((await page.locator('#wager-score').textContent()).includes(`SCORE $${(cell%5+1)*200}`));
   assert.equal(await page.getAttribute('#wager','min'),'1');
+  assert.equal(await page.locator('#wager-opponents').isVisible(),false);
+  assert.equal(await page.locator('#true-daily-double').isEnabled(),true);
   assert.equal(await page.locator('#console').evaluate(e=>getComputedStyle(e).backgroundRepeat),'no-repeat');
   assert.equal(await page.locator('#answers').isVisible(),false,'Empty answer panel covers Daily Double');
   await page.screenshot({path:'jeopardy/qa/mobile-daily-double.png'});
-  await page.fill('#wager','1');await page.click('#wager-form button');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='answer',{timeout:15000});
+  await page.fill('#wager','1');await page.click('#wager-form button[type=submit]');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='answer',{timeout:15000});
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'answer');
   await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   // Fixture skips 60 clues; wagers and Final response still use real UI controls.
   await page.evaluate(()=>window.jeopardy3d.game.startFinal());
-  await page.fill('#wager','0');await page.click('#wager-form button');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='final-answer',{timeout:15000});
+  await page.fill('#wager','0');await page.click('#wager-form button[type=submit]');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='final-answer',{timeout:15000});
+  assert.equal(await page.locator('#true-daily-double').isVisible(),false);
   assert.equal(await page.evaluate(()=>window.jeopardy3d.clock.total),30);
   await page.screenshot({path:'jeopardy/qa/mobile-final.png'});
   const finalCorrect=await page.evaluate(()=>window.jeopardy3d.game.state.choices.indexOf(window.jeopardy3d.game.clue.answer));
@@ -169,12 +205,26 @@ try{
   await page.click('#continue');await page.click('#setup button[type=submit]');
   assert.equal(await page.getAttribute('#auto','aria-pressed'),'true');
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.motion?.track.name),'cam_animation_intro_to_clueboard');
+  await page.click('#skip-categories');assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.inputLocked),false);
   await page.click('#settings');await page.click('#new-game');await page.selectOption('#mode','solo');await page.click('#setup button[type=submit]');
+  await page.click('#skip-categories');
   await page.waitForFunction(()=>!window.jeopardy3d.studio.motion);
+  await page.evaluate(()=>{const g=window.jeopardy3d.game;g.player.score=0;g.state.doubles=[0];g.select(0,0);});
+  assert.equal(await page.locator('#true-daily-double').isEnabled(),false);
+  await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
+  await page.evaluate(()=>{const g=window.jeopardy3d.game;[200,-100,1500].forEach((score,i)=>g.state.players[i].score=score);g.state.doubles=[1];g.select(0,1);});
+  assert.equal(await page.locator('#wager-opponents').isVisible(),true);
+  assert.deepEqual(await page.locator('#wager-opponents span').allTextContents(),['-$100','$1,500']);
+  assert.deepEqual(await page.locator('#wager-opponents b').allTextContents(),['Kelly','Jason']);
+  assert.equal(await page.locator('#true-daily-double').textContent(),'TRUE DAILY DOUBLE / $200');
+  await page.screenshot({path:'jeopardy/qa/mobile-true-daily-double.png'});
+  await page.click('#true-daily-double');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.active.value),200);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');assert.equal(await page.locator('#wager-opponents').isVisible(),false);
+  await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   // Force only the buzzer winner; the real CPU scheduler chooses and highlights its response.
   await page.evaluate(()=>{
     window.qaRandom=Math.random;Math.random=()=>.99;
-    const g=window.jeopardy3d.game;g.state.doubles=[];g.select(0,0);g.openBuzzers();g.buzz(1);
+    const g=window.jeopardy3d.game;g.state.doubles=[];g.select(0,2);g.openBuzzers();g.buzz(1);
     window.qaHighlightSteps=[];
     new MutationObserver(()=>{const i=[...document.querySelectorAll('#answers button')].findIndex(b=>b.classList.contains('cpu-selected'));if(i>=0&&!window.qaHighlightSteps.includes(i))window.qaHighlightSteps.push(i);}).observe(document.getElementById('answers'),{subtree:true,attributes:true,attributeFilter:['class']});
   });
@@ -191,6 +241,14 @@ try{
   await page.waitForTimeout(1500);assert.equal(await page.evaluate(()=>document.getElementById('console').classList.contains('board-beat')),false,'Three-second timer cut too early');
   await page.waitForFunction(()=>document.getElementById('console').classList.contains('board-beat'));
   assert.equal(await page.evaluate(()=>localStorage.getItem('jeopardy-auto-results')),'true');
+  // Skip the rest of the board to exercise the actual Double Jeopardy transition.
+  await page.evaluate(()=>{const g=window.jeopardy3d.game;g.state.board.forEach(c=>c.played.fill(true));g.state.phase='result';g.next();g.next();});
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.round),2);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.doubles.length),2);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.inputLocked),true);
+  await page.waitForFunction(()=>window.jeopardy3d.studio.categoryIntro.stage==='text',{timeout:15000});
+  await page.waitForTimeout(600);await page.screenshot({path:'jeopardy/qa/mobile-double-category-intro.png'});
+  await page.click('#skip-categories');assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.inputLocked),false);
   await page.reload();await page.locator('#lobby').waitFor({state:'visible',timeout:120000});assert.equal(await page.locator('#auto-results').isChecked(),true);
-  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, manual Continue, saved three-second timer, frame-synchronized captures on three floor levels, CPU highlights and 33 audio decodes passed.');
+  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, sequential category slides and six sound cues, both round intros, clue-length delays, True Daily Double/opponent scores, paired response/podium timers, frame-synchronized floor reflections, CPU highlights and 33 audio decodes passed.');
 }finally{await browser.close();}

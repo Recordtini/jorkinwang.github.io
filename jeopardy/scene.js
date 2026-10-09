@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {cash} from './game.js?v=20261009-flow2';
+import {cash,timerLightCount} from './game.js?v=20261009-presentation3';
+import {CategoryIntro} from './categories.js?v=20261009-presentation3';
 import {StudioReflections} from './reflections.js?v=20261009-reflection-sync';
 
 function surface(width,height){
@@ -44,6 +45,7 @@ export class JeopardyStudio{
     this.renderer.setAnimationLoop(()=>{
       const now=performance.now(),dt=Math.min((now-this.lastFrame)/1000,.1);this.lastFrame=now;
       if(!document.hidden&&!this.paused)this.animateCamera(dt);
+      if(!document.hidden&&!this.paused)this.categoryIntro?.tick(dt);
       if(this.controls.enabled)this.controls.update();this.renderer.render(this.scene,this.camera);
     });
   }
@@ -75,6 +77,10 @@ export class JeopardyStudio{
     const load=path=>new THREE.ImageLoader().loadAsync('assets/presentation/'+path);
     [this.logo,this.doubleLogo,this.finalLogo,this.podiumFinalLogo,this.tileArt]=await Promise.all([
       load('tileboard/tileboard_i4.png'),load('tileboard/tileboard_i7.png'),load('tileboard/tileboard_ic.png'),load('podiums/podiums_i17.png'),load('tileboard/tile-bevel.svg')]);
+    const [timeline,timerLayout,background,border,single,double,timerLight]=await Promise.all([
+      fetch('assets/presentation/gui/category-timeline.json').then(r=>r.json()),fetch('assets/presentation/podiums/timer-layout.json').then(r=>r.json()),
+      load('gui/category-background.svg'),load('gui/category-border.svg'),load('gui/gui_i5.png'),load('gui/gui_i8.png'),load('podiums/timer-light.svg')]);
+    this.timerLayout=timerLayout;this.timerLight=timerLight;this.categoryIntro=new CategoryIntro(this,document.getElementById('category-intro'),timeline,{background,border,single,double});
     this.update(null);this.reflections=new StudioReflections(this);this.cut('show');
     this.canvas.addEventListener('pointerdown',event=>{this.down={x:event.clientX,y:event.clientY};});
     const pick=event=>{
@@ -158,7 +164,7 @@ export class JeopardyStudio{
     }else{
       state.board.forEach((category,column)=>{
         ctx.fillStyle='#070b90';ctx.fillRect(column*240+4,0,232,114);
-        wrappedText(ctx,category.name,column*240+120,57,185,95,'Jeopardy Category',35);
+        if(!this.categoryIntro?.active||column<this.categoryIntro.revealed)wrappedText(ctx,category.name,column*240+120,57,185,95,'Jeopardy Category',35);
         for(let row=0;row<5;row++){
           const x=column*240+4,y=140+row*180;
           ctx.drawImage(this.tileArt,x,y,232,176);
@@ -166,8 +172,10 @@ export class JeopardyStudio{
             ctx.fillStyle='rgba(180,211,255,0.16)';ctx.fillRect(x+15,y+15,202,148);
           }
           if(!category.played[row]){
-            ctx.font='90px "Jeopardy Score"';ctx.fillStyle='#e8b14c';ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.shadowColor='#000';ctx.shadowOffsetX=3;ctx.shadowOffsetY=5;ctx.fillText(cash((row+1)*200*state.round),x+116,y+88,198);ctx.shadowOffsetX=ctx.shadowOffsetY=0;
+            const value=String((row+1)*200*state.round);ctx.font='90px "Jeopardy Score"';const amountWidth=ctx.measureText(value).width;
+            ctx.font='72px "Jeopardy Score"';const dollarWidth=ctx.measureText('$').width,left=x+116-(amountWidth+dollarWidth+5)/2;
+            ctx.fillStyle='#fba951';ctx.textAlign='left';ctx.textBaseline='middle';ctx.shadowColor='#000';ctx.shadowOffsetX=3;ctx.shadowOffsetY=5;
+            ctx.fillText('$',left,y+88);ctx.font='90px "Jeopardy Score"';ctx.fillText(value,left+dollarWidth+5,y+88);ctx.shadowOffsetX=ctx.shadowOffsetY=0;
           }
           if(this.cursor&&this.cursor.column===column&&this.cursor.row===row){ctx.strokeStyle='#ffdf70';ctx.lineWidth=7;ctx.strokeRect(x+4,y+4,224,168);}
         }
@@ -187,8 +195,8 @@ export class JeopardyStudio{
       const selected=['answer','final-answer'].includes(state.phase)&&state.players[state.turn].slot===slot;
       if(selected){
         p.fillStyle='#f53622';p.fillRect(x+52,27,242,6);
-        const count=remaining===null?5:Math.ceil(5*remaining/total);
-        for(let i=0;i<count;i++){p.fillRect(x+i*37,4,33,9);p.fillRect(x+170+(4-i)*34,4,30,9);}
+        const count=remaining===null?5:timerLightCount(remaining,total),layout=this.timerLayout;
+        if(layout)for(const light of layout.lights)if(light.level<count)p.drawImage(this.timerLight,x+light.x*layout.scale,light.y*layout.scale,layout.width*light.scaleX*layout.scale,layout.height*layout.scale);
       }
     }
     this.podiums.texture.needsUpdate=true;

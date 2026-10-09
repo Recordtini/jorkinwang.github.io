@@ -56,6 +56,18 @@ header{pointer-events:none;justify-content:flex-end}header nav{pointer-events:au
 #console.takeover.outcome .status{max-width:1000px}
 #console.board-beat #response,#console.board-beat .status{visibility:hidden}
 #wager-score{order:1;text-align:center;font:clamp(24px,3vw,40px) 'Jeopardy Podium',serif;text-shadow:2px 3px #000;margin:0 0 10px;color:#ffd76a}
+#wager-opponents{order:1;display:flex;justify-content:center;gap:16px 32px;flex-wrap:wrap;margin:0 0 12px;text-align:center;text-shadow:2px 3px #000}
+#wager-opponents b{display:block;font:12px 'Jeopardy UI',Verdana,sans-serif;margin-bottom:4px}
+#wager-opponents span{font:26px 'Jeopardy Score',Georgia,serif}
+#category-intro{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000277;z-index:5}
+#skip-categories{position:absolute;bottom:16px;right:16px;z-index:9;background:#061049cc}
+#response-timer{display:inline-flex;align-items:center;justify-content:center;gap:12px;order:-1;width:100%;font:42px 'Jeopardy UI',Verdana,sans-serif}
+#console.takeover .status:has(#response-timer:not([hidden])){flex-wrap:wrap}
+#console.takeover #response-timer #clock{margin:0;min-width:44px;font:42px 'Jeopardy UI',Verdana,sans-serif;color:white}
+.timer-bank{display:flex;gap:4px}
+.timer-bank i{width:clamp(10px,2vw,22px);height:9px;background:#350c11;border:1px solid #5d1b20}
+.timer-bank i.lit{background:#fc222e;border-color:#ff9a99;box-shadow:0 0 8px #fb172b80}
+#response-timer:not([data-answer=true]) .timer-bank{display:none}
 #console.takeover.daily-double #response-category{position:absolute;top:75px;left:20px;right:20px;font-size:clamp(28px,4vw,60px)}
 #console.takeover.daily-double .status{display:none}
 #console.takeover.daily-double{background-color:#081248;background-repeat:no-repeat;background-position:center 35%;background-size:cover}
