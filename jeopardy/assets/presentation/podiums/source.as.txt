@@ -1,0 +1,307 @@
+function sendMessageToSWF(inSwf, swfFunction, inTerm0, inTerm1, inTerm2, inTerm3, inTerm4)
+{
+   var _loc1_ = swfFunction + "|" + inTerm0 + "|" + inTerm1 + "|" + inTerm2 + "|" + inTerm3 + "|" + inTerm4;
+   fscommand("postSWFCommand1",inSwf + " handleMessageFromSWF " + _loc1_);
+}
+function convertStringToNumber(inText)
+{
+   if(Number(inText) != NaN)
+   {
+      inText = Number(inText);
+   }
+   return inText;
+}
+function handleMessageFromSWF(inMessage)
+{
+   var arrMessage = new Array();
+   arrMessage = inMessage.split("|");
+   var oFunction = eval(arrMessage[0]);
+   var oIndex = 1;
+   while(oIndex < arrMessage.length)
+   {
+      arrMessage[oIndex] = convertStringToNumber(arrMessage[oIndex]);
+      oIndex++;
+   }
+   oFunction(arrMessage[1],arrMessage[2],arrMessage[3],arrMessage[4],arrMessage[5]);
+}
+function positionText(inObject, inOffset)
+{
+   inObject._x = 0;
+   var _loc4_ = 120;
+   var _loc2_ = inObject.tText.textWidth;
+   var _loc3_ = 1;
+   if(_loc2_ > _loc4_)
+   {
+      _loc3_ = _loc4_ / _loc2_;
+   }
+   inObject.tText._xscale = 100 * _loc3_;
+   inObject.tText.autoSize = "left";
+   inObject.tText._x = - _loc2_ / 2 * _loc3_;
+   inObject.tText._y = - inObject.tText.textHeight / 2 + inOffset;
+}
+function podiumsTRACE(strText)
+{
+   if(s_bEnableTrace)
+   {
+      fscommand("podiumsTRACE " + strText,"");
+      trace(strText);
+   }
+}
+function soeEnableTrace(bEnable)
+{
+   s_bEnableTrace = bEnable;
+}
+function init_podiums()
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_podiums: _global.gfxExtensions " + _global.gfxExtensions);
+   initPodiumArray();
+   UpdateTimerBar(0);
+   UpdateTimerBar(1);
+   UpdateTimerBar(2);
+   if(!_global.gfxExtensions)
+   {
+      startListeners();
+      initPodiums(1);
+      setPodiumScore(1,12500);
+      setPodiumName(0,"Player 1",0);
+      setPodiumName(1,"Player 2",1);
+      setPodiumName(2,"Player 3",2);
+      setPodiumScore(0,-4500);
+      setPodiumScore(2,-500);
+      setPodiumDeselected(0);
+      setPodiumSelected(1);
+      setPodiumSelected(2);
+      setPodiumDeselected(2);
+      startPodiumTimer(1,5);
+   }
+}
+function initPodiums(inRoundId)
+{
+   setGameRound(inRoundId);
+   setBackground();
+}
+function podiumData(nIndex)
+{
+   return _root.g_mPodiumArray[nIndex];
+}
+function setGameRound(inRoundId)
+{
+   switch(inRoundId)
+   {
+      case 0:
+      case -1:
+         g_strGameRound = "Jeopardy";
+         break;
+      case 1:
+         g_strGameRound = "DoubleJeopardy";
+         break;
+      case 2:
+         g_strGameRound = "FinalJeopardy";
+      default:
+         return;
+   }
+}
+function initPodiumArray()
+{
+   _root.g_mPodiumArray = new Array();
+   var _loc3_ = 0;
+   var _loc4_;
+   while(_loc3_ < 3)
+   {
+      _loc4_ = this["iPodium" + _loc3_];
+      _root.g_mPodiumArray.push(_loc4_);
+      _loc3_ = _loc3_ + 1;
+   }
+}
+function setBackground()
+{
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < 3)
+   {
+      _loc2_ = podiumData(_loc1_);
+      _loc2_.iName.gotoAndPlay("l" + g_strGameRound);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function setPodiumScore(inPodium, inScore)
+{
+   var _loc1_ = inScore;
+   var _loc3_ = podiumData(inPodium);
+   if(inScore < 0)
+   {
+      _loc3_.iScore.gotoAndPlay("lNegative");
+   }
+   else
+   {
+      _loc3_.iScore.gotoAndPlay("lPositive");
+   }
+   _loc1_ = "$" + inScore;
+   var _loc2_ = _loc1_.length;
+   var _loc6_;
+   var _loc5_;
+   if(_loc2_ > 4 && inScore > 0 || _loc2_ > 5 && inScore < 0)
+   {
+      _loc6_ = _loc1_.slice(0,_loc2_ - 3);
+      _loc5_ = _loc1_.slice(_loc2_ - 3,_loc2_);
+      _loc1_ = _loc6_ + "," + _loc5_;
+   }
+   _loc3_.iScore.tText.text = _loc1_;
+}
+function setPodiumName(inPodium, inName, inFontStyle)
+{
+   var _loc1_ = podiumData(inPodium);
+   _loc1_.iName.iText.strText = inName;
+   _loc1_.iName.iText.gotoAndPlay("lStyleHide");
+   _loc1_.iName.iText.gotoAndPlay("lStyle" + inFontStyle);
+   podiumsTRACE("oPodium: " + _loc1_);
+   podiumsTRACE("setPodiumName: " + _loc1_.iName.iText.strText);
+}
+function startPodiumTimer(inPodium, inTime)
+{
+   endPodiumTimer(inPodium);
+   podiumsTRACE("startPodiumTimer()... starting the timer");
+   m_iActivePodium = inPodium;
+   togglePodiumTimer(m_iActivePodium,true);
+   podiumsTRACE("time interval: " + inTime / m_iTimerCounter);
+   m_iTimerIntervalID = setInterval(onUpdateTimer,inTime / m_iTimerCounter * 1000);
+}
+function endPodiumTimer(inPodium)
+{
+   if(m_iTimerIntervalID != 0)
+   {
+      podiumsTRACE("endPodiumTimer: m_iTimerIntervalID " + m_iTimerIntervalID);
+      clearInterval(m_iTimerIntervalID);
+      m_iTimerIntervalID = 0;
+      togglePodiumTimer(m_iActivePodium,false);
+   }
+}
+function togglePodiumTimer(nPodium, bOn)
+{
+   m_iTimerCounter = !bOn ? 0 : 5;
+   UpdateTimerBar(nPodium);
+}
+function onUpdateTimer()
+{
+   podiumsTRACE("onUpdateTimer: m_iTimerCounter " + m_iTimerCounter);
+   m_iTimerCounter--;
+   UpdateTimerBar(m_iActivePodium);
+   if(m_iTimerCounter <= 0)
+   {
+      endPodiumTimer(m_iActivePodium);
+   }
+}
+function UpdateTimerBar(inTimerBar)
+{
+   var _loc3_ = podiumData(inTimerBar);
+   var _loc2_ = _loc3_.iTimerBar;
+   var _loc1_ = 0;
+   while(_loc1_ < 5)
+   {
+      if(_loc1_ < m_iTimerCounter)
+      {
+         _loc2_["iTimerLightL" + _loc1_]._visible = true;
+         _loc2_["iTimerLightR" + _loc1_]._visible = true;
+      }
+      else
+      {
+         _loc2_["iTimerLightL" + _loc1_]._visible = false;
+         _loc2_["iTimerLightR" + _loc1_]._visible = false;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function setPodiumSelected(inPodium)
+{
+   if(inPodium != -1)
+   {
+      podiumData(inPodium).gotoAndPlay("lBuzzedIn");
+      togglePodiumTimer(inPodium,true);
+   }
+}
+function setPodiumDeselected(inPodium)
+{
+   if(inPodium != -1)
+   {
+      togglePodiumTimer(inPodium,false);
+      podiumData(inPodium).gotoAndPlay("lReady");
+   }
+}
+function setText(inObject, inText)
+{
+   inObject.tText.text = inText;
+}
+function handleKeyEnter()
+{
+   handleSkip();
+}
+function stopListeners()
+{
+}
+function startListeners()
+{
+   var _loc1_ = new Object();
+   _loc1_.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+            handleKeyEnter();
+            break;
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(_loc1_);
+   var _loc2_ = new Object();
+   _loc2_.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(_loc2_);
+}
+var g_strGameRound = "Jeopardy";
+var g_mPodiumArray;
+var m_iTimerIntervalID = 0;
+var m_iTimerCounter = 0;
+var m_iActivePodium;
+var s_bEnableTrace = true;
+init_podiums();
+stop();
+
+stop();
+
+_root.positionText(iNameStyle0,0);
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();

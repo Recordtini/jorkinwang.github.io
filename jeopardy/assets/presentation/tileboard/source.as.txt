@@ -1,0 +1,626 @@
+function tileboardTRACE(strText)
+{
+   if(s_bEnableTrace)
+   {
+      fscommand("tileboardTRACE " + strText,"");
+      trace(strText);
+   }
+}
+function soeEnableTrace(bEnable)
+{
+   s_bEnableTrace = bEnable;
+}
+function positionText(inObject, inOffset)
+{
+   inObject.tText._y = - inObject.tText.textHeight / 2 + inObject._height / 2 + inOffset;
+}
+function positionFinalCategoryText(inObject, inOffset)
+{
+   inObject.tText._y = - inObject.tText.textHeight / 2 + 150 + inOffset;
+}
+function init_tileboard()
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_tileboard: _global.gfxExtensions " + _global.gfxExtensions);
+   handleSetBoardControl(false);
+   if(!_global.gfxExtensions)
+   {
+      initTileBoard(1);
+      doShowTiles();
+      doShowCategories();
+      startListeners();
+   }
+   iBackground.gotoAndPlay("lJeopardy");
+}
+function getCategory(nIndex)
+{
+   return this["iCategory" + nIndex];
+}
+function initTileBoard(inRoundId)
+{
+   switch(inRoundId)
+   {
+      case 0:
+         oGameRound = "Jeopardy";
+         break;
+      case 1:
+         oGameRound = "DoubleJeopardy";
+         break;
+      case 2:
+         oGameRound = "FinalJeopardy";
+   }
+   doShowBackground();
+}
+function initCategories()
+{
+   initCategoryText();
+   var _loc1_ = 0;
+   while(_loc1_ < 6)
+   {
+      getCategory(_loc1_).mCategory = filterCategoryName(sBoardCategories[_loc1_]);
+      getCategory(_loc1_).gotoAndPlay("l" + oGameRound);
+      _loc1_ = _loc1_ + 1;
+   }
+   mTileFinalCategory.strText = sBoardCategories[0];
+}
+function initCategoryText()
+{
+   if(!_global.gfxExtensions)
+   {
+      sBoardCategories = new Array(6);
+      sBoardCategories[0] = "Whatever Cate-gory 0";
+      sBoardCategories[1] = "Cate- gory 1";
+      sBoardCategories[2] = "What ever Cate-\ngory 2";
+      sBoardCategories[3] = "Category 3";
+      sBoardCategories[4] = "Category 4";
+      sBoardCategories[5] = "Category 5";
+   }
+}
+function initTiles()
+{
+   mTileBoardArray = new Array(6);
+   mAllTilesArray = new Array();
+   mRandomTileIndexArray = new Array();
+   var _loc2_ = null;
+   var _loc4_ = 0;
+   var _loc3_ = 0;
+   var _loc6_ = 1;
+   if(oGameRound == "DoubleJeopardy")
+   {
+      _loc6_ = 2;
+   }
+   var _loc5_;
+   while(_loc4_ < 6)
+   {
+      mTileBoardArray[_loc4_] = new Array(5);
+      _loc5_ = this["iCategory" + _loc4_ + "Menu"];
+      _loc3_ = 0;
+      while(_loc3_ < 5)
+      {
+         _loc2_ = _loc5_["iMenuItem" + _loc3_];
+         _loc2_.value = _loc6_ * ((_loc3_ + 1) * 200);
+         _loc2_.strValue = _loc2_.value;
+         _loc2_.mbDailyDouble = false;
+         _loc2_.mbActive = true;
+         if(oGameRound == "FinalJeopardy")
+         {
+            if(_loc4_ == 3)
+            {
+               if(_loc3_ == 2)
+               {
+                  mTileFinalCategory = _loc2_;
+                  oLabel = "l" + oGameRound;
+               }
+               if(_loc3_ == 3)
+               {
+                  mTileFinalCategory1 = _loc2_;
+                  oLabel = "l" + oGameRound;
+               }
+            }
+         }
+         _loc2_.gotoAndPlay("l" + oGameRound);
+         mTileBoardArray[_loc4_][_loc3_] = _loc2_;
+         _loc2_.oCol = _loc4_;
+         _loc2_.oRow = _loc3_;
+         _loc2_.oIndex = mAllTilesArray.length;
+         mRandomTileIndexArray.push(mAllTilesArray.length);
+         mAllTilesArray.push(_loc2_);
+         _loc3_ = _loc3_ + 1;
+      }
+      _loc4_ = _loc4_ + 1;
+   }
+}
+function doShowBackground()
+{
+   iBackground.gotoAndPlay("l" + oGameRound);
+   var _loc1_ = 0;
+   while(_loc1_ < 6)
+   {
+      getCategory(_loc1_).gotoAndPlay("lDisable");
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function doHideBackground()
+{
+   iBackground.gotoAndPlay("lDisable");
+}
+function doShowTiles()
+{
+   doHideBackground();
+   initCategories();
+   initTiles();
+   if(oGameRound != "FinalJeopardy")
+   {
+      mRandomTileIndexArray = randomizeArray(mRandomTileIndexArray);
+   }
+   else
+   {
+      mRandomTileIndexArray = snakeArray;
+   }
+   mbShowHiddenTile = true;
+   mCurrentDisplayIndex = 0;
+   mBoardFillEndTime = getTimer() + mBoardFillTimeMs;
+   showNextHiddenTile();
+}
+function doShowCategories()
+{
+   initCategories();
+   var _loc1_;
+   if(oGameRound != "FinalJeopardy")
+   {
+      _loc1_ = 0;
+      while(_loc1_ < 6)
+      {
+         getCategory(_loc1_).gotoAndPlay("lActiveOut");
+         _loc1_ = _loc1_ + 1;
+      }
+   }
+   else
+   {
+      mTileFinalCategory.gotoAndPlay("lCategory");
+   }
+}
+function randomizeArray(inArray)
+{
+   var _loc3_ = [];
+   var _loc1_;
+   while(inArray.length > 0)
+   {
+      _loc1_ = random(inArray.length);
+      _loc3_.push(inArray[_loc1_]);
+      inArray.splice(_loc1_,1);
+   }
+   return _loc3_;
+}
+function initSnakeArray()
+{
+   var _loc2_ = [];
+   var _loc1_ = 0;
+   while(_loc1_ < snakeArray.length)
+   {
+      _loc2_.push(mAllTilesArray[snakeArray[_loc1_]]);
+      _loc1_ = _loc1_ + 1;
+   }
+   return _loc2_;
+}
+function handleAllTilesRevealed()
+{
+   oSelectionIndex = 0;
+   if(oGameRound != "FinalJeopardy")
+   {
+      activateAllTiles();
+   }
+   fscommand("postAllTilesRevealed");
+   if(!_global.gfxExtensions)
+   {
+      handleSetBoardControl(true);
+   }
+   if(!_global.gfxExtensions)
+   {
+      setTileSelected(0);
+   }
+}
+function activateAllTiles()
+{
+   var _loc1_ = 0;
+   while(_loc1_ < mAllTilesArray.length)
+   {
+      setTileActive(_loc1_);
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function handleSetBoardControl(inControl)
+{
+   oBoardControl = inControl;
+}
+function deactivateAllTiles()
+{
+   mbInputOn = false;
+   cInputManager.releaseInput(this);
+   var _loc3_ = 0;
+   var _loc2_;
+   while(_loc3_ < mAllTilesArray.length)
+   {
+      _loc2_ = mAllTilesArray[_loc3_];
+      if(_loc2_.mbActive == true)
+      {
+         showTileWithNumber(_loc2_);
+      }
+      _loc3_ = _loc3_ + 1;
+   }
+}
+function setTileActive(inIndex)
+{
+   var _loc1_ = mAllTilesArray[inIndex];
+   if(_loc1_.mbActive == true)
+   {
+      _loc1_.gotoAndPlay("lActive");
+   }
+}
+function setTileDeselected(inIndex)
+{
+   setTileActive(inIndex);
+}
+function setTileSelected(inIndex)
+{
+   tileboardTRACE("in setTileSelected, deselecting:" + oSelectionIndex + ", selecting:" + inIndex);
+   setTileDeselected(oSelectionIndex);
+   oSelectionIndex = inIndex;
+   var _loc1_ = mAllTilesArray[oSelectionIndex];
+   _loc1_.gotoAndPlay("lOver");
+}
+function getTileSelected()
+{
+   return oSelectionIndex;
+}
+function handleSelectTile(inPlayer)
+{
+   setTileOff(oSelectionIndex,inPlayer);
+   fscommand("postTileSelected",oSelectionIndex);
+}
+function setTileOff(inIndex, inPlayer)
+{
+   var _loc1_ = mAllTilesArray[inIndex];
+   _loc1_.player = inPlayer;
+   _loc1_.gotoAndPlay("lOff");
+   _loc1_.mbActive = false;
+   checkCategoryActive(_loc1_.oCol);
+}
+function checkCategoryActive(inCol)
+{
+   var _loc1_ = 0;
+   var _loc2_ = mTileBoardArray[inCol][_loc1_];
+   var _loc5_ = _loc2_.player;
+   var _loc3_ = 0;
+   while(_loc1_ < 5)
+   {
+      _loc2_ = mTileBoardArray[inCol][_loc1_];
+      if(_loc2_.mbActive)
+      {
+         return undefined;
+      }
+      if(_loc2_.player == _loc5_)
+      {
+         _loc3_ = _loc3_ + 1;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   getCategory(inCol).gotoAndPlay("lDisable");
+   if(_loc3_ == 6)
+   {
+      fscommand("postSWFCommand1","cluecard cluecardSetSpecialResultMessage 2");
+   }
+   else
+   {
+      fscommand("postSWFCommand1","cluecard cluecardSetSpecialResultMessage 1");
+   }
+}
+function getTileIndex(oCol, oRow)
+{
+   var _loc1_ = mTileBoardArray[oCol][oRow];
+   return _loc1_.oIndex;
+}
+function showTileWithNumber(inTile)
+{
+   inTile.gotoAndPlay("lValue");
+}
+function setTileDisplay(inTileValue)
+{
+   var _loc2_ = inTileValue._parent;
+   inTileValue.iDollarAmount.text = _loc2_.strValue;
+   var _loc7_ = _loc2_.iBackground._width;
+   var _loc3_ = inTileValue.iDollarSign.textWidth;
+   var _loc6_ = inTileValue.iDollarAmount.textWidth;
+   var _loc4_ = 5;
+   var _loc9_ = 6;
+   var _loc5_ = -4;
+   var _loc8_ = _loc3_ + _loc4_ + _loc6_;
+   inTileValue.iDollarSign._x = (_loc7_ - _loc8_) / 2 + _loc5_;
+   inTileValue.iDollarAmount._x = inTileValue.iDollarSign._x + _loc3_ + _loc4_;
+}
+function showNextHiddenTile()
+{
+   revealNextTile();
+   var _loc3_;
+   var _loc4_;
+   if(mbShowHiddenTile)
+   {
+      _loc3_ = mBoardFillEndTime - getTimer();
+      _loc4_ = _loc3_ / (mAllTilesArray.length - (mCurrentDisplayIndex - 1));
+      _root.iTimer.startTimer(this,_loc4_ / 1000);
+   }
+   else
+   {
+      handleAllTilesRevealed();
+   }
+}
+function revealNextTile()
+{
+   var _loc1_;
+   if(mCurrentDisplayIndex < mAllTilesArray.length)
+   {
+      _loc1_ = mAllTilesArray[mRandomTileIndexArray[mCurrentDisplayIndex]];
+      if(oGameRound != "FinalJeopardy")
+      {
+         showTileWithNumber(_loc1_);
+      }
+      else if(_loc1_ == mTileFinalCategory || _loc1_ == mTileFinalCategory1)
+      {
+         _loc1_.gotoAndPlay("l" + oGameRound);
+      }
+      else
+      {
+         _loc1_.gotoAndPlay("lFinalBlank");
+      }
+      mCurrentDisplayIndex++;
+   }
+   else
+   {
+      mbShowHiddenTile = false;
+   }
+}
+function showAllTiles()
+{
+   while(mbShowHiddenTile)
+   {
+      revealNextTile();
+   }
+}
+function onTimer(inTimer)
+{
+   if(mbShowHiddenTile)
+   {
+      showNextHiddenTile();
+   }
+}
+function findNextTileLeft(inIndex)
+{
+   var _loc3_ = mAllTilesArray[inIndex];
+   var _loc1_ = _loc3_.oCol;
+   var _loc2_ = _loc3_.oRow;
+   var _loc6_ = _loc1_;
+   var _loc5_ = _loc2_;
+   _loc3_ = null;
+   while(_loc3_.mbActive != true)
+   {
+      _loc1_ = _loc1_ - 1;
+      if(_loc1_ < 0)
+      {
+         _loc1_ = 5;
+         _loc2_ = _loc2_ - 1;
+         if(_loc2_ < 0)
+         {
+            _loc2_ = 4;
+         }
+      }
+      if(_loc1_ == _loc6_ && _loc2_ == _loc5_)
+      {
+         _loc3_ = mAllTilesArray[inIndex];
+         break;
+      }
+      _loc3_ = mTileBoardArray[_loc1_][_loc2_];
+   }
+   tileboardTRACE("in findNextTileLeft, Search From Index:" + inIndex + ", Found Index:" + _loc3_.oIndex);
+   return _loc3_.oIndex;
+}
+function findNextTileRight(inIndex)
+{
+   var _loc3_ = mAllTilesArray[inIndex];
+   var _loc1_ = _loc3_.oCol;
+   var _loc2_ = _loc3_.oRow;
+   var _loc6_ = _loc1_;
+   var _loc5_ = _loc2_;
+   _loc3_ = null;
+   while(_loc3_.mbActive != true)
+   {
+      _loc1_ = _loc1_ + 1;
+      if(_loc1_ > 5)
+      {
+         _loc1_ = 0;
+         _loc2_ = _loc2_ + 1;
+         if(_loc2_ > 4)
+         {
+            _loc2_ = 0;
+         }
+      }
+      if(_loc1_ == _loc6_ && _loc2_ == _loc5_)
+      {
+         _loc3_ = mAllTilesArray[inIndex];
+         break;
+      }
+      _loc3_ = mTileBoardArray[_loc1_][_loc2_];
+   }
+   tileboardTRACE("in findNextTileRight, Search From Index:" + inIndex + ", Found Index:" + _loc3_.oIndex);
+   return _loc3_.oIndex;
+}
+function findNextTileDown(inIndex)
+{
+   var _loc3_ = mAllTilesArray[inIndex];
+   var _loc1_ = _loc3_.oCol;
+   var _loc2_ = _loc3_.oRow;
+   var _loc6_ = _loc1_;
+   var _loc5_ = _loc2_;
+   _loc3_ = null;
+   while(_loc3_.mbActive != true)
+   {
+      _loc2_ = _loc2_ + 1;
+      if(_loc2_ > 4)
+      {
+         _loc2_ = 0;
+         _loc1_ = _loc1_ + 1;
+         if(_loc1_ > 5)
+         {
+            _loc1_ = 0;
+         }
+      }
+      if(_loc1_ == _loc6_ && _loc2_ == _loc5_)
+      {
+         _loc3_ = mAllTilesArray[inIndex];
+         break;
+      }
+      _loc3_ = mTileBoardArray[_loc1_][_loc2_];
+   }
+   tileboardTRACE("in findNextTileDown, Search From Index:" + inIndex + ", Found Index:" + _loc3_.oIndex);
+   return _loc3_.oIndex;
+}
+function findNextTileUp(inIndex)
+{
+   var _loc3_ = mAllTilesArray[inIndex];
+   var _loc1_ = _loc3_.oCol;
+   var _loc2_ = _loc3_.oRow;
+   var _loc6_ = _loc1_;
+   var _loc5_ = _loc2_;
+   _loc3_ = null;
+   while(_loc3_.mbActive != true)
+   {
+      _loc2_ = _loc2_ - 1;
+      if(_loc2_ < 0)
+      {
+         _loc2_ = 4;
+         _loc1_ = _loc1_ - 1;
+         if(_loc1_ < 0)
+         {
+            _loc1_ = 5;
+         }
+      }
+      if(_loc1_ == _loc6_ && _loc2_ == _loc5_)
+      {
+         _loc3_ = mAllTilesArray[inIndex];
+         break;
+      }
+      _loc3_ = mTileBoardArray[_loc1_][_loc2_];
+   }
+   tileboardTRACE("in findNextTileUp, Search From Index:" + inIndex + ", Found Index:" + _loc3_.oIndex);
+   return _loc3_.oIndex;
+}
+function handleFindNextTile()
+{
+   var _loc1_ = findNextTileDown(oSelectionIndex);
+   setTileSelected(_loc1_);
+}
+function handleKeySpace()
+{
+   handleSelectTile(0);
+   handleKeyDown();
+}
+function handleKeyUp()
+{
+   var _loc1_ = findNextTileUp(oSelectionIndex);
+   setTileSelected(_loc1_);
+}
+function handleKeyDown()
+{
+   var _loc1_ = findNextTileDown(oSelectionIndex);
+   setTileSelected(_loc1_);
+}
+function handleKeyLeft()
+{
+   var _loc1_ = findNextTileLeft(oSelectionIndex);
+   setTileSelected(_loc1_);
+}
+function handleKeyRight()
+{
+   var _loc1_ = findNextTileRight(oSelectionIndex);
+   setTileSelected(_loc1_);
+}
+function stopListeners()
+{
+   Mouse.removelistener(mouseDownListener);
+   Key.removelistener(keyDownListener);
+   Key.removelistener(keyUpListener);
+}
+function startListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      tileboardTRACE("onKeyDown");
+      if(oBoardControl)
+      {
+         switch(Key.getCode())
+         {
+            case 39:
+               handleKeyRight();
+               break;
+            case 37:
+               handleKeyLeft();
+               break;
+            case 38:
+               handleKeyUp();
+               break;
+            case 40:
+               handleKeyDown();
+               break;
+            case 32:
+               handleKeySpace();
+               break;
+            case 8:
+            case 36:
+            case 35:
+            default:
+               return;
+         }
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 32:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function filterCategoryName(inCategoryName)
+{
+   return inCategoryName;
+}
+var mBoardFillTimeMs = 3800;
+var mTimeBetweenTvs = 0;
+var oBoardControl = false;
+var snakeArray = new Array(25,20,15,10,5,0,1,2,3,4,9,14,19,24,29,28,27,26,21,16,11,6,7,8,13,18,23,22,17,12);
+var s_bEnableTrace = true;
+
+
+stop();
+
+stop();
+
+stop();
+
+stop();

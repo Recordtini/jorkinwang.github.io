@@ -1,0 +1,361 @@
+gameInterface._visible = false;
+var patchAvailable = 0;
+btnTest1.onRelease = function()
+{
+   _global.handlePlayGameScreen();
+};
+btnTest2.onRelease = function()
+{
+   _global.handlePSNGetProfileScreen();
+};
+btnTest3.onRelease = function()
+{
+   _global.handlePSNGetLoggingInScreen();
+};
+btnTest4.onRelease = function()
+{
+   _global.handlePSNGetPlayOnlineScreen();
+};
+btnTest400.onRelease = function()
+{
+   _global.handlePSNConnectionLost();
+};
+btnTest410.onRelease = function()
+{
+   _global.handlePlayGameScreen();
+};
+btnTest510.onRelease = function()
+{
+   _global.handleEnterRoomScreen();
+};
+btnTest5.onRelease = function()
+{
+   _global.handleSplashTimer(2000);
+};
+btnTest6.onRelease = function()
+{
+   _global.handleSplashTimer(3000);
+};
+btnTest7.onRelease = function()
+{
+   _global.handleSplashTimer(4000);
+};
+btnTest8.onRelease = function()
+{
+   _global.handleSplashTimer(5000);
+};
+btnTest11.onRelease = function()
+{
+   GameInterface.instance.goToScreen(20);
+};
+btnTest12.onRelease = function()
+{
+   _global.handleSetModifyCharacter();
+};
+btnTest13.onRelease = function()
+{
+   _global.handleEnterCharacterLibrary(1);
+};
+btnTest14.onRelease = function()
+{
+   _global.handleTestAvatar();
+};
+btnTest15.onRelease = function()
+{
+   _global.handleDefaultCharacter(2);
+};
+btnTest16.onRelease = function()
+{
+   _global.handleControllerIcon1(0,3);
+};
+btnTest17.onRelease = function()
+{
+   _global.handleControllerIcon2(1,4);
+};
+btnTest18.onRelease = function()
+{
+   _global.handleControllerIcon3(1,2);
+};
+btnTest19.onRelease = function()
+{
+   _global.handleSaveGameStatus(false);
+};
+btnTest20.onRelease = function()
+{
+   _global.handleSaveGameStatus(true);
+};
+btnTest900.onRelease = function()
+{
+   _global.handleIsSavedSingle(false);
+   _global.handleIsSavedRoadTrip(false);
+   _global.handleIsSavedGameOfDay(false);
+};
+btnTest901.onRelease = function()
+{
+   _global.handleIsSavedSingle(true);
+   _global.handleIsSavedRoadTrip(true);
+   _global.handleIsSavedGameOfDay(true);
+};
+btnTest21.onRelease = function()
+{
+   _global.handleSetPlayerName("dude");
+};
+btnTest22.onRelease = function()
+{
+   _global.handleCharacterLibraryScreen();
+};
+btnTest23.onRelease = function()
+{
+   _global.handleSetMusic(60);
+};
+btnTest24.onRelease = function()
+{
+   _global.handleSetSound(30);
+};
+btnTest25.onRelease = function()
+{
+   _global.handleSetVibration(0);
+};
+btnTest26.onRelease = function()
+{
+   _global.handleSetTilt(0);
+};
+btnTest27.onRelease = function()
+{
+   GameInterface.instance.goToScreen(21);
+};
+btnTest500.onRelease = function()
+{
+   _global.handleFilterList();
+};
+btnTest28.onRelease = function()
+{
+   _global.handleSetReadyStatus(true,2);
+};
+btnTest29.onRelease = function()
+{
+   _global.handleSetReadyStatus(false,2);
+   _global.handleRoomTest();
+};
+btnTest30.onRelease = function()
+{
+   _global.handlePauseScreen();
+};
+btnTest43.onRelease = function()
+{
+   _global.handleDisconnectScreen();
+};
+btnTest31.onRelease = function()
+{
+   GameInterface.instance.goToScreen(40);
+};
+btnTest32.onRelease = function()
+{
+   GameInterface.instance.goToScreen(41);
+};
+btnTest33.onRelease = function()
+{
+   GameInterface.instance.goToScreen(42);
+};
+btnTest34.onRelease = function()
+{
+   GameInterface.instance.goToScreen(40);
+};
+btnTest35.onRelease = function()
+{
+   GameInterface.instance.goToScreen(44);
+};
+btnTest36.onRelease = function()
+{
+   GameInterface.instance.goToScreen(45);
+};
+btnTest37.onRelease = function()
+{
+   _global.handleTestEndStats("tali");
+};
+btnTest38.onRelease = function()
+{
+   _global.handleTrophyList();
+};
+btnTest39.onRelease = function()
+{
+   _global.handleCityList();
+};
+btnTest40.onRelease = function()
+{
+   GameInterface.instance.goToScreen(35);
+};
+btnTest41.onRelease = function()
+{
+   _global.handleName("Tali",0,4);
+   _global.handleName("Rich",1,3);
+   _global.handleName("Tri",2,2);
+};
+btnTest42.onRelease = function()
+{
+   _global.handleGlobalLanguage("French");
+};
+btnTest800.onRelease = function()
+{
+   _global.handleAiDifficulty(2);
+   _global.handleNumberOfRounds(2);
+   _global.handleReservedSeats(1);
+   _global.handleRanked(1);
+};
+btnTest411.onRelease = function()
+{
+   _global.handleShowMainMenu();
+};
+btnTest510.onRelease = function()
+{
+   _global.handleToggleLegendButtons(0);
+};
+btnTest410.onRelease = function()
+{
+   _global.handleToggleLegendButtons(1);
+};
+btnTest411.onRelease = function()
+{
+   _global.setAvatar(5,"Prince Charming",1);
+};
+btnTest412.onRelease = function()
+{
+   _global.setAvatar(5,"",1);
+};
+btnTest413.onRelease = function()
+{
+   _global.setAvatar(1,"Prince Ranier",1);
+};
+btnTest414.onRelease = function()
+{
+   _global.setAvatar(1,"",1);
+};
+btnTest415.onRelease = function()
+{
+   _global.setAvatar(2,"Prince of Wales",1);
+};
+btnTest416.onRelease = function()
+{
+   _global.setAvatar(2,"",1);
+};
+btnTest417.onRelease = function()
+{
+   _global.setPlayerSelection(1,1,true);
+};
+btnTest418.onRelease = function()
+{
+   _global.setPlayerSelection(2,1,false);
+};
+btnTest419.onRelease = function()
+{
+   _global.setPlayerSelection(0,1,false);
+};
+btnTest420.onRelease = function()
+{
+   _global.setPlayerSelection(4,4,true);
+};
+btnTest421.onRelease = function()
+{
+   _global.nextOpenSlotLeft(2);
+};
+btnTest422.onRelease = function()
+{
+   _global.nextOpenSlotLeft(3);
+};
+btnTest423.onRelease = function()
+{
+   _global.nextOpenSlotLeft(4);
+};
+btnTest424.onRelease = function()
+{
+   _global.nextOpenSlotLeft(5);
+};
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+stop();
+
+stop();
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+mcBoxContainer._visible = false;
+stop();
+
+SetSelectedBoxAnimationState("Selected");
+
+if(_numBoxes < 1)
+{
+   stop();
+}
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+stop();
+
+stop();
+this._visible = false;
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+this._visible = false;
+
+if(cmd != "in")
+{
+   gotoAndStop(_totalframes);
+}
+
+this._visible = false;
+stop();

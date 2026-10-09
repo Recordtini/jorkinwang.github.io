@@ -1,0 +1,121 @@
+export const cash=n=>`${n<0?'-':''}$${Math.abs(n).toLocaleString('en-US')}`;
+export function shuffled(items,random=Math.random){
+  const result=[...items];for(let i=result.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;
+}
+export class JeopardyGame{
+  constructor(content,{random=Math.random,onChange=()=>{}}={}){this.content=content;this.random=random;this.onChange=onChange;this.state=null;}
+  emit(event='update'){this.onChange(this.state,event);}
+  get player(){return this.state.players[this.state.turn];}
+  get clue(){return this.state.active?.clue;}
+  start(players,options={}){
+    if(!players.length||players.length>3||players.every(p=>p.ai)||new Set(players.map(p=>p.slot)).size!==players.length||players.some(p=>!Number.isInteger(p.slot)||p.slot<0||p.slot>2))throw Error('Choose one to three podiums and at least one local player.');
+    this.state={version:1,players:players.map(p=>({name:String(p.name||'Player').slice(0,18),slot:p.slot,ai:!!p.ai,score:0})).sort((a,b)=>a.slot-b.slot),round:1,turn:0,chooser:0,phase:'board',difficulty:options.difficulty??'medium',usedCategories:[],final:null,active:null,message:'Choose a category and dollar value.'};
+    this.newBoard();this.emit('start');
+  }
+  newBoard(){
+    const s=this.state,pool=this.content.filter(c=>c.clues.length>=5&&!s.usedCategories.includes(c.id));
+    if(pool.length<6)throw Error('Not enough original categories for a full board.');
+    s.board=shuffled(pool,this.random).slice(0,6).map(c=>({id:c.id,name:c.name,clues:c.clues.slice(0,5),played:[false,false,false,false,false]}));
+    s.usedCategories.push(...s.board.map(c=>c.id));
+    const cells=shuffled(Array.from({length:30},(_,i)=>i),this.random);
+    s.doubles=cells.slice(0,s.round===1?1:2);s.active=null;s.phase='board';
+  }
+  select(column,row){
+    const s=this.state;if(s.phase!=='board'||!Number.isInteger(column)||!Number.isInteger(row)||!s.board[column]||row<0||row>4||s.board[column].played[row])return false;
+    s.turn=s.chooser;const category=s.board[column];category.played[row]=true;
+    s.active={column,row,category:category.name,clue:category.clues[row],value:(row+1)*200*s.round,double:s.doubles.includes(column*5+row),locked:[]};
+    s.phase=s.active.double?'wager':'reading';s.message=s.active.double?'Daily Double! Choose your wager.':'Read the clue. The buzzers will open after the reveal.';
+    this.emit(s.active.double?'daily-double':'clue');return true;
+  }
+  maxWager(){return this.state.phase==='final-wager'?Math.max(0,this.player.score):Math.max(this.player.score,this.state.round*1000);}
+  wager(amount){
+    const s=this.state;if(!['wager','final-wager'].includes(s.phase)||!Number.isInteger(amount)||amount<0||amount>this.maxWager()||(s.phase==='wager'&&amount<5))return false;
+    if(s.phase==='final-wager'){
+      s.final.wagers[s.turn]=amount;
+      const next=s.final.eligible.find(i=>s.final.wagers[i]===null);
+      if(next!==undefined){s.turn=next;s.message=`${this.player.name}, enter your secret Final Jeopardy wager.`;this.emit();}
+      else{s.active={category:s.final.category.name,clue:s.final.category.clues[0],value:0,double:false,locked:[]};s.phase='final-reading';s.message='Final Jeopardy. Read the clue before answering.';this.emit('clue');}
+    }else{s.active.value=amount;s.phase='reading';s.message='Daily Double: only the selecting player responds.';this.emit('clue');}
+    return true;
+  }
+  openBuzzers(){
+    const s=this.state;if(s.phase==='final-reading'){s.turn=s.final.eligible.find(i=>s.final.answers[i]===null);this.openAnswer('final-answer');return true;}
+    if(s.phase!=='reading')return false;
+    if(s.active.double)this.openAnswer();else{s.phase='buzz';s.message='Buzz in!';this.emit('buzz-open');}return true;
+  }
+  buzz(player){
+    const s=this.state;if(s.phase!=='buzz'||!Number.isInteger(player)||!s.players[player]||s.active.locked.includes(player))return false;
+    s.turn=player;this.openAnswer();return true;
+  }
+  openAnswer(phase='answer'){
+    this.state.choices=shuffled(this.clue.options,this.random);this.state.phase=phase;
+    this.state.message=`${this.player.name}: ${this.clue.prefix}...`;this.emit('answer');
+  }
+  answer(index){
+    const s=this.state;if(!['answer','final-answer'].includes(s.phase)||!Number.isInteger(index)||!s.choices[index])return false;
+    const correct=s.choices[index]===this.clue.answer;
+    if(s.phase==='final-answer'){
+      s.final.answers[s.turn]=correct;s.phase='final-pass';s.message='Response locked. Pass to the next contestant.';this.emit('locked');return true;
+    }
+    this.player.score+=correct?s.active.value:-s.active.value;
+    s.result={correct,player:s.turn,amount:s.active.value};
+    if(correct){s.chooser=s.turn;s.phase='result';s.message=`Correct. ${this.clue.prefix} ${this.clue.answer}.`;}
+    else{
+      s.active.locked.push(s.turn);s.phase=s.active.double||s.active.locked.length===s.players.length?'result':'rebound';
+      s.message=s.phase==='result'?`The correct response: ${this.clue.prefix} ${this.clue.answer}.`:'Incorrect. The remaining contestants may buzz in.';
+    }
+    this.emit(correct?'correct':'incorrect');return correct;
+  }
+  timeout(){
+    const s=this.state;
+    if(s.phase==='buzz'){s.phase='result';s.message=`The correct response: ${this.clue.prefix} ${this.clue.answer}.`;this.emit('timeout');return true;}
+    if(s.phase==='answer'){const wrong=s.choices.findIndex(c=>c!==this.clue.answer);this.answer(wrong);return true;}
+    if(s.phase==='final-answer'){s.final.answers[s.turn]=false;s.phase='final-pass';s.message='Time expired. Pass to the next contestant.';this.emit('locked');return true;}return false;
+  }
+  next(){
+    const s=this.state;
+    if(s.phase==='rebound'){s.phase='buzz';s.message='Remaining contestants: buzz in.';this.emit('buzz-open');return;}
+    if(s.phase==='result'){
+      s.active=null;s.result=null;s.turn=s.chooser;
+      s.phase=s.board.every(c=>c.played.every(Boolean))?'round-end':'board';s.message=s.phase==='round-end'?'The board is complete. Continue to the next round.':'Choose the next clue.';this.emit('board');return;
+    }
+    if(s.phase==='round-end'){
+      if(s.round===1){s.round=2;s.chooser=s.players.reduce((best,p,i)=>p.score<s.players[best].score?i:best,0);s.turn=s.chooser;this.newBoard();s.message='Double Jeopardy! The lowest score selects first.';this.emit('round');}
+      else this.startFinal();return;
+    }
+    if(s.phase==='final-pass'){
+      const next=s.final.eligible.find(i=>s.final.answers[i]===null);
+      if(next!==undefined){s.turn=next;this.openAnswer('final-answer');}
+      else{
+        for(const i of s.final.eligible)s.players[i].score+=(s.final.answers[i]?1:-1)*s.final.wagers[i];
+        s.phase='finished';s.message=`Final response: ${this.clue.prefix} ${this.clue.answer}.`;this.emit('finish');
+      }
+    }
+  }
+  startFinal(){
+    const s=this.state,eligible=s.players.map((p,i)=>p.score>0?i:null).filter(i=>i!==null);
+    if(!eligible.length){s.phase='finished';s.message='No contestants have a positive score for Final Jeopardy.';this.emit('finish');return;}
+    const pool=this.content.filter(c=>c.clues.length===1);if(!pool.length)throw Error('No original Final Jeopardy categories.');
+    s.round=3;s.final={category:pool[Math.floor(this.random()*pool.length)],eligible,wagers:s.players.map(()=>null),answers:s.players.map(()=>null)};
+    s.turn=eligible[0];s.phase='final-wager';s.message=`${this.player.name}, enter your secret Final Jeopardy wager.`;this.emit('final');
+  }
+  reveal(){
+    const s=this.state;if(!s.active||!['reading','buzz','answer','rebound','wager','final-answer','final-reading','final-pass'].includes(s.phase))return false;
+    s.phase=s.round===3?'finished':'result';s.message=`Revealed: ${this.clue.prefix} ${this.clue.answer}. No additional points awarded.`;this.emit('reveal');return true;
+  }
+  save(){return JSON.stringify(this.state);}
+  restore(text){
+    try{
+      const s=JSON.parse(text);if(s.version!==1||!Array.isArray(s.players)||s.players.length<1||s.players.length>3||s.players.every(p=>p.ai)||s.players.some(p=>!Number.isInteger(p.slot)||p.slot<0||p.slot>2||!Number.isFinite(p.score))||!Array.isArray(s.board)||s.board.length!==6||!s.board.every(c=>this.content.some(p=>p.id===c.id)&&c.played?.length===5))return false;
+      if(new Set(s.players.map(p=>p.slot)).size!==s.players.length||![1,2,3].includes(s.round)||!s.players[s.chooser]||!s.board.every(c=>c.played.every(p=>typeof p==='boolean')&&this.content.find(p=>p.id===c.id).clues.length>=5))return false;
+      if(!['board','wager','reading','buzz','answer','result','rebound','round-end','final-wager','final-reading','final-answer','final-pass','finished'].includes(s.phase)||!s.players[s.turn])return false;
+      if(!Array.isArray(s.usedCategories)||!Array.isArray(s.doubles)||s.doubles.some(i=>!Number.isInteger(i)||i<0||i>=30))return false;
+      if(s.round===3&&(!s.final||!Array.isArray(s.final.eligible)||s.final.eligible.some(i=>!s.players[i])||s.final.wagers.length!==s.players.length||s.final.answers.length!==s.players.length))return false;
+      for(const c of s.board){const source=this.content.find(p=>p.id===c.id);c.clues=source.clues.slice(0,5);c.name=source.name;}
+      if(s.final)s.final.category=this.content.find(c=>c.id===s.final.category.id&&c.clues.length===1);
+      if(s.active){s.active.clue=s.round===3?s.final.category.clues[0]:s.board[s.active.column].clues[s.active.row];}
+      if(s.phase==='answer')s.phase='reading';if(s.phase==='final-answer')s.phase='final-reading';
+      this.state=s;this.emit('restore');return true;
+    }catch{return false;}
+  }
+}

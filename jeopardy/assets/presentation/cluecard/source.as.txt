@@ -1,0 +1,1824 @@
+function init_response()
+{
+   cluecardTRACE("init_response");
+   s_aResponsePosList = new Array();
+}
+function responseInit()
+{
+   cluecardTRACE("responseInit");
+   s_aResponsePosList[0] = mResponse0._y;
+   s_aResponsePosList[1] = mResponse1._y;
+   s_aResponsePosList[2] = mResponse2._y;
+   s_aResponsePosList[3] = mResponse3._y;
+   s_nTargetPos = 0;
+   responseSetSelected(0,0);
+   if(!_global.gfxExtensions)
+   {
+      startResponseListeners();
+   }
+}
+function responseFindNextUp(inPlayer)
+{
+   var _loc1_ = s_nSelectedResponse;
+   if(_loc1_ > 0)
+   {
+      _loc1_ -= 1;
+   }
+   return _loc1_;
+}
+function responseFindNextDown(inPlayer)
+{
+   var _loc1_ = s_nSelectedResponse;
+   if(_loc1_ < 3)
+   {
+      _loc1_ += 1;
+   }
+   return _loc1_;
+}
+function responseSlideToResponse(inPlayer, inResponse)
+{
+   s_nSelectedResponse = inResponse;
+   responseSetTargetPos(inPlayer,inResponse);
+}
+function responseJumpToResponse(inPlayer, inResponse)
+{
+   s_nSelectedResponse = inResponse;
+   iResponseSelection._y = s_aResponsePosList[inResponse];
+}
+function responseSetSelected(inPlayer, inResponse)
+{
+   s_nSelectedResponse = inResponse;
+   if(inResponse != -1)
+   {
+      iResponseSelection._y = s_aResponsePosList[inResponse];
+      responseSetTargetPos(inPlayer,inResponse);
+   }
+   else
+   {
+      responseJumpToResponse(0,0);
+   }
+}
+function responseSelect(inPlayer, inResponse)
+{
+   s_nSelectedResponse = inResponse;
+}
+function responseSetTargetPos(inPlayer, inResponse)
+{
+   s_nTargetPos = s_aResponsePosList[inResponse];
+}
+function responseGetSelected(inPlayer)
+{
+   return s_nSelectedResponse;
+}
+function responseUpdatePos()
+{
+   responseUpdatePlayerPos(0);
+}
+function responseUpdatePlayerPos(inPlayer)
+{
+   var _loc1_ = iResponseSelection._y;
+   if(s_nSelectedResponse != -1)
+   {
+      if(_loc1_ != s_nTargetPos)
+      {
+         if(_loc1_ < s_nTargetPos)
+         {
+            if(_loc1_ + s_nMoveOffset < s_nTargetPos)
+            {
+               nNewPos = _loc1_ + s_nMoveOffset;
+            }
+            else
+            {
+               nNewPos = s_nTargetPos;
+            }
+         }
+         else if(_loc1_ > s_nTargetPos)
+         {
+            if(_loc1_ - s_nMoveOffset > s_nTargetPos)
+            {
+               nNewPos = _loc1_ - s_nMoveOffset;
+            }
+            else
+            {
+               nNewPos = s_nTargetPos;
+            }
+         }
+         iResponseSelection._y = nNewPos;
+      }
+   }
+}
+function handleSelectResponse(inPlayer)
+{
+   fscommand("postResponseSelected",s_nSelectedResponse);
+}
+function stopResponseListeners()
+{
+}
+function startResponseListeners()
+{
+   keyDownListener = new Object();
+   keyDownListener.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+            responseSlideToResponse(0,responseFindNextUp(0));
+            break;
+         case 40:
+            responseSlideToResponse(0,responseFindNextDown(0));
+            break;
+         case 13:
+            handleSelectResponse(0);
+            break;
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyDownListener);
+   keyUpListener = new Object();
+   keyUpListener.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(keyUpListener);
+}
+function init_wager()
+{
+   cluecardTRACE("init_wager");
+   s_nCurrentWager = 0;
+   s_nCurrentPosition = 0;
+   if(!_global.gfxExtensions)
+   {
+      wagerSetRange(5,25000);
+      startListeners();
+   }
+   wagerInit();
+}
+function wagerWrap(nValue, nWrap)
+{
+   return (nValue + nWrap) % nWrap;
+}
+function wagerInit()
+{
+   cluecardTRACE("wagerInit");
+   wagerSetPosition(0);
+   wagerSetWager(s_nMinWager);
+}
+function wagerDigit(nIndex)
+{
+   return iWagerAmount["iDigit" + nIndex];
+}
+function wagerGetWagerLeadIn(inPlayer)
+{
+   return _global.SoeCluecard.cluecardPlayer(inPlayer).name + ", how much would you like to wager?";
+}
+function wagerSetRange(nMinWager, nMaxWager)
+{
+   s_nMinWager = nMinWager;
+   s_nMaxWager = nMaxWager;
+   cluecardTRACE("s_nMaxWager: " + s_nMaxWager + " s_nMinWager: " + s_nMinWager);
+}
+function wagerIsValid()
+{
+   var _loc1_ = 0;
+   if(s_nCurrentWager >= s_nMinWager && s_nCurrentWager <= s_nMaxWager)
+   {
+      _loc1_ = 1;
+   }
+   return _loc1_;
+}
+function wagerGetValidWager()
+{
+   var _loc1_ = s_nCurrentWager;
+   if(_loc1_ < s_nMinWager)
+   {
+      _loc1_ = s_nMinWager;
+   }
+   else if(_loc1_ > s_nMaxWager)
+   {
+      _loc1_ = s_nMaxWager;
+   }
+   return _loc1_;
+}
+function wagerGetMaxWager()
+{
+   return s_nMaxWager;
+}
+function wagerGetMinWager()
+{
+   return s_nMinWager;
+}
+function wagerGetWager()
+{
+   return s_nCurrentWager;
+}
+function wagerSetWager(inWager)
+{
+   s_nCurrentWager = inWager;
+   wagerSetDigitsWithWager(s_nCurrentWager);
+   wagerSetDisplayWager();
+   cluecardTRACE("s_nCurrentWager: " + s_nCurrentWager);
+   if(wagerDigit(s_nCurrentPosition).mValue == 0)
+   {
+      iWagerAmount.iSelection.mcDownArrow._visible = false;
+      iWagerAmount.iSelection.mcUpArrow._visible = true;
+   }
+   else if(wagerDigit(s_nCurrentPosition).mValue == 9)
+   {
+      iWagerAmount.iSelection.mcUpArrow._visible = false;
+      iWagerAmount.iSelection.mcDownArrow._visible = true;
+   }
+   else
+   {
+      iWagerAmount.iSelection.mcUpArrow._visible = true;
+      iWagerAmount.iSelection.mcDownArrow._visible = true;
+   }
+}
+function wagerGetNewWagerFromDigits(nNewDigitValue)
+{
+   var _loc3_ = 0;
+   var _loc2_ = 1;
+   var _loc1_ = 0;
+   while(_loc1_ < s_nNumOfDigits)
+   {
+      if(_loc1_ == s_nCurrentPosition)
+      {
+         _loc3_ += nNewDigitValue * _loc2_;
+      }
+      else
+      {
+         _loc3_ += wagerDigit(_loc1_).mValue * _loc2_;
+      }
+      _loc2_ *= 10;
+      _loc1_ = _loc1_ + 1;
+   }
+   return _loc3_;
+}
+function wagerSetDigitsWithWager(inWager)
+{
+   var _loc4_ = inWager.toString();
+   var _loc3_ = _loc4_.length;
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < s_nNumOfDigits)
+   {
+      _loc2_ = wagerDigit(_loc1_);
+      if(_loc1_ < _loc3_)
+      {
+         oWagerChar = new Number(_loc4_.charAt(_loc3_ - _loc1_ - 1));
+         _loc2_.mValue = oWagerChar.valueOf();
+      }
+      else
+      {
+         _loc2_.mValue = 0;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function wagerSetDisplayWager()
+{
+   iWagerAmount.tText.text = wagerGetFormattedScore(s_nCurrentWager);
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < s_nNumOfDigits)
+   {
+      _loc2_ = wagerDigit(_loc1_);
+      if(_loc1_ < s_nCurrentWager.toString().length)
+      {
+         _loc2_.mDisplayValue = _loc2_.mValue;
+      }
+      else if(s_nCurrentPosition >= _loc1_)
+      {
+         _loc2_.mDisplayValue = "0";
+      }
+      else
+      {
+         _loc2_.mDisplayValue = "";
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function wagerFindNextWager(nInc)
+{
+   var _loc1_ = wagerDigit(s_nCurrentPosition).mValue;
+   if(_loc1_ + nInc >= 0 && _loc1_ + nInc < 10)
+   {
+      _loc1_ += nInc;
+   }
+   var _loc2_ = wagerGetNewWagerFromDigits(_loc1_);
+   cluecardTRACE("oValue: " + _loc1_ + " oWager: " + _loc2_);
+   return _loc2_;
+}
+function wagerFindNextWagerUp()
+{
+   return wagerFindNextWager(1);
+}
+function wagerFindNextWagerDown()
+{
+   return wagerFindNextWager(-1);
+}
+function handleSetMinWager()
+{
+   wagerSetWager(s_nMinWager);
+}
+function handleSetMaxWager()
+{
+   wagerSetWager(s_nMaxWager);
+}
+function handleSelectWager()
+{
+   fscommand("postWagerSelected",s_nCurrentWager);
+}
+function handleSelectFinalWager()
+{
+   fscommand("postFinalWagerSelected",s_nCurrentWager);
+}
+function wagerSetPodiumDisplay(inPodium, inPodiumNumber)
+{
+   var _loc2_ = _global.SoeCluecard.cluecardPlayer(inPodiumNumber);
+   _loc2_.podium = inPodium;
+   wagerSetPodiumScore(inPodium,_loc2_.score);
+   wagerSetPodiumState(inPodium,inPodiumNumber);
+   wagerSetPodiumStyle(inPodium,_loc2_.style);
+   wagerSetPodiumName(inPodium,_loc2_.name);
+}
+function wagerSetPodiumScore(inPodium, inScore)
+{
+   var _loc1_ = wagerGetFormattedScore(inScore);
+   if(inScore < 0)
+   {
+      inPodium.iScore.gotoAndPlay("lNegative");
+   }
+   else
+   {
+      inPodium.iScore.gotoAndPlay("lPositive");
+   }
+   inPodium.iScore.tWhiteText.text = _loc1_;
+   inPodium.iScore.tBlackText.text = _loc1_;
+}
+function wagerSetPodiumState(inPodium, inPodiumNumber)
+{
+   if(inPodiumNumber == currentPlayer)
+   {
+      inPodium.iPodiumActive.gotoAndPlay("lShow");
+   }
+   else
+   {
+      inPodium.iPodiumActive.gotoAndPlay("lHide");
+   }
+}
+function wagerGetFormattedScore(inScore)
+{
+   var _loc2_ = "$" + inScore;
+   var _loc1_ = _loc2_.length;
+   var _loc5_;
+   var _loc3_;
+   if(_loc1_ > 4 && inScore > 0 || _loc1_ > 5 && inScore < 0)
+   {
+      _loc5_ = _loc2_.slice(0,_loc1_ - 3);
+      _loc3_ = _loc2_.slice(_loc1_ - 3,_loc1_);
+      _loc2_ = _loc5_ + "," + _loc3_;
+   }
+   return _loc2_;
+}
+function wagerSetPodiumStyle(inPodium, inFontStyle)
+{
+   inPodium.iText.gotoAndPlay("lStyle" + inFontStyle);
+}
+function wagerSetPodiumName(inPodium, inText)
+{
+   inPodium.iText.iText.tText.text = inText;
+   var _loc1_ = inPodium.iText.iText;
+   var _loc4_ = 288;
+   var _loc2_ = _loc1_.tText.textWidth;
+   var _loc3_ = 1;
+   if(_loc2_ > _loc4_)
+   {
+      _loc3_ = _loc4_ / _loc2_;
+   }
+   _loc1_.tText._xscale = 100 * _loc3_;
+   _loc1_.tText.autoSize = "left";
+   _loc1_.tText._x = - _loc2_ / 2 * _loc3_ + 212;
+}
+function wagerFindNextPositionRight()
+{
+   return Math.max(0,s_nCurrentPosition - 1);
+}
+function wagerFindNextPositionLeft()
+{
+   return Math.min(s_nCurrentPosition + 1,s_nNumOfDigits - 1);
+}
+function wagerSlideToPosition(inPosition)
+{
+   s_nCurrentPosition = inPosition;
+   wagerSetTargetPos();
+   wagerSetDisplayWager();
+   if(inPosition == 0)
+   {
+      iWagerAmount.mcRightArrow._visible = false;
+   }
+   else if(inPosition == 5)
+   {
+      iWagerAmount.mcLeftArrow._visible = false;
+   }
+   else
+   {
+      iWagerAmount.mcLeftArrow._visible = true;
+      iWagerAmount.mcRightArrow._visible = true;
+   }
+   if(wagerDigit(inPosition).mValue == 0)
+   {
+      iWagerAmount.iSelection.mcDownArrow._visible = false;
+      iWagerAmount.iSelection.mcUpArrow._visible = true;
+   }
+   else if(wagerDigit(inPosition).mValue == 9)
+   {
+      iWagerAmount.iSelection.mcUpArrow._visible = false;
+      iWagerAmount.iSelection.mcDownArrow._visible = true;
+   }
+   else
+   {
+      iWagerAmount.iSelection.mcUpArrow._visible = true;
+      iWagerAmount.iSelection.mcDownArrow._visible = true;
+   }
+}
+function wagerSetPosition(inPosition)
+{
+   iWagerAmount.iSelection._x = wagerDigit(inPosition)._x;
+   cluecardTRACE("iWagerAmount.iSelection._x: " + iWagerAmount.iSelection._x + " inPosition: " + inPosition);
+   wagerSlideToPosition(inPosition);
+}
+function wagerSetTargetPos()
+{
+   s_nTargetPos = wagerDigit(s_nCurrentPosition)._x;
+   cluecardTRACE("s_nTargetPos: " + s_nTargetPos + " s_nCurrentPosition: " + s_nCurrentPosition);
+}
+function wagerGetPosition()
+{
+   return s_nCurrentPosition;
+}
+function wagerUpdatePos()
+{
+   var _loc1_ = iWagerAmount.iSelection._x;
+   var _loc2_;
+   if(_loc1_ != s_nTargetPos)
+   {
+      _loc2_ = s_nTargetPos;
+      if(_loc1_ < s_nTargetPos)
+      {
+         if(_loc1_ + s_nMoveOffset < s_nTargetPos)
+         {
+            _loc2_ = _loc1_ + s_nMoveOffset;
+         }
+      }
+      else if(_loc1_ > s_nTargetPos)
+      {
+         if(_loc1_ - s_nMoveOffset > s_nTargetPos)
+         {
+            _loc2_ = _loc1_ - s_nMoveOffset;
+         }
+      }
+      iWagerAmount.iSelection._x = _loc2_;
+   }
+}
+function stopListeners()
+{
+}
+function startListeners()
+{
+   var _loc1_ = new Object();
+   _loc1_.onKeyDown = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+            wagerSlideToPosition(wagerFindNextPositionRight());
+            break;
+         case 37:
+            wagerSlideToPosition(wagerFindNextPositionLeft());
+            break;
+         case 38:
+            wagerSetWager(wagerFindNextWagerUp());
+            break;
+         case 40:
+            wagerSetWager(wagerFindNextWagerDown());
+            break;
+         case 13:
+         case 8:
+         case 36:
+            handleSetMaxWager();
+            break;
+         case 35:
+            handleSetMinWager();
+         default:
+            return;
+      }
+   };
+   Key.addListener(_loc1_);
+   var _loc2_ = new Object();
+   _loc2_.onKeyUp = function()
+   {
+      switch(Key.getCode())
+      {
+         case 39:
+         case 37:
+         case 38:
+         case 40:
+         case 13:
+         case 8:
+         case 36:
+         case 35:
+         default:
+            return;
+      }
+   };
+   Key.addListener(_loc2_);
+}
+function init_result()
+{
+   cluecardTRACE("init_result");
+}
+function resultGetPlayer(nPlayer)
+{
+   return _global.SoeCluecard.cluecardPlayer(nPlayer);
+}
+function resultGetPlayerName(nPlayer)
+{
+   var _loc1_ = "Invalid";
+   if(nPlayer != -1)
+   {
+      _loc1_ = resultGetPlayer(nPlayer).name;
+   }
+   return _loc1_;
+}
+function resultResetResults()
+{
+   var _loc2_ = 0;
+   while(_loc2_ < 3)
+   {
+      _global.SoeCluecard.cluecardSetPlayerResult(_loc2_,-1);
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function resultGetAllPlayersWrong()
+{
+   var _loc3_ = true;
+   var _loc2_ = 0;
+   while(_loc2_ < 3)
+   {
+      if(_global.SoeCluecard.cluecardGetPlayerResult(_loc2_) != 0)
+      {
+         cluecardTRACE("Player " + _loc2_ + " has yet to answer this question wrong");
+         _loc3_ = false;
+         break;
+      }
+      _loc2_ = _loc2_ + 1;
+   }
+   return _loc3_;
+}
+function resultSetTimedOut(nPlayer)
+{
+   _global.SoeCluecard.cluecardSetPlayerResult(nPlayer,2);
+}
+function resultSetResponse(nPlayer, nResponse)
+{
+   var _loc1_ = resultGetPlayerName(nPlayer) + " responds:";
+   var _loc2_ = sResponseArray[1] + "... " + sResponseArray[nResponse + 2] + "?";
+   setTextForFlash(_loc1_,0);
+   setTextForFlash(_loc2_,1);
+}
+function resultSetResult(nPlayer, nResult, nTileValue)
+{
+   var _loc6_ = "EMPTY";
+   var _loc2_ = "EMPTY";
+   var _loc8_;
+   var _loc3_;
+   var _loc7_;
+   var _loc17_;
+   var _loc16_;
+   var _loc22_;
+   var _loc19_;
+   var _loc5_;
+   var _loc10_;
+   var _loc9_;
+   var _loc20_;
+   var _loc12_;
+   var _loc14_;
+   var _loc4_;
+   var _loc18_;
+   var _loc21_;
+   if(nResult >= 0)
+   {
+      _loc8_ = resultGetPlayer(nPlayer);
+      _loc3_ = resultGetPlayerName(nPlayer);
+      resultSetPlayerRanks();
+      _loc7_ = _loc8_.rank;
+      _loc17_ = _loc8_.score;
+      _loc16_ = getTiedPlayerCount(nPlayer,_loc17_);
+      _loc22_ = getTiedPlayerIndex(nPlayer,_loc17_);
+      _loc19_ = resultGetPlayerName(_loc22_);
+      _global.SoeCluecard.cluecardSetPlayerResult(nPlayer,nResult);
+      if(nResult == 1)
+      {
+         _loc8_.score += nTileValue;
+      }
+      else
+      {
+         _loc8_.score -= nTileValue;
+      }
+      resultSetPlayerRanks();
+      _loc5_ = _loc8_.rank;
+      _loc10_ = _loc8_.score;
+      _loc9_ = getTiedPlayerCount(nPlayer,_loc10_);
+      _loc20_ = getTiedPlayerIndex(nPlayer,_loc10_);
+      _loc12_ = resultGetPlayerName(_loc20_);
+      cluecardTRACE("nPrevRank: " + _loc7_ + " nNextRank: " + _loc5_);
+      cluecardTRACE("nPrevScore: " + _loc17_ + " nNextScore: " + _loc10_);
+      cluecardTRACE("nPrevTiedPlayerCount: " + _loc16_ + " nNextTiedPlayerCount: " + _loc9_);
+      _loc14_ = _global.SoeWager.wagerGetFormattedScore(nTileValue);
+      _loc4_ = _global.SoeWager.wagerGetFormattedScore(_loc10_);
+      _loc18_ = "his";
+      if(_loc8_.gender == 1)
+      {
+         _loc18_ = "her";
+      }
+      if(nResult == 1)
+      {
+         _loc6_ = "Correct!";
+         if(specialResultMessage > 0)
+         {
+            switch(specialResultMessage)
+            {
+               case 1:
+                  _loc2_ = _loc3_ + " finished the category with a total of " + _loc4_ + ".";
+                  break;
+               case 2:
+                  _loc2_ = _loc3_ + " ran the entire category for a total of " + _loc4_ + ".";
+            }
+            specialResultMessage = 0;
+         }
+         else if(_loc5_ < _loc7_)
+         {
+            switch(_loc5_)
+            {
+               case 1:
+                  switch(_loc9_)
+                  {
+                     case 0:
+                        switch(_loc7_)
+                        {
+                           case 2:
+                              _loc2_ = _loc3_ + " takes the lead with a total of " + _loc4_ + ".";
+                              break;
+                           case 3:
+                              _loc2_ = _loc3_ + " jumps from 3rd to 1st place with  " + _loc14_ + " for a total of " + _loc4_ + ".";
+                        }
+                        break;
+                     case 1:
+                        switch(_loc7_)
+                        {
+                           case 2:
+                              _loc2_ = _loc3_ + " has tied " + _loc12_ + " for 1st place with a total of " + _loc4_ + ".";
+                              break;
+                           case 3:
+                              _loc2_ = _loc3_ + " jumps from 3rd to tie " + _loc12_ + " in 1st place with  " + _loc14_ + " for a total of " + _loc4_ + ".";
+                        }
+                        break;
+                     case 2:
+                        if(_loc10_ == 0)
+                        {
+                           _loc2_ = _loc3_ + " has evened the game at " + _loc4_ + ".";
+                        }
+                        else
+                        {
+                           _loc2_ = _loc3_ + " is in a 3 way tie with a total of " + _loc4_ + ".";
+                        }
+                  }
+                  break;
+               case 2:
+                  switch(_loc9_)
+                  {
+                     case 0:
+                        _loc2_ = _loc3_ + " takes 2nd place with a total of " + _loc4_ + ".";
+                        break;
+                     case 1:
+                        _loc2_ = _loc3_ + " has tied " + _loc12_ + "  for 2nd place with a total of " + _loc4_ + ".";
+                  }
+            }
+         }
+         else if(_loc5_ == _loc7_)
+         {
+            switch(_loc5_)
+            {
+               case 1:
+                  if(bFirstClue)
+                  {
+                     cluecardTRACE("first clue!");
+                     _loc2_ = _loc3_ + " starts us off with a total of  " + _loc4_ + ".";
+                  }
+                  else
+                  {
+                     switch(_loc16_)
+                     {
+                        case 0:
+                           _loc2_ = _loc3_ + " increases " + _loc18_ + " lead by " + _loc14_ + " for a total of " + _loc4_ + ".";
+                           break;
+                        case 1:
+                           _loc2_ = _loc3_ + " breaks the tie with " + _loc19_ + " for 1st place with a total of " + _loc4_ + ".";
+                           break;
+                        case 2:
+                           _loc2_ = _loc3_ + " breaks the 3 way tie with " + _loc14_ + " for a total of " + _loc4_ + ".";
+                     }
+                  }
+                  break;
+               case 2:
+                  switch(_loc16_)
+                  {
+                     case 0:
+                        _loc2_ = _loc3_ + " is still in 2nd place with a total of " + _loc4_ + ".";
+                        break;
+                     case 1:
+                        _loc2_ = _loc3_ + " breaks the tie with " + _loc19_ + " for 2nd place with a total of " + _loc4_ + ".";
+                  }
+                  break;
+               case 3:
+                  _loc2_ = _loc3_ + " remains in 3rd place with a total of " + _loc4_ + ".";
+            }
+         }
+         resultResetResults();
+      }
+      else
+      {
+         if(nResult == 0)
+         {
+            _loc6_ = "Incorrect!";
+         }
+         else
+         {
+            _loc6_ = "Time\'s up!";
+         }
+         if(_loc5_ > _loc7_)
+         {
+            switch(_loc5_)
+            {
+               case 2:
+                  switch(_loc9_)
+                  {
+                     case 0:
+                        _loc2_ = _loc3_ + " drops to 2nd place with a total of " + _loc4_ + ".";
+                        break;
+                     case 1:
+                        _loc2_ = _loc3_ + " is now tied for 2nd place with a total of " + _loc4_ + ".";
+                  }
+                  break;
+               case 3:
+                  _loc2_ = _loc3_ + " drops to 3rd place with a total of " + _loc4_ + ".";
+            }
+         }
+         else if(_loc5_ == _loc7_)
+         {
+            switch(_loc5_)
+            {
+               case 1:
+                  switch(_loc9_)
+                  {
+                     case 0:
+                        _loc2_ = _loc3_ + " keeps " + _loc18_ + " lead with a total of " + _loc4_;
+                        break;
+                     case 1:
+                        _loc2_ = _loc3_ + " is now tied with " + _loc12_ + " for 1st with a total of " + _loc4_;
+                        break;
+                     case 2:
+                        if(_loc10_ == 0)
+                        {
+                           _loc2_ = _loc3_ + " has evened the game at " + _loc4_ + ".";
+                        }
+                        else
+                        {
+                           _loc2_ = _loc3_ + " is now in a 3 way tie with a total of " + _loc4_ + ".";
+                        }
+                  }
+                  break;
+               case 2:
+                  switch(_loc9_)
+                  {
+                     case 0:
+                        _loc2_ = _loc3_ + " stays in 2nd place with a total of " + _loc4_;
+                        break;
+                     case 1:
+                        _loc2_ = _loc3_ + " is tied with " + _loc12_ + " for 2nd with a total of " + _loc4_;
+                  }
+                  break;
+               case 3:
+                  _loc2_ = _loc3_ + " remains in 3rd place with total of " + _loc4_;
+            }
+         }
+      }
+      bFirstClue = false;
+   }
+   else if(nResult == -2)
+   {
+      cluecardTRACE("Daily double wrong");
+      _loc6_ = "Sorry!";
+      _loc21_ = _global.SoeCluecard.cluecardAddPunctuation(sResponseArray[nTileValue + 2],".");
+      _loc2_ = "The correct response was\n" + _loc21_;
+      resultResetResults();
+   }
+   else if(nResult == -3)
+   {
+      cluecardTRACE("No Final Jeopardy");
+      _loc6_ = "No Final Jeopardy!";
+      _loc2_ = "No player had a score above 0";
+      resultResetResults();
+   }
+   else if(resultGetAllPlayersWrong())
+   {
+      cluecardTRACE("All players wrong");
+      _loc6_ = "Sorry!";
+      _loc21_ = _global.SoeCluecard.cluecardAddPunctuation(sResponseArray[nTileValue + 2],".");
+      _loc2_ = "The correct response was\n" + _loc21_;
+      resultResetResults();
+   }
+   else
+   {
+      cluecardTRACE("Time\'s up");
+      _loc6_ = "Time\'s up!";
+      _loc21_ = _global.SoeCluecard.cluecardAddPunctuation(sResponseArray[nTileValue + 2],".");
+      _loc2_ = "The correct response was\n" + _loc21_;
+      resultResetResults();
+   }
+   setTextForFlash(_loc6_,0);
+   setTextForFlash(_loc2_,1);
+}
+function resultSetFinalResult()
+{
+   resultSetPlayerRanks();
+   var _loc4_ = [];
+   var _loc2_ = 0;
+   var _loc3_;
+   while(_loc2_ < 3)
+   {
+      _loc3_ = resultGetPlayer(_loc2_);
+      if(_loc3_.score > 0)
+      {
+         if(_loc3_.rank == 1)
+         {
+            _loc4_.push(_loc2_);
+         }
+      }
+      _loc2_ = _loc2_ + 1;
+   }
+   var _loc5_;
+   var _loc7_;
+   var _loc6_;
+   var _loc8_;
+   switch(_loc4_.length)
+   {
+      case 1:
+         _loc5_ = resultGetPlayer(_loc4_[0]);
+         _loc7_ = _global.SoeWager.wagerGetFormattedScore(_loc5_.score);
+         strResultsLeadIn = _loc5_.name + " wins!";
+         strResults = "With a final score of " + _loc7_ + ".";
+         break;
+      case 2:
+         _loc5_ = resultGetPlayer(_loc4_[0]);
+         _loc6_ = resultGetPlayer(_loc4_[1]);
+         _loc7_ = _global.SoeWager.wagerGetFormattedScore(_loc5_.score);
+         strResultsLeadIn = _loc5_.name + " and ";
+         strResultsLeadIn += _loc6_.name + " tie!";
+         strResults = "With a final score of " + _loc7_ + ".";
+         break;
+      case 3:
+         _loc5_ = resultGetPlayer(_loc4_[0]);
+         _loc6_ = resultGetPlayer(_loc4_[1]);
+         _loc8_ = resultGetPlayer(_loc4_[2]);
+         _loc7_ = _global.SoeWager.wagerGetFormattedScore(_loc5_.score);
+         strResultsLeadIn = _loc5_.name + ", ";
+         strResultsLeadIn += _loc6_.name + ", and ";
+         strResultsLeadIn += _loc8_.name + " all tie!";
+         strResults = "With a final score of " + _loc7_ + ".";
+         break;
+      default:
+         strResultsLeadIn = "No winner this time!";
+         strResults = "No one had a final score greater than 0.";
+   }
+   setTextForFlash(strResultsLeadIn,0);
+   setTextForFlash(strResults,1);
+}
+function resultSetFinalPlayerResult(nPlayer, nResult, nWagerValue)
+{
+   _global.SoeCluecard.cluecardSetCurrentPlayer(nPlayer);
+   var _loc2_ = resultGetPlayer(nPlayer);
+   if(nResult == 1)
+   {
+      _loc2_.score += nWagerValue;
+   }
+   else
+   {
+      _loc2_.score -= nWagerValue;
+   }
+   var _loc3_ = _global.SoeWager.wagerGetFormattedScore(nWagerValue);
+   var _loc6_ = _global.SoeWager.wagerGetFormattedScore(_loc2_.score);
+   _loc2_.displayWager = _loc3_;
+   var _loc4_ = "";
+   var _loc5_ = "";
+   if(nResult == 1)
+   {
+      _loc4_ = "Correct!";
+      _loc5_ = _loc2_.name + " wagered " + _loc3_ + "\nfor a final score of " + _loc6_ + ".";
+   }
+   else
+   {
+      _loc4_ = "Incorrect!";
+      _loc5_ = _loc2_.name + " wagered " + _loc3_ + "\nfor a final score of " + _loc6_ + ".";
+   }
+   setTextForFlash(_loc4_,0);
+   setTextForFlash(_loc5_,1);
+   resultSetPlayerRanks();
+}
+function resultSetPlayerRanks()
+{
+   var _loc3_ = 0;
+   var _loc4_;
+   var _loc5_;
+   var _loc1_;
+   var _loc2_;
+   while(_loc3_ < 3)
+   {
+      _loc4_ = resultGetPlayer(_loc3_);
+      _loc5_ = 3;
+      if(_loc4_.type >= 0)
+      {
+         _loc1_ = 0;
+         while(_loc1_ < 3)
+         {
+            if(_loc1_ != _loc3_)
+            {
+               _loc2_ = resultGetPlayer(_loc1_);
+               if(_loc2_.type == -1 || _loc4_.score >= _loc2_.score)
+               {
+                  _loc5_ = _loc5_ - 1;
+               }
+            }
+            _loc1_ = _loc1_ + 1;
+         }
+      }
+      _loc4_.rank = _loc5_;
+      _loc3_ = _loc3_ + 1;
+   }
+}
+function getTiedPlayerCount(nPlayer, inScore)
+{
+   var _loc3_ = 0;
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < 3)
+   {
+      if(_loc1_ != nPlayer)
+      {
+         _loc2_ = resultGetPlayer(_loc1_);
+         if(_loc2_.type >= 0)
+         {
+            if(inScore == _loc2_.score)
+            {
+               _loc3_ = _loc3_ + 1;
+            }
+         }
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   return _loc3_;
+}
+function getTiedPlayerIndex(nPlayer, inScore)
+{
+   var _loc3_ = -1;
+   var _loc1_ = 0;
+   var _loc2_;
+   while(_loc1_ < 3)
+   {
+      if(_loc1_ != nPlayer)
+      {
+         _loc2_ = resultGetPlayer(_loc1_);
+         if(_loc2_.type >= 0)
+         {
+            if(inScore == _loc2_.score)
+            {
+               _loc3_ = _loc1_;
+               break;
+            }
+         }
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   return _loc3_;
+}
+function positionText2(inObject, inSpacing, inLeading, inBlueBg)
+{
+   var _loc8_ = 0;
+   var _loc7_ = inObject.tText0.textHeight;
+   var _loc10_ = inObject.tText1.textHeight;
+   var _loc6_ = inSpacing;
+   var _loc11_ = 6;
+   var _loc9_ = -4;
+   var _loc4_ = _loc7_ + _loc6_ + _loc10_;
+   inObject.tText0._y = (_loc8_ - _loc4_) / 2 + _loc9_;
+   inObject.tText1._y = inObject.tText0._y + _loc7_ + _loc6_;
+   var _loc5_;
+   var _loc3_;
+   if(inBlueBg != undefined && _loc4_ > inBlueBg._height)
+   {
+      _loc5_ = _loc4_;
+      _loc3_ = Math.abs(_loc5_ - inBlueBg._height);
+      inBlueBg._y -= _loc3_ / 2;
+      inBlueBg._height = _loc5_;
+      inObject.tText0._y -= _loc3_ / 2;
+      inObject.tText1._y -= _loc3_ / 2;
+      inBlueBg._y -= _loc3_ / 2;
+   }
+}
+function sendMessageToSWF(inSwf, swfFunction, inTerm0, inTerm1, inTerm2, inTerm3, inTerm4)
+{
+   var _loc1_ = swfFunction + "|" + inTerm0 + "|" + inTerm1 + "|" + inTerm2 + "|" + inTerm3 + "|" + inTerm4;
+   fscommand("postSWFCommand1",inSwf + " handleMessageFromSWF " + _loc1_);
+}
+function convertStringToNumber(inText)
+{
+   if(Number(inText) != NaN)
+   {
+      inText = Number(inText);
+   }
+   return inText;
+}
+function handleMessageFromSWF(inMessage)
+{
+   var arrMessage = new Array();
+   arrMessage = inMessage.split("|");
+   var oFunction = eval(arrMessage[0]);
+   var oIndex = 1;
+   while(oIndex < arrMessage.length)
+   {
+      arrMessage[oIndex] = convertStringToNumber(arrMessage[oIndex]);
+      oIndex++;
+   }
+   oFunction(arrMessage[1],arrMessage[2],arrMessage[3],arrMessage[4],arrMessage[5]);
+}
+function cluecardTRACE(strText)
+{
+   if(s_bEnableTrace)
+   {
+      fscommand("cluecardTRACE " + strText,"");
+      trace(strText);
+   }
+}
+function soeEnableTrace(bEnable)
+{
+   s_bEnableTrace = bEnable;
+}
+function positionText(aObject, nOffset)
+{
+   aObject.tText._y = - aObject.tText.textHeight / 2 + nOffset;
+}
+function positionAndFontSizeText(aObject, nOffset, nFontSize)
+{
+   cluecardTRACE("positionAndFontSizeText: aObject " + aObject + " nFontSize " + nFontSize);
+   var _loc3_ = aObject.tText.text;
+   aObject.tText.text = "";
+   var _loc2_ = new TextFormat();
+   _loc2_.size = nFontSize;
+   aObject.tText.setNewTextFormat(_loc2_);
+   aObject.tText.text = _loc3_;
+   positionText(aObject,nOffset);
+}
+function init_cluecard()
+{
+   _global.gfxExtensions = true;
+   if(_global.gfxVersion == undefined)
+   {
+      _global.gfxExtensions = false;
+   }
+   trace("init_cluecard: _global.gfxExtensions " + _global.gfxExtensions);
+   sResponseArray = new Array(10);
+   s_aTextArray = new Array(10);
+   var _loc2_ = 0;
+   while(_loc2_ < 3)
+   {
+      s_aPlayerArray[_loc2_] = new Object();
+      _loc2_ = _loc2_ + 1;
+   }
+   cluecardResetPlayers();
+   if(_global.gfxExtensions)
+   {
+      cluecardSetDisable();
+   }
+}
+function cluecardInit()
+{
+   s_nDefaultFontSize = iInitText.tText.getNewTextFormat().size;
+   cluecardTRACE("cluecardInit: iInitText " + iInitText + " s_nDefaultFontSize " + s_nDefaultFontSize);
+   if(!_global.gfxExtensions)
+   {
+      sResponseArray[0] = "The year \"Bewitched\" debuted, a 100th anniversary party for this denomination of money was held in NYC & attended by Chief John Big Tree one of its original models";
+      sResponseArray[1] = "Lead In...";
+      sResponseArray[2] = "Teddy Roosevelt, William Howard Taft & Woodrow Wilson";
+      sResponseArray[3] = "Lincoln and Washington";
+      sResponseArray[4] = "Choice 3";
+      sResponseArray[5] = "Choice 4";
+      cluecardInitRound(0);
+      cluecardSetPlayer(0,400,"Spencer",1,0);
+      cluecardSetPlayer(1,200,"Shalom with a long name",2,0);
+      cluecardSetPlayer(2,0,"Caroline",3,1);
+   }
+}
+function cluecardResetPlayers()
+{
+   cluecardTRACE("cluecardResetPlayers");
+   var _loc2_ = 0;
+   var _loc1_;
+   while(_loc2_ < 3)
+   {
+      _loc1_ = s_aPlayerArray[_loc2_];
+      _loc1_.result = -1;
+      _loc1_.name = "";
+      _loc1_.displayWager = "";
+      _loc1_.podium = -1;
+      _loc1_.style = -1;
+      _loc1_.score = 0;
+      _loc1_.gender = -1;
+      _loc1_.rank = -1;
+      _loc1_.nSelectedResponse = -1;
+      _loc2_ = _loc2_ + 1;
+   }
+}
+function cluecardToggleLegendButtons(nToggle)
+{
+   s_nToggleLegend = nToggle;
+}
+function cluecardIsLegendToggled()
+{
+   return s_nToggleLegend;
+}
+function cluecardPlayer(nIndex)
+{
+   return s_aPlayerArray[nIndex];
+}
+function cluecardGetPlayerResult(nIndex)
+{
+   return s_aPlayerArray[nIndex].result;
+}
+function cluecardSetPlayerResult(nIndex, nResult)
+{
+   s_aPlayerArray[nIndex].result = nResult;
+}
+function cluecardInitRound(inRound)
+{
+   bFirstClue = true;
+   s_nGameRound = inRound;
+}
+function cluecardSetCurrentPlayer(inPlayer)
+{
+   s_nCurrentPlayer = inPlayer;
+}
+function cluecardSetPlayer(inPlayer, inScore, inName, inStyle, inGender, inType)
+{
+   var _loc1_ = cluecardPlayer(inPlayer);
+   _loc1_.style = inStyle;
+   _loc1_.gender = inGender;
+   _loc1_.type = inType;
+   if(inType == -1)
+   {
+      _loc1_.score = 0;
+      _loc1_.name = "";
+   }
+   else
+   {
+      _loc1_.score = inScore;
+      _loc1_.name = inName;
+   }
+}
+function cluecardSetCurrentDisplay(inDisplay)
+{
+   handleEndDisplay(s_strCurrentDisplay);
+   gotoAndPlay("l" + inDisplay);
+   s_strCurrentDisplay = inDisplay;
+}
+function cluecardSetSpecialResultMessage(inMessage)
+{
+   s_nSpecialResultMessage = inMessage.valueOf();
+}
+function cluecardSetPlayerResponse(inPlayer, inResponse)
+{
+   cluecardPlayer(inPlayer).response = inResponse;
+}
+function cluecardSetDisable()
+{
+   cluecardSetCurrentDisplay("Hide");
+   fscommand("postCluecardDisabled");
+}
+function displayZoomClue()
+{
+   resultResetResults();
+   cluecardTRACE("displayZoomClue");
+   setTextForFlash(sResponseArray[0],0);
+   cluecardSetCurrentDisplay("Clue");
+   fscommand("postCluecardZoomClueDisplayed");
+}
+function displayClue()
+{
+   setTextForFlash(sResponseArray[0],0);
+   var _loc2_ = false;
+   var _loc1_ = 0;
+   while(_loc1_ < 3)
+   {
+      if(cluecardPlayer(_loc1_).type == 1)
+      {
+         if(cluecardGetPlayerResult(_loc1_) == -1)
+         {
+            _loc2_ = true;
+         }
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   s_bFinalClue = false;
+   if(_loc2_)
+   {
+      cluecardSetCurrentDisplay("CluePassRespond");
+      initTimer(s_nClueTime,"postTimesUpClue");
+   }
+   else
+   {
+      cluecardSetCurrentDisplay("ClueViewer");
+      initInterval(s_nClueTime,"postTimesUpClue");
+   }
+   fscommand("postCluecardClueDisplayed");
+}
+function displayClueViewer()
+{
+   setTextForFlash(sResponseArray[0],0);
+   s_bFinalClue = false;
+   cluecardSetCurrentDisplay("ClueViewer");
+   fscommand("postCluecardClueDisplayed");
+}
+function cluecardBuzzInCount()
+{
+   var _loc2_ = 0;
+   var _loc1_ = 0;
+   while(_loc1_ < 3)
+   {
+      if(cluecardGetPlayerResult(_loc1_) != -1)
+      {
+         _loc2_ = _loc2_ + 1;
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+   return _loc2_;
+}
+function displayBuzzIn(inPlayer)
+{
+   var _loc2_ = cluecardPlayer(inPlayer).name;
+   var _loc1_ = _loc2_;
+   _loc1_ = _loc2_ + "?";
+   s_nNextBuzzInResponse = (s_nNextBuzzInResponse + 1) % 3;
+   setTextForFlash(_loc1_,0);
+   cluecardSetCurrentDisplay("BuzzIn");
+   fscommand("postCluecardBuzzInDisplayed");
+}
+function displayFinalResponse(inPlayer)
+{
+   var _loc1_ = cluecardPlayer(inPlayer);
+   setTextForFlash(sResponseArray[1],2);
+   var _loc2_ = _loc1_.response < 0 ? " " : sResponseArray[_loc1_.response + 2];
+   _loc2_ = cluecardAddPunctuation(_loc2_,"?");
+   setTextForFlash(_loc2_,3);
+   setTextForFlash(_loc1_.displayWager,4);
+   sendMessageToSWF("gui","doSetInfoBarText",_loc1_.name,1);
+   sendMessageToSWF("gui","doQuickShowInfoBar");
+   cluecardSetCurrentDisplay("FinalResponse");
+   fscommand("postCluecardFinalResponseDisplayed");
+}
+function handleFinalResponseResult()
+{
+   fscommand("postFinalResponseResult");
+}
+function handleFinalResponseComplete()
+{
+   fscommand("postFinalResponseComplete");
+}
+function handleUpdateFinalScore()
+{
+   fscommand("postUpdateFinalScore");
+}
+function handleSetInfoBarWagerText()
+{
+   sendMessageToSWF("gui","doSetInfoBarText","null",2);
+}
+function handleHideInfoBar()
+{
+   fscommand("postSWFCommand1","gui doHideInfoBar 2");
+}
+function displayDailyDoubleClue()
+{
+   cluecardTRACE("displayDailyDoubleClue");
+   setTextForFlash(sResponseArray[0],0);
+   cluecardSetCurrentDisplay("ClueRespond");
+   s_bFinalClue = false;
+   initTimer(s_nClueTime,"postTimesUpClue");
+   fscommand("postCluecardClueDisplayed");
+}
+function displayDailyDoubleClueAi()
+{
+   cluecardTRACE("displayDailyDoubleClueAi");
+   setTextForFlash(sResponseArray[0],0);
+   cluecardSetCurrentDisplay("ClueRespondAi");
+   s_bFinalClue = false;
+   initTimer(s_nClueTime,"postTimesUpClue");
+   fscommand("postCluecardClueDisplayed");
+}
+function displayDailyDoubleClueOnline()
+{
+   cluecardTRACE("displayDailyDoubleClueOnline");
+   setTextForFlash(sResponseArray[0],0);
+   cluecardSetCurrentDisplay("ClueRespondOnline");
+   s_bFinalClue = false;
+   initTimer(s_nClueTime,"postTimesUpClue");
+   fscommand("postCluecardClueDisplayed");
+}
+function displayFinalClue()
+{
+   cluecardTRACE("displayFinalClue");
+   setTextForFlash(sResponseArray[0],0);
+   cluecardSetCurrentDisplay("ClueRespond");
+   s_bFinalClue = true;
+   initTimer(s_nFinalClueTime,"postTimesUpClue");
+   fscommand("postCluecardFinalClueDisplayed");
+}
+function displayWaitingClue()
+{
+   cluecardTRACE("displayWaitingClue");
+   cluecardSetCurrentDisplay("WaitingClue");
+   fscommand("postCluecardWaitingClueDisplayed");
+}
+function displayWaitingViewer()
+{
+   cluecardTRACE("displayWaitingViewer");
+   cluecardSetCurrentDisplay("WaitingViewer");
+   fscommand("postCluecardWaitingViewerDisplayed");
+}
+function displayResponsePlayer(inPlayer)
+{
+   var _loc1_ = sResponseArray[1] + "...";
+   setTextForFlash(_loc1_,0);
+   setTextForFlash(sResponseArray[2],1);
+   setTextForFlash(sResponseArray[3],2);
+   setTextForFlash(sResponseArray[4],3);
+   setTextForFlash(sResponseArray[5],4);
+   cluecardSetCurrentDisplay("ResponsePlayer");
+   if(s_bFinalClue)
+   {
+      initTimerImpl(s_nFinalClueTime - s_nLastTimePass,s_nFinalClueTime,"postTimesUpResponse");
+   }
+   else
+   {
+      initTimer(s_nResponseTime,"postTimesUpResponse");
+   }
+   sendMessageToSWF("podiums","startPodiumTimer",s_nCurrentPlayer,s_nClueTime);
+   fscommand("postCluecardResponsePlayerDisplayed");
+}
+function displayResponseViewer(inPlayer)
+{
+   sendMessageToSWF("podiums","startPodiumTimer",s_nCurrentPlayer,s_nClueTime);
+}
+function displayResultsPlayer(inPlayer)
+{
+   var _loc1_ = cluecardPlayer(inPlayer);
+   cluecardSetCurrentDisplay("ResultsPlayer");
+   fscommand("postCluecardResultsPlayerDisplayed");
+}
+function displayResultsResponse(inPlayer)
+{
+   cluecardTRACE("displayResultsResponse");
+   cluecardSetCurrentDisplay("ResultsViewer");
+   fscommand("postCluecardResultsResponseDisplayed");
+}
+function displayResultsViewer(inPlayer)
+{
+   cluecardTRACE("displayResultsViewer");
+   cluecardSetCurrentDisplay("ResultsViewer");
+   fscommand("postCluecardResultsViewerDisplayed");
+}
+function displayFinalResult()
+{
+   cluecardSetCurrentDisplay("FinalResult");
+   fscommand("postCluecardResultsViewerDisplayed");
+}
+function displayDailyDouble()
+{
+   resultResetResults();
+   cluecardTRACE("displayDailyDouble");
+   cluecardSetCurrentDisplay("DailyDouble");
+   fscommand("postCluecardDailyDoubleDisplayed");
+}
+function displayWagerPlayer(inPlayer)
+{
+   cluecardTRACE("displayWagerPlayer:" + inPlayer);
+   setTextForFlash(wagerGetWagerLeadIn(inPlayer),0);
+   cluecardSetCurrentDisplay("WagerPlayer");
+   initTimer(s_nWagerTime,"postTimesUpWager");
+   fscommand("postCluecardWagerPlayerDisplayed");
+}
+function displayFinalWager(inPlayer)
+{
+   cluecardTRACE("displayFinalWager:" + inPlayer);
+   setTextForFlash(wagerGetWagerLeadIn(inPlayer),0);
+   cluecardSetCurrentDisplay("WagerFinal");
+   initTimer(s_nWagerTime,"postTimesUpWager");
+   fscommand("postCluecardFinalWagerDisplayed");
+}
+function displayFinalIntro()
+{
+   cluecardSetCurrentDisplay("FinalIntro");
+   fscommand("postCluecardFinalIntroDisplayed");
+}
+function displayWagerViewer(inPlayer)
+{
+   cluecardSetCurrentDisplay("WagerViewer");
+   fscommand("postCluecardWagerViewerDisplayed");
+}
+function initTimer(nTime, strPostTimesUp)
+{
+   initTimerImpl(nTime,nTime,strPostTimesUp);
+}
+function initTimerImpl(nTime, nTotalTime, strPostTimesUp)
+{
+   s_nTimerIncrement = nTotalTime / s_nTotalTimerSteps;
+   s_nTimerStep = int((nTime + (s_nTimerIncrement - 1)) / s_nTimerIncrement - 1);
+   s_strPostTimesUp = strPostTimesUp;
+   cluecardTRACE("initTimerImpl: s_nTimerIncrement " + s_nTimerIncrement + " s_nTimerStep " + s_nTimerStep + " s_strPostTimesUp " + s_strPostTimesUp);
+   updateAllTimerLights();
+   startTimer();
+}
+function startTimer()
+{
+   cluecardTRACE("startTimer: s_nTimerIncrement " + s_nTimerIncrement);
+   iTimer.startTimer(this,s_nTimerIncrement);
+}
+function stopTimer()
+{
+   s_nLastTimePass = iTimer.getTimeDelta();
+   cluecardTRACE("stopTimer");
+   iTimer.stopTimer();
+   sendMessageToSWF("podiums","endPodiumTimer",s_nCurrentPlayer);
+}
+function pauseTimer()
+{
+}
+function onTimer(inTimer)
+{
+   hideTimerLight(s_nTimerStep);
+   if(s_nTimerStep > 0)
+   {
+      s_nTimerStep -= 1;
+   }
+   else
+   {
+      stopTimer();
+      handleTimesUp();
+   }
+}
+function initInterval(nTime, strPostTimesUp)
+{
+   s_nTimerIncrement = nTime;
+   s_strPostTimesUp = strPostTimesUp;
+   cluecardTRACE("initInterval: s_nTimerIncrement " + s_nTimerIncrement + " s_strPostTimesUp " + s_strPostTimesUp);
+   startInterval();
+}
+function startInterval()
+{
+   clearInterval(s_nIntervalID);
+   s_nIntervalID = setInterval(onInterval,s_nTimerIncrement * 1000);
+}
+function stopInterval()
+{
+   if(s_nIntervalID)
+   {
+      clearInterval(s_nIntervalID);
+      s_nIntervalID = 0;
+   }
+   sendMessageToSWF("podiums","endPodiumTimer",s_nCurrentPlayer);
+}
+function onInterval()
+{
+   stopInterval();
+   handleTimesUp();
+}
+function handleShowComplete(inObject)
+{
+   var _loc0_;
+   if((_loc0_ = inObject) === iDailyDouble)
+   {
+      fscommand("postShowCompleteDailyDouble");
+   }
+}
+function handleTimesUp()
+{
+   fscommand(s_strPostTimesUp,"");
+}
+function hideTimerLight(inLight)
+{
+   var _loc3_;
+   var _loc2_;
+   var _loc4_;
+   if(inLight == 0)
+   {
+      _loc3_ = iTimerBar["iTimerLight" + inLight];
+      _loc3_.gotoAndPlay("lHide");
+   }
+   else
+   {
+      _loc2_ = iTimerBar["iTimerLightL" + inLight];
+      _loc2_.gotoAndPlay("lHide");
+      _loc4_ = iTimerBar["iTimerLightR" + inLight];
+      _loc4_.gotoAndPlay("lHide");
+   }
+}
+function showTimerLight(inLight)
+{
+   var _loc3_;
+   var _loc2_;
+   var _loc4_;
+   if(inLight == 0)
+   {
+      _loc3_ = iTimerBar["iTimerLight" + inLight];
+      _loc3_.gotoAndPlay("lShow");
+   }
+   else
+   {
+      _loc2_ = iTimerBar["iTimerLightL" + inLight];
+      _loc2_.gotoAndPlay("lShow");
+      _loc4_ = iTimerBar["iTimerLightR" + inLight];
+      _loc4_.gotoAndPlay("lShow");
+   }
+}
+function updateAllTimerLights()
+{
+   cluecardTRACE("updateAllTimerLights: s_nTimerStep " + s_nTimerStep);
+   var _loc1_ = 0;
+   while(_loc1_ < s_nTotalTimerSteps)
+   {
+      if(_loc1_ <= s_nTimerStep)
+      {
+         showTimerLight(_loc1_);
+      }
+      else
+      {
+         hideTimerLight(_loc1_);
+      }
+      _loc1_ = _loc1_ + 1;
+   }
+}
+function handleZoomComplete()
+{
+   displayClue();
+}
+function handleDailyDoubleZoomComplete()
+{
+}
+function getText(inObject, inLine0, inLine1)
+{
+   inObject.tText.text = s_aTextArray[inLine0];
+   inObject.tText0.text = s_aTextArray[inLine0];
+   inObject.tText1.text = s_aTextArray[inLine1];
+   inObject.tWhiteText.text = oText;
+   inObject.tBlackText.text = oText;
+}
+function getTextStyle(inObject)
+{
+   var _loc1_ = cluecardPlayer(s_nCurrentPlayer);
+   inObject.gotoAndPlay("lStyle" + _loc1_.style);
+}
+function getFinalClueResponse(inObject)
+{
+   var _loc2_ = cluecardPlayer(s_nCurrentPlayer);
+   var _loc1_ = _loc2_.response < 0 ? " " : sResponseArray[_loc2_.response + 2];
+   _loc1_ = cluecardAddPunctuation(_loc1_,"?");
+   inObject.tText.text = _loc1_;
+}
+function cluecardAddPunctuation(inText, inPunctuation)
+{
+   var _loc2_ = inText.substr(inText.length - 1,1);
+   if(".?!".indexOf(_loc2_) == -1)
+   {
+      inText += inPunctuation;
+   }
+   return inText;
+}
+function handleEndDisplay(inDisplay)
+{
+   if(inDisplay != "Hide")
+   {
+      gotoAndStop("lHide");
+      play();
+   }
+   stopTimer();
+   stopInterval();
+}
+function setTextForFlash(inText, inLine)
+{
+   s_aTextArray[inLine] = inText;
+}
+function scaleText(inObject, inMaxWidth, inAlign)
+{
+   var _loc4_ = inMaxWidth;
+   var _loc5_ = inObject.tText._x;
+   var _loc2_ = inObject.tText.textWidth;
+   var _loc3_;
+   if(_loc2_ > _loc4_)
+   {
+      _loc3_ = _loc4_ / _loc2_;
+   }
+   else
+   {
+      _loc3_ = 1;
+   }
+   inObject.tText._xscale = 100 * _loc3_;
+   inObject.tText.autoSize = "left";
+   if(inAlign == "center")
+   {
+      inObject.tText._x = - _loc2_ / 2 * _loc3_;
+   }
+   else
+   {
+      inObject.tText._x = _loc5_;
+   }
+}
+function autoScaleText(oText)
+{
+   var _loc10_;
+   var _loc9_;
+   var _loc6_;
+   var _loc7_;
+   var _loc8_;
+   var _loc2_;
+   var _loc5_;
+   var _loc4_;
+   var _loc3_;
+   if(oText != undefined && oText.text != "")
+   {
+      _loc10_ = oText.textHeight;
+      _loc9_ = oText.getNewTextFormat();
+      _loc6_ = oText.text;
+      _loc7_ = oText._width;
+      _loc8_ = oText._height;
+      _loc2_ = _loc9_.size;
+      while(_loc2_ <= 81)
+      {
+         _loc5_ = oText.textWidth;
+         _loc4_ = oText.textHeight;
+         if(!(_loc4_ < _loc8_ || _loc5_ < _loc7_))
+         {
+            break;
+         }
+         _loc2_ += 4;
+         _loc3_ = new TextFormat();
+         oText.text = "";
+         _loc3_.size = _loc2_;
+         oText.setNewTextFormat(_loc3_);
+         oText.text = _loc6_;
+      }
+      while(_loc2_ >= 8)
+      {
+         _loc5_ = oText.textWidth;
+         _loc4_ = oText.textHeight;
+         if(!(_loc4_ >= _loc8_ || _loc5_ >= _loc7_))
+         {
+            break;
+         }
+         _loc2_ -= 4;
+         _loc3_ = new TextFormat();
+         oText.text = "";
+         _loc3_.size = _loc2_;
+         oText.setNewTextFormat(_loc3_);
+         oText.text = _loc6_;
+      }
+   }
+}
+_global.SoeResponse = this;
+var s_nMoveOffset = 40;
+var s_nSelectedResponse = 0;
+var s_nTargetPos = 0;
+var s_aResponsePosList;
+_global.SoeWager = this;
+var s_nCurrentWager = 0;
+var s_nCurrentPosition = 0;
+var s_nMinWager = 0;
+var s_nMaxWager = 0;
+var s_nTargetPos = 0;
+var s_nMoveOffset = 40;
+var s_nNumOfDigits = 6;
+_global.SoeResult = this;
+_global.SoeCluecard = this;
+var s_nToggleLegend = false;
+var s_nTotalTimerSteps = 5;
+var s_nTimerStep = 0;
+var s_nTimerIncrement = 0;
+var s_strPostTimesUp = "";
+var s_nClueTime = 10;
+var s_nResponseTime = 5;
+var s_nWagerTime = 25;
+var s_bFinalClue = false;
+var s_nFinalClueTime = 30;
+var s_nLastTimePass = 0;
+var s_nFinalResponseTime = 0;
+var sResponseArray;
+var s_aPlayerArray = new Array(3);
+var s_aTextArray = new Array(10);
+var s_nCurrentPlayer = 0;
+var s_nGameRound = 0;
+var s_nSpecialResultMessage = 0;
+var s_strCurrentDisplay = null;
+var s_nDefaultFontSize = 81;
+var s_nNextBuzzInResponse = 0;
+var s_bEnableTrace = true;
+_global.SoeCluecard.init_cluecard();
+_global.SoeWager.init_wager();
+_global.SoeResponse.init_response();
+_global.SoeResult.init_result();
+
+var bToggle = _global.SoeCluecard.cluecardIsLegendToggled();
+iToggleX._visible = bToggle;
+iToggleO._visible = bToggle;
+iButtonX._visible = !bToggle;
+iButtonO._visible = !bToggle;
+
+stop();
+
+stop();
+
+stop();
+
+_global.SoeResponse.responseInit();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+_global.SoeResponse.responseUpdatePos();
+
+stop();
+
+_global.SoeWager.wagerUpdatePos();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+stop();
+
+_root.handleUpdateFinalScore();
+
+_root.gotoAndPlay("lHide");
+_root.handleFinalResponseComplete();
