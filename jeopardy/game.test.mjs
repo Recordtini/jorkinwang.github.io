@@ -37,7 +37,19 @@ test('Unanswered clue times out without penalizing contestants',()=>{
   const g=game();g.state.doubles=[];g.select(0,0);g.openBuzzers();g.timeout();assert.ok(g.state.players.every(p=>p.score===0));assert.equal(g.state.phase,'result');
 });
 test('Daily Double bounds, sole respondent and score arithmetic',()=>{
-  const g=game();g.state.doubles=[0];g.select(0,0);assert.equal(g.maxWager(),1000);assert.equal(g.wager(1001),false);assert.equal(g.wager(4),false);assert.equal(g.wager(5.5),false);assert.equal(g.wager(500),true);g.openBuzzers();assert.equal(g.state.phase,'answer');assert.equal(g.buzz(1),false);g.answer(correct(g));assert.equal(g.player.score,500);
+  const g=game();g.state.doubles=[0];g.select(0,0);assert.equal(g.maxWager(),1000);assert.equal(g.wager(1001),false);assert.equal(g.wager(0),false);assert.equal(g.wager(5.5),false);assert.equal(g.wager(500),true);g.openBuzzers();assert.equal(g.state.phase,'answer');assert.equal(g.buzz(1),false);g.answer(correct(g));assert.equal(g.player.score,500);
+});
+test('Daily Double accepts a one-dollar wager, including from a negative score',()=>{
+  const g=game();g.player.score=-200;g.state.doubles=[0];g.select(0,0);assert.equal(g.wager(1),true);g.openBuzzers();g.answer(correct(g));assert.equal(g.player.score,-199);
+});
+test('CPU result retains the actual selected response, not just the correct answer',()=>{
+  const g=game();g.state.doubles=[];g.select(0,0);g.openBuzzers();g.buzz(1);
+  const wrong=g.state.choices.findIndex(c=>c!==g.clue.answer),chosen=g.state.choices[wrong];g.answer(wrong);
+  assert.equal(g.state.result.player,1);assert.equal(g.state.result.response,chosen);assert.equal(g.state.result.correct,false);
+  g.next();g.buzz(0);g.answer(correct(g));assert.equal(g.state.result.response,g.clue.answer);g.next();assert.equal(g.state.result,null);
+});
+test('Timeout results never invent an NPC-selected wrong response',()=>{
+  const g=game();clue(g);g.timeout();assert.equal(g.state.result.response,null);assert.equal(g.state.result.timedOut,true);
 });
 test('Daily Double incorrect/timeout does not open a rebound',()=>{
   const g=game();clue(g,true);g.timeout();assert.equal(g.player.score,-500);assert.equal(g.state.phase,'result');

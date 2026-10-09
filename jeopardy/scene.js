@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {cash} from './game.js';
+import {cash} from './game.js?v=20261009-flow2';
 
 function surface(width,height){
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
@@ -84,13 +84,19 @@ export class JeopardyStudio{
       return column>=0&&column<6&&row>=0&&row<5?{column,row}:null;
     };
     this.canvas.addEventListener('pointermove',event=>{
-      if(this.controls.enabled)return;const cell=pick(event);
-      this.canvas.style.cursor=cell&&!this.state.board[cell.column].played[cell.row]?'pointer':'default';
+      const cell=this.controls.enabled||this.inputLocked?null:pick(event);
+      this.setHover(cell&&!this.state.players[this.state.turn].ai&&!this.state.board[cell.column].played[cell.row]?cell:null);
     });
+    this.canvas.addEventListener('pointerleave',()=>this.setHover(null));
     this.canvas.addEventListener('pointerup',event=>{
-      if(!this.down||Math.hypot(event.clientX-this.down.x,event.clientY-this.down.y)>5||this.controls.enabled)return;
+      if(!this.down||Math.hypot(event.clientX-this.down.x,event.clientY-this.down.y)>5||this.controls.enabled||this.inputLocked)return;
       const cell=pick(event);if(cell)this.onSelect?.(cell.column,cell.row);
     });
+  }
+  setHover(cell){
+    if(this.hover?.column===cell?.column&&this.hover?.row===cell?.row)return;
+    this.hover=cell;this.canvas.style.cursor=cell?'pointer':'default';
+    if(this.state)this.update(this.state);
   }
   resize(){
     const rect=this.canvas.parentElement.getBoundingClientRect();this.renderer.setSize(rect.width,rect.height,false);
@@ -132,12 +138,16 @@ export class JeopardyStudio{
     if(event==='start'){this.play('cam_animation_intro_to_clueboard','board');return;}
     if(event==='round'){this.play('cam_animation_DJeop_intro_to_players','board');return;}
     if(event==='final'){this.play('cam_animation_intro_clueboard_FinalJeop','players');return;}
-    if(event==='board'&&state.phase==='board'){this.play('cam_animation_clue_board_0','board');return;}
-    if(['answer','final-answer','wager','final-wager'].includes(state.phase)){this.play('cam_podiums_all_players_answering');}
+    if(event==='board'&&state.phase==='board'){this.cut('board');return;}
+    if(['answer','final-answer'].includes(state.phase)){this.play('cam_podiums_all_players_answering');}
+    else if(state.phase==='wager')this.cut(`cam_closeup_dailydouble_player${'ABC'[state.players[state.turn].slot]}`);
+    else if(state.phase==='final-wager')this.cut('players');
+    else if(['result','rebound'].includes(state.phase))this.cut('players');
     else if(state.phase==='finished')this.cut('show');else this.cut('board');
   }
   update(state,remaining=null,total=null){
     this.state=state;const {ctx,texture}=this.board;
+    if(state?.phase!=='board'||this.inputLocked){this.hover=null;this.canvas.style.cursor='default';}
     if(remaining===null){
     ctx.fillStyle='#020315';ctx.fillRect(0,0,1440,1040);
     if(!state)ctx.drawImage(this.logo,0,140,1440,900);
@@ -151,6 +161,9 @@ export class JeopardyStudio{
         for(let row=0;row<5;row++){
           const x=column*240+4,y=140+row*180;
           ctx.drawImage(this.tileArt,x,y,232,176);
+          if(this.hover?.column===column&&this.hover?.row===row&&!category.played[row]){
+            ctx.fillStyle='rgba(180,211,255,0.16)';ctx.fillRect(x+15,y+15,202,148);
+          }
           if(!category.played[row]){
             ctx.font='90px "Jeopardy Score"';ctx.fillStyle='#e8b14c';ctx.textAlign='center';ctx.textBaseline='middle';
             ctx.shadowColor='#000';ctx.shadowOffsetX=3;ctx.shadowOffsetY=5;ctx.fillText(cash((row+1)*200*state.round),x+116,y+88,198);ctx.shadowOffsetX=ctx.shadowOffsetY=0;

@@ -22,14 +22,14 @@ export class JeopardyGame{
   }
   select(column,row){
     const s=this.state;if(s.phase!=='board'||!Number.isInteger(column)||!Number.isInteger(row)||!s.board[column]||row<0||row>4||s.board[column].played[row])return false;
-    s.turn=s.chooser;const category=s.board[column];category.played[row]=true;
+    s.turn=s.chooser;s.result=null;const category=s.board[column];category.played[row]=true;
     s.active={column,row,category:category.name,clue:category.clues[row],value:(row+1)*200*s.round,double:s.doubles.includes(column*5+row),locked:[]};
     s.phase=s.active.double?'wager':'reading';s.message=s.active.double?'Daily Double! Choose your wager.':'Read the clue. The buzzers will open after the reveal.';
     this.emit(s.active.double?'daily-double':'clue');return true;
   }
   maxWager(){return this.state.phase==='final-wager'?Math.max(0,this.player.score):Math.max(this.player.score,this.state.round*1000);}
   wager(amount){
-    const s=this.state;if(!['wager','final-wager'].includes(s.phase)||!Number.isInteger(amount)||amount<0||amount>this.maxWager()||(s.phase==='wager'&&amount<5))return false;
+    const s=this.state;if(!['wager','final-wager'].includes(s.phase)||!Number.isInteger(amount)||amount<0||amount>this.maxWager()||(s.phase==='wager'&&amount<1))return false;
     if(s.phase==='final-wager'){
       s.final.wagers[s.turn]=amount;
       const next=s.final.eligible.find(i=>s.final.wagers[i]===null);
@@ -48,17 +48,17 @@ export class JeopardyGame{
     s.turn=player;this.openAnswer();return true;
   }
   openAnswer(phase='answer'){
-    this.state.choices=shuffled(this.clue.options,this.random);this.state.phase=phase;
+    this.state.result=null;this.state.choices=shuffled(this.clue.options,this.random);this.state.phase=phase;
     this.state.message=`${this.player.name}: ${this.clue.prefix}...`;this.emit('answer');
   }
-  answer(index){
+  answer(index,timedOut=false){
     const s=this.state;if(!['answer','final-answer'].includes(s.phase)||!Number.isInteger(index)||!s.choices[index])return false;
     const correct=s.choices[index]===this.clue.answer;
     if(s.phase==='final-answer'){
       s.final.answers[s.turn]=correct;s.phase='final-pass';s.message='Response locked. Pass to the next contestant.';this.emit('locked');return true;
     }
     this.player.score+=correct?s.active.value:-s.active.value;
-    s.result={correct,player:s.turn,amount:s.active.value};
+    s.result={correct,player:s.turn,amount:s.active.value,response:timedOut?null:s.choices[index],timedOut};
     if(correct){s.chooser=s.turn;s.phase='result';s.message=`Correct. ${this.clue.prefix} ${this.clue.answer}.`;}
     else{
       s.active.locked.push(s.turn);s.phase=s.active.double||s.active.locked.length===s.players.length?'result':'rebound';
@@ -69,7 +69,7 @@ export class JeopardyGame{
   timeout(){
     const s=this.state;
     if(s.phase==='buzz'){s.phase='result';s.message=`The correct response: ${this.clue.prefix} ${this.clue.answer}.`;this.emit('timeout');return true;}
-    if(s.phase==='answer'){const wrong=s.choices.findIndex(c=>c!==this.clue.answer);this.answer(wrong);return true;}
+    if(s.phase==='answer'){const wrong=s.choices.findIndex(c=>c!==this.clue.answer);this.answer(wrong,true);return true;}
     if(s.phase==='final-answer'){s.final.answers[s.turn]=false;s.phase='final-pass';s.message='Time expired. Pass to the next contestant.';this.emit('locked');return true;}return false;
   }
   next(){
@@ -101,7 +101,7 @@ export class JeopardyGame{
   }
   reveal(){
     const s=this.state;if(!s.active||!['reading','buzz','answer','rebound','wager','final-answer','final-reading','final-pass'].includes(s.phase))return false;
-    s.phase=s.round===3?'finished':'result';s.message=`Revealed: ${this.clue.prefix} ${this.clue.answer}. No additional points awarded.`;this.emit('reveal');return true;
+    s.result=null;s.phase=s.round===3?'finished':'result';s.message=`Revealed: ${this.clue.prefix} ${this.clue.answer}. No additional points awarded.`;this.emit('reveal');return true;
   }
   save(){return JSON.stringify(this.state);}
   restore(text){

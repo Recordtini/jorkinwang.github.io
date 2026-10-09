@@ -6,9 +6,11 @@ A browser recreation using recovered assets from the PS3 game NPUA80227. This is
 
 - Choose one to three occupied podiums, each local or CPU, with at least one local player.
 - Click or tap a dollar amount on the actual 3D board. Arrow keys and Enter also select clues.
-- Read the full-screen clue, then buzz with the on-screen button, Space, or player keys 1/2/3. Choose one of four original responses, or press A/B/C/D.
+- Dollar values brighten subtly on hover. Read the full-screen clue; buzzers open automatically after reading. Buzz with the on-screen button, Space, or player keys 1/2/3. Category and clue stay near the top above the podiums while choosing one of four original responses, or pressing A/B/C/D. The clue text hides after submission.
+- CPU players highlight successive choices and pause on their selected response. Results show the selected response over the podiums, then cut to the board for one second before returning control or reopening remaining buzzers.
+- Daily Double shows its category and the selecting player's score, with wagers starting at $1.
 - Scores and names appear on the physical podiums, not duplicate HUD cards.
-- Automatic cameras use recovered animated shots. Studio Options exposes all cameras, audio toggles, saved-game resume, and a clue reveal that forfeits additional points.
+- Automatic cameras use recovered animated shots. Sound and music toggles are on the main game view. Studio Options exposes all cameras, saved-game resume, and a clue reveal that forfeits additional points.
 - Complete Jeopardy and Double Jeopardy boards, then wager in Final Jeopardy. Local Final wagers and responses are collected sequentially; pass the device privately.
 
 ## Recovered Sources
@@ -17,7 +19,7 @@ A browser recreation using recovered assets from the PS3 game NPUA80227. This is
 - `data/game/content.txt.soe`: 533 categories and 2,501 clues, including 41 single-clue Final categories. Questions, response prefixes, correct responses, and distractors are from this catalog.
 - `data/swf/{tileboard,cluecard,podiums,gui,gameshell}`: exported fonts, images, ActionScript reference, and vector artwork. The raised answer-tile border is original `tileboard.gfx` shape 10, not a CSS approximation. Korinna, Swiss 911/921, and handwritten podium names use the recovered fonts.
 - `data_ps3/audio/*.fsb`: 33 sound/music assets, normalized with FFmpeg `loudnorm` to -20 LUFS and -3 dBTP. Browser playback shares Wheel's limiter and ducking infrastructure.
-- The full-screen clue background is the user-supplied `blank_jeopardy_screen_v2_by_drewmandew_dfj4q3r.png`, preserved as `assets/presentation/cluecard/user-clue-background.png`. It is not an extracted PS3 asset. The stage-backed question and response presentation is also an intentional user-requested design.
+- The full-screen clue background is the user-supplied `blank_jeopardy_screen_v2_by_drewmandew_dfj4q3r.png`, preserved as `assets/presentation/cluecard/user-clue-background.png`. It is not an extracted PS3 asset. The stage-backed response presentation and brief result cuts are also intentional user-requested designs, not proven retail timeline behavior.
 
 Original retail files remain untouched. Only converted browser assets are published; no executable, decryption keys, bulk SWF/XML exports, or player-body assets are shipped. Asset ownership remains with the original rights holders.
 

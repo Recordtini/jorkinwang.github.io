@@ -10,7 +10,7 @@ header{pointer-events:none;justify-content:flex-end}header nav{pointer-events:au
 #console.takeover.stage-response #clue-panel,#console.takeover.stage-response #answers{background:#010847bf;padding:20px 30px;backdrop-filter:blur(2px)}
 #console.takeover.stage-response #clue-panel{max-width:1200px;align-self:center;width:100%}
 #console.takeover.stage-response #clue-text{font-size:clamp(24px,3vw,48px)}
-#console.takeover.stage-response .status{background:#010847bf;align-self:center;padding:10px 20px;border-radius:3px}
+#console.takeover.stage-response .status{background:transparent;align-self:center;padding:10px 20px;border-radius:0;text-shadow:2px 2px #000}
 #console.takeover:not(.stage-response):not(.daily-double){background:#000277 url('assets/presentation/cluecard/user-clue-background.png') center/cover no-repeat;animation:none}
 #console.takeover.stage-response #clue-panel,#console.takeover.stage-response #answers{background-image:linear-gradient(#02073588,#02073588),url('assets/presentation/cluecard/user-clue-background.png');background-size:cover}
 #console:not(.takeover) .actions{display:none}
@@ -32,9 +32,34 @@ header{pointer-events:none;justify-content:flex-end}header nav{pointer-events:au
 #console.takeover #wager-form label{font:clamp(22px,2.8vw,40px)/1.3 'Jeopardy Clue',Georgia,serif;text-align:center;color:white;letter-spacing:0;text-shadow:2px 3px #000;margin:15px 0 25px}
 #console.takeover #wager{font:32px 'Jeopardy Podium',serif;background:#000665;max-width:240px}
 #console.takeover.daily-double{background-image:url('assets/presentation/cluecard/cluecard_ib8.png');background-size:cover;justify-content:flex-end}
-#console.takeover.daily-double #wager-form{background:#051b61c9;padding:18px;margin-bottom:0;border-radius:5px}
+#console.takeover.daily-double #wager-form{background:transparent;padding:0;margin-bottom:0;border-radius:0}
+#audio-controls{position:absolute;top:56px;right:16px;z-index:8;display:flex;gap:4px}
+#audio-controls button{font-size:9px;padding:9px;background:#061049bb}
+.clue-open #audio-controls{top:16px;right:100px}
+#response-category{order:0;text-align:center;font:clamp(20px,2.5vw,36px) 'Jeopardy Category',sans-serif;color:#ffd76a;text-shadow:2px 3px #000;margin:0 0 14px}
+#console.takeover.responding{justify-content:flex-start;padding-top:70px;padding-bottom:35px}
+#console.takeover.responding #clue-panel{padding:14px 22px}
+#console.takeover.responding #clue-meta{margin:0 0 12px}
+#console.takeover.responding #clue-text{font-size:clamp(24px,2.5vw,40px)}
+#answers:empty,#buzzers:empty{display:none}
+#console.takeover.responding #answers{grid-template-columns:1fr 1fr;background:transparent;backdrop-filter:none;margin-top:auto;padding:0;gap:10px;max-width:1100px}
+#console.takeover.responding #answers button{font-size:clamp(20px,2vw,32px);padding:12px 18px;background:#00064399;opacity:1}
+#console.takeover #answers button.cpu-selected{color:#ffdc71;border-color:#ffdc71;background:#17349acc;box-shadow:inset 0 0 0 1px #ffdc7166}
+#console.takeover.outcome{justify-content:flex-end;pointer-events:none;padding-bottom:40px}
+#console.takeover.outcome #clue-options,#console.takeover.outcome button{pointer-events:auto}
+#response{order:1;text-align:center;font:clamp(24px,3vw,48px)/1.25 'Jeopardy Clue',serif;text-shadow:2px 3px #000}
+#response p{margin:0 0 12px}
+#response b{font:20px 'Jeopardy UI',sans-serif;color:#ffb7ab}
+#response[data-correct=true] b{color:#b9ffba}
+#console.takeover.outcome .status{max-width:1000px}
+#console.board-beat #response,#console.board-beat .status{visibility:hidden}
+#wager-score{order:1;text-align:center;font:clamp(24px,3vw,40px) 'Jeopardy Podium',serif;text-shadow:2px 3px #000;margin:0 0 10px;color:#ffd76a}
+#console.takeover.daily-double #response-category{position:absolute;top:75px;left:20px;right:20px;font-size:clamp(28px,4vw,60px)}
+#console.takeover.daily-double .status{display:none}
+#console.takeover.daily-double{background-color:#081248;background-repeat:no-repeat;background-position:center 35%;background-size:cover}
 .takeover #clue-text{animation:clue-text .3s ease-out}
 @keyframes clue-arrive{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 @keyframes clue-text{from{opacity:0}to{opacity:1}}
 @media(max-width:800px){header{align-items:flex-end}header nav{justify-content:flex-end}#console{bottom:12px;text-align:center}#console .status{font-size:13px}#console.takeover{padding:70px 20px 24px;justify-content:center}#console.takeover #clue-text{font-size:clamp(23px,5.4vw,40px)}#console.takeover #clue-meta{font-size:12px;margin-bottom:18px}#console.takeover #answers{gap:5px;margin-top:22px}#console.takeover #answers button{font-size:21px;padding:6px 10px}#console.takeover .status{font-size:14px;margin-top:15px}#console.takeover #buzzers button{font-size:13px;padding:10px 6px}#console.takeover.daily-double{justify-content:flex-end;background-size:contain;background-position:center 20%;background-color:#081248}#console.takeover #clock{font-size:28px}}
 @media(prefers-reduced-motion:reduce){#console.takeover,.takeover #clue-text{animation:none}}
+@media(max-width:800px){#audio-controls{top:86px;right:10px}#console.takeover.responding{padding-bottom:24px}#console.takeover.responding #answers{grid-template-columns:1fr}#console.takeover.responding #answers button{font-size:21px;padding:10px 12px}#console.takeover.responding .status{margin-top:10px;padding:0}#console.takeover.daily-double{background-size:contain;background-position:center 20%}#console.takeover.daily-double #wager-form label{font-size:22px;margin:8px 0 12px}#console.takeover.daily-double #response-category{top:75px;font-size:30px}#console.takeover.daily-double #wager-score{font-size:28px;margin:0 0 8px}}
