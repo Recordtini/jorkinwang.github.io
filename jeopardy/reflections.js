@@ -36,13 +36,13 @@ export class StudioReflections{
       `);
     };
     material.customProgramCacheKey=()=> 'jeopardy-authored-floor-reflection-v1';
-    const entry={mesh,reflector,uniforms,strength,lastCapture:-Infinity};this.planes.push(entry);
+    const entry={mesh,reflector,uniforms,strength};this.planes.push(entry);
     const capture=reflector.onBeforeRender;
     reflector.onBeforeRender=(renderer,scene,camera)=>{
-      const now=performance.now();if(!this.enabled||now-entry.lastCapture<65)return;
+      if(!this.enabled)return;
+      // Capture this draw's camera pose: timed captures visibly lag animated shots.
       this.withoutReflections(()=>capture.call(reflector,renderer,scene,camera),reflector);
       uniforms.studioReflectionMatrix.value.copy(reflector.material.uniforms.textureMatrix.value).multiply(reflector.matrixWorld.clone().invert());
-      entry.lastCapture=now;
     };
   }
   withoutReflections(callback,current=null){
@@ -77,7 +77,7 @@ export class StudioReflections{
   }
   setEnabled(enabled){
     this.enabled=enabled;
-    for(const p of this.planes){p.reflector.visible=enabled;p.uniforms.studioReflectionStrength.value=enabled?p.strength:0;p.lastCapture=-Infinity;}
+    for(const p of this.planes){p.reflector.visible=enabled;p.uniforms.studioReflectionStrength.value=enabled?p.strength:0;}
     for(const s of this.shiny){
       if(enabled){s.material.envMap=this.environment.texture;s.material.envMapIntensity=.85;s.material.roughness=s.roughness;s.material.metalness=s.metalness;}
       else Object.assign(s.material,s.original);

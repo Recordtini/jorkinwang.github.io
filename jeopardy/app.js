@@ -1,5 +1,5 @@
 import {JeopardyGame,cash} from './game.js?v=20261009-flow2';
-import {JeopardyStudio} from './scene.js?v=20261009-reflections';
+import {JeopardyStudio} from './scene.js?v=20261009-reflection-sync';
 import {RetailAudio} from '../wheel/audio.js';
 
 const $=id=>document.getElementById(id),SAVE='jeopardy-3d-save-v1';

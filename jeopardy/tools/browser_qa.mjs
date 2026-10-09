@@ -80,8 +80,42 @@ try{
   assert.equal(await page.locator('#options #music').count(),0);
   await page.click('#music');assert.equal(await page.locator('#music').textContent(),'MUSIC OFF');await page.click('#music');await page.click('#settings');
   await page.click('#new-game');await page.click('#resume');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.players[0].score),(cell%5+1)*200);
-  const reflectionInfo=await page.evaluate(()=>window.jeopardy3d.studio.reflections.planes.map(p=>({name:p.mesh.name,height:p.uniforms.studioReflectionMatrix.value.elements.every(Number.isFinite),strength:p.strength,captured:p.lastCapture!==-Infinity,opaque:!p.mesh.material.transparent})));
+  const reflectionInfo=await page.evaluate(()=>window.jeopardy3d.studio.reflections.planes.map(p=>({name:p.mesh.name,height:p.uniforms.studioReflectionMatrix.value.elements.every(Number.isFinite),strength:p.strength,opaque:!p.mesh.material.transparent})));
   assert.equal(reflectionInfo.length,3);assert.ok(reflectionInfo.every(p=>p.height&&p.strength>0&&p.opaque));
+  // Freeze wall time so even slow software-GPU draws detect temporal throttling.
+  const reflectionFrames=await page.evaluate(()=>{
+    const s=window.jeopardy3d.studio,descriptor=Object.getOwnPropertyDescriptor(performance,'now'),now=performance.now(),frames=[];
+    const snapshot=()=>s.reflections.planes.map(p=>({name:p.mesh.name,matrix:p.uniforms.studioReflectionMatrix.value.toArray()}));
+    Object.defineProperty(performance,'now',{configurable:true,value:()=>now});
+    try{
+      s.play('cam_animation_intro_to_clueboard');
+      for(let frame=0;frame<6;frame++){
+        s.animateCamera(1/60);s.renderer.render(s.scene,s.camera);
+        frames.push({pose:s.camera.position.toArray(),planes:snapshot()});
+      }
+      s.reflections.setEnabled(false);const disabled=snapshot();
+      s.cut('show');s.camera.position.x+=20;s.renderer.render(s.scene,s.camera);
+      frames.push({disabled,planes:snapshot()});
+      s.reflections.setEnabled(true);s.renderer.render(s.scene,s.camera);
+      frames.push({resumed:true,planes:snapshot()});
+      s.cut('show');s.renderer.render(s.scene,s.camera);
+      frames.push({cut:true,planes:snapshot()});
+    }finally{
+      if(descriptor)Object.defineProperty(performance,'now',descriptor);else delete performance.now;
+      s.reflections.setEnabled(true);s.cut('show');
+    }
+    return frames;
+  });
+  for(let frame=1;frame<6;frame++){
+    assert.notDeepEqual(reflectionFrames[frame].pose,reflectionFrames[frame-1].pose);
+    for(let plane=0;plane<3;plane++)assert.notDeepEqual(reflectionFrames[frame].planes[plane].matrix,reflectionFrames[frame-1].planes[plane].matrix,`${reflectionFrames[frame].planes[plane].name}: capture reused the previous camera frame`);
+  }
+  assert.deepEqual(reflectionFrames[6].planes,reflectionFrames[6].disabled,'Disabled reflections still captured');
+  for(let plane=0;plane<3;plane++){
+    assert.notDeepEqual(reflectionFrames[7].planes[plane].matrix,reflectionFrames[6].planes[plane].matrix,'Re-enabled reflection reused an old camera pose');
+    assert.notDeepEqual(reflectionFrames[8].planes[plane].matrix,reflectionFrames[7].planes[plane].matrix,'Camera cut reused an old reflection');
+  }
+  fs.writeFileSync('jeopardy/qa/reflection-frames.json',JSON.stringify(reflectionFrames,null,2));
   await page.click('[data-view=show]');await page.waitForTimeout(250);
   await page.screenshot({path:'jeopardy/qa/reflections-on.png'});
   await page.click('#settings');await page.uncheck('#reflections');await page.click('#options .close');
@@ -158,5 +192,5 @@ try{
   await page.waitForFunction(()=>document.getElementById('console').classList.contains('board-beat'));
   assert.equal(await page.evaluate(()=>localStorage.getItem('jeopardy-auto-results')),'true');
   await page.reload();await page.locator('#lobby').waitFor({state:'visible',timeout:120000});assert.equal(await page.locator('#auto-results').isChecked(),true);
-  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, manual Continue, saved three-second timer, three reflected floor levels, CPU highlights and 33 audio decodes passed.');
+  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, manual Continue, saved three-second timer, frame-synchronized captures on three floor levels, CPU highlights and 33 audio decodes passed.');
 }finally{await browser.close();}

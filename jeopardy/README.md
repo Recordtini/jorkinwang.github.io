@@ -28,7 +28,7 @@ Original retail files remain untouched. Only converted browser assets are publis
 
 - Rules are a browser implementation, not execution of the original native game code. CPU confidence, selection delays, Daily Double placement, and reading duration are approximations.
 - Camera paths are recovered, but mapping each shot to gameplay events has not been proven against the native state machine.
-- Gamebryo light linking, complete ambient-animation state changes, and exact retail shader composition are not fully reproduced. Original dark-map UV channels are preserved; the web lighting rig is approximate. The new planar-floor and environment-probe effects are browser approximations, not recovered native reflection shader code. Floor captures update at up to about 15 Hz; prop environments are static.
+- Gamebryo light linking, complete ambient-animation state changes, and exact retail shader composition are not fully reproduced. Original dark-map UV channels are preserved; the web lighting rig is approximate. The new planar-floor and environment-probe effects are browser approximations, not recovered native reflection shader code. Visible floor captures update with the camera on every rendered frame; prop environments are static.
 - Full Flash timeline choreography, host delivery, category announcements, all result screens, and original simultaneous Final multiplayer timing remain incomplete. Player bodies and character creation are deliberately omitted.
 - Audio files are normalized and browser-decoded, but every source sound's event mapping has not been validated by listening against retail gameplay.
 
@@ -44,4 +44,4 @@ python -m http.server 8092 --bind 127.0.0.1
 node jeopardy/tools/browser_qa.mjs
 ```
 
-The browser harness uses this machine's bundled Playwright and Chrome paths. Override `JEOPARDY_QA_URL` for a deployed page. It tests actual projected 3D board clicks, animated intro motion, responses, wagers, saved-game resume, timer pause, mobile layout, and decoding all 33 audio assets. Final UI coverage uses a fixture to skip the preceding boards; it is not proof of a full human-played show or retail visual parity.
+The browser harness uses this machine's bundled Playwright and Chrome paths. Override `JEOPARDY_QA_URL` for a deployed page. It tests actual projected 3D board clicks, animated intro motion, frame-synchronized floor captures during camera movement and cuts, responses, wagers, saved-game resume, timer pause, mobile layout, and decoding all 33 audio assets. Final UI coverage uses a fixture to skip the preceding boards; it is not proof of a full human-played show or retail visual parity.

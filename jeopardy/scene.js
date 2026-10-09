@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {cash} from './game.js?v=20261009-flow2';
-import {StudioReflections} from './reflections.js?v=20261009-reflections';
+import {StudioReflections} from './reflections.js?v=20261009-reflection-sync';
 
 function surface(width,height){
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
