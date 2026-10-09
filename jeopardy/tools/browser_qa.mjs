@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const require=createRequire('C:/Users/marco/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/package.json');
 const {chromium}=require('playwright');
+const {PNG}=require('pngjs');
 const url=process.env.JEOPARDY_QA_URL||'http://127.0.0.1:8092/jeopardy/';
 fs.mkdirSync('jeopardy/qa',{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',args:['--autoplay-policy=no-user-gesture-required']});
@@ -26,6 +27,7 @@ async function clickClue(page,column,row){const point=await cluePoint(page,colum
 try{
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
+  page.on('console',m=>{if(/shader error|GL_INVALID|feedback loop/i.test(m.text()))errors.push(m.text());});
   await page.goto(url);await page.locator('#lobby').waitFor({state:'visible',timeout:120000});
   await page.screenshot({path:'jeopardy/qa/lobby.png'});
   await page.selectOption('#mode','single');await page.click('#setup button[type=submit]');
@@ -62,6 +64,11 @@ try{
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_podiums_all_players_answering');
   assert.equal(await page.locator('#clue-panel').isVisible(),false);
   await page.screenshot({path:'jeopardy/qa/result.png'});
+  assert.equal(await page.locator('#continue').isVisible(),true);
+  await page.waitForTimeout(3200);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'result','Manual result advanced without Continue');
+  assert.equal(await page.evaluate(()=>document.getElementById('console').classList.contains('board-beat')),false);
+  await page.click('#continue');
   await page.waitForFunction(()=>document.getElementById('console').classList.contains('board-beat'));
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_clue_board');
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'result');
@@ -73,6 +80,18 @@ try{
   assert.equal(await page.locator('#options #music').count(),0);
   await page.click('#music');assert.equal(await page.locator('#music').textContent(),'MUSIC OFF');await page.click('#music');await page.click('#settings');
   await page.click('#new-game');await page.click('#resume');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.players[0].score),(cell%5+1)*200);
+  const reflectionInfo=await page.evaluate(()=>window.jeopardy3d.studio.reflections.planes.map(p=>({name:p.mesh.name,height:p.uniforms.studioReflectionMatrix.value.elements.every(Number.isFinite),strength:p.strength,captured:p.lastCapture!==-Infinity,opaque:!p.mesh.material.transparent})));
+  assert.equal(reflectionInfo.length,3);assert.ok(reflectionInfo.every(p=>p.height&&p.strength>0&&p.opaque));
+  await page.click('[data-view=show]');await page.waitForTimeout(250);
+  await page.screenshot({path:'jeopardy/qa/reflections-on.png'});
+  await page.click('#settings');await page.uncheck('#reflections');await page.click('#options .close');
+  await page.screenshot({path:'jeopardy/qa/reflections-off.png'});
+  const reflected=PNG.sync.read(fs.readFileSync('jeopardy/qa/reflections-on.png')),matte=PNG.sync.read(fs.readFileSync('jeopardy/qa/reflections-off.png'));
+  let difference=0,samples=0;
+  for(let y=Math.floor(reflected.height*.55);y<reflected.height;y++)for(let x=0;x<reflected.width;x++)for(let c=0;c<3;c++){const i=(y*reflected.width+x)*4+c;difference+=Math.abs(reflected.data[i]-matte.data[i]);samples++;}
+  assert.ok(difference/samples>5,'Floor reflection toggle produced no meaningful rendered difference');
+  await page.click('#settings');await page.check('#reflections');await page.click('#options .close');
+  await page.click('#auto');
   // Validate every normalized asset decodes through the actual browser audio API.
   const decoded=await page.evaluate(async()=>{const a=window.jeopardy3d.audio;await a.activate();const result=[];for(const entry of a.entries){const buffer=await a.buffer(entry.id);result.push({id:entry.id,duration:buffer.duration,expected:entry.duration});}return result;});
   fs.writeFileSync('jeopardy/qa/audio-decode.json',JSON.stringify(decoded,null,2));
@@ -92,6 +111,7 @@ try{
   const beforePause=await page.evaluate(()=>window.jeopardy3d.clock.remaining);await page.waitForTimeout(600);
   assert.ok(Math.abs(beforePause-await page.evaluate(()=>window.jeopardy3d.clock.remaining))<.15,'Options did not pause answer timer');
   await page.click('#reveal');await page.click('#continue');
+  await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   await page.waitForFunction(()=>!window.jeopardy3d.studio.motion);
   const daily=await page.evaluate(()=>window.jeopardy3d.game.state.doubles[0]);
   await clickClue(page,Math.floor(daily/5),daily%5);await page.locator('#wager-form').waitFor({state:'visible'});
@@ -103,7 +123,7 @@ try{
   await page.screenshot({path:'jeopardy/qa/mobile-daily-double.png'});
   await page.fill('#wager','1');await page.click('#wager-form button');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='answer',{timeout:15000});
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'answer');
-  await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');
+  await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   // Fixture skips 60 clues; wagers and Final response still use real UI controls.
   await page.evaluate(()=>window.jeopardy3d.game.startFinal());
   await page.fill('#wager','0');await page.click('#wager-form button');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='final-answer',{timeout:15000});
@@ -132,5 +152,11 @@ try{
   await page.evaluate(()=>{Math.random=window.qaRandom;});
   assert.ok((await page.locator('#response-text').textContent()).includes(await page.evaluate(()=>window.jeopardy3d.game.state.result.response)));
   await page.screenshot({path:'jeopardy/qa/cpu-result.png'});
-  assert.deepEqual(errors,[]);console.log('Desktop/mobile hover, automatic buzz, top clues, result cuts, CPU highlight steps, $1 Daily Double, Final, resume, pause and 33 audio decodes passed.');
+  await page.waitForTimeout(3200);assert.ok(['result','rebound'].includes(await page.evaluate(()=>window.jeopardy3d.game.state.phase)),'CPU result did not wait for Continue');
+  await page.click('#clue-options');await page.check('#auto-results');await page.click('#options .close');
+  await page.waitForTimeout(1500);assert.equal(await page.evaluate(()=>document.getElementById('console').classList.contains('board-beat')),false,'Three-second timer cut too early');
+  await page.waitForFunction(()=>document.getElementById('console').classList.contains('board-beat'));
+  assert.equal(await page.evaluate(()=>localStorage.getItem('jeopardy-auto-results')),'true');
+  await page.reload();await page.locator('#lobby').waitFor({state:'visible',timeout:120000});assert.equal(await page.locator('#auto-results').isChecked(),true);
+  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, manual Continue, saved three-second timer, three reflected floor levels, CPU highlights and 33 audio decodes passed.');
 }finally{await browser.close();}

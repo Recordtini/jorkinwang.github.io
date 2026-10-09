@@ -1,9 +1,9 @@
 import {JeopardyGame,cash} from './game.js?v=20261009-flow2';
-import {JeopardyStudio} from './scene.js?v=20261009-flow2';
+import {JeopardyStudio} from './scene.js?v=20261009-reflections';
 import {RetailAudio} from '../wheel/audio.js';
 
 const $=id=>document.getElementById(id),SAVE='jeopardy-3d-save-v1';
-let studio,audio,game,clock=null,scheduled=[],lastTime=performance.now(),musicId=null,scheduleGeneration=0;
+let studio,audio,game,clock=null,scheduled=[],lastTime=performance.now(),musicId=null,scheduleGeneration=0,autoResults=false,resultTransition=false,resultAutoAllowed=false;
 const paused=()=>document.hidden||$('options').open||!$('lobby').hidden;
 function cancel(){scheduled=[];clock=null;scheduleGeneration++;}
 function later(ms,callback){scheduled.push({remaining:ms,callback});}
@@ -15,8 +15,19 @@ function highlightChoice(index){
   $('answers').querySelectorAll('button').forEach((b,i)=>{b.classList.toggle('cpu-selected',i===index);b.setAttribute('aria-current',String(i===index));});
 }
 function arrange(){document.documentElement.style.setProperty('--scores-bottom',`${$('console').getBoundingClientRect().height+52}px`);}
+function continueResult(){
+  if(resultTransition||!['result','rebound'].includes(game.state.phase))return;
+  resultTransition=true;cancel();$('continue').hidden=true;
+  if(studio.auto)studio.cut('board');$('console').classList.add('board-beat');
+  later(1000,()=>game.next());
+}
+function scheduleResult(){
+  if(resultTransition||!['result','rebound'].includes(game.state.phase))return;
+  cancel();$('continue').hidden=false;
+  if(autoResults&&resultAutoAllowed)later(3000,continueResult);
+}
 function render(s,event){
-  cancel();$('clock').hidden=true;studio.update(s);studio.follow(s,event);$('console').classList.remove('board-beat');
+  cancel();resultTransition=false;$('clock').hidden=true;studio.update(s);studio.follow(s,event);$('console').classList.remove('board-beat');
   try{localStorage.setItem(SAVE,game.save());}catch{}
   $('round-title').textContent=['','JEOPARDY!','DOUBLE JEOPARDY!','FINAL JEOPARDY!'][s.round];
   $('category').textContent=s.active?.category??s.final?.category.name??'';
@@ -46,8 +57,8 @@ function render(s,event){
   const wager=['wager','final-wager'].includes(s.phase);$('wager-form').hidden=!wager;
   if(wager){const min=s.phase==='wager'?1:0,max=game.maxWager();$('wager-label').textContent=`${game.player.name}: wager ${cash(min)} to ${cash(max)}${s.phase==='final-wager'?' (pass the device privately)':''}`;$('wager').min=min;$('wager').max=max;$('wager').value=min;$('wager').disabled=game.player.ai;$('wager-form').querySelector('button').disabled=game.player.ai;}
   $('wager-score').hidden=s.phase!=='wager';$('wager-score').textContent=`${game.player.name} / SCORE ${cash(game.player.score)}`;
-  const automaticResult=outcome&&event!=='reveal';
-  $('continue').hidden=automaticResult||!['result','rebound','round-end','final-pass','finished'].includes(s.phase);$('continue').textContent=s.phase==='finished'?'NEW GAME':s.phase==='round-end'?'NEXT ROUND':'CONTINUE';
+  resultAutoAllowed=outcome&&event!=='reveal';
+  $('continue').hidden=!['result','rebound','round-end','final-pass','finished'].includes(s.phase);$('continue').textContent=s.phase==='finished'?'NEW GAME':s.phase==='round-end'?'NEXT ROUND':'CONTINUE';
   if(event==='start'||event==='round')cue('boardfill');if(event==='daily-double')cue('dailydouble');
   if(event==='correct')cue('Applause1');if(event==='incorrect')cue('SlightDisappointment1');if(event==='timeout')cue('timesup');if(event==='finish')cue('ApplauseCheer1');
   music(s.phase==='final-answer'?'ThinkMusic':s.phase==='finished'?'gameover':null);
@@ -72,10 +83,7 @@ function render(s,event){
   if(s.phase==='board'&&game.player.ai)later(1500,()=>{
     const cells=s.board.flatMap((c,column)=>c.played.map((played,row)=>({column,row,played}))).filter(c=>!c.played),cell=cells[Math.floor(Math.random()*cells.length)];game.select(cell.column,cell.row);
   });
-  if(automaticResult){
-    later(1000,()=>{if(studio.auto)studio.cut('board');$('console').classList.add('board-beat');});
-    later(2000,()=>game.next());
-  }
+  if(outcome)scheduleResult();
   if(s.phase==='final-pass'&&game.player.ai)later(2200,()=>game.next());
   requestAnimationFrame(arrange);
 }
@@ -87,7 +95,11 @@ async function boot(){
     const [content,manifest]=await Promise.all(['content','manifest'].map(name=>fetch(`assets/${name}.json`).then(r=>{if(!r.ok)throw Error(`Missing ${name}`);return r.json();})));
     await Promise.all(['18px "Jeopardy UI"','24px "Jeopardy Category"','24px "Jeopardy Podium"','24px "Jeopardy Score"','24px "Jeopardy Clue"','24px "Jeopardy Name"'].map(font=>document.fonts.load(font)));
     studio=new JeopardyStudio($('scene'));audio=new RetailAudio(manifest.audio);game=new JeopardyGame(content,{onChange:render});
+    try{autoResults=localStorage.getItem('jeopardy-auto-results')==='true';}catch{}
+    $('auto-results').checked=autoResults;
+    $('auto-results').onchange=()=>{autoResults=$('auto-results').checked;try{localStorage.setItem('jeopardy-auto-results',String(autoResults));}catch{}scheduleResult();};
     await studio.load(value=>{$('progress').value=value*100;});studio.onSelect=(c,r)=>{if(!game.player.ai){audio.activate();game.select(c,r);}};
+    $('reflections').onchange=()=>studio.reflections.setEnabled($('reflections').checked);
     $('asset-count').textContent=`157 original meshes / ${manifest.cameras} recovered cameras / ${manifest.content.clues.toLocaleString()} retail clues`;
     $('loading').hidden=true;lobby();
     for(const camera of studio.data.cameras){const option=document.createElement('option');option.value=option.textContent=camera.name;$('camera-inspector').append(option);}
@@ -96,7 +108,7 @@ async function boot(){
     $('setup').onsubmit=event=>{event.preventDefault();audio.activate();$('setup-error').textContent='';const players=[];for(let i=0;i<3;i++){const type=$(`type-${i}`).value;if(type!=='off')players.push({slot:i,name:$(`name-${i}`).value,ai:type==='cpu'});}try{studio.auto=true;$('auto').setAttribute('aria-pressed','true');game.start(players,{difficulty:$('difficulty').value});enter();arrange();}catch(error){$('setup-error').textContent=error.message;}};
     $('resume').onclick=()=>{enter();if(!game.restore(localStorage.getItem(SAVE))){lobby();$('setup-error').textContent='The saved show could not be restored.';}};
     $('wager-form').onsubmit=event=>{event.preventDefault();if(!game.player.ai)game.wager(Number($('wager').value));};
-    $('continue').onclick=()=>game.state.phase==='finished'?lobby():game.next();
+    $('continue').onclick=()=>game.state.phase==='finished'?lobby():['result','rebound'].includes(game.state.phase)?continueResult():game.next();
     $('auto').onclick=()=>{studio.auto=!studio.auto;$('auto').setAttribute('aria-pressed',String(studio.auto));if(studio.auto)studio.follow(game.state);};
     document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{studio.auto=false;$('auto').setAttribute('aria-pressed','false');studio.cut(b.dataset.view);});
     $('settings').onclick=$('clue-options').onclick=()=>$('options').showModal();$('reveal').onclick=()=>{game.reveal();$('options').close();};$('new-game').onclick=lobby;

@@ -97,3 +97,16 @@ test('Recovered camera tracks retain native start poses and finite timing',()=>{
     });
   }
 });
+test('All three authored floors retain their gloss texture and original shading UV channels',()=>{
+  const b=fs.readFileSync(new URL('./assets/stage5.glb',import.meta.url)),gltf=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));
+  for(const name of ['floor_topShape','floor_midShape','floor_bottomShape']){
+    const node=gltf.nodes.find(n=>n.name===name);assert.ok(node,name);
+    for(const primitive of gltf.meshes[node.mesh].primitives){
+      const material=gltf.materials[primitive.material],position=gltf.accessors[primitive.attributes.POSITION];
+      assert.equal(material.extras.nif_gloss_texture,'floor_Gloss.tga');
+      const darkUV=material.extras.nif_uv_sets.dark;assert.equal(darkUV,name==='floor_bottomShape'?0:1);
+      assert.ok(primitive.attributes[`TEXCOORD_${darkUV}`]!==undefined);assert.equal(material.occlusionTexture.texCoord,darkUV);
+      assert.ok(position.max[1]-position.min[1]<.1,'Floor is not planar in native coordinates');assert.equal(material.alphaMode,'OPAQUE');
+    }
+  }
+});

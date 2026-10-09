@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {cash} from './game.js?v=20261009-flow2';
+import {StudioReflections} from './reflections.js?v=20261009-reflections';
 
 function surface(width,height){
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
@@ -74,7 +75,7 @@ export class JeopardyStudio{
     const load=path=>new THREE.ImageLoader().loadAsync('assets/presentation/'+path);
     [this.logo,this.doubleLogo,this.finalLogo,this.podiumFinalLogo,this.tileArt]=await Promise.all([
       load('tileboard/tileboard_i4.png'),load('tileboard/tileboard_i7.png'),load('tileboard/tileboard_ic.png'),load('podiums/podiums_i17.png'),load('tileboard/tile-bevel.svg')]);
-    this.update(null);this.cut('show');
+    this.update(null);this.reflections=new StudioReflections(this);this.cut('show');
     this.canvas.addEventListener('pointerdown',event=>{this.down={x:event.clientX,y:event.clientY};});
     const pick=event=>{
       const rect=this.canvas.getBoundingClientRect(),ray=new THREE.Raycaster();

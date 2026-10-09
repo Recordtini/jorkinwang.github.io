@@ -7,10 +7,11 @@ A browser recreation using recovered assets from the PS3 game NPUA80227. This is
 - Choose one to three occupied podiums, each local or CPU, with at least one local player.
 - Click or tap a dollar amount on the actual 3D board. Arrow keys and Enter also select clues.
 - Dollar values brighten subtly on hover. Read the full-screen clue; buzzers open automatically after reading. Buzz with the on-screen button, Space, or player keys 1/2/3. Category and clue stay near the top above the podiums while choosing one of four original responses, or pressing A/B/C/D. The clue text hides after submission.
-- CPU players highlight successive choices and pause on their selected response. Results show the selected response over the podiums, then cut to the board for one second before returning control or reopening remaining buzzers.
+- CPU players highlight successive choices and pause on their selected response. Results show the selected response over the podiums until Continue is pressed. Studio Options can enable a saved three-second auto-continue timer. Both paths cut to the board for one second before returning control or reopening remaining buzzers.
 - Daily Double shows its category and the selecting player's score, with wagers starting at $1.
 - Scores and names appear on the physical podiums, not duplicate HUD cards.
 - Automatic cameras use recovered animated shots. Sound and music toggles are on the main game view. Studio Options exposes all cameras, saved-game resume, and a clue reveal that forfeits additional points.
+- Reflections are enabled by default and can be switched off in Studio Options. Each of the three floor levels has its own live planar capture, blended into the original opaque floor material using its gloss map. Reflective props use a static environment capture of the actual studio; emissive artwork and screens are excluded.
 - Complete Jeopardy and Double Jeopardy boards, then wager in Final Jeopardy. Local Final wagers and responses are collected sequentially; pass the device privately.
 
 ## Recovered Sources
@@ -27,7 +28,7 @@ Original retail files remain untouched. Only converted browser assets are publis
 
 - Rules are a browser implementation, not execution of the original native game code. CPU confidence, selection delays, Daily Double placement, and reading duration are approximations.
 - Camera paths are recovered, but mapping each shot to gameplay events has not been proven against the native state machine.
-- Gamebryo light linking, complete ambient-animation state changes, floor reflections, and exact retail shader composition are not fully reproduced. Original dark-map UV channels are preserved; the web lighting rig is approximate.
+- Gamebryo light linking, complete ambient-animation state changes, and exact retail shader composition are not fully reproduced. Original dark-map UV channels are preserved; the web lighting rig is approximate. The new planar-floor and environment-probe effects are browser approximations, not recovered native reflection shader code. Floor captures update at up to about 15 Hz; prop environments are static.
 - Full Flash timeline choreography, host delivery, category announcements, all result screens, and original simultaneous Final multiplayer timing remain incomplete. Player bodies and character creation are deliberately omitted.
 - Audio files are normalized and browser-decoded, but every source sound's event mapping has not been validated by listening against retail gameplay.
 
