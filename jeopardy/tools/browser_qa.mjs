@@ -53,7 +53,8 @@ try{
   await page.screenshot({path:'jeopardy/qa/category-intro.png'});
   await page.waitForFunction(()=>!window.jeopardy3d.studio.categoryIntro.active,{timeout:25000});
   assert.deepEqual(await page.evaluate(()=>window.qaCategories),[0,1,2,3,4,5]);
-  assert.equal(await page.evaluate(()=>window.qaCues.filter(id=>id==='CategoryReveal').length),6);
+  assert.equal(await page.evaluate(()=>window.qaCues.filter(id=>id==='categorybeep').length),6);
+  assert.equal(await page.evaluate(()=>window.qaCues.filter(id=>id==='CategoryReveal'||id==='CategoryRevealAlt1').length),0,'Incorrect category reveal effect was dispatched');
   assert.deepEqual(await page.evaluate(()=>window.qaSlideDirections),{incoming:true,outgoing:true});
   assert.equal(await page.locator('#scores').count(),0);
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.cameraName),'cam_clue_board');

@@ -28,7 +28,7 @@ function scheduleResult(){
 }
 function render(s,event){
   cancel();resultTransition=false;$('clock').hidden=true;$('response-timer').hidden=true;
-  if(event==='start'||event==='round')studio.categoryIntro.start(s,()=>cue('CategoryReveal'),()=>render(game.state,'category-intro-end'));
+  if(event==='start'||event==='round')studio.categoryIntro.start(s,()=>cue('categorybeep'),()=>render(game.state,'category-intro-end'));
   else if(s.phase!=='board')studio.categoryIntro.stop();
   studio.update(s);studio.follow(s,event);$('console').classList.remove('board-beat');
   try{localStorage.setItem(SAVE,game.save());}catch{}
