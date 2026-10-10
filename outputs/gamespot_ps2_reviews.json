@@ -29680,7 +29680,7 @@
   "final_wayback_url": "https://web.archive.org/web/20050408215351id_/http://www.gamespot.com/ps2/driving/smashcars/review.html",
   "capture_timestamp": "20050408215351",
   "review": {
-   "blurb": "All in all, Smash Cars delivers one of the more solid RC gaming performances seen in recent years. Though the game is predominantly simplistic, Smash Cars' gameplay is tight and well put together, and the game's various modes and tracks are quite entertaining. Smash Cars isn't going to appeal to everyone, but its easy-to-pick-up style of play, often absurdly amusing level design, and budget price tag make it a worthwhile purchase or rental for any RC or kart racing fan.",
+   "blurb": "Smash Cars' easy-to-pick-up style of gameplay, often absurdly amusing level design, and budget price tag make it a worthwhile game for any RC or kart racing fan.",
    "reviewer": "Alex Navarro",
    "full_review_url": null
   },
@@ -29697,7 +29697,8 @@
   },
   "badges": [],
   "parse_issues": [
-   "note: RC Cars is AKA Smash Cars (same PS2 game, alternate title); record verified against 2005 PS2 review capture per user correction 2026-10-10"
+   "note: RC Cars is AKA Smash Cars (same PS2 game, alternate title); record verified against 2005 PS2 review capture per user correction 2026-10-10",
+   "note: blurb set to exact user-specified text 2026-10-10"
   ],
   "status": "ok",
   "error": null,
