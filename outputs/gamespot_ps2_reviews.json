@@ -11625,7 +11625,7 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/ps2/driving/fordstreetracing/review.html",
   "requested_wayback_url": "http://www.gamespot.com/ps2/driving/fordstreetracing/review.html",
-  "final_wayback_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/driving/fordstreetracing/review.html",
+  "final_wayback_url": "https://web.archive.org/web/20060901122117id_/http://www.gamespot.com/ps2/driving/fordstreetracing/index.html",
   "capture_timestamp": "2007",
   "review": {
    "blurb": "Despite the title, there's nothing bold about this boring, vanilla racing game.",
@@ -39747,7 +39747,7 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/tokobot-plus-mysteries-of-the-karakuri-review/1900-6160075/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/tokobot-plus-mysteries-of-the-karakuri-review/1900-6160075/",
-  "final_wayback_url": null,
+  "final_wayback_url": "https://web.archive.org/web/20061116034246/http://www.gamespot.com:80/ps2/action/karakuri/review.html",
   "capture_timestamp": null,
   "review": {
    "blurb": "This slightly enhanced version of Tecmo's endearing, puzzle-heavy PSP platformer is still fun, but it feels small on the PS2.",
@@ -39758,11 +39758,11 @@
    "gamespot": 7.2,
    "label": "good",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7.0,
+    "graphics": 7.0,
+    "sound": 6.0,
+    "value": 7.0,
+    "reviewers_tilt": 8.0
    }
   },
   "badges": [],
