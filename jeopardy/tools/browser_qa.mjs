@@ -69,7 +69,7 @@ try{
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.hover),null);
   await clickClue(page,Math.floor(cell/5),cell%5);
   await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='reading');
-  const readingTime=await page.evaluate(async()=>{const {clueReadingSeconds}=await import('./game.js?v=20261009-presentation3');return {total:window.jeopardy3d.clock.total,expected:clueReadingSeconds(window.jeopardy3d.game.clue.question)};});
+  const readingTime=await page.evaluate(async()=>{const {clueReadingSeconds}=await import('./game.js?v=20261009-fair-cpu');return {total:window.jeopardy3d.clock.total,expected:clueReadingSeconds(window.jeopardy3d.game.clue.question)};});
   assert.equal(readingTime.total,readingTime.expected);
   await page.keyboard.press(' ');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');
   assert.equal(await page.locator('#console').evaluate(e=>e.classList.contains('takeover')),true);
@@ -222,10 +222,24 @@ try{
   await page.click('#true-daily-double');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.active.value),200);
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');assert.equal(await page.locator('#wager-opponents').isVisible(),false);
   await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
-  // Force only the buzzer winner; the real CPU scheduler chooses and highlights its response.
+  // Even two CPUs on their fastest Hard setting must leave a usable human window.
+  await page.evaluate(()=>{
+    window.qaRandom=Math.random;Math.random=()=>0;
+    const g=window.jeopardy3d.game;g.state.difficulty='hard';g.state.doubles=[];g.select(0,3);
+  });
+  await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='buzz',{timeout:15000});
+  await page.waitForTimeout(3000);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'buzz','CPU stole the human reaction window');
+  await page.keyboard.press(' ');
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.turn),0);
+  await page.waitForTimeout(5000);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'answer','Stale CPU buzzer interrupted the local answer');
+  await page.evaluate(()=>{Math.random=window.qaRandom;const g=window.jeopardy3d.game;g.answer(g.state.choices.indexOf(g.clue.answer));});
+  await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
+  // Let the actual CPU buzz timer win this clue; do not force game.buzz().
   await page.evaluate(()=>{
     window.qaRandom=Math.random;Math.random=()=>.99;
-    const g=window.jeopardy3d.game;g.state.doubles=[];g.select(0,2);g.openBuzzers();g.buzz(1);
+    const g=window.jeopardy3d.game;g.state.doubles=[];g.select(0,2);
     window.qaHighlightSteps=[];
     new MutationObserver(()=>{const i=[...document.querySelectorAll('#answers button')].findIndex(b=>b.classList.contains('cpu-selected'));if(i>=0&&!window.qaHighlightSteps.includes(i))window.qaHighlightSteps.push(i);}).observe(document.getElementById('answers'),{subtree:true,attributes:true,attributeFilter:['class']});
   });

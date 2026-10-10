@@ -2,7 +2,16 @@ export const cash=n=>`${n<0?'-':''}$${Math.abs(n).toLocaleString('en-US')}`;
 export function clueReadingSeconds(question){
   const words=String(question??'').trim().split(/\s+/).filter(Boolean).length;
   // Browser reading estimate, not a recovered retail host-delivery timer.
-  return Math.max(3,1+words/3);
+  return Math.max(1.5,.5+words/6);
+}
+// Human-friendly browser pacing, not recovered retail CPU reaction times.
+export function cpuBuzzDelayMs(difficulty,random=Math.random){
+  const minimum={easy:6000,medium:5000,hard:4000}[difficulty]??5000;
+  return minimum+random()*2000;
+}
+export function cpuAnswerDelayMs(difficulty,random=Math.random){
+  const minimum={easy:3500,medium:3000,hard:2500}[difficulty]??3000;
+  return minimum+random()*1500;
 }
 export const timerLightCount=(remaining,total)=>total>0?Math.max(0,Math.min(5,Math.ceil(5*remaining/total))):0;
 // Row-major percentages transcribed from the user's two supplied TV heatmaps.

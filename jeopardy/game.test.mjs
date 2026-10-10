@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {JeopardyGame,cash,clueReadingSeconds,dailyDoubleWeights,placeDailyDoubles,timerLightCount} from './game.js';
+import {JeopardyGame,cash,clueReadingSeconds,dailyDoubleWeights,placeDailyDoubles,timerLightCount,cpuBuzzDelayMs,cpuAnswerDelayMs} from './game.js';
 const content=JSON.parse(fs.readFileSync(new URL('./assets/content.json',import.meta.url)));
 const players=[{name:'Local',slot:0},{name:'CPU',slot:1,ai:true},{name:'Friend',slot:2}];
 function game(lineup=players){const g=new JeopardyGame(content,{random:()=>.4});g.start(lineup);return g;}
@@ -25,12 +25,27 @@ test('Buzzers stay locked during reading and cannot be stolen during answering',
   const g=game();g.state.doubles=[];g.select(0,0);assert.equal(g.buzz(0),false);g.openBuzzers();assert.equal(g.buzz(1),true);assert.equal(g.buzz(0),false);
 });
 test('Reading time grows with clue length, preserving a short-clue minimum',()=>{
-  assert.equal(clueReadingSeconds('One word'),3);
-  assert.equal(clueReadingSeconds(''),3);
-  assert.equal(clueReadingSeconds(' \n One   word\t'),3);
-  assert.equal(clueReadingSeconds(Array(15).fill('word').join(' ')),6);
-  assert.equal(clueReadingSeconds(Array(27).fill('word').join(' ')),10);
+  assert.equal(clueReadingSeconds('One word'),1.5);
+  assert.equal(clueReadingSeconds(''),1.5);
+  assert.equal(clueReadingSeconds(' \n One   word\t'),1.5);
+  assert.equal(clueReadingSeconds(Array(15).fill('word').join(' ')),3);
+  assert.equal(clueReadingSeconds(Array(27).fill('word').join(' ')),5);
   assert.ok(clueReadingSeconds(Array(60).fill('word').join(' '))>clueReadingSeconds(Array(40).fill('word').join(' ')),'Long clues hit a fixed timer cap');
+});
+
+test('CPU reaction windows give humans a head start at every difficulty',()=>{
+  for(const [difficulty,minimum] of [['easy',6000],['medium',5000],['hard',4000],['unknown',5000]]){
+    assert.equal(cpuBuzzDelayMs(difficulty,()=>0),minimum);
+    assert.equal(cpuBuzzDelayMs(difficulty,()=>1),minimum+2000);
+    assert.ok(cpuBuzzDelayMs(difficulty,()=>1)<10000,'CPU buzz happens after the round timeout');
+  }
+});
+test('CPU thinks and highlights more slowly but can still finish within the answer clock',()=>{
+  for(const [difficulty,minimum] of [['easy',3500],['medium',3000],['hard',2500],['unknown',3000]]){
+    assert.equal(cpuAnswerDelayMs(difficulty,()=>0),minimum);
+    assert.equal(cpuAnswerDelayMs(difficulty,()=>1),minimum+1500);
+    assert.ok(cpuAnswerDelayMs(difficulty,()=>1)+3*350+1000<10000);
+  }
 });
 test('Daily Double roulette follows each supplied heatmap cell and never repeats a clue',()=>{
   for(const round of [1,2]){

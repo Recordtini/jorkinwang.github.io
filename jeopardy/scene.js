@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {cash,timerLightCount} from './game.js?v=20261009-presentation3';
+import {cash,timerLightCount} from './game.js?v=20261009-fair-cpu';
 import {CategoryIntro} from './categories.js?v=20261009-presentation3';
 import {StudioReflections} from './reflections.js?v=20261009-reflection-sync';
 
