@@ -29677,15 +29677,15 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/smash-cars/reviews/smash-cars-review-6073413/",
   "requested_wayback_url": "http://www.gamespot.com/smash-cars/reviews/smash-cars-review-6073413/",
-  "final_wayback_url": "https://web.archive.org/web/20190511073731id_/https://www.gamespot.com/reviews/rc-cars-review/1900-6085976/",
-  "capture_timestamp": "20190511073731",
+  "final_wayback_url": "https://web.archive.org/web/20050408215351id_/http://www.gamespot.com/ps2/driving/smashcars/review.html",
+  "capture_timestamp": "20050408215351",
   "review": {
-   "blurb": "For what it is, RC Cars isn't a bad game. However, the distinct lack of features, compared to Creat's previous RC racing title, is a pretty big disappointment.",
+   "blurb": "All in all, Smash Cars delivers one of the more solid RC gaming performances seen in recent years. Though the game is predominantly simplistic, Smash Cars' gameplay is tight and well put together, and the game's various modes and tracks are quite entertaining. Smash Cars isn't going to appeal to everyone, but its easy-to-pick-up style of play, often absurdly amusing level design, and budget price tag make it a worthwhile purchase or rental for any RC or kart racing fan.",
    "reviewer": "Alex Navarro",
    "full_review_url": null
   },
   "score": {
-   "gamespot": 6.3,
+   "gamespot": 7.2,
    "label": "good",
    "components": {
     "gameplay": 7,
@@ -29697,7 +29697,7 @@
   },
   "badges": [],
   "parse_issues": [
-   "platform_note: GameSpot RC Cars review is for the PC adaptation (operatingSystem PC per review JSON-LD); record kept with official blurb/score 6.3/reviewer Alex Navarro per audit verification"
+   "note: RC Cars is AKA Smash Cars (same PS2 game, alternate title); record verified against 2005 PS2 review capture per user correction 2026-10-10"
   ],
   "status": "ok",
   "error": null,
@@ -34218,7 +34218,7 @@
   "final_wayback_url": "https://web.archive.org/web/20040406171922id_/http://www.gamespot.com/ps2/driving/smashcars/review.html",
   "capture_timestamp": "20040406171922",
   "review": {
-   "blurb": "Smash Cars' easy-to-pick-up style of gameplay, often absurdly amusing level design, and budget price tag make it a worthwhile game for any RC or kart racing fan.",
+   "blurb": "All in all, Smash Cars delivers one of the more solid RC gaming performances seen in recent years. Though the game is predominantly simplistic, Smash Cars' gameplay is tight and well put together, and the game's various modes and tracks are quite entertaining. Smash Cars isn't going to appeal to everyone, but its easy-to-pick-up style of play, often absurdly amusing level design, and budget price tag make it a worthwhile purchase or rental for any RC or kart racing fan.",
    "reviewer": "Alex Navarro",
    "full_review_url": "https://web.archive.org/web/20050828154948id_/http://www.gamespot.com/ps2/driving/smashcars/review.html"
   },
@@ -34237,7 +34237,10 @@
   "status": "ok",
   "error": null,
   "reviewer": "Alex Navarro",
-  "reviewer_source": "hub_20040406171922"
+  "reviewer_source": "hub_20040406171922",
+  "parse_issues": [
+   "note: blurb completed to full critic deck (was truncated) 2026-10-10"
+  ]
  },
  {
   "title": "Smash Court Tennis Pro Tournament",
