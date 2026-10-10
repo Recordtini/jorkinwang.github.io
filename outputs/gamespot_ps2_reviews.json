@@ -7737,7 +7737,7 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/dragon-ball-z-infinite-world-review/1900-6202149/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/dragon-ball-z-infinite-world-review/1900-6202149/",
-  "final_wayback_url": null,
+  "final_wayback_url": "https://web.archive.org/web/20090203194923/http://www.gamespot.com/ps2/action/dragonballzinfiniteworld/review.html",
   "capture_timestamp": null,
   "review": {
    "blurb": "DBZ: Infinite World fails to live up to the standard set by previous DBZ games on the PS2.",
@@ -7755,7 +7755,10 @@
     "reviewers_tilt": null
    }
   },
-  "badges": [],
+  "badges": [
+   "Same As Last Year",
+   "Steep Learning"
+  ],
   "parse_issues": [],
   "status": "ok",
   "error": null
@@ -13975,7 +13978,7 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/growlanser-heritage-of-war/reviews/growlanser-heritage-of-war-review-6181491/",
   "requested_wayback_url": "http://www.gamespot.com/growlanser-heritage-of-war/reviews/growlanser-heritage-of-war-review-6181491/",
-  "final_wayback_url": null,
+  "final_wayback_url": "https://web.archive.org/web/20071025052706/http://www.gamespot.com:80/ps2/rpg/growlanserd/review.html?sid=6181491",
   "capture_timestamp": null,
   "review": {
    "blurb": "Growlanser: Heritage of War is a decent strategy RPG that ultimately gets weighed down by some frustrating game mechanics.",
@@ -28015,7 +28018,7 @@
   "original_path": null,
   "original_url": "http://www.gamespot.com/pac-man-world-rally/reviews/pac-man-world-rally-review-6157022/",
   "requested_wayback_url": "http://www.gamespot.com/pac-man-world-rally/reviews/pac-man-world-rally-review-6157022/",
-  "final_wayback_url": "https://web.archive.org/web/20070129010350id_/http://www.gamespot.com/ps2/driving/pacmanworldrally/review.html",
+  "final_wayback_url": "https://web.archive.org/web/20070129010350/http://www.gamespot.com:80/ps2/driving/pacmanworldrally/review.html",
   "capture_timestamp": "20070129010350",
   "review": {
    "blurb": "Pac-Man World Rally is a paint-by-numbers kart racer with almost zero in the way of unique qualities or challenges.",
@@ -28026,11 +28029,11 @@
    "gamespot": 5.0,
    "label": "mediocre",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 5.0,
+    "graphics": 6.0,
+    "sound": 6.0,
+    "value": 5.0,
+    "reviewers_tilt": 4.0
    }
   },
   "badges": [],
@@ -29807,11 +29810,11 @@
    "gamespot": 6.0,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6.0,
+    "graphics": 5.0,
+    "sound": 4.0,
+    "value": 6.0,
+    "reviewers_tilt": 7.0
    }
   },
   "badges": [],
@@ -37199,11 +37202,11 @@
    "gamespot": 6.9,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 7.0,
+    "graphics": 7.0,
+    "sound": 9.0,
+    "value": 5.0,
+    "reviewers_tilt": 7.0
    }
   },
   "badges": [],
@@ -38431,11 +38434,11 @@
    "gamespot": 6.6,
    "label": "fair",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 6.0,
+    "graphics": 7.0,
+    "sound": 7.0,
+    "value": 6.0,
+    "reviewers_tilt": 7.0
    }
   },
   "badges": [],
@@ -44888,7 +44891,7 @@
   "original_path": null,
   "original_url": "https://www.gamespot.com/reviews/zatch-bell-mamodo-fury-review/1900-6159312/",
   "requested_wayback_url": "https://www.gamespot.com/reviews/zatch-bell-mamodo-fury-review/1900-6159312/",
-  "final_wayback_url": null,
+  "final_wayback_url": "https://web.archive.org/web/20061103085449/http://www.gamespot.com:80/ps2/action/konjikinogashbellgogomamonofight/review.html",
   "capture_timestamp": null,
   "review": {
    "blurb": "Mamodo Fury packs a number of gameplay modes and plenty of familiar characters, but it all feels wasted on this shallow and frustrating fighting game.",
@@ -44899,11 +44902,11 @@
    "gamespot": 4.8,
    "label": "poor",
    "components": {
-    "gameplay": null,
-    "graphics": null,
-    "sound": null,
-    "value": null,
-    "reviewers_tilt": null
+    "gameplay": 4.0,
+    "graphics": 6.0,
+    "sound": 3.0,
+    "value": 6.0,
+    "reviewers_tilt": 5.0
    }
   },
   "badges": [],
