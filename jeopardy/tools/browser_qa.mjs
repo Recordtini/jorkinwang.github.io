@@ -69,7 +69,7 @@ try{
   assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.hover),null);
   await clickClue(page,Math.floor(cell/5),cell%5);
   await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='reading');
-  const readingTime=await page.evaluate(async()=>{const {clueReadingSeconds}=await import('./game.js?v=20261009-fair-cpu');return {total:window.jeopardy3d.clock.total,expected:clueReadingSeconds(window.jeopardy3d.game.clue.question)};});
+  const readingTime=await page.evaluate(async()=>{const {clueReadingSeconds}=await import('./game.js?v=20261009-native-cpu');return {total:window.jeopardy3d.clock.total,expected:clueReadingSeconds(window.jeopardy3d.game.clue.question)};});
   assert.equal(readingTime.total,readingTime.expected);
   await page.keyboard.press(' ');assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');
   assert.equal(await page.locator('#console').evaluate(e=>e.classList.contains('takeover')),true);
@@ -223,9 +223,12 @@ try{
   assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'reading');assert.equal(await page.locator('#wager-opponents').isVisible(),false);
   await page.click('#clue-options');await page.click('#reveal');await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   // Even two CPUs on their fastest Hard setting must leave a usable human window.
-  await page.evaluate(()=>{
+  await page.evaluate(async()=>{
+    const {planCpuClue}=await import('./cpu.js?v=20261009-native-cpu');
     window.qaRandom=Math.random;Math.random=()=>0;
-    const g=window.jeopardy3d.game;g.state.difficulty='hard';g.state.doubles=[];g.select(0,3);
+    const g=window.jeopardy3d.game;g.state.difficulty='hard';g.state.doubles=[];
+    for(const player of g.state.players)if(player.ai)player.cpu.plans[0][3]=planCpuClue(1,3,'hard',{random:()=>0});
+    g.select(0,3);
   });
   await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='buzz',{timeout:15000});
   await page.waitForTimeout(3000);
@@ -237,9 +240,13 @@ try{
   await page.evaluate(()=>{Math.random=window.qaRandom;const g=window.jeopardy3d.game;g.answer(g.state.choices.indexOf(g.clue.answer));});
   await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
   // Let the actual CPU buzz timer win this clue; do not force game.buzz().
-  await page.evaluate(()=>{
+  await page.evaluate(async()=>{
+    const {planCpuClue}=await import('./cpu.js?v=20261009-native-cpu');
     window.qaRandom=Math.random;Math.random=()=>.99;
-    const g=window.jeopardy3d.game;g.state.doubles=[];g.select(0,2);
+    const g=window.jeopardy3d.game;g.state.doubles=[];
+    g.state.players[1].cpu.plans[0][2]=planCpuClue(1,2,'hard',{random:()=>0});
+    g.state.players[2].cpu.plans[0][2]=planCpuClue(0,2,'hard',{random:()=>.99});
+    window.qaGameRandom=g.random;g.random=()=>0;g.select(0,2);
     window.qaHighlightSteps=[];
     new MutationObserver(()=>{const i=[...document.querySelectorAll('#answers button')].findIndex(b=>b.classList.contains('cpu-selected'));if(i>=0&&!window.qaHighlightSteps.includes(i))window.qaHighlightSteps.push(i);}).observe(document.getElementById('answers'),{subtree:true,attributes:true,attributeFilter:['class']});
   });
@@ -248,10 +255,23 @@ try{
   await page.screenshot({path:'jeopardy/qa/cpu-answer.png'});
   await page.waitForFunction(()=>window.jeopardy3d.game.state.result?.player===1,{timeout:8000});
   const steps=await page.evaluate(()=>window.qaHighlightSteps);assert.ok(steps.length>=3,'CPU did not walk down multiple choices');assert.deepEqual(steps,Array.from({length:steps.length},(_,i)=>i));
-  await page.evaluate(()=>{Math.random=window.qaRandom;});
+  await page.evaluate(()=>{Math.random=window.qaRandom;window.jeopardy3d.game.random=window.qaGameRandom;});
   assert.ok((await page.locator('#response-text').textContent()).includes(await page.evaluate(()=>window.jeopardy3d.game.state.result.response)));
   await page.screenshot({path:'jeopardy/qa/cpu-result.png'});
   await page.waitForTimeout(3200);assert.ok(['result','rebound'].includes(await page.evaluate(()=>window.jeopardy3d.game.state.phase)),'CPU result did not wait for Continue');
+  await page.click('#continue');await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='board');
+  // Native planned passes must not schedule any NPC buzz.
+  const passingScores=await page.evaluate(async()=>{
+    const {planCpuClue}=await import('./cpu.js?v=20261009-native-cpu');
+    const g=window.jeopardy3d.game;g.state.chooser=0;g.state.doubles=[];
+    for(const player of g.state.players)if(player.ai)player.cpu.plans[0][4]=planCpuClue(0,4,'hard',{random:()=>.99});
+    g.select(0,4);return g.state.players.map(p=>p.score);
+  });
+  await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='buzz',{timeout:15000});
+  await page.waitForTimeout(7500);assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.phase),'buzz','Passing CPU buzzed anyway');
+  await page.waitForFunction(()=>window.jeopardy3d.game.state.phase==='result',{timeout:6000});
+  assert.deepEqual(await page.evaluate(()=>window.jeopardy3d.game.state.players.map(p=>p.score)),passingScores);
+  assert.equal(await page.evaluate(()=>window.jeopardy3d.game.state.result??null),null);
   await page.click('#clue-options');await page.check('#auto-results');await page.click('#options .close');
   await page.waitForTimeout(1500);assert.equal(await page.evaluate(()=>document.getElementById('console').classList.contains('board-beat')),false,'Three-second timer cut too early');
   await page.waitForFunction(()=>document.getElementById('console').classList.contains('board-beat'));
@@ -265,5 +285,5 @@ try{
   await page.waitForTimeout(600);await page.screenshot({path:'jeopardy/qa/mobile-double-category-intro.png'});
   await page.click('#skip-categories');assert.equal(await page.evaluate(()=>window.jeopardy3d.studio.inputLocked),false);
   await page.reload();await page.locator('#lobby').waitFor({state:'visible',timeout:120000});assert.equal(await page.locator('#auto-results').isChecked(),true);
-  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, sequential category slides and six sound cues, both round intros, clue-length delays, True Daily Double/opponent scores, paired response/podium timers, frame-synchronized floor reflections, CPU highlights and 33 audio decodes passed.');
+  assert.deepEqual(errors,[]);console.log('Desktop/mobile gameplay, sequential category slides and six sound cues, both round intros, clue-length delays, True Daily Double/opponent scores, paired response/podium timers, frame-synchronized floor reflections, native CPU passes/planned answers with human-friendly delays, CPU highlights and 33 audio decodes passed.');
 }finally{await browser.close();}

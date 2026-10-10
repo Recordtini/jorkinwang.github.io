@@ -1,5 +1,5 @@
-import {JeopardyGame,cash,clueReadingSeconds,timerLightCount,cpuBuzzDelayMs,cpuAnswerDelayMs} from './game.js?v=20261009-fair-cpu';
-import {JeopardyStudio} from './scene.js?v=20261009-fair-cpu';
+import {JeopardyGame,cash,clueReadingSeconds,timerLightCount,cpuAnswerDelayMs} from './game.js?v=20261009-native-cpu';
+import {JeopardyStudio} from './scene.js?v=20261009-native-cpu';
 import {RetailAudio} from '../wheel/audio.js';
 
 const $=id=>document.getElementById(id),SAVE='jeopardy-3d-save-v1';
@@ -78,14 +78,14 @@ function render(s,event){
   }
   if(s.phase==='buzz'){
     seconds(10,()=>game.timeout());
-    for(let i=0;i<s.players.length;i++)if(s.players[i].ai&&!s.active.locked.includes(i))later(cpuBuzzDelayMs(s.difficulty),()=>game.buzz(i));
+    for(let i=0;i<s.players.length;i++)if(s.players[i].ai&&!s.active.locked.includes(i)){
+      const delay=game.cpuBuzzDelay(i);if(delay!==null)later(delay,()=>game.buzz(i));
+    }
   }
   if(['answer','final-answer'].includes(s.phase)){
     seconds(s.phase==='final-answer'?30:10,()=>game.timeout());
     if(game.player.ai)later(cpuAnswerDelayMs(s.difficulty),()=>{
-      const probability={easy:.45,medium:.7,hard:.88}[s.difficulty]??.7,correct=Math.random()<probability;
-      const options=s.choices.map((choice,i)=>({choice,i})).filter(o=>(o.choice===game.clue.answer)===correct);
-      const index=options[Math.floor(Math.random()*options.length)].i;
+      const index=game.cpuChoice();if(index<0)return;
       for(let i=0;i<=index;i++)later(i*350,()=>highlightChoice(i));
       later(index*350+1000,()=>game.answer(index));
     });

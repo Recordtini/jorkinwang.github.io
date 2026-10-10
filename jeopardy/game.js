@@ -1,3 +1,4 @@
+import {cpuBias,categoryKnowledge,planCpuClue,validCpuProfile,validCpuPlan} from './cpu.js?v=20261009-native-cpu';
 export const cash=n=>`${n<0?'-':''}$${Math.abs(n).toLocaleString('en-US')}`;
 export function clueReadingSeconds(question){
   const words=String(question??'').trim().split(/\s+/).filter(Boolean).length;
@@ -59,6 +60,36 @@ export class JeopardyGame{
     s.board=shuffled(pool,this.random).slice(0,6).map(c=>({id:c.id,name:c.name,clues:c.clues.slice(0,5),played:[false,false,false,false,false]}));
     s.usedCategories.push(...s.board.map(c=>c.id));
     s.doubles=placeDailyDoubles(s.round,this.random);s.active=null;s.phase='board';
+    this.prepareCpuBoard();
+  }
+  prepareCpuBoard({missingOnly=false}={}){
+    const s=this.state;
+    for(const player of s.players)if(player.ai){
+      if(missingOnly&&player.cpu)continue;
+      const bias=player.cpu?.bias??cpuBias(this.random);
+      const knowledge=[];
+      const plans=s.board.map((_,column)=>{
+        const k=categoryKnowledge(s.difficulty,bias,this.random);knowledge.push(k);
+        return Array.from({length:5},(_,row)=>planCpuClue(k,row,s.difficulty,{special:s.doubles.includes(column*5+row),random:this.random}));
+      });
+      player.cpu={bias,knowledge,plans};
+    }
+  }
+  prepareCpuFinal(){
+    const s=this.state;
+    s.final.cpuPlans=s.players.map(player=>player.ai?planCpuClue(categoryKnowledge(s.difficulty,player.cpu.bias,this.random),4,s.difficulty,{special:true,random:this.random}):null);
+  }
+  cpuPlan(player=this.state.turn){
+    const s=this.state;if(!s.players[player]?.ai||!s.active)return null;
+    return s.round===3?s.final.cpuPlans[player]:s.players[player].cpu.plans[s.active.column][s.active.row];
+  }
+  cpuBuzzDelay(player){
+    const plan=this.cpuPlan(player);
+    return plan?.reflex>0?cpuBuzzDelayMs(this.state.difficulty,()=>Math.min(1,plan.reflex)):null;
+  }
+  cpuChoice(player=this.state.turn){
+    const plan=this.cpuPlan(player);if(!plan)return -1;
+    return this.state.choices.indexOf(this.clue.options[plan.answerIndex]);
   }
   select(column,row){
     const s=this.state;if(s.phase!=='board'||!Number.isInteger(column)||!Number.isInteger(row)||!s.board[column]||row<0||row>4||s.board[column].played[row])return false;
@@ -138,6 +169,7 @@ export class JeopardyGame{
     if(!eligible.length){s.phase='finished';s.message='No contestants have a positive score for Final Jeopardy.';this.emit('finish');return;}
     const pool=this.content.filter(c=>c.clues.length===1);if(!pool.length)throw Error('No original Final Jeopardy categories.');
     s.round=3;s.final={category:pool[Math.floor(this.random()*pool.length)],eligible,wagers:s.players.map(()=>null),answers:s.players.map(()=>null)};
+    this.prepareCpuFinal();
     s.turn=eligible[0];s.phase='final-wager';s.message=`${this.player.name}, enter your secret Final Jeopardy wager.`;this.emit('final');
   }
   reveal(){
@@ -152,11 +184,17 @@ export class JeopardyGame{
       if(!['board','wager','reading','buzz','answer','result','rebound','round-end','final-wager','final-reading','final-answer','final-pass','finished'].includes(s.phase)||!s.players[s.turn])return false;
       if(!Array.isArray(s.usedCategories)||!Array.isArray(s.doubles)||s.doubles.some(i=>!Number.isInteger(i)||i<0||i>=30))return false;
       if(s.round===3&&(!s.final||!Array.isArray(s.final.eligible)||s.final.eligible.some(i=>!s.players[i])||s.final.wagers.length!==s.players.length||s.final.answers.length!==s.players.length))return false;
+      if(s.players.some(p=>p.ai&&p.cpu!==undefined&&!validCpuProfile(p.cpu)))return false;
+      if(s.final?.cpuPlans!==undefined&&(!Array.isArray(s.final.cpuPlans)||s.final.cpuPlans.length!==s.players.length||s.final.cpuPlans.some((plan,i)=>s.players[i].ai?!validCpuPlan(plan):plan!==null)))return false;
       for(const c of s.board){const source=this.content.find(p=>p.id===c.id);c.clues=source.clues.slice(0,5);c.name=source.name;}
       if(s.final)s.final.category=this.content.find(c=>c.id===s.final.category.id&&c.clues.length===1);
       if(s.active){s.active.clue=s.round===3?s.final.category.clues[0]:s.board[s.active.column].clues[s.active.row];}
       if(s.phase==='answer')s.phase='reading';if(s.phase==='final-answer')s.phase='final-reading';
-      this.state=s;this.emit('restore');return true;
+      this.state=s;
+      // Migrate old saves once; new saves retain planned passes and answers.
+      if(s.players.some(p=>p.ai&&!p.cpu))this.prepareCpuBoard({missingOnly:true});
+      if(s.final&&!s.final.cpuPlans)this.prepareCpuFinal();
+      this.emit('restore');return true;
     }catch{return false;}
   }
 }

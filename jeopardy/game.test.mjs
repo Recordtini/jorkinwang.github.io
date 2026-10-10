@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {JeopardyGame,cash,clueReadingSeconds,dailyDoubleWeights,placeDailyDoubles,timerLightCount,cpuBuzzDelayMs,cpuAnswerDelayMs} from './game.js';
+import {cpuBias,categoryKnowledge,planCpuClue,validCpuPlan} from './cpu.js';
 const content=JSON.parse(fs.readFileSync(new URL('./assets/content.json',import.meta.url)));
 const players=[{name:'Local',slot:0},{name:'CPU',slot:1,ai:true},{name:'Friend',slot:2}];
 function game(lineup=players){const g=new JeopardyGame(content,{random:()=>.4});g.start(lineup);return g;}
@@ -11,7 +12,7 @@ function finishBoard(g){for(const c of g.state.board)c.played.fill(true);g.state
 test('Original catalog accounts for all clues and response fields',()=>{
   assert.equal(content.length,533);assert.equal(content.reduce((n,c)=>n+c.clues.length,0),2501);
   assert.equal(content.filter(c=>c.clues.length===1).length,41);
-  for(const c of content)for(const clue of c.clues){assert.equal(clue.options.length,4);assert.ok(clue.options.includes(clue.answer));assert.ok(clue.question);}
+  for(const c of content)for(const clue of c.clues){assert.equal(clue.options.length,4);assert.equal(clue.options[0],clue.answer);assert.ok(clue.question);}
 });
 test('Lineups retain physical slots and reject all-CPU/duplicate slots',()=>{
   assert.equal(game([{slot:2,name:'Only'}]).player.slot,2);
@@ -46,6 +47,78 @@ test('CPU thinks and highlights more slowly but can still finish within the answ
     assert.equal(cpuAnswerDelayMs(difficulty,()=>1),minimum+1500);
     assert.ok(cpuAnswerDelayMs(difficulty,()=>1)+3*350+1000<10000);
   }
+});
+test('Recovered personal bias and category knowledge follow each difficulty formula',()=>{
+  assert.equal(cpuBias(()=>0),-.25);assert.equal(cpuBias(()=>.5),0);assert.equal(cpuBias(()=>1),.25);
+  for(const [difficulty,offset,scale] of [['easy',0,.5],['medium',.15,.6],['hard',.3,.7]]){
+    assert.equal(categoryKnowledge(difficulty,.1,()=>.5),offset+scale*.6);
+    assert.equal(categoryKnowledge(difficulty,-.25,()=>0),Math.max(0,offset-scale*.25));
+    assert.equal(categoryKnowledge(difficulty,.25,()=>1),Math.min(1,offset+scale*1.25));
+  }
+});
+function planned(k,row,difficulty,draws,special=false){let i=0;const plan=planCpuClue(k,row,difficulty,{special,random:()=>draws[i++]});assert.equal(i,4);return plan;}
+test('Native confidence falls by clue row; special clues use bottom-row confidence',()=>{
+  for(const k of [0,.5,1]){
+    const plans=Array.from({length:5},(_,row)=>planned(k,row,'easy',[.4,.4,.4,.4]));
+    for(let row=1;row<5;row++)assert.ok(plans[row].confidence<plans[row-1].confidence);
+    assert.ok(Math.abs(plans[4].confidence-(.15+k*.6))<1e-7);
+    assert.equal(planned(k,0,'hard',[.4,.4,.4,.4],true).confidence,plans[4].confidence);
+  }
+});
+test('Native answer and buzz decisions are correlated, not a blanket CPU attempt',()=>{
+  const pass=planned(0,4,'medium',[.2,.2,.9,.4]);assert.equal(pass.reflex,0);assert.equal(pass.answerIndex,2);
+  const knowsButPasses=planned(0,4,'medium',[.1,.9,0,.4]);assert.equal(knowsButPasses.answerIndex,0);assert.equal(knowsButPasses.reflex,0);
+  const wrongBuzz=planned(0,4,'medium',[.2,0,0,.4]);assert.equal(wrongBuzz.answerIndex,1);assert.ok(wrongBuzz.reflex>0);
+});
+test('Recovered reflex powers, offsets and fast-reflex floor match native formulas',()=>{
+  const draws=[.2,.2,.8,.5],raw=1-2*(.6-.2);
+  assert.ok(Math.abs(planned(0,0,'easy',draws).reflex-raw)<1e-12);
+  assert.ok(Math.abs(planned(0,0,'medium',draws).reflex-(raw**2+.12))<1e-12);
+  assert.ok(Math.abs(planned(0,0,'hard',draws).reflex-(raw**3+.07))<1e-12);
+  assert.ok(Math.abs(planned(1,0,'easy',[0,0,.8,.5]).reflex-.15)<1e-12);
+  for(const difficulty of ['easy','medium','hard']){const p=planned(0,0,difficulty,[.99,.99,.99,.99],true);assert.equal(p.reflex,.5);assert.equal(p.answerIndex,2);assert.ok(validCpuPlan(p));}
+});
+test('CPU board plans persist through rebounds, choice shuffles and saved-game resume',()=>{
+  const g=game();g.state.doubles=[];g.select(0,4);const plan=structuredClone(g.cpuPlan(1));
+  g.openBuzzers();g.buzz(0);g.timeout();g.next();assert.deepEqual(g.cpuPlan(1),plan);
+  g.buzz(1);assert.equal(g.state.choices[g.cpuChoice()],g.clue.options[plan.answerIndex]);
+  const restored=new JeopardyGame(content,{random:()=>{throw Error('Save rerolled CPU knowledge');}});
+  assert.equal(restored.restore(g.save()),true);assert.deepEqual(restored.cpuPlan(1),plan);
+  restored.random=()=>.99;restored.openBuzzers();restored.buzz(1);assert.equal(restored.state.choices[restored.cpuChoice()],g.clue.options[plan.answerIndex]);
+});
+test('CPU passes remain passes and reaction floors survive recovered reflex scheduling',()=>{
+  const g=game();g.state.doubles=[];g.select(0,4);
+  for(const difficulty of ['easy','medium','hard']){
+    g.state.difficulty=difficulty;g.cpuPlan(1).reflex=0;assert.equal(g.cpuBuzzDelay(1),null);
+    for(const reflex of [.0001,.1,.5,1.1]){g.cpuPlan(1).reflex=reflex;assert.ok(g.cpuBuzzDelay(1)>=cpuBuzzDelayMs(difficulty,()=>0));assert.ok(g.cpuBuzzDelay(1)<=cpuBuzzDelayMs(difficulty,()=>1));}
+  }
+  assert.equal(g.cpuBuzzDelay(0),null);
+});
+test('New rounds keep CPU personality but generate new category knowledge and plans',()=>{
+  let n=0;const g=new JeopardyGame(content,{random:()=>((n++*37)%100)/100});g.start(players);
+  const original=structuredClone(g.state.players[1].cpu);finishBoard(g);g.next();
+  assert.equal(g.state.players[1].cpu.bias,original.bias);assert.notDeepEqual(g.state.players[1].cpu.knowledge,original.knowledge);
+  for(const index of g.state.doubles)assert.equal(g.state.players[1].cpu.plans[Math.floor(index/5)][index%5].reflex,.5);
+});
+test('Final CPU responses are planned even when their ordinary board plan passes',()=>{
+  const g=game();g.state.players.forEach(p=>p.score=1000);g.startFinal();const plan=structuredClone(g.state.final.cpuPlans[1]);
+  assert.equal(plan.reflex,.5);g.wager(0);g.wager(0);g.wager(0);g.openBuzzers();g.timeout();g.next();
+  assert.deepEqual(g.cpuPlan(),plan);assert.equal(g.state.choices[g.cpuChoice()],g.clue.options[plan.answerIndex]);
+  const restored=game();assert.equal(restored.restore(g.save()),true);assert.deepEqual(restored.cpuPlan(),plan);
+});
+test('Old saves migrate once; corrupt CPU plan data is rejected',()=>{
+  const g=game(),old=JSON.parse(g.save());delete old.players[1].cpu;const restored=game();
+  assert.equal(restored.restore(JSON.stringify(old)),true);assert.equal(restored.state.players[1].cpu.plans.length,6);
+  for(const damage of [s=>s.players[1].cpu.plans[0][0].answerIndex=4,s=>s.players[1].cpu.plans[0][0].reflex=-1,s=>s.players[1].cpu.knowledge.pop(),s=>s.players[1].cpu.bias=.5]){
+    const broken=JSON.parse(g.save());damage(broken);assert.equal(restored.restore(JSON.stringify(broken)),false);
+  }
+});
+test('Legacy Final saves gain mandatory CPU response plans without resetting known profiles',()=>{
+  const g=game();g.state.players.forEach(p=>p.score=1000);g.startFinal();g.wager(0);g.wager(0);g.wager(0);g.openBuzzers();g.timeout();g.next();
+  const old=JSON.parse(g.save()),profile=structuredClone(old.players[1].cpu);delete old.final.cpuPlans;
+  const restored=game();assert.equal(restored.restore(JSON.stringify(old)),true);
+  assert.deepEqual(restored.state.players[1].cpu,profile);assert.equal(restored.cpuPlan().reflex,.5);
+  const broken=JSON.parse(restored.save());broken.final.cpuPlans[1].answerIndex=3;assert.equal(restored.restore(JSON.stringify(broken)),false);
 });
 test('Daily Double roulette follows each supplied heatmap cell and never repeats a clue',()=>{
   for(const round of [1,2]){
