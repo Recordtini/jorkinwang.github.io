@@ -11660,10 +11660,10 @@
   "original_path": "/ps2/driving/mustangracing/index.html",
   "original_url": "http://www.gamespot.com/ps2/driving/mustangracing/index.html",
   "requested_wayback_url": "http://www.gamespot.com/ps2/driving/mustangracing/review.html",
-  "final_wayback_url": "https://web.archive.org/web/20050722022949id_/http://gamespot.com/ps2/driving/mustangracing/review.html",
-  "capture_timestamp": "20050722022949",
+  "final_wayback_url": "https://web.archive.org/web/20060217164435id_/http://www.gamespot.com/ps2/driving/mustangracing/index.html",
+  "capture_timestamp": "20060217164435",
   "review": {
-   "blurb": "A simplistic, graphically dated, questionably presented entry-level arcade racer that pales next to Burnout 3 and Gran Turismo 4; only an acceptable proposition for complete racing newcomers who can't afford better, and even they have better options.",
+   "blurb": "Affordably priced, the venerated Ford Mustang's latest namesake game otherwise misfires all the way down the track--suffering from sloppy physics, plodding navigation, dated graphics, and an uninspiring \"career\" mode.",
    "reviewer": "Gord Goble",
    "full_review_url": "https://web.archive.org/web/20050828154948id_/http://www.gamespot.com/ps2/driving/mustangracing/review.html"
   },
@@ -11682,7 +11682,7 @@
   "status": "ok",
   "error": null,
   "parse_issues": [
-   "blurb_note: paraphrase of the full critic deck (verbatim deck exceeds quotation length); substance verified against archived review header"
+   "note: blurb is the verbatim hub-page review excerpt from user-supplied capture 2026-10-10"
   ]
  },
  {
@@ -12272,10 +12272,10 @@
   "original_path": "/ps2/rpg/futuretactics/index.html",
   "original_url": "http://www.gamespot.com/ps2/rpg/futuretactics/index.html",
   "requested_wayback_url": "http://www.gamespot.com/ps2/rpg/futuretactics/review.html",
-  "final_wayback_url": "https://web.archive.org/web/20040509081748id_/http://www.gamespot.com/ps2/rpg/futuretactics/review.html",
-  "capture_timestamp": "20040509081748",
+  "final_wayback_url": "https://web.archive.org/web/20050829221502id_/http://www.gamespot.com/ps2/rpg/futuretactics/index.html",
+  "capture_timestamp": "20050829221502",
   "review": {
-   "blurb": "An intriguing genre-blending experiment mixing turn-based strategy, action gameplay, RPG-style character advancement, and highly destructible environments, undermined by shallow, simplistic gameplay and an uninvolving story mode full of bland characters.",
+   "blurb": "It's an intriguing experiment that ultimately suffers from shallow, simplistic gameplay and an uninvolving story mode rife with bland characters.",
    "reviewer": "Bethany Massimilla",
    "full_review_url": "https://web.archive.org/web/20040406171922id_/http://www.gamespot.com/ps2/rpg/futuretactics/review.html"
   },
@@ -12294,7 +12294,7 @@
   "status": "ok",
   "error": null,
   "parse_issues": [
-   "blurb_note: paraphrase of the full critic deck (verbatim deck exceeds quotation length); substance verified against archived review header"
+   "note: blurb is the verbatim hub-page review excerpt from user-supplied capture 2026-10-10"
   ]
  },
  {
@@ -23183,10 +23183,10 @@
   "original_path": "/ps2/driving/mxsuperfly/index.html",
   "original_url": "http://www.gamespot.com/ps2/driving/mxsuperfly/index.html",
   "requested_wayback_url": "http://www.gamespot.com/ps2/driving/mxsuperfly/review.html",
-  "final_wayback_url": "https://web.archive.org/web/20041019231713id_/http://www.gamespot.com/ps2/driving/mxsuperfly/review.html",
-  "capture_timestamp": "20041019231713",
+  "final_wayback_url": "https://web.archive.org/web/20030802034200id_/http://www.gamespot.com/ps2/driving/mxsuperfly/index.html",
+  "capture_timestamp": "20030802034200",
   "review": {
-   "blurb": "A follow-up to MX 2002 Featuring Ricky Carmichael that sticks closely to last year's formula while smoothing out the rough, clunky portions for first-time players; its added minigames mostly just get in the way of what the game does best.",
+   "blurb": "If you missed out on MX 2002, Superfly is a perfect place to start.",
    "reviewer": "Jeff Gerstmann",
    "full_review_url": "https://web.archive.org/web/20050828154948id_/http://www.gamespot.com/ps2/driving/mxsuperfly/review.html"
   },
@@ -23205,7 +23205,7 @@
   "status": "ok",
   "error": null,
   "parse_issues": [
-   "blurb_note: paraphrase of the full critic deck (verbatim deck exceeds quotation length); substance verified against archived review header"
+   "note: blurb is the verbatim hub-page review excerpt from user-supplied capture 2026-10-10"
   ]
  },
  {
