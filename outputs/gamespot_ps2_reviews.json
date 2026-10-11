@@ -6712,7 +6712,7 @@
   "final_wayback_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/action/devilkings/review.html",
   "capture_timestamp": "2007",
   "review": {
-   "blurb": "This game depends on how much repetition you can take.",
+   "blurb": "Although the game borrows liberally from its contemporaries, Devil Kings manages to have fun with the formula by removing any sense of pretension or seriousness, leaving a game that's a lot of fun to play.",
    "reviewer": "Greg Mueller",
    "full_review_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/action/devilkings/review.html"
   },
@@ -6730,7 +6730,8 @@
   "badges": [],
   "parse_issues": [
    "missing reviewer",
-   "reviewer from modern GameSpot 2026-10-05 (score matched PS2 review byline on GameSpot game page (7.5 G)"
+   "reviewer from modern GameSpot 2026-10-05 (score matched PS2 review byline on GameSpot game page (7.5 G)",
+   "note: reader/player-review text replaced with critic deck from defect-class sweep 2026-10-10"
   ],
   "status": "ok",
   "error": null
@@ -13922,7 +13923,7 @@
   "final_wayback_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/strategy/grimgrimoire/review.html",
   "capture_timestamp": "2007",
   "review": {
-   "blurb": "GrimGrimoire exhibits stunning visuals while simultaneously gaining the status of a superb strategy game.",
+   "blurb": "GrimGrimoire is a creative, one-of-a-kind game that's a lot of fun to play.",
    "reviewer": "Kevin VanOrd",
    "full_review_url": "https://web.archive.org/web/2007id_/http://www.gamespot.com/ps2/strategy/grimgrimoire/review.html"
   },
@@ -13938,7 +13939,9 @@
    }
   },
   "badges": [],
-  "parse_issues": [],
+  "parse_issues": [
+   "note: reader/player-review text replaced with critic deck from defect-class sweep 2026-10-10"
+  ],
   "status": "ok",
   "error": null
  },
