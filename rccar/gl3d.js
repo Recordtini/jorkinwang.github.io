@@ -38,7 +38,7 @@ void main(){
   vec3 V = normalize(uCam - wpos);
   vec3 ambL = vec3(0.0), dif = vec3(0.0), spc = vec3(0.0);
   for (int i = 0; i < ${MAXL}; i++) {
-    if (i >= uNLights) break;
+    if (i >= uNLights || (uFlags & 4) != 0) break; // models outside the world (the arrow) get no world lighting
     int ty = uLType[i];
     if (ty == 0) { ambL += uLCol[i]; continue; }
     vec3 L; float att = 1.0;
@@ -190,7 +190,7 @@ export class View3D {
     if (!m) return p;
     gl.uniformMatrix4fv(u.uM, false, M);
     gl.uniform3f(u.uAmb, c[0], c[1], c[2]); gl.uniform3f(u.uDif, c[3], c[4], c[5]); gl.uniform3f(u.uSpec, c[6], c[7], c[8]); gl.uniform3f(u.uEmi, c[9], c[10], c[11]);
-    gl.uniform1f(u.uShin, shin); gl.uniform1f(u.uBlend, blend); gl.uniform1i(u.uFlags, flags & 3);
+    gl.uniform1f(u.uShin, shin); gl.uniform1f(u.uBlend, blend); gl.uniform1i(u.uFlags, (flags & 3) | (((flags >> 11) & 1) << 2));
     gl.uniform1i(u.uNL, nl); gl.uniform1iv(u.uLTex, ltex); gl.uniform1iv(u.uLMode, lmode); gl.uniform1iv(u.uLFunc, lfunc); gl.uniform1iv(u.uLSrc, lsrc);
     gl.uniform1fv(u.uLConst, lconst); gl.uniform3fv(u.uLX0, lx0); gl.uniform3fv(u.uLX1, lx1);
     const vis = (flags >> 4) & 3;
