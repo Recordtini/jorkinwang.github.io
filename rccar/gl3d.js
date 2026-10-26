@@ -44,7 +44,7 @@ void main(){
     vec3 L; float att = 1.0;
     float sg = 1.0;
     // directional lights carry their intensity in the constant-attenuation slot; six of them are meant to add up to about one
-    if (ty == 1) { L = -uLDir[i]; att = uLAtt[i].x * uGain; if (uLDir[i].z > 0.5) att *= 0.53; sg = uLAtt[i].x * 0.4; }
+    if (ty == 1) L = -uLDir[i]; // directional lights are not attenuated
     else {
       vec3 d = uLPos[i] - wpos; float dist = length(d); L = d / max(dist, 1e-4);
       att = 1.0 / max(uLAtt[i].x + uLAtt[i].y * dist + uLAtt[i].z * dist * dist, 1e-4);
@@ -62,7 +62,9 @@ void main(){
   }
   vec3 difc = ((uFlags & 2) != 0 || uLTex[0] == 0) ? uDif : vec3(1.0);
   vec3 base = difc * t0.rgb;
-  vec3 col = (uEmi + uAmb * ambL + difc * dif) * t0.rgb + uSpec * spc;
+  // fixed-function vertex lighting: the lit colour is clamped before it modulates the texture
+  vec3 lit = clamp(uEmi + uAmb * ambL + difc * dif, 0.0, 1.0);
+  vec3 col = clamp(lit * t0.rgb + uSpec * spc, 0.0, 1.0);
   float alpha = uBlend * t0.a;
   for (int i = 1; i < 3; i++) {
     if (i >= uNL || uLTex[i] == 0) continue;
@@ -71,7 +73,7 @@ void main(){
     int f = uLFunc[i];
     if (f == 0) col = t.rgb;
     else if (f == 1) col += t.rgb * w;
-    else if (f == 2) col = mix(col, col * t.rgb * uLK, w); // multiply, weighted by the layer's blend constant
+    else if (f == 2) col *= t.rgb;
     else col = mix(col, t.rgb, w);
   }
   if (uDbg == 1) col = base * 1.0;
