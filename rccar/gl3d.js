@@ -2,13 +2,16 @@
 const MAXL = 8;
 const VS = `#version 300 es
 in vec3 aPos; in vec3 aNrm; in vec2 aUv0; in vec2 aUv1;
-uniform mat4 uM; uniform mat4 uV; uniform mat4 uP;
+uniform mat4 uM; uniform mat4 uV; uniform mat4 uP; uniform int uFlip;
 out vec3 wpos; out vec3 wn; out vec2 uv0; out vec2 uv1; out vec3 vpos;
 void main(){
   vec4 w = uM * vec4(aPos, 1.0);
   wpos = w.xyz;
   wn = mat3(uM) * aNrm;
   uv0 = aUv0; uv1 = aUv1;
+  if (uFlip == 1) uv1.y = 1.0 - uv1.y;
+  if (uFlip == 2) uv1.x = 1.0 - uv1.x;
+  if (uFlip == 3) uv1 = uv1.yx;
   vec4 v = uV * w; vpos = v.xyz;
   gl_Position = uP * v;
 }`;
@@ -137,6 +140,7 @@ export class View3D {
     const R = view; // view = [R|t], cam = -R^T t
     this.cam = [-(R[0] * R[12] + R[1] * R[13] + R[2] * R[14]), -(R[4] * R[12] + R[5] * R[13] + R[6] * R[14]), -(R[8] * R[12] + R[9] * R[13] + R[10] * R[14])];
     gl.uniform3f(u.uCam, this.cam[0], this.cam[1], this.cam[2]);
+    gl.uniform1i(u.uFlip, +(new URLSearchParams(location.search).get('flip') || 0));
     gl.uniform1i(u.uDbg, +(new URLSearchParams(location.search).get('dbg') || 0));
     const nl = u32[p++];
     const ty = new Int32Array(MAXL), col = new Float32Array(MAXL * 3), dir = new Float32Array(MAXL * 3), pos = new Float32Array(MAXL * 3), att = new Float32Array(MAXL * 3), spot = new Float32Array(MAXL);
