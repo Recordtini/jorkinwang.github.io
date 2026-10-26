@@ -45,8 +45,8 @@ export function buildMenu({ el, gear, settings, save, ex, snd, onChange, setPaus
   };
 
   section('Display');
-  select('Render resolution', 'res', [[1, '1× (640×480)'], [2, '2× (1280×960)'], [3, '3× (1920×1440)'], [4, '4× (2560×1920)']], 'Higher values draw the 3D scene sharper; the original art is unchanged.');
-  select('Window fit', 'fit', [['window', 'Fill window (4:3)'], [1, '1×'], [2, '2×'], [3, '3×']]);
+  select('Render resolution', 'rscale', [[0.5, '0.5× window'], [0.75, '0.75×'], [1, '1× (native)'], [1.5, '1.5×'], [2, '2× (supersampled)']], 'Relative to the window size and display scaling.');
+  select('Window fit', 'fit', [['window', 'Fill window'], ['fit', 'Keep 4:3'], [1, '640×480'], [2, '1280×960']], 'Menus stay 4:3 with side bars; the 3D view fills the whole window.');
   check('Smooth scaling', 'smooth');
   select('Texture filtering', 'aniso', [[1, 'Bilinear + mipmaps'], [4, 'Anisotropic 4×'], [16, 'Anisotropic 16×']]);
   select('Anti-aliasing', 'msaa', [[0, 'Off (original)'], [4, 'MSAA 4×']], 'Takes effect after a reload.');

@@ -2,16 +2,13 @@
 const MAXL = 8;
 const VS = `#version 300 es
 in vec3 aPos; in vec3 aNrm; in vec2 aUv0; in vec2 aUv1;
-uniform mat4 uM; uniform mat4 uV; uniform mat4 uP; uniform int uFlip;
+uniform mat4 uM; uniform mat4 uV; uniform mat4 uP;
 out vec3 wpos; out vec3 wn; out vec2 uv0; out vec2 uv1; out vec3 vpos;
 void main(){
   vec4 w = uM * vec4(aPos, 1.0);
   wpos = w.xyz;
   wn = mat3(uM) * aNrm;
   uv0 = aUv0; uv1 = aUv1;
-  if (uFlip == 1) uv1.y = 1.0 - uv1.y;
-  if (uFlip == 2) uv1.x = 1.0 - uv1.x;
-  if (uFlip == 3) uv1 = uv1.yx;
   vec4 v = uV * w; vpos = v.xyz;
   gl_Position = uP * v;
 }`;
@@ -24,10 +21,12 @@ uniform float uLConst[3]; uniform vec3 uLX0[3]; uniform vec3 uLX1[3];
 uniform sampler2D uT0; uniform sampler2D uT1; uniform sampler2D uT2;
 uniform int uNLights; uniform int uLType[${MAXL}]; uniform vec3 uLCol[${MAXL}]; uniform vec3 uLDir[${MAXL}];
 uniform vec3 uLPos[${MAXL}]; uniform vec3 uLAtt[${MAXL}]; uniform float uLSpot[${MAXL}];
-uniform vec3 uCam; uniform int uDbg;
+uniform vec3 uCam; uniform int uDbg; uniform int uFlip;
 out vec4 o;
 vec4 sampleLayer(int i, vec2 uv) {
+  // texture coordinates run v-up like OpenGL; image rows are stored top-down
   vec2 t = vec2(dot(uLX0[i], vec3(uv, 1.0)), dot(uLX1[i], vec3(uv, 1.0)));
+  if (uFlip != 4) t.y = 1.0 - t.y;
   if (i == 0) return texture(uT0, t);
   if (i == 1) return texture(uT1, t);
   return texture(uT2, t);
@@ -43,7 +42,8 @@ void main(){
     int ty = uLType[i];
     if (ty == 0) { ambL += uLCol[i]; continue; }
     vec3 L; float att = 1.0;
-    if (ty == 1) L = -uLDir[i];
+    float sg = 1.0;
+    if (ty == 1) { L = -uLDir[i]; sg = uLAtt[i].x * 1.5; }
     else {
       vec3 d = uLPos[i] - wpos; float dist = length(d); L = d / max(dist, 1e-4);
       att = 1.0 / max(uLAtt[i].x + uLAtt[i].y * dist + uLAtt[i].z * dist * dist, 1e-4);
@@ -51,7 +51,7 @@ void main(){
     }
     float nl = max(dot(N, L), 0.0);
     dif += uLCol[i] * nl * att;
-    if (nl > 0.0 && uShin > 0.0) spc += uLCol[i] * pow(max(dot(N, normalize(L + V)), 0.0), uShin * 1.28) * att;
+    if (nl > 0.0 && uShin > 0.0) spc += uLCol[i] * pow(max(dot(N, normalize(L + V)), 0.0), uShin * 1.28) * att * sg;
   }
   vec4 t0 = vec4(1.0);
   if (uNL > 0 && uLTex[0] > 0) {
@@ -119,6 +119,7 @@ export class View3D {
     gl.bindVertexArray(null);
   }
   // returns index after the VIEW header
+  setLayout(s, ox, oy) { this.ls = s; this.lox = ox; this.loy = oy; }
   begin(u32, f32, i, canvas) {
     const gl = this.gl, u = this.u;
     const x = f32[i + 1], y = f32[i + 2], w = f32[i + 3], h = f32[i + 4];
@@ -126,14 +127,17 @@ export class View3D {
     const fov = f32[i + 7], near = f32[i + 8], far = f32[i + 9];
     const view = f32.slice(i + 10, i + 26);
     let p = i + 26;
-    const sx = canvas.width / this.sw, sy = canvas.height / this.sh;
-    const vx = Math.round(x * sx), vw = Math.round(w * sx), vh = Math.round(h * sy), vy = Math.round(canvas.height - (y + h) * sy);
+    const full = x <= 1 && y <= 1 && w >= this.sw - 1 && h >= this.sh - 1;
+    let vx, vy, vw, vh;
+    if (full) { vx = 0; vy = 0; vw = canvas.width; vh = canvas.height; }
+    else { const s = this.ls; vx = Math.round(this.lox + x * s); vw = Math.round(w * s); vh = Math.round(h * s); vy = Math.round(canvas.height - (this.loy + (y + h) * s)); }
+    const aspect = vw / vh;
     gl.enable(gl.SCISSOR_TEST); gl.scissor(vx, vy, vw, vh); gl.viewport(vx, vy, vw, vh);
     gl.depthMask(true);
     if (clearColor) { gl.clearColor(((bg >> 16) & 255) / 255, ((bg >> 8) & 255) / 255, (bg & 255) / 255, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); }
     else gl.clear(gl.DEPTH_BUFFER_BIT);
     gl.useProgram(this.pr);
-    const f = 1 / Math.tan(fov * Math.PI / 360), a = w / h;
+    const f = 1 / Math.tan(fov * Math.PI / 360), a = aspect;
     const P = new Float32Array([f / a, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) / (near - far), -1, 0, 0, 2 * far * near / (near - far), 0]);
     gl.uniformMatrix4fv(u.uP, false, P); gl.uniformMatrix4fv(u.uV, false, view);
     // camera position = translation of inverse(view)

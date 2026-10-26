@@ -8,7 +8,7 @@ const canvas = document.getElementById('stage');
 const statusEl = document.getElementById('status');
 const errEl = document.getElementById('err');
 
-const DEFAULTS = { smooth3d: true, res: 2, fit: 'window', smooth: true, aniso: 16, msaa: 0, fps: 40, showFps: false, pauseOnMenu: true, volume: 0.8, mute: false,
+const DEFAULTS = { smooth3d: true, rscale: 1, fit: 'window', smooth: true, aniso: 16, msaa: 0, fps: 40, showFps: false, pauseOnMenu: true, volume: 0.8, mute: false,
   cInfTime: false, cNitro: false, cPower: 1, cGravity: 1, cSpeed: 1 };
 let settings = Object.assign({}, DEFAULTS);
 try { Object.assign(settings, JSON.parse(localStorage.getItem('lsrc.settings') || '{}')); } catch (e) { /* storage unavailable */ }
@@ -118,13 +118,16 @@ async function main() {
   window.__lw = { snd, ex };
   let paused = false;
   const apply = (key) => {
-    canvas.width = STAGE_W * settings.res; canvas.height = STAGE_H * settings.res;
+    const dpr = window.devicePixelRatio || 1;
+    let cw, ch;
+    if (settings.fit === 'window') { cw = innerWidth; ch = innerHeight; }
+    else if (settings.fit === 'fit') { const k = Math.min(innerWidth / STAGE_W, innerHeight / STAGE_H); cw = Math.floor(STAGE_W * k); ch = Math.floor(STAGE_H * k); }
+    else { cw = STAGE_W * settings.fit; ch = STAGE_H * settings.fit; }
+    canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px'; canvas.style.maxWidth = canvas.style.maxHeight = 'none';
+    // render resolution: window pixels x device pixel ratio x the chosen quality factor (capped for sanity)
+    const q = settings.rscale * dpr;
+    canvas.width = Math.max(320, Math.min(4096, Math.round(cw * q))); canvas.height = Math.max(240, Math.min(4096, Math.round(ch * q)));
     canvas.style.imageRendering = settings.smooth ? 'auto' : 'pixelated';
-    if (settings.fit === 'window') {
-      const k = Math.min(innerWidth / STAGE_W, innerHeight / STAGE_H);
-      canvas.style.width = Math.floor(STAGE_W * k) + 'px'; canvas.style.height = Math.floor(STAGE_H * k) + 'px';
-    } else { canvas.style.width = STAGE_W * settings.fit + 'px'; canvas.style.height = STAGE_H * settings.fit + 'px'; }
-    canvas.style.maxWidth = canvas.style.maxHeight = 'none';
     snd.setMaster(settings.volume); snd.setMuted(settings.mute);
     gl.setFiltering(settings.aniso);
     statusEl.style.display = settings.showFps ? 'block' : 'none';
@@ -137,7 +140,9 @@ async function main() {
 
   const toStage = (e) => {
     const r = canvas.getBoundingClientRect();
-    return [(e.clientX - r.left) * STAGE_W / r.width, (e.clientY - r.top) * STAGE_H / r.height];
+    const px = (e.clientX - r.left) * canvas.width / r.width, py = (e.clientY - r.top) * canvas.height / r.height;
+    gl.layout();
+    return [(px - gl.ox) / gl.s, (py - gl.oy) / gl.s];
   };
   let down = 0, mx = 0, my = 0;
   canvas.addEventListener('mousemove', (e) => { [mx, my] = toStage(e); ex.lw_mouse(mx, my, down); });
