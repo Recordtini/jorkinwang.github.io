@@ -21,7 +21,7 @@ uniform float uLConst[3]; uniform vec3 uLX0[3]; uniform vec3 uLX1[3];
 uniform sampler2D uT0; uniform sampler2D uT1; uniform sampler2D uT2;
 uniform int uNLights; uniform int uLType[${MAXL}]; uniform vec3 uLCol[${MAXL}]; uniform vec3 uLDir[${MAXL}];
 uniform vec3 uLPos[${MAXL}]; uniform vec3 uLAtt[${MAXL}]; uniform float uLSpot[${MAXL}];
-uniform vec3 uCam; uniform float uGain; uniform int uDbg; uniform int uFlip;
+uniform vec3 uCam; uniform float uGain; uniform float uLK; uniform int uDbg; uniform int uFlip;
 out vec4 o;
 vec4 sampleLayer(int i, vec2 uv) {
   // texture coordinates run v-up like OpenGL; image rows are stored top-down
@@ -71,7 +71,7 @@ void main(){
     int f = uLFunc[i];
     if (f == 0) col = t.rgb;
     else if (f == 1) col += t.rgb * w;
-    else if (f == 2) col *= t.rgb * 2.0; // modulate x2, as lightmaps expect
+    else if (f == 2) col = mix(col, col * t.rgb * uLK, w); // multiply, weighted by the layer's blend constant
     else col = mix(col, t.rgb, w);
   }
   if (uDbg == 1) col = base * 1.0;
@@ -144,7 +144,8 @@ export class View3D {
     // camera position = translation of inverse(view)
     const R = view; // view = [R|t], cam = -R^T t
     this.cam = [-(R[0] * R[12] + R[1] * R[13] + R[2] * R[14]), -(R[4] * R[12] + R[5] * R[13] + R[6] * R[14]), -(R[8] * R[12] + R[9] * R[13] + R[10] * R[14])];
-    gl.uniform1f(u.uGain, +(new URLSearchParams(location.search).get("gain") || 3));
+    gl.uniform1f(u.uLK, +(new URLSearchParams(location.search).get('lk') || 2));
+    gl.uniform1f(u.uGain, +(new URLSearchParams(location.search).get("gain") || 3.6));
     gl.uniform3f(u.uCam, this.cam[0], this.cam[1], this.cam[2]);
     gl.uniform1i(u.uFlip, +(new URLSearchParams(location.search).get('flip') || 0));
     gl.uniform1i(u.uDbg, +(new URLSearchParams(location.search).get('dbg') || 0));
