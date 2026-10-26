@@ -21,7 +21,7 @@ uniform float uLConst[3]; uniform vec3 uLX0[3]; uniform vec3 uLX1[3];
 uniform sampler2D uT0; uniform sampler2D uT1; uniform sampler2D uT2;
 uniform int uNLights; uniform int uLType[${MAXL}]; uniform vec3 uLCol[${MAXL}]; uniform vec3 uLDir[${MAXL}];
 uniform vec3 uLPos[${MAXL}]; uniform vec3 uLAtt[${MAXL}]; uniform float uLSpot[${MAXL}];
-uniform vec3 uCam; uniform int uDbg; uniform int uFlip;
+uniform vec3 uCam; uniform float uGain; uniform int uDbg; uniform int uFlip;
 out vec4 o;
 vec4 sampleLayer(int i, vec2 uv) {
   // texture coordinates run v-up like OpenGL; image rows are stored top-down
@@ -43,7 +43,8 @@ void main(){
     if (ty == 0) { ambL += uLCol[i]; continue; }
     vec3 L; float att = 1.0;
     float sg = 1.0;
-    if (ty == 1) { L = -uLDir[i]; sg = uLAtt[i].x * 1.5; }
+    // directional lights carry their intensity in the constant-attenuation slot; six of them are meant to add up to about one
+    if (ty == 1) { L = -uLDir[i]; att = uLAtt[i].x * uGain; if (uLDir[i].z > 0.5) att *= 0.53; sg = uLAtt[i].x * 0.4; }
     else {
       vec3 d = uLPos[i] - wpos; float dist = length(d); L = d / max(dist, 1e-4);
       att = 1.0 / max(uLAtt[i].x + uLAtt[i].y * dist + uLAtt[i].z * dist * dist, 1e-4);
@@ -70,7 +71,7 @@ void main(){
     int f = uLFunc[i];
     if (f == 0) col = t.rgb;
     else if (f == 1) col += t.rgb * w;
-    else if (f == 2) col *= t.rgb;
+    else if (f == 2) col *= t.rgb * 2.0; // modulate x2, as lightmaps expect
     else col = mix(col, t.rgb, w);
   }
   if (uDbg == 1) col = base * 1.0;
@@ -143,6 +144,7 @@ export class View3D {
     // camera position = translation of inverse(view)
     const R = view; // view = [R|t], cam = -R^T t
     this.cam = [-(R[0] * R[12] + R[1] * R[13] + R[2] * R[14]), -(R[4] * R[12] + R[5] * R[13] + R[6] * R[14]), -(R[8] * R[12] + R[9] * R[13] + R[10] * R[14])];
+    gl.uniform1f(u.uGain, +(new URLSearchParams(location.search).get("gain") || 3));
     gl.uniform3f(u.uCam, this.cam[0], this.cam[1], this.cam[2]);
     gl.uniform1i(u.uFlip, +(new URLSearchParams(location.search).get('flip') || 0));
     gl.uniform1i(u.uDbg, +(new URLSearchParams(location.search).get('dbg') || 0));
