@@ -9,7 +9,7 @@ const statusEl = document.getElementById('status');
 const errEl = document.getElementById('err');
 
 const DEFAULTS = { smooth3d: true, rscale: 1, fit: 'window', smooth: true, aniso: 16, msaa: 0, fps: 40, showFps: false, pauseOnMenu: true, volume: 0.8, mute: false,
-  cInfTime: false, cNitro: false, cPower: 1, cGravity: 1, cSpeed: 1 };
+  padDead: 0.12, padCurve: 1.4, cInfTime: false, cNitro: false, cPower: 1, cGravity: 1, cSpeed: 1 };
 let settings = Object.assign({}, DEFAULTS);
 try { Object.assign(settings, JSON.parse(localStorage.getItem('lsrc.settings') || '{}')); } catch (e) { /* storage unavailable */ }
 const saveSettings = () => { try { localStorage.setItem('lsrc.settings', JSON.stringify(settings)); } catch (e) { /* ignore */ } };
@@ -158,19 +158,31 @@ async function main() {
   window.addEventListener('keydown', (e) => { if (!e.repeat) key(e, 1); });
   window.addEventListener('keyup', (e) => key(e, 0));
 
-  // Gamepad: stick / d-pad steer, triggers or A/B drive and brake, X handbrake, Start = Esc.
-  const pad = { 126: false, 125: false, 123: false, 124: false, 49: false, 53: false };
+  // Game controller (Xbox / XInput pads arrive through the browser's Gamepad API with the standard layout):
+  // left stick = analog steering, RT = analog throttle (A also floors it), LT / B = brake and reverse,
+  // X = handbrake, Start = Esc, d-pad = digital drive and steer. Without a pad the keyboard works as before.
+  const pad = { 125: false, 49: false, 53: false };
   const setPad = (code, on) => { if (pad[code] !== on) { pad[code] = on; ex.lw_key(code, code === 49 ? 32 : 0, on ? 1 : 0); } };
+  let padOn = false;
   function pollPad() {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-    let any = null;
-    for (const g of pads) if (g && g.connected) { any = g; break; }
-    if (!any) return;
-    const b = (i) => !!(any.buttons[i] && (any.buttons[i].pressed || any.buttons[i].value > 0.5));
-    const ax = any.axes[0] || 0;
-    setPad(123, ax < -0.3 || b(14)); setPad(124, ax > 0.3 || b(15));
-    setPad(126, b(0) || b(7) || b(12)); setPad(125, b(1) || b(6) || b(13));
-    setPad(49, b(2)); setPad(53, b(9));
+    let g = null;
+    for (const c of pads) if (c && c.connected) { g = c; break; }
+    if (!g) { if (padOn) { padOn = false; ex.lw_analog(0, 0, 0); setPad(125, false); setPad(49, false); setPad(53, false); } return; }
+    padOn = true;
+    const btn = (i) => (g.buttons[i] ? g.buttons[i].value : 0);
+    const dead = settings.padDead;
+    let x = g.axes[0] || 0, y = g.axes[1] || 0;
+    const mag = Math.hypot(x, y);
+    if (mag < dead) x = 0; else x = Math.sign(x) * Math.min(1, (Math.abs(x) - dead * 0.5) / (1 - dead * 0.5));
+    x = Math.sign(x) * Math.pow(Math.abs(x), settings.padCurve);
+    if (btn(14) > 0.5) x = -1; if (btn(15) > 0.5) x = 1;
+    const throttle = Math.max(btn(7), btn(0), btn(12));
+    setPad(125, btn(6) > 0.3 || btn(1) > 0.5 || btn(13) > 0.5);
+    setPad(49, btn(2) > 0.5 || btn(5) > 0.5);
+    setPad(53, btn(9) > 0.5);
+    ex.lw_analog(1, x, throttle < 0.04 ? 0 : throttle);
+    if (g.vibrationActuator && false) { /* reserved */ }
   }
 
   // Logic runs on a fixed clock (40 Hz like the original tempo); drawing happens on every display refresh and,

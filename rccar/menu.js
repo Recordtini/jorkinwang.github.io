@@ -58,6 +58,11 @@ export function buildMenu({ el, gear, settings, save, ex, snd, onChange, setPaus
   select('Logic rate', 'fps', [[40, '40 fps (original tempo)'], [60, '60 fps'], [80, '80 fps']], 'The original game ran at 40 frames per second. Other rates change how quickly steering ramps up.');
   check('Pause while this menu is open', 'pauseOnMenu');
 
+  section('Controller');
+  range('Stick dead zone', 'padDead', 0, 0.4, 0.01);
+  range('Steering curve (1 = linear)', 'padCurve', 1, 2.5, 0.1);
+  rows.push(h('div', { class: 'note' }, 'Xbox / XInput pads work natively: left stick steers with full analog range, RT is analog throttle, LT or B brakes and reverses, X handbrake, Start = Esc. Plug in or press a button on the pad so the browser sees it.'));
+
   section('Audio');
   range('Volume', 'volume', 0, 1, 0.05);
   check('Mute', 'mute');
@@ -72,7 +77,7 @@ export function buildMenu({ el, gear, settings, save, ex, snd, onChange, setPaus
   cheatSelect('Game speed', CHEAT.SPEED, 'cSpeed', [[0.5, 'Slow motion'], [1, 'Normal'], [1.5, 'Fast'], [2, 'Very fast']]);
 
   section('Keys');
-  rows.push(h('div', { class: 'note' }, '↑ ↓ drive/brake · ← → steer · Space handbrake · Esc leave a level · F1 this menu · F11 fullscreen. Gamepad: stick/d-pad steer, A or RT drive, B or LT brake, X handbrake, Start = Esc.'));
+  rows.push(h('div', { class: 'note' }, '↑ ↓ drive/brake · ← → steer · Space handbrake · Esc leave a level · F1 this menu · F11 fullscreen.'));
 
   el.replaceChildren(h('h3', {}, 'Options & cheats'), ...rows);
   const toggle = (on) => {
