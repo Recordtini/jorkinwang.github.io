@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>RC Car</title>
 <style>
   :root { color-scheme: dark; }
@@ -20,6 +20,8 @@
   #cheat label { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; gap: 8px; }
   #cheat button, #cheat select { background: #22263a; color: #eee; border: 1px solid #556; border-radius: 4px; padding: 3px 8px; }
   #cheat hr { border: 0; border-top: 1px solid #334; margin: 8px 0; }
+  @media (max-width: 700px) { #cheat { left: 12px; right: 12px; width: auto; top: 56px; } }
+  html { touch-action: none; overscroll-behavior: none; }
   #err { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; background: #0b0b0e; }
 </style>
 </head>

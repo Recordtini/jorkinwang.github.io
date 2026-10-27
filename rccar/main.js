@@ -2,6 +2,7 @@
 import { Renderer } from './gl.js';
 import { Sound } from './audio.js';
 import { buildMenu } from './menu.js';
+import { initTouch } from './touch.js';
 
 const STAGE_W = 640, STAGE_H = 480;
 const canvas = document.getElementById('stage');
@@ -112,13 +113,14 @@ async function main() {
   if (ex.lw_init(pd, dcr.length, pc, cct.length) !== 0) return fail('Engine failed to load the game data (see console).');
   statusEl.textContent = '';
 
-  const gl = new Renderer(canvas, ex, mem, STAGE_W, STAGE_H, settings);
+  const gl = window.__gl = new Renderer(canvas, ex, mem, STAGE_W, STAGE_H, settings);
   const snd = new Sound(ex, mem);
   snd.setMaster(settings.volume); snd.setMuted(settings.mute);
   window.__lw = { snd, ex };
   let paused = false;
+  const touch = initTouch();
   const apply = (key) => {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, touch.enabled ? 2 : 4);
     let cw, ch;
     if (settings.fit === 'window') { cw = innerWidth; ch = innerHeight; }
     else if (settings.fit === 'fit') { const k = Math.min(innerWidth / STAGE_W, innerHeight / STAGE_H); cw = Math.floor(STAGE_W * k); ch = Math.floor(STAGE_H * k); }
@@ -148,6 +150,22 @@ async function main() {
   canvas.addEventListener('mousemove', (e) => { [mx, my] = toStage(e); ex.lw_mouse(mx, my, down); });
   canvas.addEventListener('mousedown', (e) => { [mx, my] = toStage(e); down = 1; ex.lw_mouse(mx, my, 1); e.preventDefault(); });
   window.addEventListener('mouseup', () => { down = 0; ex.lw_mouse(mx, my, 0); });
+  // touch on the canvas acts as the mouse (menus); pointerdown is cancelled so no duplicate compatibility mouse events follow
+  canvas.style.touchAction = 'none';
+  // a quick tap can press and release inside one 25 ms logic tick; hold the press long enough for the game to see it
+  let downAt = 0;
+  const tp = (e, d) => {
+    if (e.pointerType === 'mouse') return;
+    e.preventDefault(); [mx, my] = toStage(e);
+    if (d) downAt = performance.now();
+    const apply = () => { down = d; ex.lw_mouse(mx, my, d); };
+    const wait = d ? 0 : 90 - (performance.now() - downAt);
+    if (wait > 0) setTimeout(apply, wait); else apply();
+  };
+  canvas.addEventListener('pointerdown', (e) => tp(e, 1));
+  canvas.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse' && down) tp(e, 1); });
+  canvas.addEventListener('pointerup', (e) => tp(e, 0));
+  canvas.addEventListener('pointercancel', (e) => tp(e, 0));
   const key = (e, d) => {
     if (document.getElementById('cheat').contains(e.target)) return;
     const code = KEYMAP[e.code];
@@ -168,6 +186,12 @@ async function main() {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     let g = null;
     for (const c of pads) if (c && c.connected) { g = c; break; }
+    if (!g && touch.shown) {
+      padOn = true;
+      ex.lw_analog(1, touch.steer, touch.thr);
+      setPad(125, touch.brake); setPad(49, touch.hand); setPad(53, touch.esc);
+      return;
+    }
     if (!g) { if (padOn) { padOn = false; ex.lw_analog(0, 0, 0); setPad(125, false); setPad(49, false); setPad(53, false); } return; }
     padOn = true;
     const btn = (i) => (g.buttons[i] ? g.buttons[i].value : 0);
@@ -192,6 +216,7 @@ async function main() {
     requestAnimationFrame(loop);
     const dt = now - last; last = now;
     if (paused) { acc = 0; clock = now; return; }
+    if (touch.enabled) { touch.show(gl.in3d && !touch.hidden && document.getElementById('cheat').style.display !== 'block'); touch.syncShow(); }
     pollPad();
     const step = 1000 / settings.fps;
     acc = Math.min(acc + dt, step * 6);

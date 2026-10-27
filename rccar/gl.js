@@ -54,6 +54,7 @@ export class Renderer {
     this.layout();
     gl.uniform2f(this.u.res, this.canvas.width / this.s, this.canvas.height / this.s); gl.uniform2f(this.u.off, this.ox / this.s, this.oy / this.s); gl.uniform1i(this.u.tex, 0);
     let i = 0;
+    this.in3d = false;
     while (i < len) {
       const op = u32[i];
       if (op === OP.END) break;
@@ -91,6 +92,7 @@ export class Renderer {
       } else if (op === OP.MESHUP) {
         this.v3.meshUp(u32[i + 1], u32[i + 2], u32[i + 3], u32[i + 4], u32[i + 5]); i += 6;
       } else if (op === OP.V3D) {
+        this.in3d = true;
         i = this.v3.begin(u32, f32, i, this.canvas);
       } else if (op === OP.DRAW3D) {
         i = this.v3.draw(u32, f32, i, this.tex);
