@@ -1,5 +1,5 @@
 // Options and cheat panel (F1 or the gear button).
-const CHEAT = { UNLOCK: 1, ADD_TIME: 2, ADD_POINTS: 3, UPRIGHT: 4, RESET: 5, JUMP: 6, NITRO: 7, POWER: 8, GRAVITY: 9, SPEED: 10, INF_TIME: 11 };
+const CHEAT = { UNLOCK: 1, ADD_TIME: 2, ADD_POINTS: 3, UPRIGHT: 4, RESET: 5, JUMP: 6, NITRO: 7, POWER: 8, GRAVITY: 9, SPEED: 10, INF_TIME: 11, SCORE: 12 };
 
 export function buildMenu({ el, gear, settings, save, ex, snd, onChange, setPaused }) {
   const rows = [];
@@ -72,6 +72,7 @@ export function buildMenu({ el, gear, settings, save, ex, snd, onChange, setPaus
   buttons(button('Flip upright', cheat(CHEAT.UPRIGHT)), button('Back to start', cheat(CHEAT.RESET)), button('Super jump', cheat(CHEAT.JUMP, 300)));
   toggleCheat('Infinite time', CHEAT.INF_TIME, 'cInfTime', 'Keeps the countdown topped up.');
   toggleCheat('Nitro (always on)', CHEAT.NITRO, 'cNitro');
+  cheatSelect('Score multiplier', CHEAT.SCORE, 'cScore', [[1, '1× (original)'], [2, '2×'], [3, '3×'], [5, '5×']]);
   cheatSelect('Engine power', CHEAT.POWER, 'cPower', [[1, '1× (original)'], [1.5, '1.5×'], [2, '2×'], [3, '3×']]);
   cheatSelect('Gravity', CHEAT.GRAVITY, 'cGravity', [[1, 'Normal'], [0.5, 'Moon'], [0.2, 'Floaty'], [1.5, 'Heavy']]);
   cheatSelect('Game speed', CHEAT.SPEED, 'cSpeed', [[0.5, 'Slow motion'], [1, 'Normal'], [1.5, 'Fast'], [2, 'Very fast']]);

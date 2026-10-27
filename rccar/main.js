@@ -9,7 +9,7 @@ const statusEl = document.getElementById('status');
 const errEl = document.getElementById('err');
 
 const DEFAULTS = { smooth3d: true, rscale: 1, fit: 'window', smooth: true, aniso: 16, msaa: 0, fps: 40, showFps: false, pauseOnMenu: true, volume: 0.8, mute: false,
-  padDead: 0.12, padCurve: 1.4, cInfTime: false, cNitro: false, cPower: 1, cGravity: 1, cSpeed: 1 };
+  padDead: 0.12, padCurve: 1.4, cScore: 1, cInfTime: false, cNitro: false, cPower: 1, cGravity: 1, cSpeed: 1 };
 let settings = Object.assign({}, DEFAULTS);
 try { Object.assign(settings, JSON.parse(localStorage.getItem('lsrc.settings') || '{}')); } catch (e) { /* storage unavailable */ }
 const saveSettings = () => { try { localStorage.setItem('lsrc.settings', JSON.stringify(settings)); } catch (e) { /* ignore */ } };
@@ -85,7 +85,7 @@ window.__text = { get textLayout() { return textLayout; }, get textRaster() { re
 async function main() {
   let dcr, cct;
   try {
-    [dcr, cct] = await Promise.all([fetchBytes('game/game.dcr'), fetchBytes('game/GUILibrary.cct')]);
+    [dcr, cct] = await Promise.all([fetchBytes('../OriginalGame/game.dcr'), fetchBytes('../OriginalGame/GUILibrary.cct')]);
   } catch (e) {
     return fail('Could not load the original game files from <code>OriginalGame/</code>.<br>' + e.message +
       '<br><br>Serve the repository root with a static web server, e.g. <code>python3 -m http.server</code>, and open <code>/web/</code>.');
