@@ -85,7 +85,7 @@ window.__text = { get textLayout() { return textLayout; }, get textRaster() { re
 async function main() {
   let dcr, cct;
   try {
-    [dcr, cct] = await Promise.all([fetchBytes('../OriginalGame/game.dcr'), fetchBytes('../OriginalGame/GUILibrary.cct')]);
+    [dcr, cct] = await Promise.all([fetchBytes('game/game.dcr'), fetchBytes('game/GUILibrary.cct')]);
   } catch (e) {
     return fail('Could not load the original game files from <code>OriginalGame/</code>.<br>' + e.message +
       '<br><br>Serve the repository root with a static web server, e.g. <code>python3 -m http.server</code>, and open <code>/web/</code>.');
