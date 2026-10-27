@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stunt Track Driver</title>
+<style>
+  :root { color-scheme: dark; --bg:#0d0f14; --panel:#171a22; --ink:#e8eaf0; --dim:#9aa3b5; --accent:#ff8a1f; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 system-ui,sans-serif; display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:12px; min-height:100vh; padding:12px; }
+  #stage { display:grid; place-items:start center; }
+  #wrap { position:relative; width:min(100%, calc((100vh - 24px) * 4 / 3)); aspect-ratio:4/3; background:#000; border-radius:6px; overflow:hidden; }
+  canvas { width:100%; height:100%; display:block; image-rendering:pixelated; cursor:default; }
+  canvas.smooth { image-rendering:auto; }
+  #banner { position:absolute; left:0; right:0; top:42%; text-align:center; font:700 clamp(16px,3.2vw,30px) system-ui; color:#fff; text-shadow:0 2px 0 #000,0 0 14px #000; padding:0 10px; pointer-events:none; }
+  #load { position:absolute; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.82); text-align:center; }
+  #load div { max-width:70%; }
+  #bar { height:8px; background:#222; border-radius:4px; margin-top:10px; overflow:hidden; } #bar i { display:block; height:100%; width:0; background:var(--accent); }
+  aside { background:var(--panel); border-radius:8px; padding:12px; align-self:start; display:grid; gap:10px; }
+  aside h2 { margin:0; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); }
+  label { display:flex; gap:8px; align-items:center; cursor:pointer; }
+  kbd { background:#262b38; border-radius:4px; padding:0 5px; font:12px ui-monospace,monospace; }
+  input[type=text] { width:100%; background:#0d0f14; color:var(--ink); border:1px solid #2b3142; border-radius:4px; padding:5px 7px; }
+  button { background:#262b38; color:var(--ink); border:0; border-radius:4px; padding:6px 10px; cursor:pointer; } button:hover { background:#31384a; }
+  #stats { font:12px ui-monospace,monospace; color:var(--dim); white-space:pre; }
+  small { color:var(--dim); }
+  @media (max-width:900px) { body { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wrap">
+    <canvas id="c" width="640" height="480"></canvas>
+    <div id="banner"></div>
+    <div id="load"><div><div id="loadmsg">Loading…</div><div id="bar"><i></i></div></div></div>
+  </div>
+</div>
+<aside>
+  <h2>Controls</h2>
+  <div><kbd>↑</kbd>/<kbd>W</kbd> accelerate &nbsp; <kbd>↓</kbd>/<kbd>S</kbd> brake<br><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer<br>
+  <kbd>Enter</kbd> go / continue &nbsp; <kbd>Esc</kbd> menu &nbsp; <kbd>R</kbd> restart<br>
+  Menus: mouse. Track select: click a picture, or <kbd>1</kbd>–<kbd>7</kbd>. Car select: <kbd>←</kbd><kbd>→</kbd>.</div>
+  <small>Hold accelerate through the countdown: on the 6th light for a boost; on the 5th is a jump start (slow).</small>
+  <h2>Display</h2>
+  <label><input type="checkbox" id="hq"> High quality (window size, sharp pixels)</label>
+  <label><input type="checkbox" id="fx5" checked> Death text (what killed you; the exe shows none)</label>
+  <h2>Gameplay fixes (off = original)</h2>
+  <label><input type="checkbox" id="fx0"> Accelerate while steering</label>
+  <label><input type="checkbox" id="fx1"> Keyboard roll (<kbd>Q</kbd>/<kbd>E</kbd> in the air)</label>
+  <label><input type="checkbox" id="fx2"> Fair clock (constant)</label>
+  <label><input type="checkbox" id="fx3"> Crash restarts the level (the exe does not)</label>
+  <label><input type="checkbox" id="fx4"> Crash goes back to the last checkpoint (the exe does this only for Missed Jump)</label>
+  <h2>Cheat codes</h2>
+  <div id="cheats" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  <h2>Audio</h2>
+  <label><input type="checkbox" id="mus" checked> Music</label>
+  <label><input type="checkbox" id="sfx" checked> Effects</label>
+  <h2>Status</h2>
+  <div id="stats"></div>
+</aside>
+
+<script>
+'use strict';
+const params = new URLSearchParams(location.search);
+// Published site: game/ next to this page, with lower-case file names and a files.json list (tools/publish.py). For local work
+// against the original folder, pass ?root=<url of the game folder> (it is read through a directory listing).
+let ROOT = params.get('root') || 'game/', MANIFEST = null;
+async function initRoot() {
+  try { const r = await fetch(ROOT + 'files.json'); if (r.ok) { MANIFEST = await r.json(); return; } } catch {}
+  if (!params.get('root')) ROOT = '../../Hot%20Wheels%20Stunt%20Track%20Driver/';
+}
+// every game file is requested by its lower-case name, so the host's case rules never matter
+const gurl = (dir, name) => ROOT + dir + '/' + encodeURIComponent(name.toLowerCase());
+const $ = id => document.getElementById(id);
+const canvas = $('c'), ctx2d = canvas.getContext('2d');
+let X, mem; // wasm exports + memory
+const enc = new TextEncoder(), dec = new TextDecoder();
+const view = (p, n) => new Uint8Array(X.memory.buffer, p, n);
+
+function setLoad(msg, frac) { $('loadmsg').textContent = msg; $('bar').firstChild.style.width = Math.round((frac ?? 0) * 100) + '%'; }
+function hideLoad() { $('load').style.display = 'none'; }
+
+async function fetchBytes(url) {
+  const r = await fetch(url);
+  if (!r.ok) return new Uint8Array(0);   // missing file: stored empty (the game treats empty as absent)
+  return new Uint8Array(await r.arrayBuffer());
+}
+function putFile(name, bytes) {
+  const n = enc.encode(name);
+  const np = X.g_alloc(n.length); view(np, n.length).set(n);
+  const dp = X.g_alloc(bytes.length); view(dp, bytes.length).set(bytes);
+  X.g_put_file(np, n.length, dp, bytes.length);       // Rust takes ownership of both buffers' contents
+  // (the name buffer is not consumed by g_put_file: free by leaking only 'n.length' bytes; negligible)
+}
+const readStr = (p, n) => dec.decode(view(p, n).slice());
+
+async function listDir(url) {
+  try {
+    const html = await (await fetch(url)).text();
+    return [...html.matchAll(/href="([^"]+)"/g)].map(m => decodeURIComponent(m[1])).filter(h => !h.endsWith('/') && !h.startsWith('?'));
+  } catch { return []; }
+}
+
+// ---------------------------------------------------------------- audio
+let ac = null, musicNode = null, musicGain = null;
+const sfxBank = { track: {}, car: {}, menu: {} };   // sound number -> [AudioBuffer]
+const grp = { track: {}, car: {}, menu: {} };       // bank = sound number / 10 -> [AudioBuffer in file order] (the game's 'slot' / bank)
+const numOf = name => parseInt(name.slice(-4), 10);
+// the WAV's own sample rate: DirectSound's SetFrequency is in Hz against it, while decodeAudioData resamples to the context rate
+function wavRate(ab) { const d = new DataView(ab); for (let i = 12; i + 16 < d.byteLength;) { const id = String.fromCharCode(d.getUint8(i), d.getUint8(i + 1), d.getUint8(i + 2), d.getUint8(i + 3)), len = d.getUint32(i + 4, true); if (id === 'fmt ') return d.getUint32(i + 12, true); i += 8 + len + (len & 1); } return 22050; }
+const rateOf = b => b.nativeRate || b.sampleRate;
+function audio() { if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); } if (ac.state === 'suspended') ac.resume(); return ac; }
+async function loadBanks() {
+  sfxBank.track = {}; sfxBank.car = {}; sfxBank.menu = {}; grp.track = {}; grp.car = {}; grp.menu = {};
+  const ctx = audio();
+  for (const [bank, dst] of [[0, sfxBank.track], [1, sfxBank.car], [2, sfxBank.menu]]) {
+    const n = X.g_sfx_count(bank);
+    for (let i = 0; i < n; i++) {
+      const name = readStr(X.g_sfx_name_ptr(bank, i), X.g_sfx_name_len(bank, i)).toUpperCase().replace(/\.WAV$/, '');
+      const wav = view(X.g_sfx_wav_ptr(bank, i), X.g_sfx_wav_len(bank, i)).slice().buffer;
+      try { const rate = wavRate(wav), b = await ctx.decodeAudioData(wav), num = numOf(name); b.nativeRate = rate; (dst[num] ||= []).push(b); (grp[bank === 0 ? 'track' : bank === 1 ? 'car' : 'menu'][Math.floor(num / 10)] ||= []).push(b); } catch (e) { /* skip undecodable */ }
+    }
+  }
+}
+function startMusic() {
+  stopMusic();
+  const n = X.g_music_len();
+  if (!n || !$('mus').checked) return;
+  const ctx = audio(), rate = X.g_music_rate();
+  const pcm = new Int16Array(X.memory.buffer, X.g_music_ptr(), n);
+  const buf = ctx.createBuffer(1, n, rate), ch = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) ch[i] = pcm[i] / 32768;
+  musicNode = ctx.createBufferSource(); musicNode.buffer = buf; musicNode.loop = true;
+  musicGain = ctx.createGain(); musicGain.gain.value = 0.35;
+  musicNode.connect(musicGain).connect(ctx.destination); musicNode.start();
+}
+// engine (FUN_0042cb88): the car bank's CRUA0310 loops; DirectSound's SetFrequency becomes the playback rate
+let engineSrc = null, engineGain = null;
+function engineStart() {
+  engineStop();
+  const v = sfxBank.car[310]; if (!v || !v.length || !$('sfx').checked) return;
+  const ctx = audio(); engineSrc = ctx.createBufferSource(); engineSrc.buffer = v[0]; engineSrc.loop = true;
+  engineGain = ctx.createGain(); engineGain.gain.value = 0.55; engineSrc.connect(engineGain).connect(ctx.destination); engineSrc.start();
+}
+function engineSet(hz) { if (engineSrc) engineSrc.playbackRate.value = hz / rateOf(engineSrc.buffer); }
+function engineStop() { if (engineSrc) { try { engineSrc.stop(); } catch {} engineSrc = null; } }
+// menu music (FUN_0041a920): the game says which file should play; fetch and decode it on demand
+let tune = '', tuneBusy = false;
+async function menuMusic() {
+  if (!X || tuneBusy || busy) return;
+  const want = readStr(X.g_music_want_ptr(), X.g_music_want_len());
+  if (want === tune) return;
+  tuneBusy = true;
+  try {
+    if (!want) { tune = ''; return; }
+    if (!tuneFiles.has(want)) { putFile(want, await fetchBytes(gurl('data', want))); tuneFiles.add(want); }
+    const n = enc.encode(want), p = X.g_alloc(n.length); view(p, n.length).set(n);
+    if (X.g_music_load(p, n.length)) { tune = want; startMusic(); } else { tune = want; stopMusic(); }
+  } finally { tuneBusy = false; }
+}
+const tuneFiles = new Set();
+setInterval(menuMusic, 300);
+function stopMusic() { if (musicNode) { try { musicNode.stop(); } catch {} musicNode = null; } }
+function play(buf, vol = 0.8, rate = 1) { if (!buf || !$('sfx').checked) return; const ctx = audio(), s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = buf; g.gain.value = vol; s.playbackRate.value = rate; s.connect(g).connect(ctx.destination); s.start(); }
+// FUN_00417528(slot): slot N plays sound number N*10 (menu / car banks); slots >= 100 are the track's own, number (slot-100)*10.
+function playSlot(slot, hz) {
+  // FUN_00417528(slot): bank = slot (track sounds: slot - 100), one of its variants at random
+  const g = slot < 100 ? slot : slot - 100;
+  const banks = [grp.track, grp.car, grp.menu];   // one number space: menu 0..24, car 30..39, the level's own 50+ (an event code c is slot c - 100)
+  for (const b of banks) { const v = b[g]; if (v && v.length) { const buf = v[Math.floor(Math.random() * v.length)]; return play(buf, 0.85, hz ? hz / rateOf(buf) : 1); } }
+}
+// FUN_00417b68(bank, variant, ..., frequency): a menu-bank sound by bank and file-order variant
+function playBank(bank, variant, hz) {
+  const v = grp.menu[bank]; if (!v || !v.length) return;
+  const buf = v[Math.min(variant, v.length - 1)]; play(buf, 0.85, hz ? hz / rateOf(buf) : 1);
+}
+
+// ---------------------------------------------------------------- saved campaign progress (owned cars + open tracks)
+function saveProgress() {
+  try { localStorage.setItem('hwprog', Array.from(view(X.g_progress_ptr(), X.g_progress_len())).join(',')); } catch {}
+}
+function loadProgress() {
+  try {
+    const t = localStorage.getItem('hwprog'); if (!t) return;
+    const b = Uint8Array.from(t.split(',').map(Number)), p = X.g_alloc(b.length); view(p, b.length).set(b); X.g_progress_set(p, b.length);
+  } catch {}
+}
+
+// ---------------------------------------------------------------- game events
+const EV = { SOUND:1, CRASH:7, TRICK:8, FINISHED:9, NEED_FILES:20, RACE_STARTED:21, RACE_ENDED:22, CLICK:23, SOUND_RATE:24, PROGRESS:25, ENGINE_START:26, ENGINE:27, ENGINE_STOP:28, BANK:29, BANK_RATE:30 };
+let busy = false;
+async function handleEvents() {
+  const n = X.g_events_len(); if (!n) return;
+  const evs = []; for (let i = 0; i < n; i++) evs.push([X.g_event(i, 0), X.g_event(i, 1), X.g_event(i, 2)]);
+  X.g_events_clear();
+  for (const [k, a, b] of evs) {
+    switch (k) {
+      case EV.NEED_FILES: await fetchRaceFiles(); break;
+      case EV.RACE_STARTED: applyFixes(); tune = ''; busy = true; try { await loadBanks(); await videoStart(a); } finally { busy = false; } startMusic(); break;
+      case EV.RACE_ENDED: stopMusic(); engineStop(); break;
+      case EV.SOUND: playSlot(a); break;
+      case EV.SOUND_RATE: playSlot(a, b); break;
+      case EV.BANK: playBank(a, b, 0); break;
+      case EV.BANK_RATE: playBank(Math.floor(a / 100), a % 100, b); break;
+      case EV.PROGRESS: saveProgress(); break;
+      case EV.ENGINE_START: engineStart(); break;
+      case EV.ENGINE: engineSet(a); break;
+      case EV.ENGINE_STOP: engineStop(); break;
+    }
+  }
+}
+async function fetchRaceFiles() {
+  const names = readStr(X.g_needed_ptr(), X.g_needed_len()).split('\n').filter(Boolean);
+  busy = true; $('load').style.display = 'grid';
+  let i = 0;
+  for (const name of names) {
+    setLoad('Loading ' + name + ' …', i++ / names.length);
+    if (/\.jam$/i.test(name) && MANIFEST && !MANIFEST.data.includes(name.toLowerCase())) {
+      // the video is AV1 in the browser; the game gets the size and the per-frame palettes
+      const stem = name.slice(0, -4);
+      putFile(stem + '.meta', await fetchBytes(gurl('data', stem + '.meta')));
+      putFile(stem + '.pal', await gunzip(await fetchBytes(gurl('data', stem + '.pal'))));
+      putFile(stem + '.shade', await gunzip(await fetchBytes(gurl('data', stem + '.shade'))));
+      putFile(name, new Uint8Array(0));
+      continue;
+    }
+    putFile(name, await fetchBytes(gurl('data', name)));
+  }
+  hideLoad(); busy = false;
+  X.g_confirm_start();
+}
+
+// ---------------------------------------------------------------- level video (AV1 through WebCodecs)
+// The game says which frame it is showing (g_video_want); we keep decoding a little ahead of it and hand every frame over as packed RGB.
+async function gunzip(bytes) {
+  if (!bytes.length) return bytes;
+  const s = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Uint8Array(await new Response(s).arrayBuffer());
+}
+const TRACK_STEMS = ['hous', 'toys', 'atri', 'atic', 'sand', 'base', 'wire'];
+const vid = { wpv: false, inflight: 0, stem: '', w: 0, h: 0, frames: 0, data: null, off: [], size: [], keyAt: [], dec: null, feed: 0, floor: 0, have: new Set(), canvas: null, ctx: null, ok: false };
+const VIDEO_AHEAD = 24;
+
+function parseIvf(buf) {
+  const d = new DataView(buf), hdr = d.getUint16(6, true), n = [], o = [], k = [];
+  for (let p = hdr; p + 12 <= buf.byteLength;) {
+    const sz = d.getUint32(p, true); o.push(p + 12); n.push(sz);
+    // a temporal unit that carries a sequence header (OBU type 1) starts a new coded video sequence: a key frame
+    let key = false;
+    for (let q = p + 12, end = p + 12 + sz, c = 0; q < end && c < 4; c++) {
+      const b = d.getUint8(q), type = (b >> 3) & 15, ext = (b >> 2) & 1, hasSize = (b >> 1) & 1;
+      if (type === 1) { key = true; break; }
+      if (!hasSize) break;
+      let len = 0, shift = 0, r = q + 1 + ext;
+      for (;;) { const v = d.getUint8(r++); len |= (v & 127) << shift; shift += 7; if (!(v & 128)) break; }
+      q = r + len;
+    }
+    k.push(key);
+    p += 12 + sz;
+  }
+  return { off: o, size: n, key: k };
+}
+
+function videoOutput(frame) {
+  const idx = Math.round(frame.timestamp / 1000);
+  try {
+    if (idx >= vid.floor) {
+      vid.ctx.drawImage(frame, 0, 0);
+      const rgba = vid.ctx.getImageData(0, 0, vid.w, vid.h).data, n = vid.w * vid.h;
+      const ptr = X.g_video_buf(n * 3);          // may grow the wasm memory, so take the buffer afterwards
+      const dst = new Uint8Array(X.memory.buffer, ptr, n * 3);
+      for (let i = 0, j = 0, k = 0; i < n; i++, j += 4, k += 3) { dst[k] = rgba[j]; dst[k + 1] = rgba[j + 1]; dst[k + 2] = rgba[j + 2]; }
+      X.g_video_commit(idx);
+      vid.have.add(idx);
+    }
+  } finally { frame.close(); }
+}
+
+function videoConfigure() {
+  if (vid.dec) { try { vid.dec.close(); } catch {} }
+  vid.dec = new VideoDecoder({ output: videoOutput, error: e => console.warn('video decoder', e) });
+  vid.dec.configure({ codec: 'av01.0.04M.08', codedWidth: vid.w, codedHeight: vid.h });
+}
+
+async function videoOpen(stem) {
+  if (vid.stem === stem && vid.ok) return;
+  vid.ok = false; vid.stem = stem;
+  const meta = await (await fetch(gurl('data', stem + '.meta'))).json();
+  vid.w = meta.width; vid.h = meta.height; vid.frames = meta.frames;
+  vid.wpv = !!(MANIFEST && MANIFEST.data.includes(stem + '.wpv'));
+  vid.canvas = new OffscreenCanvas(vid.w, vid.h); vid.ctx = vid.canvas.getContext('2d', { willReadFrequently: true });
+  if (vid.wpv) {
+    // lossless WebP, one picture per frame: u32 count, count + 1 offsets, then the files
+    vid.data = await (await fetch(gurl('data', stem + '.wpv'))).arrayBuffer();
+    const d = new DataView(vid.data), n = d.getUint32(0, true);
+    vid.off = []; vid.size = [];
+    for (let i = 0; i < n; i++) { const a = d.getUint32(4 + 4 * i, true), b = d.getUint32(8 + 4 * i, true); vid.off.push(a); vid.size.push(b - a); }
+    vid.inflight = 0; vid.feed = 0; vid.floor = 0; vid.have.clear(); vid.ok = true;
+    return;
+  }
+  vid.data = await (await fetch(gurl('data', stem + '.ivf'))).arrayBuffer();
+  const idx = parseIvf(vid.data); vid.off = idx.off; vid.size = idx.size; vid.keyAt = idx.key;
+  videoConfigure(); vid.feed = 0; vid.floor = 0; vid.have.clear(); vid.ok = true;
+}
+
+async function wpvDecode(i) {
+  vid.inflight++;
+  try {
+    const bmp = await createImageBitmap(new Blob([new Uint8Array(vid.data, vid.off[i], vid.size[i])], { type: 'image/webp' }), { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+    if (i >= vid.floor && vid.stem) {
+      vid.ctx.drawImage(bmp, 0, 0);
+      const rgba = vid.ctx.getImageData(0, 0, vid.w, vid.h).data, n = vid.w * vid.h;
+      const ptr = X.g_video_buf(n * 3), dst = new Uint8Array(X.memory.buffer, ptr, n * 3);
+      for (let a = 0, j = 0, k = 0; a < n; a++, j += 4, k += 3) { dst[k] = rgba[j]; dst[k + 1] = rgba[j + 1]; dst[k + 2] = rgba[j + 2]; }
+      X.g_video_commit(i);
+      vid.have.add(i);
+    }
+    bmp.close();
+  } catch (e) { console.warn('webp frame', i, e); } finally { vid.inflight--; }
+}
+
+function videoSeek(f) {
+  if (vid.wpv) { vid.feed = Math.min(f, vid.frames - 1); vid.floor = f; vid.have.clear(); return; }
+  let k = Math.min(f, vid.frames - 1); while (k > 0 && !vid.keyAt[k]) k--;
+  videoConfigure(); vid.feed = k; vid.floor = f; vid.have.clear();
+}
+
+function videoPump() {
+  if (!X || !vid.ok) return;
+  const want = X.g_video_want(); if (want < 0) return;
+  if (want < vid.floor || want > vid.feed + 90) videoSeek(want);
+  vid.floor = Math.max(vid.floor, want - 4);
+  const limit = Math.min(vid.frames, want + VIDEO_AHEAD);
+  if (vid.wpv) {
+    while (vid.feed < limit && vid.inflight < 4) { const i = vid.feed++; if (i >= vid.floor) wpvDecode(i); }
+    return;
+  }
+  while (vid.feed < limit && vid.dec.decodeQueueSize < 10) {
+    const i = vid.feed++;
+    vid.dec.decode(new EncodedVideoChunk({ type: vid.keyAt[i] ? 'key' : 'delta', timestamp: i * 1000, data: new Uint8Array(vid.data, vid.off[i], vid.size[i]) }));
+  }
+}
+
+// start of a race: open the level's video and wait for its first frames, so the screen is never empty
+async function videoStart(track) {
+  if (X.g_video_want() < 0) return;       // the original .JAM is in use
+  const stem = TRACK_STEMS[track];
+  await videoOpen(stem);
+  videoSeek(Math.max(0, X.g_video_want()));
+  const t0 = performance.now();
+  while (performance.now() - t0 < 8000) {
+    videoPump();
+    if (vid.have.has(X.g_video_want())) break;
+    await new Promise(r => setTimeout(r, 15));
+  }
+}
+
+// ---------------------------------------------------------------- input
+const keys = new Set();
+const bitsOf = () => (keys.has('ArrowUp') || keys.has('w') || keys.has('8') ? 2 : 0) | (keys.has('ArrowDown') || keys.has('s') || keys.has('2') ? 4 : 0) |
+  (keys.has('ArrowLeft') || keys.has('a') || keys.has('4') ? 1 : 0) | (keys.has('ArrowRight') || keys.has('d') || keys.has('6') ? 8 : 0);
+function pushInput() { X.g_input(bitsOf(), keys.has('q') ? 1 : 0, keys.has('e') ? 1 : 0); }
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+  keys.add(k); if (!X) return;
+  audio();
+  const inRace = X.g_mode() === 1;
+  if (inRace) {
+    if (k === 'Enter') X.g_race_over_key();
+    if (k === 'Escape') X.g_end_race();
+    if (k === 'r') X.g_restart();
+  } else {
+    const n = enc.encode(e.key), p = X.g_alloc(n.length); view(p, n.length).set(n); X.g_key_menu(p, n.length);
+  }
+  pushInput();
+});
+addEventListener('keyup', e => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; keys.delete(k); if (X) pushInput(); });
+addEventListener('blur', () => { keys.clear(); if (X) pushInput(); });
+function pos(e) { const r = canvas.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 640), Math.round((e.clientY - r.top) / r.height * 480)]; }
+canvas.addEventListener('mousemove', e => { if (X) X.g_mouse(...pos(e)); });
+canvas.addEventListener('mousedown', e => { audio(); if (X && !busy && X.g_mode() === 0) X.g_click(...pos(e)); });
+
+// ---------------------------------------------------------------- options UI
+// high quality renders the race at the size the game window is shown at (whole multiples of 640x480), nearest-neighbour
+function hqScale() { const r = canvas.getBoundingClientRect(); return Math.max(1, Math.min(4, Math.ceil(r.width * (window.devicePixelRatio || 1) / 640))); }
+function applyHq() { if (!X) return; X.g_set_hq_scale(hqScale()); X.g_set_hq($('hq').checked ? 1 : 0); }
+$('hq').onchange = applyHq;
+addEventListener('resize', applyHq);
+setInterval(applyHq, 1000);
+function applyFixes() { if (X) for (let i = 0; i < 6; i++) X.g_set_fix(i, $('fx' + i).checked ? 1 : 0); }
+for (let i = 0; i < 6; i++) $('fx' + i).onchange = applyFixes;
+$('mus').onchange = e => e.target.checked ? startMusic() : stopMusic();
+// cheats: toggles for the in-race ones, a one-shot button for unlocking everything (disabled once it is all open)
+const CHEATS = [['godmode', 'God mode', 'All deaths off: no crash, wall or landing death ends your run'], ['turbo', 'Turbo', 'Speed stays at the top speed'], ['noslow', 'No slowdown', 'Braking and walls never slow you'],
+  ['freezetime', 'Freeze clock', 'The race clock stops'], ['tricks2x', 'Double tricks', 'Every trick pays double'],
+  ['noturn', 'No turn deaths', 'Fast / left / right turn deaths never happen'], ['noextreme', 'No extreme-turn deaths', 'Leaning too far never kills'], ['nowall', 'No wall deaths', 'Death walls and two-wheel wall slams never kill'],
+  ['noland', 'No landing deaths', 'Roll and pitch landing deaths never happen'], ['nomiss', 'No missed-jump deaths', 'Falling short of a gap never ends the run'], ['unlockall', 'Unlock all', 'Every car and track, including Wire']];
+const cheatBox = $('cheats'), cheatPtrs = {};
+function cheatPtr(code) { if (!cheatPtrs[code]) { const n = enc.encode(code), p = X.g_alloc(n.length); view(p, n.length).set(n); cheatPtrs[code] = [p, n.length]; } return cheatPtrs[code]; }
+for (const [code, label, tip] of CHEATS) {
+  const b = document.createElement('button'); b.id = 'ch_' + code; b.textContent = label; b.title = tip; cheatBox.appendChild(b);
+  b.onclick = () => { const [p, len] = cheatPtr(code); X.g_cheat(p, len); refreshCheats(); };
+}
+const reset = document.createElement('button'); reset.textContent = 'Reset progress'; reset.title = 'Back to three cars and four open tracks';
+let resetArmed = 0;   // two clicks within 3 s (browser dialogs are blocked in some embedded panes)
+reset.onclick = () => {
+  if (!resetArmed) { reset.textContent = 'Click again to reset'; resetArmed = setTimeout(() => { resetArmed = 0; reset.textContent = 'Reset progress'; }, 3000); return; }
+  clearTimeout(resetArmed); resetArmed = 0; reset.textContent = 'Reset progress';
+  X.g_progress_set(X.g_alloc(1), 0); saveProgress(); refreshCheats();
+};
+cheatBox.appendChild(reset);
+function refreshCheats() {
+  if (!X) return;
+  for (const [code] of CHEATS) {
+    const [p, len] = cheatPtr(code);
+    const st = X.g_cheat_get(p, len), b = $('ch_' + code);
+    if (code === 'unlockall') { b.disabled = st === 1; b.textContent = st === 1 ? 'Everything unlocked' : 'Unlock all'; }
+    else { b.style.outline = st === 1 ? '2px solid #5ad17a' : 'none'; b.setAttribute('aria-pressed', st === 1 ? 'true' : 'false'); }
+  }
+}
+setInterval(refreshCheats, 500);
+
+// ---------------------------------------------------------------- main loop
+let last = performance.now(), fps = 0;
+function frame(now) {
+  const dt = now - last; last = now; fps = fps * 0.9 + (1000 / Math.max(dt, 1)) * 0.1;
+  if (X && !busy) {
+    X.g_update(dt); X.g_render();
+    const w = X.g_frame_w(), h = X.g_frame_h();
+    if (canvas.width !== w) { canvas.width = w; canvas.height = h; }
+    const px = new Uint8ClampedArray(X.memory.buffer, X.g_frame_ptr(), w * h * 4);
+    ctx2d.putImageData(new ImageData(px.slice(), w, h), 0, 0);
+    $('banner').textContent = readStr(X.g_banner_ptr(), X.g_banner_len());
+    const st = X.g_status();
+    $('stats').textContent = X.g_mode() === 1
+      ? `${['', 'intro', 'drop/lights', 'racing', 'finished', 'crash', 'respawn'][st]}\nspeed ${X.g_hud(0)}\ntime ${(X.g_hud(1) / 1000).toFixed(1)}s\nframe ${X.g_hud(2)}\ntricks ${X.g_hud(3)}\n${fps.toFixed(0)} fps`
+      : `menu (screen ${X.g_screen()})\n${fps.toFixed(0)} fps`;
+    handleEvents();
+    videoPump();
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------------------------------------------------------------- boot
+(async () => {
+  try {
+    setLoad('Starting engine…', 0);
+    const { instance } = await WebAssembly.instantiateStreaming(fetch('hw_jam.wasm?' + Date.now()));
+    X = instance.exports;
+    await initRoot();
+    const menuFiles = (MANIFEST ? MANIFEST.menudata : await listDir(ROOT + 'menudata/')).filter(f => /\.(pcx|asp|map|alf)$/i.test(f));
+    if (!menuFiles.length) throw new Error('Cannot read ' + ROOT + 'menudata/ — run tools/publish.py and serve its output folder.');
+    let i = 0;
+    for (const f of menuFiles) { setLoad('Loading menus: ' + f, i++ / (menuFiles.length + 14)); putFile(f.toLowerCase(), await fetchBytes(gurl('menudata', f))); }
+    putFile('menu.asp', await fetchBytes(gurl('data', 'menu.asp')));
+    for (let c = 0; c < 13; c++) { const n = String(c).padStart(2, '0'); setLoad('Loading cars…', (i + c) / (menuFiles.length + 14)); putFile(`car${n}.mmd`, await fetchBytes(gurl('data', `car${n}.mmd`))); putFile(`car${n}.bmp`, await fetchBytes(gurl('data', `car${n}.bmp`))); }
+    putFile('menu.tad', await fetchBytes(gurl('data', 'menu.tad')));
+    try { await loadBanks(); } catch (e) { console.warn('menu sounds', e); }
+    loadProgress();
+    hideLoad();
+    requestAnimationFrame(t => { last = t; frame(t); });
+  } catch (e) { setLoad(String(e.message || e), 0); console.error(e); }
+})();
+</script>
+</body>
+</html>
