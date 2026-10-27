@@ -43,6 +43,7 @@
   <small>Hold accelerate through the countdown: on the 6th light for a boost; on the 5th is a jump start (slow).</small>
   <h2>Display</h2>
   <label><input type="checkbox" id="hq"> High quality (window size, sharp pixels)</label>
+  <label><input type="checkbox" id="fx5" checked> Death text (what killed you; the exe shows none)</label>
   <h2>Gameplay fixes (off = original)</h2>
   <label><input type="checkbox" id="fx0"> Accelerate while steering</label>
   <label><input type="checkbox" id="fx1"> Keyboard roll (<kbd>Q</kbd>/<kbd>E</kbd> in the air)</label>
@@ -195,7 +196,7 @@ async function handleEvents() {
   for (const [k, a, b] of evs) {
     switch (k) {
       case EV.NEED_FILES: await fetchRaceFiles(); break;
-      case EV.RACE_STARTED: tune = ''; busy = true; try { await loadBanks(); await videoStart(a); } finally { busy = false; } startMusic(); break;
+      case EV.RACE_STARTED: applyFixes(); tune = ''; busy = true; try { await loadBanks(); await videoStart(a); } finally { busy = false; } startMusic(); break;
       case EV.RACE_ENDED: stopMusic(); engineStop(); break;
       case EV.SOUND: playSlot(a); break;
       case EV.SOUND_RATE: playSlot(a, b); break;
@@ -388,11 +389,14 @@ function applyHq() { if (!X) return; X.g_set_hq_scale(hqScale()); X.g_set_hq($('
 $('hq').onchange = applyHq;
 addEventListener('resize', applyHq);
 setInterval(applyHq, 1000);
-for (let i = 0; i < 5; i++) $('fx' + i).onchange = e => X.g_set_fix(i, e.target.checked ? 1 : 0);
+function applyFixes() { if (X) for (let i = 0; i < 6; i++) X.g_set_fix(i, $('fx' + i).checked ? 1 : 0); }
+for (let i = 0; i < 6; i++) $('fx' + i).onchange = applyFixes;
 $('mus').onchange = e => e.target.checked ? startMusic() : stopMusic();
 // cheats: toggles for the in-race ones, a one-shot button for unlocking everything (disabled once it is all open)
-const CHEATS = [['godmode', 'God mode', 'No crash or wall death ends your run'], ['turbo', 'Turbo', 'Speed stays at the top speed'], ['noslow', 'No slowdown', 'Braking and walls never slow you'],
-  ['freezetime', 'Freeze clock', 'The race clock stops'], ['tricks2x', 'Double tricks', 'Every trick pays double'], ['unlockall', 'Unlock all', 'Every car and track, including Wire']];
+const CHEATS = [['godmode', 'God mode', 'All deaths off: no crash, wall or landing death ends your run'], ['turbo', 'Turbo', 'Speed stays at the top speed'], ['noslow', 'No slowdown', 'Braking and walls never slow you'],
+  ['freezetime', 'Freeze clock', 'The race clock stops'], ['tricks2x', 'Double tricks', 'Every trick pays double'],
+  ['noturn', 'No turn deaths', 'Fast / left / right turn deaths never happen'], ['noextreme', 'No extreme-turn deaths', 'Leaning too far never kills'], ['nowall', 'No wall deaths', 'Death walls and two-wheel wall slams never kill'],
+  ['noland', 'No landing deaths', 'Roll and pitch landing deaths never happen'], ['nomiss', 'No missed-jump deaths', 'Falling short of a gap never ends the run'], ['unlockall', 'Unlock all', 'Every car and track, including Wire']];
 const cheatBox = $('cheats'), cheatPtrs = {};
 function cheatPtr(code) { if (!cheatPtrs[code]) { const n = enc.encode(code), p = X.g_alloc(n.length); view(p, n.length).set(n); cheatPtrs[code] = [p, n.length]; } return cheatPtrs[code]; }
 for (const [code, label, tip] of CHEATS) {
