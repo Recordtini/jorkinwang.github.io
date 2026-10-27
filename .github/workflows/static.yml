@@ -33,11 +33,29 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image encoder
+        run: python -m pip install Pillow==12.3.0
+      - name: Test build and game rules
+        run: |
+          python -m unittest discover -s tools -p 'test_*.py'
+          node --test jeopardy/game.test.mjs wheel/tests/*.test.js
+      - name: Cache encoded images
+        uses: actions/cache@v4
+        with:
+          path: .pages-cache
+          key: pages-webp-q85-v1-${{ hashFiles('tools/build_pages.py', 'wheel/assets/**', 'jeopardy/assets/**') }}
+          restore-keys: pages-webp-q85-v1-
+      - name: Build compressed site
+        run: python tools/build_pages.py
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          # Originals remain in Git; only optimized runtime copies are published.
+          path: '.pages-dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,0 +1,4 @@
+.pages-dist/
+.pages-cache/
+.pages-build-report.json
+__pycache__/
