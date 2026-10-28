@@ -43,15 +43,30 @@
   .touch body { padding-bottom:calc(var(--u)*3.2 + 40px); }
   #tb_left { left:calc(var(--sl) + 10px); bottom:calc(var(--sb) + 14px); }
   #tb_right { left:calc(var(--sl) + 22px + var(--u)); bottom:calc(var(--sb) + 14px); }
-  #tb_gas { right:calc(var(--sr) + 10px); bottom:calc(var(--sb) + 14px); }
-  #tb_brake { right:calc(var(--sr) + 22px + var(--u)*1.3); bottom:calc(var(--sb) + 14px); }
+  #tb_gas, #tb_a { right:calc(var(--sr) + 10px); bottom:calc(var(--sb) + 14px); }
+  #tb_brake, #tb_b { right:calc(var(--sr) + 22px + var(--u)*1.3); bottom:calc(var(--sb) + 14px); }
   #tb_menu, #tb_restart, #tb_ok, #tb_fs { bottom:calc(var(--sb) + var(--u)*1.5 + 28px); }
   #tb_menu { left:calc(var(--sl) + 10px); }
+  #tb_mode { bottom:calc(var(--sb) + var(--u)*1.5 + 28px); left:calc(50% - var(--u)*.475); }
   #tb_restart { left:calc(var(--sl) + 18px + var(--u)*.95); }
   #tb_ok { right:calc(var(--sr) + 18px + var(--u)*.95); }
   #tb_fs { right:calc(var(--sr) + 10px); }
+  /* joystick mode swaps the pad: a stick on the left, buttons A (accelerate / roll) and B (brake / roll) on the right */
+  #stick, #tb_a, #tb_b { display:none; }
+  .joy #stick, .joy #tb_a, .joy #tb_b { display:block; }
+  .joy #tb_gas, .joy #tb_brake, .joy #tb_left, .joy #tb_right { display:none; }
+  #touch #tb_a, #touch #tb_b { border-radius:50%; width:calc(var(--u)*1.25); height:calc(var(--u)*1.25); font-size:calc(var(--u)*.5); }
+  #tb_a { background:rgba(40,150,70,.8); } #tb_a.on { background:rgba(90,230,120,.9); }
+  #tb_b { background:rgba(170,50,50,.8); } #tb_b.on { background:rgba(240,90,90,.9); }
+  #stick { position:absolute; pointer-events:auto; touch-action:none; width:calc(var(--u)*1.75); height:calc(var(--u)*1.75); left:calc(var(--sl) + 10px); bottom:calc(var(--sb) + 14px);
+    border-radius:50%; background:rgba(30,34,46,.6); border:2px solid rgba(255,255,255,.28); }
+  #knob { position:absolute; left:50%; top:50%; width:calc(var(--u)*.75); height:calc(var(--u)*.75); margin:calc(var(--u)*-.375) 0 0 calc(var(--u)*-.375); border-radius:50%; background:rgba(255,255,255,.55); pointer-events:none; }
   /* landscape phone: everything sits in the black bars beside the picture */
   @media (orientation:landscape) and (max-height:520px) {
+    #tb_mode { bottom:auto; left:calc(var(--sl) + 8px); top:calc(8px + (var(--u)*.5 + 8px)*2); }
+    #stick { left:calc(var(--sl) + 8px); bottom:calc(var(--sb) + 10px); }
+    #tb_a { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + 10px); }
+    #tb_b { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + var(--u)*1.25 + 20px); }
     .touch body { padding-bottom:12px; }
     #touch::before { display:none; }
     #touch { --u:min(18vh,76px); }
@@ -62,8 +77,8 @@
     #tb_fs { right:calc(var(--sr) + 8px); top:calc(8px + var(--u)*.5 + 8px); }
     #tb_left { left:calc(var(--sl) + 8px); bottom:calc(var(--sb) + 10px); }
     #tb_right { left:calc(var(--sl) + 16px + var(--u)); bottom:calc(var(--sb) + 10px); }
-    #tb_gas { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + 10px); }
-    #tb_brake { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + var(--u)*1.5 + 20px); width:calc(var(--u)*1.3); }
+    #tb_gas, #tb_a { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + 10px); }
+    #tb_brake, #tb_b { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + var(--u)*1.5 + 20px); width:calc(var(--u)*1.3); }
   }
 </style>
 </head>
@@ -84,17 +99,22 @@
   <button class="sm" id="tb_restart" data-k="r">RESTART</button>
   <button class="sm" id="tb_ok" data-k="Enter">OK</button>
   <button class="sm" id="tb_fs">FULL</button>
+  <button class="sm" id="tb_mode" aria-label="switch between buttons and joystick">STICK</button>
+  <div id="stick" aria-label="joystick"><div id="knob"></div></div>
+  <button id="tb_a" data-k="e" aria-label="button A: accelerate, roll">A</button>
+  <button id="tb_b" data-k="q" aria-label="button B: brake, roll">B</button>
 </div>
 <aside>
   <h2>Controls</h2>
   <div><kbd>↑</kbd>/<kbd>W</kbd> accelerate &nbsp; <kbd>↓</kbd>/<kbd>S</kbd> brake<br><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer<br>
   <kbd>Enter</kbd> go / continue &nbsp; <kbd>Esc</kbd> menu &nbsp; <kbd>R</kbd> restart<br>
   Menus: mouse. Track select: click a picture, or <kbd>1</kbd>–<kbd>7</kbd>. Car select: <kbd>←</kbd><kbd>→</kbd>.<br>
-  <b>Phone / tablet:</b> tap the pictures; the on-screen buttons steer, accelerate and brake (◀ ▶ also move the car selector).</div>
+  <b>Phone / tablet:</b> tap the pictures; the on-screen buttons steer, accelerate and brake (◀ ▶ also move the car selector). <b>STICK</b> switches to the original joystick scheme: drag the stick, A accelerates (and rolls in the air), B brakes (and rolls the other way) — roll and flip while airborne.</div>
   <small>Hold accelerate through the countdown: on the 6th light for a boost; on the 5th is a jump start (slow).</small>
   <h2>Display</h2>
   <label><input type="checkbox" id="hq"> High quality (window size, sharp pixels)</label>
   <label><input type="checkbox" id="fx5" checked> Death text (what killed you; the exe shows none)</label>
+  <label><input type="checkbox" id="joy"> Joystick mode (the original's stick: arrows steer and pitch, <kbd>E</kbd> = A accelerate / roll, <kbd>Q</kbd> = B brake / roll; flips and rolls in the air)</label>
   <h2>Gameplay fixes (off = original)</h2>
   <label><input type="checkbox" id="fx0"> Accelerate while steering</label>
   <label><input type="checkbox" id="fx1"> Keyboard roll (<kbd>Q</kbd>/<kbd>E</kbd> in the air)</label>
@@ -465,7 +485,38 @@ function applyHq() { if (!X) return; X.g_set_hq_scale(hqScale()); X.g_set_hq($('
 $('hq').onchange = applyHq;
 addEventListener('resize', applyHq);
 setInterval(applyHq, 1000);
-function applyFixes() { if (X) for (let i = 0; i < 6; i++) X.g_set_fix(i, $('fx' + i).checked ? 1 : 0); }
+
+// joystick mode: the original's scheme (stick + buttons A / B); the game maps it like the exe (sim::joystick_input)
+function applyJoy() {
+  const on = $('joy').checked;
+  document.documentElement.classList.toggle('joy', on);
+  $('tb_mode').textContent = on ? 'PAD' : 'STICK';
+  if (X) X.g_set_joystick(on ? 1 : 0);
+  try { localStorage.setItem('hwjoy', on ? '1' : '0'); } catch {}
+}
+try { $('joy').checked = localStorage.getItem('hwjoy') === '1'; } catch {}
+$('joy').onchange = applyJoy;
+document.documentElement.classList.toggle('joy', $('joy').checked);
+$('tb_mode').textContent = $('joy').checked ? 'PAD' : 'STICK';
+$('tb_mode').onclick = () => { $('joy').checked = !$('joy').checked; applyJoy(); };
+{
+  const stick = $('stick'), knob = $('knob'), dirs = { l: false, r: false, u: false, d: false };
+  const setDir = (n, key, on) => { if (dirs[n] === on) return; dirs[n] = on; on ? press(key, key) : release(key); };
+  const move = e => {
+    const r = stick.getBoundingClientRect(), R = r.width / 2;
+    let dx = e.clientX - (r.left + R), dy = e.clientY - (r.top + R); const m = Math.hypot(dx, dy);
+    if (m > R) { dx *= R / m; dy *= R / m; }
+    knob.style.transform = `translate(${dx}px,${dy}px)`;
+    const t = R * 0.3;
+    setDir('l', 'ArrowLeft', dx < -t); setDir('r', 'ArrowRight', dx > t); setDir('u', 'ArrowUp', dy < -t); setDir('d', 'ArrowDown', dy > t);
+  };
+  let pid = null;
+  const end = e => { e.preventDefault(); pid = null; knob.style.transform = ''; setDir('l', 'ArrowLeft', false); setDir('r', 'ArrowRight', false); setDir('u', 'ArrowUp', false); setDir('d', 'ArrowDown', false); };
+  stick.addEventListener('pointerdown', e => { e.preventDefault(); pid = e.pointerId; try { stick.setPointerCapture(e.pointerId); } catch {} move(e); });
+  stick.addEventListener('pointermove', e => { if (e.pointerId === pid) move(e); });
+  stick.addEventListener('pointerup', e => { if (e.pointerId === pid) end(e); }); stick.addEventListener('pointercancel', end); stick.addEventListener('lostpointercapture', end);
+}
+function applyFixes() { if (X) { for (let i = 0; i < 6; i++) X.g_set_fix(i, $('fx' + i).checked ? 1 : 0); X.g_set_joystick($('joy').checked ? 1 : 0); } }
 for (let i = 0; i < 6; i++) $('fx' + i).onchange = applyFixes;
 $('mus').onchange = e => e.target.checked ? startMusic() : stopMusic();
 // cheats: toggles for the in-race ones, a one-shot button for unlocking everything (disabled once it is all open)
