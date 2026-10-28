@@ -1,0 +1,9 @@
+{
+  "engine_sha256": "b984515390891258c74fe2c61770bf8e1491781afed19791ff9b93df69cf1d86",
+  "crate": "nick-rust",
+  "macroquad": "0.4.16",
+  "games": [
+    "runaway-bus",
+    "stupor-highway"
+  ]
+}

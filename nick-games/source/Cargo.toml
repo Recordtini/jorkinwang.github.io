@@ -1,0 +1,18 @@
+[package]
+name = "nick-rust"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Native Rust and WebAssembly ports of two Ezone Nickelodeon games"
+
+[dependencies]
+flate2 = "=1.1.10"
+macroquad = { version = "=0.4.16", features = ["audio"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
