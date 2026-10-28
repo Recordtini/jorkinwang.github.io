@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Stunt Track Driver</title>
 <style>
   :root { color-scheme: dark; --bg:#0d0f14; --panel:#171a22; --ink:#e8eaf0; --dim:#9aa3b5; --accent:#ff8a1f; }
@@ -25,6 +25,46 @@
   #stats { font:12px ui-monospace,monospace; color:var(--dim); white-space:pre; }
   small { color:var(--dim); }
   @media (max-width:900px) { body { grid-template-columns:1fr; } }
+  /* touch controls: shown on phones and tablets; a fixed overlay so it sits in the black bars beside the picture in landscape */
+  #touch { display:none; position:fixed; inset:0; pointer-events:none; z-index:20; --u:min(17vmin,92px); }
+  .touch #touch { display:block; }
+  #touch button { position:absolute; pointer-events:auto; touch-action:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent;
+    background:rgba(30,34,46,.78); color:#fff; border:2px solid rgba(255,255,255,.28); border-radius:16px; font:700 calc(var(--u)*.3)/1 system-ui,sans-serif; padding:0; }
+  #touch button.on { background:rgba(255,138,31,.85); border-color:#fff; }
+  #touch .big { width:var(--u); height:calc(var(--u)*1.15); font-size:calc(var(--u)*.45); }
+  #touch .gas { width:calc(var(--u)*1.3); height:calc(var(--u)*1.5); background:rgba(40,150,70,.8); }
+  #touch .gas.on { background:rgba(90,230,120,.9); }
+  #touch .brk { width:var(--u); height:calc(var(--u)*.8); background:rgba(170,50,50,.8); }
+  #touch .brk.on { background:rgba(240,90,90,.9); }
+  #touch .sm { width:calc(var(--u)*.95); height:calc(var(--u)*.5); font-size:calc(var(--u)*.24); border-radius:12px; }
+  :root { --sl:env(safe-area-inset-left); --sr:env(safe-area-inset-right); --sb:env(safe-area-inset-bottom); }
+  /* portrait: the game is on top, the buttons under it on a solid bar so the page text never runs under them */
+  #touch::before { content:''; position:fixed; left:0; right:0; bottom:0; height:calc(var(--sb) + var(--u)*2.9 + 34px); background:linear-gradient(to bottom, rgba(13,15,20,0), rgba(13,15,20,.97) 18px); pointer-events:none; }
+  .touch body { padding-bottom:calc(var(--u)*3.2 + 40px); }
+  #tb_left { left:calc(var(--sl) + 10px); bottom:calc(var(--sb) + 14px); }
+  #tb_right { left:calc(var(--sl) + 22px + var(--u)); bottom:calc(var(--sb) + 14px); }
+  #tb_gas { right:calc(var(--sr) + 10px); bottom:calc(var(--sb) + 14px); }
+  #tb_brake { right:calc(var(--sr) + 22px + var(--u)*1.3); bottom:calc(var(--sb) + 14px); }
+  #tb_menu, #tb_restart, #tb_ok, #tb_fs { bottom:calc(var(--sb) + var(--u)*1.5 + 28px); }
+  #tb_menu { left:calc(var(--sl) + 10px); }
+  #tb_restart { left:calc(var(--sl) + 18px + var(--u)*.95); }
+  #tb_ok { right:calc(var(--sr) + 18px + var(--u)*.95); }
+  #tb_fs { right:calc(var(--sr) + 10px); }
+  /* landscape phone: everything sits in the black bars beside the picture */
+  @media (orientation:landscape) and (max-height:520px) {
+    .touch body { padding-bottom:12px; }
+    #touch::before { display:none; }
+    #touch { --u:min(18vh,76px); }
+    #tb_menu, #tb_restart, #tb_ok, #tb_fs { bottom:auto; top:8px; }
+    #tb_menu { left:calc(var(--sl) + 8px); }
+    #tb_restart { left:calc(var(--sl) + 8px); top:calc(8px + var(--u)*.5 + 8px); }
+    #tb_ok { right:calc(var(--sr) + 8px); }
+    #tb_fs { right:calc(var(--sr) + 8px); top:calc(8px + var(--u)*.5 + 8px); }
+    #tb_left { left:calc(var(--sl) + 8px); bottom:calc(var(--sb) + 10px); }
+    #tb_right { left:calc(var(--sl) + 16px + var(--u)); bottom:calc(var(--sb) + 10px); }
+    #tb_gas { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + 10px); }
+    #tb_brake { right:calc(var(--sr) + 8px); bottom:calc(var(--sb) + var(--u)*1.5 + 20px); width:calc(var(--u)*1.3); }
+  }
 </style>
 </head>
 <body>
@@ -35,11 +75,22 @@
     <div id="load"><div><div id="loadmsg">Loading…</div><div id="bar"><i></i></div></div></div>
   </div>
 </div>
+<div id="touch" aria-label="touch controls">
+  <button class="big" id="tb_left" data-k="ArrowLeft" aria-label="steer left">&#9664;</button>
+  <button class="big" id="tb_right" data-k="ArrowRight" aria-label="steer right">&#9654;</button>
+  <button class="gas" id="tb_gas" data-k="ArrowUp" aria-label="accelerate">GAS</button>
+  <button class="brk" id="tb_brake" data-k="ArrowDown" aria-label="brake">BRAKE</button>
+  <button class="sm" id="tb_menu" data-k="Escape">MENU</button>
+  <button class="sm" id="tb_restart" data-k="r">RESTART</button>
+  <button class="sm" id="tb_ok" data-k="Enter">OK</button>
+  <button class="sm" id="tb_fs">FULL</button>
+</div>
 <aside>
   <h2>Controls</h2>
   <div><kbd>↑</kbd>/<kbd>W</kbd> accelerate &nbsp; <kbd>↓</kbd>/<kbd>S</kbd> brake<br><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> steer<br>
   <kbd>Enter</kbd> go / continue &nbsp; <kbd>Esc</kbd> menu &nbsp; <kbd>R</kbd> restart<br>
-  Menus: mouse. Track select: click a picture, or <kbd>1</kbd>–<kbd>7</kbd>. Car select: <kbd>←</kbd><kbd>→</kbd>.</div>
+  Menus: mouse. Track select: click a picture, or <kbd>1</kbd>–<kbd>7</kbd>. Car select: <kbd>←</kbd><kbd>→</kbd>.<br>
+  <b>Phone / tablet:</b> tap the pictures; the on-screen buttons steer, accelerate and brake (◀ ▶ also move the car selector).</div>
   <small>Hold accelerate through the countdown: on the 6th light for a boost; on the 5th is a jump start (slow).</small>
   <h2>Display</h2>
   <label><input type="checkbox" id="hq"> High quality (window size, sharp pixels)</label>
@@ -360,10 +411,8 @@ const keys = new Set();
 const bitsOf = () => (keys.has('ArrowUp') || keys.has('w') || keys.has('8') ? 2 : 0) | (keys.has('ArrowDown') || keys.has('s') || keys.has('2') ? 4 : 0) |
   (keys.has('ArrowLeft') || keys.has('a') || keys.has('4') ? 1 : 0) | (keys.has('ArrowRight') || keys.has('d') || keys.has('6') ? 8 : 0);
 function pushInput() { X.g_input(bitsOf(), keys.has('q') ? 1 : 0, keys.has('e') ? 1 : 0); }
-addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+// one place for "a key went down / up", used by the keyboard and the on-screen buttons
+function press(k, name) {
   keys.add(k); if (!X) return;
   audio();
   const inRace = X.g_mode() === 1;
@@ -372,15 +421,42 @@ addEventListener('keydown', e => {
     if (k === 'Escape') X.g_end_race();
     if (k === 'r') X.g_restart();
   } else {
-    const n = enc.encode(e.key), p = X.g_alloc(n.length); view(p, n.length).set(n); X.g_key_menu(p, n.length);
+    const n = enc.encode(name), p = X.g_alloc(n.length); view(p, n.length).set(n); X.g_key_menu(p, n.length);
   }
   pushInput();
+}
+function release(k) { keys.delete(k); if (X) pushInput(); }
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+  press(k, e.key);
 });
-addEventListener('keyup', e => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; keys.delete(k); if (X) pushInput(); });
+addEventListener('keyup', e => release(e.key.length === 1 ? e.key.toLowerCase() : e.key));
 addEventListener('blur', () => { keys.clear(); if (X) pushInput(); });
+
+// on-screen buttons (multi-touch: steer and accelerate at the same time)
+if (matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window) document.documentElement.classList.add('touch');
+addEventListener('touchstart', () => document.documentElement.classList.add('touch'), { once: true, passive: true });
+for (const b of document.querySelectorAll('#touch button[data-k]')) {
+  const k = b.dataset.k, name = k;
+  const down = e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch {} b.classList.add('on'); press(k, name); };
+  const up = e => { e.preventDefault(); b.classList.remove('on'); release(k); };
+  b.addEventListener('pointerdown', down);
+  b.addEventListener('pointerup', up);
+  b.addEventListener('pointercancel', up);
+  b.addEventListener('lostpointercapture', up);
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
+$('tb_fs').onclick = () => {
+  const el = document.documentElement;
+  if (document.fullscreenElement) document.exitFullscreen(); else if (el.requestFullscreen) el.requestFullscreen().then(() => { try { screen.orientation.lock('landscape'); } catch {} }).catch(() => {});
+};
+if (!document.documentElement.requestFullscreen) $('tb_fs').style.display = 'none';
 function pos(e) { const r = canvas.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 640), Math.round((e.clientY - r.top) / r.height * 480)]; }
-canvas.addEventListener('mousemove', e => { if (X) X.g_mouse(...pos(e)); });
-canvas.addEventListener('mousedown', e => { audio(); if (X && !busy && X.g_mode() === 0) X.g_click(...pos(e)); });
+canvas.style.touchAction = 'none';
+canvas.addEventListener('pointermove', e => { if (X) X.g_mouse(...pos(e)); });
+canvas.addEventListener('pointerdown', e => { audio(); if (X && !busy && X.g_mode() === 0) { X.g_mouse(...pos(e)); X.g_click(...pos(e)); } });
 
 // ---------------------------------------------------------------- options UI
 // high quality renders the race at the size the game window is shown at (whole multiples of 640x480), nearest-neighbour
