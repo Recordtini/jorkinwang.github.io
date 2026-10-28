@@ -475,6 +475,13 @@ impl World {
                 world
                     .collision
                     .add(m, transform(e.position, e.rotation, e.scale), i);
+                if is_bus
+                    && !e.shape.starts_with("ramp")
+                    && !e.shape.starts_with("roadblock")
+                    && !matches!(e.shape.as_str(), "rubble" | "jelly" | "bulldozer")
+                {
+                    world.collision.mark_breakable(i);
+                }
             }
         }
         if let Some(floor) = world.collision.ground(Vec3::ZERO, 2000., 4000.) {

@@ -31,6 +31,7 @@ pub struct Renderer {
     pub driver: String,
     pub doors_open: bool,
     last_filter: bool,
+    pub bus_camera: Option<crate::bus_camera::BusCamera>,
 }
 fn compile(model: &Model, a: &Assets) -> Batches {
     let mut groups: HashMap<(usize, String), Mesh> = HashMap::new();
@@ -181,6 +182,7 @@ impl Renderer {
             driver: "arnold".into(),
             doors_open: false,
             last_filter: true,
+            bus_camera: None,
         })
     }
     fn draw_model(&self, a: &Assets, name: &str, matrix: Mat4, frame: f32) {
@@ -213,9 +215,26 @@ impl Renderer {
         }
     }
     pub fn reset_camera(&mut self, v: &Vehicle) {
+        if v.kind == Kind::Bus {
+            let rig = crate::bus_camera::BusCamera::reset(v, self.camera_mode);
+            self.camera_position = rig.position;
+            self.camera_target = rig.target;
+            self.bus_camera = Some(rig);
+            return;
+        }
         let dist = if v.kind == Kind::Bus { 600. } else { 1000. };
         self.camera_position = v.pos - v.forward() * dist + Vec3::Z * dist * 0.45;
         self.camera_target = v.pos;
+    }
+    pub fn tick_bus_camera(&mut self, w: &World, v: &Vehicle) {
+        if v.kind == Kind::Bus {
+            if self.bus_camera.is_none() {
+                self.reset_camera(v);
+            }
+            if let Some(rig) = &mut self.bus_camera {
+                rig.tick(v, &w.collision, self.camera_mode);
+            }
+        }
     }
     pub fn draw(&mut self, a: &Assets, w: &World, v: &Vehicle, alpha: f32, menu: bool, clock: f32) {
         let filter = if self.filtering {
@@ -277,21 +296,36 @@ impl Renderer {
                 position + forward * 120.,
             )
         };
-        let lerp = if self.smooth {
-            1. - (-get_frame_time().min(0.1) * 8.).exp()
+        if v.kind == Kind::Bus && !menu {
+            if let Some(rig) = &self.bus_camera {
+                self.camera_position = if self.smooth {
+                    rig.previous.lerp(rig.position, alpha)
+                } else {
+                    rig.position
+                };
+                self.camera_target = if self.smooth {
+                    rig.previous_target.lerp(rig.target, alpha)
+                } else {
+                    rig.target
+                };
+            }
         } else {
-            1.
-        };
-        self.camera_position = self.camera_position.lerp(eye, lerp);
-        self.camera_target = self.camera_target.lerp(target, lerp);
-        if !menu
-            && self.camera_mode != 2
-            && let Some(hit) = w
-                .collision
-                .segment(self.camera_target + Vec3::Z * 100., self.camera_position)
-            && hit.fraction < 0.98
-        {
-            self.camera_position = hit.pos + hit.normal * 60.;
+            let lerp = if self.smooth {
+                1. - (-get_frame_time().min(0.1) * 8.).exp()
+            } else {
+                1.
+            };
+            self.camera_position = self.camera_position.lerp(eye, lerp);
+            self.camera_target = self.camera_target.lerp(target, lerp);
+            if !menu
+                && self.camera_mode != 2
+                && let Some(hit) = w
+                    .collision
+                    .segment(self.camera_target + Vec3::Z * 100., self.camera_position)
+                && hit.fraction < 0.98
+            {
+                self.camera_position = hit.pos + hit.normal * 60.;
+            }
         }
         let (sw, sh) = (screen_width(), screen_height());
         let viewport = if self.widescreen {

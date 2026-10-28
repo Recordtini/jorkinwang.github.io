@@ -95,6 +95,14 @@ pub struct Vehicle {
     pub height: f32,
     pub crash: bool,
     pub crash_object: Option<usize>,
+    pub crash_velocity: Vec2,
+    pub crash_speed: f32,
+    pub jump_time: f32,
+    pub jump_start: f32,
+    pub jump_initial_speed: f32,
+    pub ground_pitch: f32,
+    pub side_slip: f32,
+    pub travel_yaw: f32,
 }
 fn sign(x: f32) -> f32 {
     if x == 0. { 0. } else { x.signum() }
@@ -127,6 +135,14 @@ impl Vehicle {
             height: if kind == Kind::Bus { 100. } else { 150. },
             crash: false,
             crash_object: None,
+            crash_velocity: Vec2::ZERO,
+            crash_speed: 0.,
+            jump_time: 0.,
+            jump_start: pos.z,
+            jump_initial_speed: 0.,
+            ground_pitch: 0.,
+            side_slip: 0.,
+            travel_yaw: yaw,
         }
     }
     pub fn forward(&self) -> Vec3 {
@@ -134,6 +150,10 @@ impl Vehicle {
         vec3(a.sin(), -a.cos(), 0.)
     }
     pub fn tick(&mut self, input: Input, world: &CollisionWorld) {
+        if self.kind == Kind::Bus {
+            crate::bus_drive::tick(self, input, world);
+            return;
+        }
         self.previous = self.pos;
         self.previous_yaw = self.yaw;
         self.crash = false;
@@ -417,6 +437,192 @@ mod tests {
             assert_eq!(bus.pos.x.round(), row[0].as_f64().unwrap() as f32);
             assert_eq!(bus.pos.y.round(), row[1].as_f64().unwrap() as f32);
         }
+    }
+    fn bus_for_test() -> Vehicle {
+        let pack = crate::assets::Pack::open();
+        let manifest: crate::assets::Manifest =
+            serde_json::from_slice(pack.get("runaway-bus/manifest.json").unwrap()).unwrap();
+        let a = Assets {
+            models: Default::default(),
+            textures: Default::default(),
+            sounds: Default::default(),
+            texts: manifest.texts,
+        };
+        let mut v = Vehicle::new(Kind::Bus, vec3(0., 0., 100.), Params::bus(&a), 1);
+        v.yaw = 0.;
+        v.previous_yaw = 0.;
+        v.travel_yaw = 0.;
+        v
+    }
+    #[test]
+    fn bus_steering_matches_camera_right_not_world_positive_x() {
+        let floor = flat_world();
+        let mut straight = bus_for_test();
+        for _ in 0..40 {
+            straight.tick(
+                Input {
+                    throttle: 1.,
+                    ..Default::default()
+                },
+                &floor,
+            );
+        }
+        let mut right = straight.clone();
+        let mut left = straight;
+        right.tick(
+            Input {
+                throttle: 1.,
+                steer: 1.,
+                ..Default::default()
+            },
+            &floor,
+        );
+        left.tick(
+            Input {
+                throttle: 1.,
+                steer: -1.,
+                ..Default::default()
+            },
+            &floor,
+        );
+        let screen_right = vec3(0., -1., 0.).cross(Vec3::Z);
+        assert!(
+            right.forward().dot(screen_right) > 0.,
+            "Right must turn toward screen right"
+        );
+        assert!(
+            left.forward().dot(screen_right) < 0.,
+            "Left must turn toward screen left"
+        );
+    }
+    #[test]
+    fn bus_braking_enters_reverse_after_stopping() {
+        let floor = flat_world();
+        let mut v = bus_for_test();
+        for _ in 0..60 {
+            v.tick(
+                Input {
+                    throttle: 1.,
+                    ..Default::default()
+                },
+                &floor,
+            );
+        }
+        for _ in 0..100 {
+            v.tick(
+                Input {
+                    brake: 1.,
+                    ..Default::default()
+                },
+                &floor,
+            );
+            if v.reverse {
+                break;
+            }
+        }
+        assert!(v.reverse);
+        assert_eq!(v.speed, 0.);
+        assert!(v.stop_ticks > 0);
+        for _ in 0..16 {
+            v.tick(
+                Input {
+                    brake: 1.,
+                    ..Default::default()
+                },
+                &floor,
+            );
+        }
+        assert!(v.speed > 0.);
+        assert!(v.pos.y > v.previous.y);
+    }
+    #[test]
+    fn bus_powerslide_reduces_tyre_forces_to_one_tenth() {
+        let floor = flat_world();
+        let mut normal = bus_for_test();
+        normal.velocity = vec2(0., -80.);
+        normal.speed = 80.;
+        normal.acceleration = Vec2::X;
+        let mut slide = normal.clone();
+        normal.tick(
+            Input {
+                steer: 1.,
+                ..Default::default()
+            },
+            &floor,
+        );
+        slide.tick(
+            Input {
+                steer: 1.,
+                slide: true,
+                ..Default::default()
+            },
+            &floor,
+        );
+        assert!((slide.acceleration.y / normal.acceleration.y - 0.1).abs() < 0.0001);
+        assert!((slide.angular_velocity / normal.angular_velocity - 0.1).abs() < 0.0001);
+    }
+    #[test]
+    fn bus_terrain_solid_and_breakable_impacts_use_original_speed_ratios() {
+        let wall = crate::model::Model {
+            vertices: vec![
+                vec3(-1000., -300., 0.),
+                vec3(1000., -300., 0.),
+                vec3(1000., -300., 1000.),
+                vec3(-1000., -300., 1000.),
+            ],
+            faces: vec![crate::model::Face {
+                indices: vec![0, 1, 2, 3],
+                uv: vec![Vec2::ZERO; 4],
+                texture: "wall".into(),
+                group: 0,
+            }],
+            min: vec3(-1000., -300., 0.),
+            max: vec3(1000., -300., 1000.),
+            animation: Default::default(),
+        };
+        let mut initial = bus_for_test();
+        initial.velocity = vec2(0., -80.);
+        initial.speed = 80.;
+        let mut free = initial.clone();
+        free.tick(Input::default(), &flat_world());
+        for (object, breakable, ratio) in
+            [(usize::MAX, false, 0.5), (7, false, 0.9), (7, true, 0.8)]
+        {
+            let mut world = flat_world();
+            world.add(&wall, Mat4::IDENTITY, object);
+            if breakable {
+                world.mark_breakable(object);
+            }
+            let mut bus = initial.clone();
+            bus.tick(Input::default(), &world);
+            assert_eq!(bus.crash_object, Some(object));
+            assert!((bus.speed / free.speed - ratio).abs() < 0.0001);
+            assert_eq!(bus.velocity.y < 0., breakable);
+            assert!(bus.angular_velocity.abs() < 0.0001);
+        }
+    }
+    #[test]
+    fn bus_airborne_motion_uses_original_parabola_and_ignores_reverse_input() {
+        let mut bus = bus_for_test();
+        bus.jumping = true;
+        bus.jump_start = 5000.;
+        bus.pos.z = 5000.;
+        bus.previous = bus.pos;
+        bus.jump_initial_speed = 200.;
+        bus.jump_time = 0.05;
+        let empty = CollisionWorld::new(1000.);
+        for _ in 0..3 {
+            bus.tick(
+                Input {
+                    brake: 1.,
+                    ..Default::default()
+                },
+                &empty,
+            );
+        }
+        // t=.20, original z = start + v*t - gravity*scale*t*t.
+        assert!((bus.pos.z - 5004.).abs() < 0.001);
+        assert!(!bus.reverse);
     }
     #[test]
     fn original_hover_force_equation_matches_first_tick() {

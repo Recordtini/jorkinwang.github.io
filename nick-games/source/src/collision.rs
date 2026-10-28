@@ -23,6 +23,7 @@ pub struct CollisionWorld {
     cells: HashMap<(i32, i32), Vec<usize>>,
     cell: f32,
     disabled: HashSet<usize>,
+    breakable: HashSet<usize>,
 }
 pub fn transform(pos: Vec3, angle: f32, scale: f32) -> Mat4 {
     Mat4::from_translation(pos)
@@ -36,6 +37,7 @@ impl CollisionWorld {
             cells: HashMap::new(),
             cell,
             disabled: HashSet::new(),
+            breakable: HashSet::new(),
         }
     }
     pub fn add(&mut self, model: &Model, m: Mat4, object: usize) {
@@ -69,6 +71,12 @@ impl CollisionWorld {
                 });
             }
         }
+    }
+    pub fn mark_breakable(&mut self, object: usize) {
+        self.breakable.insert(object);
+    }
+    pub fn is_breakable(&self, object: usize) -> bool {
+        self.breakable.contains(&object)
     }
     pub fn disable(&mut self, object: usize) {
         self.disabled.insert(object);

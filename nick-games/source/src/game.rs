@@ -470,6 +470,10 @@ impl Game {
         self.vehicle.angular_velocity = 0.;
         self.vehicle.jumping = true;
         self.vehicle.vertical_speed = 0.;
+        self.vehicle.jump_time = 0.;
+        self.vehicle.jump_start = self.vehicle.pos.z;
+        self.vehicle.jump_initial_speed = 0.;
+        self.vehicle.travel_yaw = self.safe_yaw;
         self.sound("hoverland.aif");
         self.renderer.reset_camera(&self.vehicle);
     }
@@ -520,7 +524,8 @@ impl Game {
             self.audio_update()
         }
         if is_key_pressed(KeyCode::C) || platform::input(8) > 0.5 {
-            self.renderer.camera_mode = (self.renderer.camera_mode + 1) % 4
+            self.renderer.camera_mode =
+                (self.renderer.camera_mode + 1) % if self.kind() == Kind::Bus { 3 } else { 4 }
         }
         if is_key_pressed(KeyCode::Tab) {
             self.minimap = !self.minimap
@@ -612,6 +617,7 @@ impl Game {
                 self.accumulator -= step;
                 if let Some(f) = self.trace.get(self.replay_index).cloned() {
                     self.apply_frame(&f);
+                    self.renderer.tick_bus_camera(&self.world, &self.vehicle);
                     self.replay_index += 1;
                 } else {
                     if let Some(f) = self.replay_end.clone() {
@@ -646,17 +652,12 @@ impl Game {
         self.hit_cooldown = (self.hit_cooldown - 1).max(0);
         self.slow = (self.slow - 1).max(0);
         self.world.tick_entities(self.slow > 0, self.vehicle.pos);
-        let impact_velocity = self.vehicle.velocity;
-        let impact_speed = self.vehicle.speed;
         self.vehicle.tick(input, &self.world.collision);
+        self.renderer.tick_bus_camera(&self.world, &self.vehicle);
         if self.kind() == Kind::Bus
-            && self.vehicle.crash
             && let Some(index) = self.vehicle.crash_object
+            && self.world.collision.is_breakable(index)
             && let Some(e) = self.world.entities.get_mut(index)
-            && !matches!(
-                e.shape.as_str(),
-                "ramp" | "rubble" | "roadblock1" | "roadblock2" | "roadblock3" | "jelly"
-            )
             && e.solid
         {
             e.solid = false;
@@ -667,9 +668,7 @@ impl Game {
                 } else {
                     30
                 };
-            e.flying = impact_velocity.extend(impact_speed / 2.) * 1.5;
-            self.vehicle.velocity = impact_velocity * 0.8;
-            self.vehicle.speed = self.vehicle.velocity.length();
+            e.flying = (self.vehicle.crash_velocity * 1.5).extend(self.vehicle.crash_speed / 2.);
             self.world.collision.disable(index);
         }
         if self.vehicle.crash && self.hit_cooldown == 0 {
@@ -963,6 +962,7 @@ impl Game {
         self.vehicle.previous_yaw = self.vehicle.yaw;
         self.vehicle.pos = f.pos;
         self.vehicle.yaw = f.yaw;
+        self.vehicle.travel_yaw = f.yaw;
         self.vehicle.pitch = f.pitch;
         self.vehicle.roll = f.roll;
         self.vehicle.speed = f.speed;

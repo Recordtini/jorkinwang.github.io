@@ -537,6 +537,14 @@ pub fn draw(g: &mut Game) {
             if button(g, 1, "REPLAY", 300., 267., 150.) {
                 g.screen = Screen::Replay;
                 g.replay_index = 0;
+                if let Some(f) = g.trace.front() {
+                    g.vehicle.pos = f.pos;
+                    g.vehicle.previous = f.pos;
+                    g.vehicle.yaw = f.yaw;
+                    g.vehicle.previous_yaw = f.yaw;
+                    g.vehicle.travel_yaw = f.yaw;
+                }
+                g.renderer.reset_camera(&g.vehicle);
                 g.music("gamemusic.aif");
             }
             if g.players.iter().any(|p| !p.done) {
