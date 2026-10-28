@@ -537,3 +537,89 @@ fn original_center_messages_wrap_by_character_count_and_use_original_text() {
     );
     assert!(message_lines("Ready!").len() == 1);
 }
+
+#[test]
+fn original_invisible_prop_hulls_catch_off_center_driving_passes() {
+    use nick_rust::{
+        collision::{CollisionWorld, transform},
+        physics::{Input, Params, Vehicle},
+    };
+    let a = assets();
+    let floor = Model {
+        vertices: vec![
+            vec3(-2000., -2000., 0.),
+            vec3(2000., -2000., 0.),
+            vec3(2000., 2000., 0.),
+            vec3(-2000., 2000., 0.),
+        ],
+        faces: vec![nick_rust::model::Face {
+            indices: vec![0, 1, 2, 3],
+            uv: vec![Vec2::ZERO; 4],
+            texture: "road".into(),
+            group: 0,
+        }],
+        min: vec3(-2000., -2000., 0.),
+        max: vec3(2000., 2000., 0.),
+        animation: Default::default(),
+    };
+    for name in ["hydrant", "trashcan", "cone", "mailbox", "bench"] {
+        let model = a.model(name).unwrap();
+        assert!(model.faces.iter().any(|f| f.texture == "empty"));
+        for rotation in [0., 90., 180., 270.] {
+            for lateral in [-70., -40., 0., 40., 70.] {
+                let mut world = CollisionWorld::new(500.);
+                world.add(&floor, Mat4::IDENTITY, usize::MAX);
+                world.add(model, transform(Vec3::ZERO, rotation, 60.), 7);
+                world.mark_breakable(7);
+                let mut bus =
+                    Vehicle::new(Kind::Bus, vec3(lateral, 650., 100.), Params::bus(&a), 1);
+                bus.yaw = 0.;
+                let mut hit = false;
+                for _ in 0..100 {
+                    bus.tick(
+                        Input {
+                            throttle: 1.,
+                            ..Default::default()
+                        },
+                        &world,
+                    );
+                    if bus.crash_object == Some(7) {
+                        hit = true;
+                        break;
+                    }
+                    if bus.pos.y < -500. {
+                        break;
+                    }
+                }
+                assert!(hit, "{name}: rotation {rotation}, lateral {lateral}");
+                assert!((bus.speed - bus.crash_speed * 0.8).abs() < 0.001);
+                world.disable(7);
+                assert!(
+                    world
+                        .segment(vec3(lateral, 400., 100.), vec3(lateral, -400., 100.))
+                        .is_none()
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn invisible_roadblock_hull_blocks_the_gap_beneath_the_visible_barrier() {
+    use nick_rust::collision::{CollisionWorld, transform};
+    let a = assets();
+    for name in ["roadblock", "roadblock90"] {
+        let mut world = CollisionWorld::new(500.);
+        world.add(a.model(name).unwrap(), transform(Vec3::ZERO, 0., 100.), 7);
+        let (from, to) = if name == "roadblock" {
+            (vec3(0., 500., 100.), vec3(0., -500., 100.))
+        } else {
+            (vec3(500., 0., 100.), vec3(-500., 0., 100.))
+        };
+        let hit = world
+            .segment(from, to)
+            .expect("Original invisible barrier hull must remain collidable");
+        assert_eq!(hit.object, 7);
+        assert!(!world.is_breakable(7));
+    }
+}

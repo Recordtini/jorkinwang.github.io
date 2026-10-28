@@ -46,7 +46,9 @@ impl CollisionWorld {
         let bones = model.animation.matrices(0.);
         let mut triangles = Vec::new();
         for face in &model.faces {
-            if face.texture.starts_with("empty") || face.texture.starts_with("shadow") {
+            // Invisible "empty" faces are authored collision hulls on props
+            // and roadblocks. Rendering transparency does not disable contact.
+            if face.texture.starts_with("shadow") {
                 continue;
             }
             let m = matrix * bones.get(face.group).copied().unwrap_or(Mat4::IDENTITY);
