@@ -439,18 +439,11 @@ impl Renderer {
             }
         }
         let (sw, sh) = (screen_width(), screen_height());
+        let view = crate::viewport::current();
         let viewport = if self.widescreen {
             None
         } else {
-            let ratio = 600. / 320.;
-            let width = (sh * ratio).min(sw);
-            let height = width / ratio;
-            Some((
-                ((sw - width) / 2.) as i32,
-                ((sh - height) / 2.) as i32,
-                width as i32,
-                height as i32,
-            ))
+            Some(view.physical(screen_dpi_scale()))
         };
         clear_background(if v.kind == Kind::Bus {
             Color::from_rgba(90, 140, 230, 255)
@@ -715,13 +708,12 @@ impl Renderer {
         }
         gl_use_default_material();
         set_default_camera();
-        if !self.widescreen
-            && let Some((x, y, w, h)) = viewport
-        {
-            draw_rectangle(0., 0., x as f32, sh, BLACK);
-            draw_rectangle((x + w) as f32, 0., sw - (x + w) as f32, sh, BLACK);
-            draw_rectangle(0., 0., sw, y as f32, BLACK);
-            draw_rectangle(0., (y + h) as f32, sw, sh - (y + h) as f32, BLACK);
+        if !self.widescreen {
+            let (x, y, w, h) = (view.x, view.y, view.width, view.height);
+            draw_rectangle(0., 0., x, sh, BLACK);
+            draw_rectangle(x + w, 0., sw - x - w, sh, BLACK);
+            draw_rectangle(0., 0., sw, y, BLACK);
+            draw_rectangle(0., y + h, sw, sh - y - h, BLACK);
         }
     }
 }

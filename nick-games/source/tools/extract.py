@@ -38,6 +38,26 @@ def png_image(data,specific,palette):
             else:raise ValueError(f'unsupported depth {depth}')
             pixels.append((*color,255))
     im=Image.new('RGBA',(w,h));im.putdata(pixels);return im
+def xmed_text(data):
+    """Director styled-text sections: ASCII-hex headers and uncompressed text runs."""
+    at=0;sections={};runs=[]
+    while at+20<=len(data):
+        header=data[at:at+20]
+        if not all(chr(c) in '0123456789abcdefABCDEF' for c in header):break
+        key=int(header[:4],16);size=int(header[4:12],16);at+=20
+        payload=data[at:at+size];at+=size
+        if len(payload)!=size:raise ValueError('Truncated XMED section')
+        if key in (2,3):
+            comma=payload.find(b',',1,10)
+            if comma<0:continue
+            raw=payload[comma+1:]
+            if raw.endswith(b'\x03'):raw=raw[:-1]
+            raw=raw.split(b'\x00',1)[0]
+            text=raw.decode('cp1252').replace('\r','\n')
+            if key==2:runs.append(text)
+            else:sections[3]=text
+    return ''.join(runs) if runs else sections.get(3,'')
+
 # Classic Macintosh system palette: 6x6x6 cube excluding black, then
 # ten intermediate levels for red, green, blue and gray, followed by black.
 levels=[255,204,153,102,51,0]
@@ -83,6 +103,7 @@ def export(game,source):
                     path='models/'+basename.lower();(dest/'models').mkdir(exist_ok=True);(dest/path).write_bytes(b)
                     manifest['models'][name.lower()]={'file':path,'bytes':len(b)}
                 else:
+                    if b.startswith(b'FFFF'):manifest['texts'][name.lower()]=xmed_text(b)
                     # Keep every original rich text / intro payload for later reconstruction.
                     (dest/'media').mkdir(exist_ok=True);(dest/'media'/basename).write_bytes(b)
             elif typ==6 and 'snd ' in links:

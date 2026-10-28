@@ -2,7 +2,7 @@
 """Regression checks for the original Director bitmap and asset export formats."""
 import struct, unittest, json
 from pathlib import Path
-from extract import png_image, unpackbits, macpal
+from extract import png_image, unpackbits, macpal, xmed_text
 class Bitmaps(unittest.TestCase):
     def test_compressed_rgb555_planes_preserve_classic_orange(self):
         header=bytearray(24);struct.pack_into('>Hhhhh',header,0,0x8008,0,0,1,4);header[23]=16
@@ -15,6 +15,13 @@ class Bitmaps(unittest.TestCase):
         self.assertEqual([image.getpixel((x,0)) for x in range(image.width)],[(255,0,0,255),(0,255,0,255)])
     def test_packbits_literal_and_repeat(self):
         self.assertEqual(unpackbits(bytes([1,12,34,254,56]),5),bytes([12,34,56,56,56]))
+    def test_styled_text_sections_recover_original_menu_words(self):
+        root=Path(__file__).resolve().parents[1]
+        source=root.parent/'originals/stupor-highway/foprace0/chunks/XMED-184308.bin'
+        text=xmed_text(source.read_bytes())
+        self.assertIn('#firstplay: "PLAY"',text)
+        self.assertIn('SPACEBAR: Powerslide',text)
+        self.assertNotIn('The Thornberrys',text[:text.index('#introtext:')])
     def test_complete_export_has_no_warnings(self):
         root=Path(__file__).resolve().parents[1]
         for game,counts in [('runaway-bus',(38,340,26)),('stupor-highway',(22,126,19))]:

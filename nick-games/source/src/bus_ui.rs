@@ -42,12 +42,7 @@ fn heading(g: &Game, text: &str, x: f32, y: f32) {
 }
 fn mouse() -> Vec2 {
     let (mx, my) = mouse_position();
-    let w = screen_width().min(screen_height() * 600. / 320.);
-    let h = w * 320. / 600.;
-    vec2(
-        (mx - (screen_width() - w) / 2.) * 600. / w,
-        (my - (screen_height() - h) / 2.) * 320. / h,
-    )
+    crate::viewport::current().game_position(vec2(mx, my))
 }
 fn navigate(g: &mut Game, count: usize) {
     let next =

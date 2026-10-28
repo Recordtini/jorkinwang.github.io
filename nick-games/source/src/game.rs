@@ -789,6 +789,10 @@ impl Game {
             }
             self.audio_update()
         }
+        let mobile_option = platform::input(10) as u32;
+        if mobile_option > 0 && self.screen == Screen::Options {
+            crate::options_ui::browser_action(self, mobile_option);
+        }
         if self.screen == Screen::ScoreEntry {
             if is_key_pressed(KeyCode::Escape) {
                 self.screen = Screen::Finished;
@@ -987,7 +991,7 @@ impl Game {
         }
         self.audio_update();
         if self.clock_ticks.is_multiple_of(10) || self.screen != Screen::Playing {
-            platform::debug(&serde_json::json!({"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"unlimited_time":self.unlimited_time,"practice":self.practice_used,"music":self.active_music,"engine":self.engine,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
+            platform::debug(&serde_json::json!({"browser_options":crate::options_ui::browser_state(self),"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"unlimited_time":self.unlimited_time,"practice":self.practice_used,"music":self.active_music,"engine":self.engine,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
         }
     }
     fn tick(&mut self, input: Input, dt: f32) {

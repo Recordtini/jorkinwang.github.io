@@ -5,7 +5,7 @@ const pressed = new Set();
 addEventListener("keydown", event => pressed.add(event.code));
 addEventListener("keyup", event => pressed.delete(event.code));
 let padPrevious = [];
-const once = new Float32Array(10);
+const once = new Float32Array(12);
 let cachedInputs = [0,0,0,0,0,0];
 function pollController() {
  const pad = [...(navigator.getGamepads?.() || [])].find(p => p?.connected);
@@ -21,13 +21,26 @@ function browserKey(code) {
  canvas.dispatchEvent(new KeyboardEvent('keydown',{code,key:code==='Escape'?'Escape':code==='KeyP'?'p':'',bubbles:true}));
  setTimeout(()=>canvas.dispatchEvent(new KeyboardEvent('keyup',{code,key:code==='Escape'?'Escape':'p',bubbles:true})),60);
 }
-function goFullscreen(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});}
+async function goFullscreen(){
+ if(document.fullscreenElement){await document.exitFullscreen?.();return;}
+ try {await document.documentElement.requestFullscreen?.();if(matchMedia('(pointer:coarse)').matches)await screen.orientation?.lock?.('landscape');}catch{}
+}
+const backButton=document.querySelector('#back');
+backButton?.addEventListener('click',()=>{once[4]=1;canvas.focus();});
+const confirmButton=document.querySelector('#confirm');
+confirmButton?.addEventListener('click',()=>{once[5]=1;canvas.focus();});
+
 document.querySelector('#fullscreen').addEventListener('click',goFullscreen);
 document.querySelector('#options').addEventListener('click',()=>{once[9]=1;canvas.focus();});
 document.querySelector('#pause').addEventListener('click',()=>{once[4]=1;});
 for (const element of document.querySelectorAll('[data-control]')) {
  const key = element.dataset.control;
- element.addEventListener('pointerdown',event=>{event.preventDefault();touchInputs.add(key);element.setPointerCapture(event.pointerId);});
+ element.addEventListener('pointerdown',event=>{event.preventDefault();touchInputs.add(key);element.setPointerCapture(event.pointerId);
+  if(!['7','8','12','18','19'].includes(window.nickState?.screen)) {
+   if(key==='left'||key==='up')once[6]=1;
+   if(key==='right'||key==='down')once[7]=1;
+   if(key==='action')once[5]=1;
+  }});
  for(const type of ['pointerup','pointercancel','lostpointercapture']) element.addEventListener(type,()=>touchInputs.delete(key));
 }
 addEventListener('blur',()=>{
@@ -36,6 +49,21 @@ addEventListener('blur',()=>{
  if(['7','8','12'].includes(window.nickState?.screen))once[4]=1;
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&window.nickState?.screen==='8')once[4]=1;});
+const phoneOptions=document.createElement('section');
+phoneOptions.id='phone-options';phoneOptions.hidden=true;phoneOptions.setAttribute('aria-label','Game options');document.body.append(phoneOptions);
+const optionsHeader=document.createElement('header');const optionsTitle=document.createElement('h1');optionsTitle.textContent='Options';
+const doneOptions=document.createElement('button');doneOptions.textContent='Done';doneOptions.onclick=()=>{once[10]=19;};optionsHeader.append(optionsTitle,doneOptions);phoneOptions.append(optionsHeader);
+const phoneOptionRows=new Map();
+function updatePhoneOptions(state){
+ const show=state.screen==='10' && (matchMedia('(pointer:coarse)').matches||innerWidth<=700);
+ phoneOptions.hidden=!show;
+ if(!show)return;
+ for(const [id,label] of state.browser_options||[]){
+  let button=phoneOptionRows.get(id);
+  if(!button){button=document.createElement('button');button.onclick=()=>{if(id===18)goFullscreen();else once[10]=id;};phoneOptionRows.set(id,button);phoneOptions.append(button);}
+  button.textContent=label;
+ }
+}
 miniquad_add_plugin({name:'nick_browser',version:1,register_plugin(imports){
  imports.env.nick_input=index=>{if(index>=4){const v=once[index];once[index]=0;return v;}return cachedInputs[index]||0;};
  imports.env.nick_storage_get=key=>{try{return Number(localStorage.getItem('nick-rust.'+key))||0;}catch{return 0;}};
@@ -43,7 +71,11 @@ miniquad_add_plugin({name:'nick_browser',version:1,register_plugin(imports){
  imports.env.nick_fullscreen=goFullscreen;
  imports.env.nick_exit_game=()=>{location.href="../";};
  imports.env.nick_selected_game=()=>document.body.dataset.game==='stupor-highway'?1:0;
- imports.env.nick_debug_state=(ptr,len)=>{try{window.nickState=JSON.parse(new TextDecoder().decode(new Uint8Array(wasm_memory.buffer,ptr,len)));document.querySelector('#telemetry').textContent=JSON.stringify(window.nickState);document.querySelector('#loading').hidden=true;}catch{}};
+ imports.env.nick_debug_state=(ptr,len)=>{try{window.nickState=JSON.parse(new TextDecoder().decode(new Uint8Array(wasm_memory.buffer,ptr,len)));document.querySelector('#telemetry').textContent=JSON.stringify(window.nickState);
+ document.body.dataset.playing=['7','8','12','18','19'].includes(window.nickState.screen)?'true':'false';
+ if(backButton)backButton.textContent=document.body.dataset.playing==='true'?'Pause':'Back';
+ updatePhoneOptions(window.nickState);
+document.querySelector('#loading').hidden=true;}catch{}};
 }});
 addEventListener('error',event=>{document.querySelector('#loading').hidden=false;document.querySelector('#loading').textContent='The game could not start: '+event.message;});
 load(document.body.dataset.engine || '../engine.wasm');

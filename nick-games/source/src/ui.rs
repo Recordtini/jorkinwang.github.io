@@ -17,11 +17,8 @@ fn overlay() {
 }
 pub(crate) fn button(g: &mut Game, idx: usize, text: &str, x: f32, y: f32, w: f32) -> bool {
     let (mx, my) = mouse_position();
-    let aspect = 600. / 320.;
-    let width = screen_width().min(screen_height() * aspect);
-    let height = width / aspect;
-    let px = (mx - (screen_width() - width) / 2.) * 600. / width;
-    let py = (my - (screen_height() - height) / 2.) * 320. / height;
+    let p = crate::viewport::current().game_position(vec2(mx, my));
+    let (px, py) = (p.x, p.y);
     let over = Rect::new(x - w / 2., y - 19., w, 29.).contains(vec2(px, py));
     if over && (mouse_delta_position().length_squared() > 0.) {
         g.ui_selection = idx
@@ -94,19 +91,9 @@ fn text_lines(text: &str, top: f32, size: f32) {
     }
 }
 pub fn draw(g: &mut Game) {
-    let aspect = 600. / 320.;
-    let sw = screen_width();
-    let sh = screen_height();
-    let w = sw.min(sh * aspect);
-    let h = w / aspect;
     let mut camera = Camera2D::from_display_rect(Rect::new(0., 0., 600., 320.));
     camera.zoom.y = camera.zoom.y.abs();
-    camera.viewport = Some((
-        ((sw - w) / 2.) as i32,
-        ((sh - h) / 2.) as i32,
-        w as i32,
-        h as i32,
-    ));
+    camera.viewport = Some(crate::viewport::current().physical(screen_dpi_scale()));
     set_camera(&camera);
     let before = g.screen;
     if g.kind() == Kind::Bus
