@@ -6,6 +6,7 @@ unsafe extern "C" {
     fn nick_storage_get(key: i32) -> f64;
     fn nick_storage_set(key: i32, value: f64);
     fn nick_fullscreen();
+    fn nick_exit_game();
     fn nick_selected_game() -> i32;
     fn nick_debug_state(ptr: *const u8, len: usize);
 }
@@ -94,4 +95,13 @@ pub fn debug(value: &str) {
     {
         let _ = value;
     }
+}
+
+pub fn exit_game() {
+    #[cfg(target_arch = "wasm32")]
+    unsafe {
+        nick_exit_game();
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    std::process::exit(0);
 }

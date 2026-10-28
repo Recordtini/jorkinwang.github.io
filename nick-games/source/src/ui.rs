@@ -130,7 +130,27 @@ pub fn draw(g: &mut Game) {
     ));
     set_camera(&camera);
     let before = g.screen;
-    if !matches!(g.screen, Screen::Playing | Screen::Ready | Screen::Replay) {
+    if g.kind() == Kind::Bus
+        && matches!(
+            g.screen,
+            Screen::Target | Screen::Paused | Screen::Finished | Screen::Ending
+        )
+    {
+        crate::bus_ui::hud(g);
+    }
+    if g.kind() == Kind::Bus && crate::bus_ui::draw(g) {
+        if g.screen != before {
+            g.ui_selection = 0;
+            g.sound("click.aif");
+            g.audio_update();
+        }
+        set_default_camera();
+        return;
+    }
+    if !matches!(
+        g.screen,
+        Screen::Playing | Screen::Ready | Screen::Replay | Screen::Ending | Screen::Instructs
+    ) {
         overlay()
     }
     let count = match g.screen {
@@ -140,7 +160,10 @@ pub fn draw(g: &mut Game) {
         Screen::Options => 8,
         _ => 1,
     };
-    if !matches!(g.screen, Screen::Playing | Screen::Ready | Screen::Replay) {
+    if !matches!(
+        g.screen,
+        Screen::Playing | Screen::Ready | Screen::Replay | Screen::Ending | Screen::Instructs
+    ) {
         let next = is_key_pressed(KeyCode::Down)
             || is_key_pressed(KeyCode::S)
             || is_key_pressed(KeyCode::Right)
@@ -155,6 +178,8 @@ pub fn draw(g: &mut Game) {
         }
     }
     match g.screen {
+        Screen::ScoreEntry | Screen::Quit | Screen::ClearScores => {}
+        Screen::Ending => {}
         Screen::Title => {
             title(g);
             if button(g, 0, "PLAY", 300., 211., 170.) {
@@ -345,9 +370,11 @@ pub fn draw(g: &mut Game) {
                 g.screen = Screen::Title;
             }
         }
-        Screen::Ready | Screen::Playing | Screen::Replay => {
+        Screen::Ready | Screen::Playing | Screen::Replay | Screen::Instructs => {
             hud(g);
-            if g.screen == Screen::Ready {
+            if g.screen == Screen::Ready && g.kind() == Kind::Bus {
+                crate::bus_ui::banner(g, "Ready!", 150.);
+            } else if g.screen == Screen::Ready {
                 center(
                     if g.countdown > 2. {
                         "READY!"
@@ -582,6 +609,13 @@ pub fn precise_time(t: f32) -> String {
     format!("{}:{:02}:{:02}", ticks / 3600, ticks / 60 % 60, ticks % 60)
 }
 fn hud(g: &Game) {
+    if g.kind() == Kind::Bus {
+        crate::bus_ui::hud(g);
+        if g.minimap {
+            map(g);
+        }
+        return;
+    }
     if g.kind() == Kind::Bus {
         draw_rectangle(0., 0., 600., 29., Color::new(0., 0., 0., 0.35));
         original_text(g, &format!("{:07}", g.score), 12., 6., 1.);

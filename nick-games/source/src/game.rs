@@ -25,6 +25,11 @@ pub enum Screen {
     Finished,
     Replay,
     Target,
+    ScoreEntry,
+    Quit,
+    ClearScores,
+    Ending,
+    Instructs,
 }
 #[derive(Clone)]
 pub struct Player {
@@ -82,6 +87,8 @@ pub struct Game {
     pub countdown: f32,
     pub message: String,
     pub message_timer: f32,
+    pub mini_message: String,
+    pub mini_message_timer: f32,
     pub won: bool,
     pub volume: f32,
     pub muted: bool,
@@ -105,6 +112,7 @@ pub struct Game {
     pub trace: std::collections::VecDeque<Frame>,
     pub replay_index: usize,
     pub replay_end: Option<Frame>,
+    pub recovery: crate::bus_rules::Recovery,
     pub safe_pos: Vec3,
     pub safe_yaw: f32,
     pub accumulator: f32,
@@ -113,6 +121,10 @@ pub struct Game {
     pub skidding: bool,
     pub ui_selection: usize,
     pub show_help_page: usize,
+    pub original_words: serde_json::Value,
+    pub score_name: String,
+    pub score_page: usize,
+    pub demo_phase: f32,
     pub seed: u64,
     pub clock_ticks: u64,
 }
@@ -136,6 +148,12 @@ impl Game {
         renderer.smooth = platform::get(10) != 2.;
         renderer.filtering = platform::get(11) == 1.;
         renderer.widescreen = platform::get(12) == 1.;
+        let original_words = assets
+            .texts
+            .get("defaulttext")
+            .map(|text| crate::lingo_data::parse(text))
+            .transpose()?
+            .unwrap_or_default();
         let mut game = Self {
             assets,
             world,
@@ -157,6 +175,8 @@ impl Game {
             countdown: 2.,
             message: String::new(),
             message_timer: 0.,
+            mini_message: String::new(),
+            mini_message_timer: 0.,
             won: false,
             volume: if platform::get(13) == 0. {
                 0.7
@@ -184,6 +204,7 @@ impl Game {
             trace: std::collections::VecDeque::new(),
             replay_index: 0,
             replay_end: None,
+            recovery: Default::default(),
             safe_pos: Vec3::ZERO,
             safe_yaw: 0.,
             accumulator: 0.,
@@ -192,6 +213,10 @@ impl Game {
             skidding: false,
             ui_selection: 0,
             show_help_page: 0,
+            original_words,
+            score_name: crate::scores::last_name(),
+            score_page: 0,
+            demo_phase: 0.,
             seed: 1793130001,
             clock_ticks: 0,
         };
@@ -221,17 +246,39 @@ impl Game {
         };
         self.vehicle = Vehicle::new(kind, self.world.start, params, self.difficulty);
         self.renderer.driver = ["arnold", "helga", "gerald", "grandpa"][self.driver].into();
+        if kind == Kind::Bus {
+            for e in &mut self.world.entities {
+                if e.active
+                    && e.name == "path"
+                    && let Some(name) = crate::bus_actor::choose_person(
+                        std::slice::from_ref(&self.renderer.driver),
+                        &mut self.seed,
+                    )
+                {
+                    e.model = name;
+                    e.position = e.path[0] + Vec3::Z * crate::bus_actor::height(&e.model, e.scale);
+                    e.previous = e.position;
+                }
+            }
+        }
         self.safe_pos = self.vehicle.pos;
         self.safe_yaw = self.vehicle.yaw;
         self.renderer.reset_camera(&self.vehicle);
-        self.screen = Screen::Ready;
-        self.countdown = if kind == Kind::Bus { 2. } else { 3. };
+        self.screen = if kind == Kind::Bus {
+            Screen::Instructs
+        } else {
+            Screen::Ready
+        };
+        self.countdown = if kind == Kind::Bus { 10. } else { 3. };
+        if kind == Kind::Bus {
+            self.renderer.dropoff_camera(&self.vehicle);
+        }
         self.score = 0;
         self.best = platform::get(self.score_key()) as i32;
         self.collected = 0;
         self.elapsed = 0.;
         self.clock = if kind == Kind::Bus {
-            (2. + self.difficulty as f32) * 60.
+            crate::bus_rules::Settings::new(self.mode, self.difficulty)?.start_clock()
         } else {
             0.
         };
@@ -243,18 +290,37 @@ impl Game {
         self.slow = 0;
         self.hit_cooldown = 0;
         self.trace.clear();
+        self.recovery.frames.clear();
         self.replay_end = None;
         self.message.clear();
         self.message_timer = 0.;
+        self.mini_message.clear();
+        self.mini_message_timer = 0.;
         self.carrying = false;
         self.deliveries = 0;
         self.target_step = 0;
-        self.target = 0;
+        self.target = self
+            .world
+            .entities
+            .iter()
+            .position(|e| e.name == "Arnold's Apartment")
+            .unwrap_or(usize::MAX);
         self.won = false;
         self.accumulator = 0.;
         self.clock_ticks = 0;
         self.music("");
-        self.sound("ready.aif");
+        if kind == Kind::Bus && self.mode == 0 {
+            self.message = self.original_words["levelmessage"]
+                .as_str()
+                .unwrap_or("")
+                .into();
+            if self.player_count > 1 {
+                self.message = format!("PLAYER {}: {}", self.player_index + 1, self.message);
+            }
+            self.message_timer = 20.;
+        } else if kind == Kind::Hover {
+            self.sound("ready.aif");
+        }
         if kind == Kind::Bus && self.mode != 0 {
             self.passenger = (self.driver + 1) % 4;
             self.next_target();
@@ -262,65 +328,70 @@ impl Game {
         Ok(())
     }
     pub fn next_target(&mut self) {
-        let valid: Vec<_> = self
-            .world
-            .targets
-            .iter()
-            .copied()
-            .filter(|i| {
-                self.world.entities[*i].position.truncate().length()
-                    < [0., 20000., 60000., 80000.][self.difficulty as usize]
-            })
-            .collect();
+        let valid = self.world.targets.clone();
         if valid.is_empty() {
             return;
         }
-        self.seed ^= self.seed << 13;
-        self.seed ^= self.seed >> 7;
-        self.seed ^= self.seed << 17;
-        let choices: Vec<_> = valid
-            .iter()
-            .copied()
-            .filter(|i| *i != self.target || valid.len() == 1)
-            .collect();
-        self.target = choices[self.seed as usize % choices.len()];
-        self.target_step += 1;
-        self.target_bonus = if self.mode == 2 || self.difficulty == 1 && self.target_step <= 3 {
-            1000
-        } else {
-            self.clock.max(0.).trunc() as i32 * 100 * self.difficulty as i32
+        let Some(next) = crate::bus_mission::destination(&valid, self.target, &mut self.seed)
+        else {
+            return;
         };
+        self.target = next;
+        self.target_step += 1;
+        self.target_bonus = crate::bus_mission::target_bonus(
+            self.clock,
+            self.mode,
+            self.difficulty,
+            self.target_step,
+        );
         self.world.selected_target = Some(self.target);
         let distance = self.world.entities[self.target]
             .position
             .distance(self.vehicle.pos);
-        if self.carrying {
-            self.world.passenger = None;
-        } else {
+        if !self.carrying {
+            let names = ["arnold", "helga", "gerald", "grandpa"];
+            let mut occupied = vec![names[self.driver].to_string()];
+            occupied.extend(
+                self.world
+                    .entities
+                    .iter()
+                    .filter(|e| e.active && e.name == "path")
+                    .map(|e| e.model.clone()),
+            );
+            if self.target_step > 1 {
+                occupied.push(names[self.passenger].to_string());
+            }
+            if let Some(name) = crate::bus_actor::choose_person(&occupied, &mut self.seed) {
+                self.passenger = names.iter().position(|n| *n == name).unwrap();
+            }
             let mut passenger = self.world.entities[self.target].clone();
-            passenger.shape = ["arnold", "helga", "gerald", "grandpa"][self.passenger % 4].into();
+            passenger.shape = names[self.passenger].into();
             passenger.model = passenger.shape.clone();
-            passenger.position += vec3(80., 80., 50.);
+            passenger.name = "passenger".into();
+            passenger.path = passenger.path.iter().map(|p| *p + Vec3::Z * 15.).collect();
+            passenger.path_index = 0;
+            passenger.path_direction = 1;
+            passenger.path_loop = "wave".into();
+            passenger.scale = 70.;
+            passenger.speed = 10.;
+            passenger.actor = Default::default();
+            passenger.actor.pose(crate::bus_actor::Pose::Wave);
+            passenger.position = passenger.path[0]
+                + Vec3::Z * crate::bus_actor::height(&passenger.model, passenger.scale);
             passenger.previous = passenger.position;
-            passenger.scale = 80.;
             passenger.active = true;
             passenger.solid = false;
             self.world.passenger = Some(passenger);
+        } else if let Some(e) = &mut self.world.passenger {
+            e.active = false; // The visible boarding copy is in transitions until Continue.
         }
-        self.clock = if self.difficulty == 1 && self.target_step <= 2 {
-            180.
-        } else {
-            30. + (distance / 50000. * 120.).trunc() / self.difficulty as f32
-                - self.target_step as f32
-        };
-        self.message = format!(
-            "{} {} at {}",
-            if self.carrying { "Drop off" } else { "Pick up" },
-            ["Arnold", "Helga", "Gerald", "Grandpa"][self.passenger % 4],
-            self.world.entities[self.target].name
-        );
-        self.message_timer = 5.;
+        self.clock = crate::bus_mission::time_limit(distance, self.difficulty, self.target_step);
+        self.message.clear();
+        self.message_timer = 0.;
+        self.mini_message.clear();
+        self.mini_message_timer = 0.;
         self.screen = Screen::Target;
+        self.renderer.dropoff_camera(&self.vehicle);
         self.audio_update();
     }
     pub fn sound(&self, name: &str) {
@@ -380,7 +451,10 @@ impl Game {
                     0.
                 }
             } else if name == &self.engine {
-                if matches!(self.screen, Screen::Playing | Screen::Replay) {
+                if matches!(
+                    self.screen,
+                    Screen::Playing | Screen::Replay | Screen::Ending
+                ) {
                     self.volume * 0.24
                 } else {
                     0.
@@ -448,6 +522,12 @@ impl Game {
         }
     }
     pub fn backup(&mut self) {
+        if self.kind() == Kind::Bus {
+            if self.recovery.revive(&mut self.vehicle) {
+                self.renderer.recovery_camera(&self.vehicle);
+            }
+            return;
+        }
         if self.kind() == Kind::Hover && !self.world.track.is_empty() {
             let i = crate::world::nearest(&self.world.track, self.vehicle.pos);
             let point = self.world.track[i];
@@ -480,10 +560,25 @@ impl Game {
     pub fn finish(&mut self, won: bool, message: &str) {
         self.won = won;
         self.message = message.into();
-        self.message_timer = 1000.;
+        self.message_timer = if won && self.kind() == Kind::Bus {
+            0.
+        } else {
+            1000.
+        };
+        if self.kind() == Kind::Bus && !self.vehicle.ending {
+            self.vehicle.ending = true;
+            self.screen = Screen::Ending;
+            self.countdown = 3.;
+            self.music(if won { "win.aif" } else { "lose.aif" });
+            self.audio_update();
+            return;
+        }
         self.screen = Screen::Finished;
+        if self.kind() == Kind::Bus {
+            self.message_timer = 0.;
+        }
         if won && self.kind() == Kind::Bus && self.mode == 0 {
-            self.score += self.clock.max(0.) as i32 * 100 * self.difficulty as i32
+            self.score += crate::bus_mission::time_bonus(self.clock, self.difficulty)
         }
         self.best = self.best.max(self.score);
         platform::set(self.score_key(), self.best as f64);
@@ -506,6 +601,12 @@ impl Game {
         self.audio_update();
     }
     pub fn update(&mut self) {
+        if self.screen == Screen::ScoreEntry {
+            if is_key_pressed(KeyCode::Escape) {
+                self.screen = Screen::Finished;
+            }
+            return;
+        }
         if is_key_pressed(KeyCode::F11) {
             platform::fullscreen()
         }
@@ -519,8 +620,11 @@ impl Game {
             self.audio_update()
         }
         if is_key_pressed(KeyCode::M) {
-            self.muted = !self.muted;
-            platform::set(14, self.muted as u8 as f64);
+            self.music_enabled = !self.music_enabled;
+            platform::set(15, if self.music_enabled { 1. } else { 2. });
+            let track = self.active_music.clone();
+            self.active_music.clear();
+            self.music(&track);
             self.audio_update()
         }
         if is_key_pressed(KeyCode::C) || platform::input(8) > 0.5 {
@@ -533,9 +637,17 @@ impl Game {
         if is_key_pressed(KeyCode::Escape) || is_key_pressed(KeyCode::P) || platform::input(4) > 0.5
         {
             match self.screen {
-                Screen::Playing | Screen::Ready | Screen::Replay => {
+                Screen::Playing
+                | Screen::Ready
+                | Screen::Replay
+                | Screen::Ending
+                | Screen::Instructs => {
                     self.previous_screen = self.screen;
                     self.screen = Screen::Paused;
+                    if self.kind() == Kind::Bus {
+                        self.message_timer = 0.;
+                        self.mini_message_timer = 0.;
+                    }
                 }
                 Screen::Paused => self.screen = self.previous_screen,
                 Screen::Options => self.screen = self.options_return,
@@ -549,6 +661,27 @@ impl Game {
         }
         let frame_dt = get_frame_time().min(0.15);
         self.message_timer = (self.message_timer - frame_dt).max(0.);
+        self.mini_message_timer = (self.mini_message_timer - frame_dt).max(0.);
+        if self.screen == Screen::Instructs {
+            self.countdown -= frame_dt;
+            let pressed = [
+                KeyCode::Up,
+                KeyCode::Down,
+                KeyCode::Left,
+                KeyCode::Right,
+                KeyCode::Space,
+            ]
+            .iter()
+            .any(|&key| is_key_down(key))
+                || is_mouse_button_down(MouseButton::Left)
+                || (0..4).any(|i| platform::input(i).abs() > 0.3);
+            if pressed || self.countdown < 0. {
+                self.screen = Screen::Ready;
+                self.countdown = 1.;
+                self.message.clear();
+                self.sound("ready.aif");
+            }
+        }
         if self.screen == Screen::Ready {
             let before = self.countdown.ceil() as i32;
             self.countdown -= frame_dt;
@@ -565,6 +698,10 @@ impl Game {
                     "go.aif"
                 });
                 self.music("gamemusic.aif");
+                if self.kind() == Kind::Bus {
+                    self.message = "Go!".into();
+                    self.message_timer = 2.;
+                }
             }
         }
         if matches!(
@@ -578,7 +715,8 @@ impl Game {
                 | Screen::Scores
         ) && !self.world.demo.is_empty()
         {
-            let phase = get_time() as f32 * self.tick_rate();
+            self.demo_phase += frame_dt * self.tick_rate();
+            let phase = self.demo_phase;
             let index = phase as usize % self.world.demo.len();
             let a = &self.world.demo[index];
             let b = &self.world.demo[(index + 1) % self.world.demo.len()];
@@ -590,9 +728,6 @@ impl Game {
             self.vehicle.pitch = a.pitch;
             self.vehicle.roll = a.roll;
             self.vehicle.speed = a.speed;
-        }
-        if self.screen == Screen::Target {
-            self.world.tick_transitions(frame_dt);
         }
         let step = 1. / self.tick_rate();
         if self.screen == Screen::Playing {
@@ -610,6 +745,44 @@ impl Game {
             while self.accumulator >= step && self.screen == Screen::Playing {
                 self.accumulator -= step;
                 self.tick(input, step);
+            }
+        } else if matches!(self.screen, Screen::Instructs | Screen::Ready)
+            && self.kind() == Kind::Bus
+        {
+            self.accumulator += frame_dt;
+            while self.accumulator >= step {
+                self.accumulator -= step;
+                self.world.tick_entities(false, self.vehicle.pos);
+                self.world
+                    .tick_bus_walkers(&self.vehicle, &self.renderer.driver, &mut self.seed);
+                if self.screen == Screen::Ready {
+                    self.renderer.tick_bus_camera(&self.world, &self.vehicle);
+                }
+            }
+        } else if self.screen == Screen::Ending {
+            self.countdown -= frame_dt;
+            self.accumulator += frame_dt;
+            while self.accumulator >= step {
+                self.accumulator -= step;
+                self.world.tick_entities(false, self.vehicle.pos);
+                self.world
+                    .tick_bus_walkers(&self.vehicle, &self.renderer.driver, &mut self.seed);
+                self.world.sync_bus_colliders(&self.assets);
+                self.vehicle.tick(Input::default(), &self.world.collision);
+                self.renderer.tick_bus_end_camera(&self.vehicle);
+            }
+            if self.countdown <= 0. {
+                let message = self.message.clone();
+                self.finish(self.won, &message);
+            }
+        } else if self.screen == Screen::Target {
+            self.accumulator += frame_dt;
+            while self.accumulator >= step {
+                self.accumulator -= step;
+                self.world
+                    .tick_bus_walkers(&self.vehicle, &self.renderer.driver, &mut self.seed);
+                self.world
+                    .tick_bus_passengers(&self.vehicle, &mut self.seed);
             }
         } else if self.screen == Screen::Replay {
             self.accumulator += frame_dt;
@@ -630,11 +803,14 @@ impl Game {
         } else {
             self.accumulator = 0.
         }
-        if matches!(self.screen, Screen::Playing | Screen::Replay) {
+        if matches!(
+            self.screen,
+            Screen::Playing | Screen::Replay | Screen::Ending
+        ) {
             self.engine_update();
         }
-        if self.clock_ticks.is_multiple_of(10) {
-            platform::debug(&serde_json::json!({"screen":format!("{:?}",self.screen as u8),"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
+        if self.clock_ticks.is_multiple_of(10) || self.screen != Screen::Playing {
+            platform::debug(&serde_json::json!({"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
         }
     }
     fn tick(&mut self, input: Input, dt: f32) {
@@ -642,7 +818,7 @@ impl Game {
         self.elapsed += dt;
         if self.kind() == Kind::Bus && self.mode != 2 {
             self.clock -= crate::rules::bus_clock_step(dt);
-            if self.clock <= 0. {
+            if self.clock < 0. && !self.vehicle.jumping {
                 self.finish(false, "TIME IS UP!");
                 return;
             }
@@ -652,8 +828,25 @@ impl Game {
         self.hit_cooldown = (self.hit_cooldown - 1).max(0);
         self.slow = (self.slow - 1).max(0);
         self.world.tick_entities(self.slow > 0, self.vehicle.pos);
+        self.world
+            .tick_bus_walkers(&self.vehicle, &self.renderer.driver, &mut self.seed);
+        self.world.tick_bus_dozer(&self.vehicle);
+        let dozer_caught_before_drive = self.kind() == Kind::Bus
+            && crate::bus_rules::Settings::new(self.mode, self.difficulty)
+                .unwrap()
+                .caught(self.vehicle.speed, self.vehicle.jumping)
+            && self
+                .world
+                .entities
+                .iter()
+                .any(|e| e.active && e.dozer_contact);
+        self.world.sync_bus_colliders(&self.assets);
         self.vehicle.tick(input, &self.world.collision);
         self.renderer.tick_bus_camera(&self.world, &self.vehicle);
+        if self.kind() == Kind::Bus {
+            self.world
+                .tick_bus_passengers(&self.vehicle, &mut self.seed);
+        }
         if self.kind() == Kind::Bus
             && let Some(index) = self.vehicle.crash_object
             && self.world.collision.is_breakable(index)
@@ -671,7 +864,7 @@ impl Game {
             e.flying = (self.vehicle.crash_velocity * 1.5).extend(self.vehicle.crash_speed / 2.);
             self.world.collision.disable(index);
         }
-        if self.vehicle.crash && self.hit_cooldown == 0 {
+        if self.vehicle.crash && (self.kind() == Kind::Bus || self.hit_cooldown == 0) {
             self.sound(if self.kind() == Kind::Bus {
                 "crash1.aif"
             } else {
@@ -703,42 +896,68 @@ impl Game {
         let is_bus = self.kind() == Kind::Bus;
         let mut effects = Vec::new();
         let mut bursts = Vec::new();
-        let mut caught = false;
-        for e in &mut self.world.entities {
+        let mut caught = dozer_caught_before_drive;
+        if is_bus
+            && crate::bus_rules::Settings::new(self.mode, self.difficulty)
+                .unwrap()
+                .caught(self.vehicle.crash_speed, self.vehicle.jumping)
+            && self
+                .vehicle
+                .crash_object
+                .and_then(|i| self.world.entities.get(i))
+                .is_some_and(|e| e.shape == "jelly")
+        {
+            caught = true;
+        }
+        let nearest_good = if is_bus {
+            self.world.nearest_bus_good(self.vehicle.pos)
+        } else {
+            None
+        };
+        for (entity_index, e) in self.world.entities.iter_mut().enumerate() {
             if !e.active {
                 continue;
             }
-            let radius = if is_bus {
-                if e.shape == "jelly" { 600. } else { 300. }
+            if is_bus {
+                if e.shape.starts_with("coin") {
+                    if crate::bus_rules::manhattan(e.position, self.vehicle.previous) >= 300. {
+                        continue;
+                    }
+                } else if nearest_good != Some(entity_index) {
+                    continue;
+                }
             } else {
-                1200.
-            };
-            let delta = self.vehicle.pos - self.vehicle.previous;
-            let t = if delta.length_squared() > 0. {
-                ((e.position - self.vehicle.previous).dot(delta) / delta.length_squared())
-                    .clamp(0., 1.)
-            } else {
-                0.
-            };
-            let closest = self.vehicle.previous + delta * t;
-            let dist = if is_bus {
-                (e.position.x - closest.x).abs() + (e.position.y - closest.y).abs()
-            } else {
-                e.position.distance(closest)
-            };
-            if dist > radius {
-                continue;
+                let delta = self.vehicle.pos - self.vehicle.previous;
+                let t = if delta.length_squared() > 0. {
+                    ((e.position - self.vehicle.previous).dot(delta) / delta.length_squared())
+                        .clamp(0., 1.)
+                } else {
+                    0.
+                };
+                if e.position.distance(self.vehicle.previous + delta * t) > 1200. {
+                    continue;
+                }
             }
             let mut collected = false;
             match e.shape.as_str() {
                 "coin1" | "coin2" | "coin3" => {
                     self.collected += 1;
                     self.score += 1000 * self.difficulty as i32;
-                    effects.push("coin.aif");
+                    if self.collected < self.world.tomato_total {
+                        self.mini_message = format!(
+                            "{} of {} TOMATOES!",
+                            self.collected, self.world.tomato_total
+                        );
+                        self.mini_message_timer = 3.;
+                        effects.push("coin.aif");
+                    }
                     collected = true;
                 }
                 "point" | "binary" | "heart" => {
                     self.score += 500;
+                    if is_bus {
+                        self.vehicle.invincible = 200;
+                    }
                     if !is_bus && e.shape == "point" {
                         self.collected += 1
                     }
@@ -779,13 +998,7 @@ impl Game {
                         self.hit_cooldown = 25
                     }
                 }
-                "jelly" | "bulldozer" => {
-                    if self.vehicle.speed < 30. && self.mode != 2 {
-                        caught = true
-                    } else {
-                        self.vehicle.velocity *= 0.9;
-                    }
-                }
+                "jelly" | "bulldozer" => {} // Source dozer probes/contacts above; no extra drag.
                 _ => {}
             }
             if collected {
@@ -815,56 +1028,68 @@ impl Game {
             self.finish(true, "YOU SAVED THE NEIGHBORHOOD!");
             return;
         }
-        if is_bus && self.mode != 0 && !self.world.targets.is_empty() {
-            let e = &self.world.entities[self.target];
-            if e.position.truncate().distance(self.vehicle.pos.truncate()) < 550.
-                && self.vehicle.speed < 1.
-            {
-                let old_name = ["arnold", "helga", "gerald", "grandpa"][self.passenger];
-                let mut transition = self.world.entities[self.target].clone();
-                transition.shape = old_name.into();
-                transition.model = old_name.into();
-                transition.scale = if old_name == "grandpa" { 40. } else { 50. };
-                transition.speed = 10.;
-                transition.path_index = 1;
-                let points: &[(f32, f32, f32)] = if self.carrying {
-                    &[
-                        (0., 50., -25.),
-                        (0., -220., -25.),
-                        (-100., -220., -100.),
-                        (-250., -220., -100.),
-                        (-260., -320., -100.),
-                    ]
-                } else {
-                    &[
-                        (-300., -220., -100.),
-                        (-100., -220., -100.),
-                        (0., -220., -25.),
-                        (0., 150., -25.),
-                    ]
-                };
-                let m = crate::collision::transform(self.vehicle.pos, self.vehicle.yaw, 100.);
-                let height = if old_name == "grandpa" { 1.875 } else { 0.6125 };
-                transition.path = points
-                    .iter()
-                    .map(|(x, y, z)| {
-                        m.transform_point3(vec3(*x, *y, *z)) + Vec3::Z * height * transition.scale
-                    })
-                    .collect();
-                transition.position = transition.path[0];
-                transition.previous = transition.position;
-                self.world.transitions = vec![transition];
-                if self.carrying {
-                    self.deliveries += 1;
-                    self.passenger = (self.passenger + 1) % 4;
-                    if self.passenger == self.driver {
-                        self.passenger = (self.passenger + 1) % 4;
-                    }
-                }
-                self.carrying = !self.carrying;
-                self.sound("bonus.aif");
-                self.next_target();
+        if is_bus
+            && self.mode != 0
+            && let Some(i) = self.vehicle.ground_object.filter(|&i| {
+                self.world
+                    .entities
+                    .get(i)
+                    .is_some_and(|e| e.shape == "target")
+            })
+            && (i != self.target || self.vehicle.ground_contact_speed != 0.)
+        {
+            self.mini_message = if i != self.target {
+                self.world.entities[i].name.clone()
+            } else if self.carrying {
+                format!("{}! Stop!", self.world.entities[i].name)
+            } else {
+                format!(
+                    "There's {}! Stop!",
+                    ["arnold", "helga", "gerald", "grandpa"][self.passenger]
+                )
+            };
+            self.mini_message_timer = 0.2;
+        }
+        if is_bus
+            && self.mode != 0
+            && !self.world.targets.is_empty()
+            && crate::bus_mission::arrival(
+                self.target,
+                self.vehicle.ground_object,
+                self.vehicle.ground_contact_speed,
+            )
+        {
+            let old_name = ["arnold", "helga", "gerald", "grandpa"][self.passenger];
+            let mut transition = self.world.entities[self.target].clone();
+            transition.shape = old_name.into();
+            transition.model = old_name.into();
+            transition.scale = if old_name == "grandpa" { 40. } else { 50. };
+            transition.speed = 10.;
+            transition.path_index = 0;
+            transition.path_direction = 1;
+            transition.path_loop = "wave".into();
+            transition.name = "passenger".into();
+            transition.actor = Default::default();
+            transition.actor.pose(crate::bus_actor::Pose::Walk);
+            transition.path = crate::bus_mission::passenger_route(
+                self.vehicle.pos,
+                self.vehicle.yaw,
+                self.vehicle.pitch,
+                self.vehicle.roll,
+                self.carrying,
+            );
+            transition.position =
+                transition.path[0] + Vec3::Z * crate::bus_actor::height(old_name, transition.scale);
+            transition.previous = transition.position;
+            let first = transition.path[0];
+            crate::bus_actor::target(&mut transition, first);
+            self.world.transitions = vec![transition];
+            if self.carrying {
+                self.deliveries += 1;
             }
+            self.carrying = !self.carrying;
+            self.sound("bonus.aif");
+            self.next_target();
         }
         if !is_bus {
             if self.mode == 1
@@ -913,6 +1138,9 @@ impl Game {
                 self.finish(true, &format!("FINISHED IN POSITION {rank}"));
                 return;
             }
+        }
+        if is_bus {
+            self.recovery.record(&self.vehicle);
         }
         // Ten minutes bounds memory on WASM; only moving actors have transforms.
         if self.trace.len() >= self.tick_rate() as usize * 600 {
@@ -1009,6 +1237,8 @@ impl Game {
                 | Screen::Replay
                 | Screen::Finished
                 | Screen::Target
+                | Screen::Ending
+                | Screen::Instructs
         );
         let alpha = (self.accumulator * self.tick_rate()).clamp(0., 1.);
         self.renderer.doors_open = self.screen == Screen::Target && self.target_step > 1;

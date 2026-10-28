@@ -27,6 +27,9 @@ pub struct Entity {
     pub cooldown: i32,
     pub collected: u8,
     pub solid: bool,
+    pub actor: crate::bus_actor::Actor,
+    pub pursuit: crate::bus_dozer::Pursuit,
+    pub dozer_contact: bool,
     pub sprite: String,
     pub base: Vec3,
     pub lap: u32,
@@ -68,6 +71,7 @@ pub struct World {
     pub demo: Vec<DemoPose>,
     pub particles: Vec<Particle>,
     pub transitions: Vec<Entity>,
+    pub person_paths: Vec<crate::bus_actor::PathSpawn>,
 }
 pub fn num(v: &Value, key: &str, default: f32) -> f32 {
     v.get(key)
@@ -105,6 +109,7 @@ impl World {
         seed: u64,
     ) -> Result<Self, String> {
         let is_bus = kind == Kind::Bus;
+        let bus_settings = crate::bus_rules::Settings::new(mode, difficulty)?;
         let raw = a
             .texts
             .get(if is_bus {
@@ -122,7 +127,15 @@ impl World {
             entities: vec![],
             track: vec![],
             tomato_total: 0,
-            start: Vec3::ZERO,
+            start: if is_bus {
+                a.texts
+                    .get("levellist1")
+                    .and_then(|s| lingo_data::parse(s).ok())
+                    .map(|v| vec(&v["startpos"]))
+                    .unwrap_or(Vec3::ZERO)
+            } else {
+                Vec3::ZERO
+            },
             targets: vec![],
             selected_target: None,
             passenger: None,
@@ -131,6 +144,7 @@ impl World {
             demo: Vec::new(),
             particles: Vec::new(),
             transitions: Vec::new(),
+            person_paths: Vec::new(),
         };
         if let Some(raw) = a.texts.get(if is_bus {
             "pathdata"
@@ -142,7 +156,7 @@ impl World {
                 world.demo = rows
                     .iter()
                     .map(|v| DemoPose {
-                        position: vec(v),
+                        position: vec(v) + if is_bus { Vec3::Z * 100. } else { Vec3::ZERO },
                         yaw: v[3].as_f64().unwrap_or(0.) as f32,
                         pitch: v[4].as_f64().unwrap_or(0.) as f32,
                         roll: v[5].as_f64().unwrap_or(0.) as f32,
@@ -168,6 +182,21 @@ impl World {
                 usize::MAX,
             );
             world.terrain.push(name);
+        }
+        if is_bus {
+            world.person_paths = list
+                .iter()
+                .filter(|v| {
+                    let shape = text(v, "shape", "");
+                    let p = vec(&v["path"][0]);
+                    (shape == "path" || crate::bus_actor::person(&shape))
+                        && bus_settings.within(p, world.start)
+                })
+                .map(|v| crate::bus_actor::PathSpawn {
+                    points: v["path"].as_array().unwrap().iter().map(vec).collect(),
+                    loop_kind: text(v, "pathloop", "loop"),
+                })
+                .collect();
         }
         let mut rng = seed.max(1);
         let mut coins = vec![];
@@ -303,29 +332,33 @@ impl World {
                 vertical_speed: 0.,
                 surface: String::new(),
                 solid,
+                actor: Default::default(),
+                pursuit: Default::default(),
+                dozer_contact: false,
                 sprite,
                 base: position,
             });
         }
         if is_bus {
-            let radius = [0., 20000., 60000., 80000.][difficulty as usize];
+            let start = world.start;
             shuffled(&mut coins, &mut rng);
-            coins.truncate(5 + difficulty as usize * 5);
+            coins.truncate(bus_settings.tomatoes());
             world.tomato_total = coins.len();
             shuffled(&mut timers, &mut rng);
-            timers.retain(|i| world.entities[*i].position.length() < radius);
-            timers.truncate(difficulty as usize * 5);
+            timers.retain(|i| bus_settings.within(world.entities[*i].path[0], start));
+            timers.truncate(bus_settings.clocks());
             let dozer = world
                 .entities
                 .iter()
-                .position(|e| e.shape == "jelly" && e.position.length() < radius);
+                .position(|e| e.shape == "jelly" && bus_settings.within(e.path[0], start));
             let pedestrian = world.entities.iter().position(|e| {
                 matches!(
                     e.shape.as_str(),
                     "path" | "arnold" | "gerald" | "helga" | "grandpa"
-                ) && e.position.length() < radius
+                ) && bus_settings.within(e.path[0], start)
             });
             for (i, e) in world.entities.iter_mut().enumerate() {
+                e.active = bus_settings.enabled(&e.shape, e.path[0]);
                 if e.shape.starts_with("coin") {
                     e.active = mode == 0 && coins.contains(&i)
                 }
@@ -333,23 +366,27 @@ impl World {
                     e.active = mode == 0 && timers.contains(&i)
                 }
                 if e.shape.starts_with("roadblock") {
-                    let level = e.shape.chars().last().and_then(|c| c.to_digit(10));
-                    if let Some(level) = level {
-                        e.active = mode == 0 && level == difficulty as u32
-                    }
-                    e.model = if e.rotation.abs() == 90. {
+                    e.model = if e.rotation == 90. {
                         "roadblock90".into()
                     } else {
                         "roadblock".into()
                     };
+                    // roadblock90 already contains the rotated geometry.
+                    e.rotation = 0.;
                 }
                 if e.shape == "target" {
-                    e.active = mode != 0
+                    e.scale *= bus_settings.target_scale();
                 }
                 if e.shape == "jelly" {
                     e.model = "bulldozer".into();
+                    if let Some(hit) = world
+                        .collision
+                        .segment_static(e.path[0], e.path[0] - Vec3::Z * 2000.)
+                    {
+                        e.position.z = hit.pos.z;
+                    }
                     e.position.z += e.scale * 0.8;
-                    e.active = Some(i) == dozer && (mode == 0 || mode == 2 && difficulty >= 2);
+                    e.active = Some(i) == dozer && bus_settings.dozer();
                     e.speed = [0., 15., 20., 30.][difficulty as usize];
                 }
                 if matches!(
@@ -368,6 +405,9 @@ impl World {
                     e.active = false
                 }
             }
+            world
+                .targets
+                .retain(|i| bus_settings.within(world.entities[*i].path[0], start));
         } else {
             shuffled(&mut racers, &mut rng);
             racers.truncate(if mode == 2 { 0 } else { 5 });
@@ -458,18 +498,35 @@ impl World {
                         vertical_speed: 0.,
                         surface: String::new(),
                         solid: false,
+                        actor: Default::default(),
+                        pursuit: Default::default(),
+                        dozer_contact: false,
                     });
                 }
             }
         }
         for e in &mut world.entities {
+            if is_bus && crate::bus_actor::person(&e.model) {
+                e.path_index = 0;
+                e.actor.pose(if e.path.len() > 1 {
+                    crate::bus_actor::Pose::Walk
+                } else {
+                    crate::bus_actor::Pose::Wave
+                });
+            }
             e.previous = e.position;
-            e.base = e.position;
+            e.base = if is_bus && e.shape == "jelly" {
+                e.position - Vec3::Z * e.scale * 0.8
+            } else if is_bus && crate::bus_actor::person(&e.model) {
+                e.path[0]
+            } else {
+                e.position
+            };
         }
         // Static geometry shares one spatial index; moving actors are resolved separately.
         for (i, e) in world.entities.iter().enumerate() {
             if e.active
-                && e.solid
+                && (e.solid || is_bus && e.shape == "target")
                 && let Some(m) = a.model(&e.model)
             {
                 world
@@ -478,31 +535,105 @@ impl World {
                 if is_bus
                     && !e.shape.starts_with("ramp")
                     && !e.shape.starts_with("roadblock")
-                    && !matches!(e.shape.as_str(), "rubble" | "jelly" | "bulldozer")
+                    && !matches!(
+                        e.shape.as_str(),
+                        "rubble" | "jelly" | "bulldozer" | "target"
+                    )
                 {
                     world.collision.mark_breakable(i);
                 }
             }
         }
-        if let Some(floor) = world.collision.ground(Vec3::ZERO, 2000., 4000.) {
+        if let Some(floor) = world.collision.ground(world.start, 2000., 2000.) {
             world.start.z = floor.pos.z + if is_bus { 100. } else { 150. };
         }
+        world.sync_bus_colliders(a);
         Ok(world)
     }
-    pub fn tick_transitions(&mut self, dt: f32) {
-        for e in &mut self.transitions {
-            e.previous = e.position;
-            if let Some(target) = e.path.get(e.path_index) {
-                let delta = *target - e.position;
-                e.rotation = delta.x.atan2(-delta.y).to_degrees();
-                let distance = e.speed * 30. * dt;
-                if delta.length() <= distance {
-                    e.position = *target;
-                    e.path_index += 1;
-                } else {
-                    e.position += delta.normalize_or_zero() * distance;
-                }
+    pub fn sync_bus_colliders(&mut self, assets: &Assets) {
+        if self.kind != Kind::Bus {
+            return;
+        }
+        self.collision.clear_moving();
+        for (i, e) in self.entities.iter().enumerate() {
+            if e.active
+                && e.crash_ticks == 0
+                && e.shape == "jelly"
+                && let Some(m) = assets.model(&e.model)
+            {
+                self.collision
+                    .add_moving(m, transform(e.position, e.rotation, e.scale), i);
             }
+        }
+    }
+    /// gGameControl.checkCollision: FindNearestObject(hero, 0, 0, gGroupGood).
+    /// Scenery and the dozer's proxy participate even when collect() is a no-op.
+    pub fn nearest_bus_good(&self, position: Vec3) -> Option<usize> {
+        self.entities
+            .iter()
+            .enumerate()
+            .filter(|(_, e)| {
+                e.active
+                    && e.crash_ticks == 0
+                    && !e.shape.starts_with("coin")
+                    && e.shape != "path"
+                    && !crate::bus_actor::person(&e.shape)
+                    && e.shape != "bulldozer"
+            })
+            .min_by(|(_, a), (_, b)| {
+                a.position
+                    .distance_squared(position)
+                    .total_cmp(&b.position.distance_squared(position))
+            })
+            .filter(|(_, e)| e.position.distance_squared(position) < 400. * 400.)
+            .map(|(i, _)| i)
+    }
+    pub fn tick_bus_dozer(&mut self, bus: &crate::physics::Vehicle) {
+        if self.kind != Kind::Bus {
+            return;
+        }
+        let settings = crate::bus_rules::Settings::new(self.mode, self.difficulty).unwrap();
+        let spawns: Vec<_> = self
+            .entities
+            .iter()
+            .filter(|e| e.shape == "jelly" && settings.within(e.path[0], self.start.with_z(0.)))
+            .map(|e| e.path[0])
+            .collect();
+        for e in &mut self.entities {
+            if e.active && e.shape == "jelly" {
+                crate::bus_dozer::tick(e, &self.collision, &spawns, bus, self.difficulty);
+            }
+        }
+    }
+    pub fn tick_bus_walkers(&mut self, bus: &crate::physics::Vehicle, driver: &str, rng: &mut u64) {
+        if self.kind != Kind::Bus {
+            return;
+        }
+        let mut occupied = vec![driver.to_owned()];
+        if let Some(passenger) = &self.passenger {
+            occupied.push(passenger.model.clone());
+        }
+        for e in &mut self.entities {
+            if crate::bus_actor::person(&e.model) && e.active {
+                crate::bus_actor::tick(
+                    e,
+                    &self.person_paths,
+                    bus.pos,
+                    bus.travel_yaw,
+                    bus.speed,
+                    &occupied,
+                    rng,
+                );
+            }
+        }
+    }
+    pub fn tick_bus_passengers(&mut self, bus: &crate::physics::Vehicle, rng: &mut u64) {
+        let occupied = Vec::new();
+        if let Some(e) = &mut self.passenger {
+            crate::bus_actor::tick(e, &[], bus.pos, bus.travel_yaw, bus.speed, &occupied, rng);
+        }
+        for e in &mut self.transitions {
+            crate::bus_actor::tick(e, &[], bus.pos, bus.travel_yaw, bus.speed, &occupied, rng);
         }
     }
     pub fn burst(&mut self, position: Vec3) {
@@ -561,7 +692,9 @@ impl World {
                     || e.shape.contains("sign");
                 if !planted {
                     e.position += e.flying;
-                    e.flying.z -= 4.;
+                    if self.kind != Kind::Bus {
+                        e.flying.z -= 4.;
+                    }
                 }
                 e.tilt += if planted { 10. } else { -30. };
                 if e.crash_ticks == 0 {
@@ -570,6 +703,9 @@ impl World {
                 continue;
             }
             if e.shape == "jelly" {
+                if self.kind == Kind::Bus {
+                    continue;
+                }
                 let territory = [0., 4000., 5000., 7000.][self.difficulty as usize];
                 if e.base.truncate().distance(hero.truncate()) > territory
                     && e.position.truncate().distance(hero.truncate()) > 5000.
@@ -591,13 +727,20 @@ impl World {
                 };
                 let direction = (target - e.position).with_z(0.).normalize_or_zero();
                 let candidate = e.position + direction * e.speed;
-                if self.collision.segment(e.position, candidate).is_none() {
+                if self
+                    .collision
+                    .segment_static(e.position, candidate)
+                    .is_none()
+                {
                     e.position = candidate
                 }
                 if let Some(h) = self.collision.ground(e.position, 200., 2000.) {
                     e.position.z = h.pos.z + e.scale * 0.8
                 }
                 e.rotation = direction.x.atan2(-direction.y).to_degrees();
+                continue;
+            }
+            if self.kind == Kind::Bus && crate::bus_actor::person(&e.model) {
                 continue;
             }
             if matches!(

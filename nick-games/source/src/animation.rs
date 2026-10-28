@@ -1,4 +1,4 @@
-//! Groove subobject position, scale and compressed Euler keyframes.
+//! Groove subobject position, scale and compressed yaw/pitch/roll keyframes.
 use macroquad::prelude::*;
 #[derive(Clone, Debug, Default)]
 pub struct Animation {
@@ -77,7 +77,13 @@ impl Animation {
                             / 65536.;
                         p += 2
                     }
-                    keys.push((frame, Quat::from_euler(EulerRot::XYZ, e[0], e[1], e[2])))
+                    // Groove angles are horizontal yaw, pitch, roll: world Z/X/Y.
+                    keys.push((
+                        frame,
+                        Quat::from_rotation_z(e[0])
+                            * Quat::from_rotation_x(e[1])
+                            * Quat::from_rotation_y(e[2]),
+                    ))
                 }
                 a.rotations.push(keys)
             }
@@ -105,16 +111,12 @@ impl Animation {
         for i in 0..n {
             self.matrix(i, frame, &mut result, &mut visiting);
         }
-        // Skeletal exports retain their Y-up hierarchy, while Groove's world is Z-up.
-        // Static subobjects (all parents -1) are already authored in world axes.
-        let basis = if self.parents.iter().any(|p| *p >= 0) {
-            Mat4::from_rotation_x(std::f32::consts::FRAC_PI_2)
-        } else {
-            Mat4::IDENTITY
-        };
+        // FDot vertices and soPF bone translations share Groove's Z-up axes.
+        // In particular Arnold's head offset is +Z and his legs extend -Z.
+        // An additional Y-up basis rotates the seated character into the bus.
         result
             .into_iter()
-            .map(|m| basis * m.unwrap_or(Mat4::IDENTITY))
+            .map(|m| m.unwrap_or(Mat4::IDENTITY))
             .collect()
     }
     fn matrix(
@@ -193,6 +195,23 @@ fn sample_quat(keys: &[(f32, Quat)], frame: f32) -> Quat {
 mod tests {
     use super::*;
     #[test]
+    fn compressed_groove_pitch_rotates_about_world_x_without_an_extra_basis() {
+        let parents = (-1_i32).to_be_bytes();
+        let mut rotations = vec![0; 4];
+        rotations.extend(1_u32.to_be_bytes());
+        rotations.extend(0_f32.to_be_bytes());
+        for angle in [0_i16, -16384, 0] {
+            rotations.extend(angle.to_be_bytes());
+        }
+        let chunks = std::collections::HashMap::from([
+            (*b"soHi", parents.as_slice()),
+            (*b"soRF", rotations.as_slice()),
+        ]);
+        let animation = Animation::parse(&chunks).unwrap();
+        let forward_leg = animation.matrices(0.)[0].transform_vector3(-Vec3::Z);
+        assert!(forward_leg.distance(-Vec3::Y) < 1e-5);
+    }
+    #[test]
     fn child_keyframes_inherit_parent_motion() {
         let a = Animation {
             parents: vec![-1, 0],
@@ -203,6 +222,6 @@ mod tests {
             ..Default::default()
         };
         let p = a.matrices(5.)[1].transform_point3(Vec3::ZERO);
-        assert!(p.distance(vec3(5., 0., 2.)) < 1e-5)
+        assert!(p.distance(vec3(5., 2., 0.)) < 1e-5)
     }
 }

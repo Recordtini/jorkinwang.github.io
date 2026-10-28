@@ -25,6 +25,87 @@ fn word(b: &[u8], p: usize) -> Result<u32, String> {
     ))
 }
 impl Model {
+    /// Triangles reference positions in face.indices/uv, preserving their winding.
+    /// City wall cutouts and road outlines include concave polygons: a fan can
+    /// create surfaces outside their boundary and therefore invisible collisions.
+    pub fn triangulate(&self, face: &Face) -> Vec<[usize; 3]> {
+        let count = face.indices.len();
+        if count < 3 {
+            return Vec::new();
+        }
+        let points: Vec<_> = face.indices.iter().map(|&i| self.vertices[i]).collect();
+        let origin = points[0];
+        let normal: Vec3 = (1..count - 1)
+            .map(|i| (points[i] - origin).cross(points[i + 1] - origin))
+            .sum();
+        let project = |p: Vec3| {
+            let p = p - origin;
+            if normal.x.abs() >= normal.y.abs() && normal.x.abs() >= normal.z.abs() {
+                vec2(p.y, p.z)
+            } else if normal.y.abs() >= normal.z.abs() {
+                vec2(p.x, p.z)
+            } else {
+                vec2(p.x, p.y)
+            }
+        };
+        let p: Vec<_> = points.into_iter().map(project).collect();
+        let cross = |a: Vec2, b: Vec2| a.x * b.y - a.y * b.x;
+        let area: f32 = (0..count).map(|i| cross(p[i], p[(i + 1) % count])).sum();
+        let winding = if area >= 0. { 1. } else { -1. };
+        let epsilon = p.iter().map(|p| p.length_squared()).fold(1., f32::max) * 1e-7;
+        let turn = |a: usize, b: usize, c: usize| cross(p[b] - p[a], p[c] - p[b]) * winding;
+        if (0..count).all(|i| turn(i, (i + 1) % count, (i + 2) % count) >= -epsilon) {
+            return (1..count - 1).map(|i| [0, i, i + 1]).collect();
+        }
+        let mut boundary: Vec<_> = (0..count).collect();
+        let mut result = Vec::with_capacity(count - 2);
+        while boundary.len() > 3 {
+            let n = boundary.len();
+            let ear = (0..n).find(|&i| {
+                let a = boundary[(i + n - 1) % n];
+                let b = boundary[i];
+                let c = boundary[(i + 1) % n];
+                if turn(a, b, c) <= epsilon {
+                    return false;
+                }
+                !boundary
+                    .iter()
+                    .copied()
+                    .filter(|&j| j != a && j != b && j != c)
+                    .any(|j| {
+                        cross(p[b] - p[a], p[j] - p[a]) * winding >= -epsilon
+                            && cross(p[c] - p[b], p[j] - p[b]) * winding >= -epsilon
+                            && cross(p[a] - p[c], p[j] - p[c]) * winding >= -epsilon
+                    })
+            });
+            if let Some(i) = ear {
+                result.push([
+                    boundary[(i + n - 1) % n],
+                    boundary[i],
+                    boundary[(i + 1) % n],
+                ]);
+                boundary.remove(i);
+            } else if let Some(i) = (0..n).find(|&i| {
+                turn(
+                    boundary[(i + n - 1) % n],
+                    boundary[i],
+                    boundary[(i + 1) % n],
+                )
+                .abs()
+                    <= epsilon
+            }) {
+                // Redundant collinear vertices occur in the original city models.
+                boundary.remove(i);
+            } else {
+                // Malformed/self-intersecting boundaries must not create phantom walls.
+                return Vec::new();
+            }
+        }
+        if boundary.len() == 3 {
+            result.push([boundary[0], boundary[1], boundary[2]]);
+        }
+        result
+    }
     pub fn parse(b: &[u8]) -> Result<Self, String> {
         if b.get(..4) != Some(b"3DGM") {
             return Err("Invalid 3DGM signature".into());

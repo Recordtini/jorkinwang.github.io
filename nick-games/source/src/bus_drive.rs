@@ -25,6 +25,8 @@ fn forward(v: &Vehicle) -> Vec3 {
 }
 fn angles(v: &mut Vehicle, hit: &Hit) {
     v.surface = hit.texture.clone();
+    v.ground_object = Some(hit.object);
+    v.ground_contact_speed = v.speed;
     let f = forward(v);
     let n = hit.normal;
     if n.z.abs() > 1e-6 {
@@ -61,9 +63,12 @@ fn launch(v: &mut Vehicle, next: &mut Vec3, world: &CollisionWorld, old_pitch: f
     v.jump_initial_speed = (v.speed * v.params.scale * old_pitch.to_radians().sin()).abs();
     next.z = v.previous.z + v.jump_initial_speed * v.params.dt + v.height;
     v.jump_start = next.z;
+    // changeAction("jump") raises pLastPos before the collision probes run.
+    v.previous.z = next.z;
     v.jumping = true;
     v.grounded = false;
     v.surface = "none".into();
+    v.ground_object = None;
     v.vertical_speed = v.jump_initial_speed;
 }
 fn ideal(v: &mut Vehicle, world: &CollisionWorld, old_pitch: f32, old_roll: f32) -> Vec3 {
@@ -110,6 +115,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
     v.crash = false;
     v.crash_object = None;
     v.turbo = (v.turbo - 1).max(0);
+    v.invincible = (v.invincible - 1).max(0);
     v.stop_ticks -= 1;
     let max = v.params.throttle * if v.turbo > 0 { 2. } else { 1. };
     let mut throttle = 0.;
@@ -124,7 +130,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
     } else {
         0.
     };
-    if v.stop_ticks <= 0 {
+    if v.stop_ticks <= 0 && !v.ending {
         if !v.jumping && input.throttle > 0.3 {
             if v.reverse {
                 brake = max * input.throttle;
@@ -133,7 +139,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
             }
             if v.speed < 10. && v.reverse {
                 if v.speed != 0. {
-                    v.stop_ticks = 15;
+                    v.stop_ticks = 16;
                 }
                 v.velocity = Vec2::ZERO;
                 v.speed = 0.;
@@ -150,7 +156,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
             }
             if v.speed < 10. && !v.reverse {
                 if v.speed != 0. {
-                    v.stop_ticks = 15;
+                    v.stop_ticks = 16;
                 }
                 v.velocity = Vec2::ZERO;
                 v.speed = 0.;
@@ -160,6 +166,13 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
             }
         }
     }
+    if v.ending {
+        throttle = 0.;
+        brake = v.last_brake; // Source writes pBraking at the end; pBrake retains its last value.
+        steer = 0.5;
+    } else {
+        v.last_brake = brake;
+    }
     if v.speed < 10. {
         v.angular_velocity = 0.;
         if v.acceleration.x <= 0.5 {
@@ -167,6 +180,10 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
             v.velocity = Vec2::ZERO;
             v.speed = 0.;
         }
+    }
+    if v.ending && v.speed < 30. {
+        v.speed = 0.;
+        v.velocity = Vec2::ZERO;
     }
     if v.jumping {
         v.jump_time += v.params.dt;
@@ -188,7 +205,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
         } else {
             (local.y / local.x).atan()
         };
-        let grip = if input.slide { 0.1 } else { 1. };
+        let grip = if input.slide && !v.ending { 0.1 } else { 1. };
         let weight = p.mass * 9.8 * 0.5;
         let front = p.front * (v.side_slip + rotation - steer) * weight * grip;
         let rear = p.rear * (v.side_slip - rotation) * weight * grip;
@@ -211,8 +228,13 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
         local += p.dt * v.acceleration;
         v.velocity = vec2(cs * local.x - sn * local.y, sn * local.x + cs * local.y);
         v.speed = local.length();
-        let torque = p.wheelbase * 0.5 * (front - rear);
-        let limit = (v.speed / 20.).round().abs() * (4 - v.difficulty) as f32;
+        let torque = p.wheelbase * (p.weight_ratio * front - (1. - p.weight_ratio) * rear);
+        let limit = (v.speed / 20.).round().abs()
+            * if v.ending {
+                1.
+            } else {
+                (4 - v.difficulty) as f32
+            };
         v.angular_velocity += p.dt * (torque / p.inertia).clamp(-limit, limit);
     }
     let mut next = ideal(v, world, old_pitch, old_roll);
@@ -226,6 +248,7 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
     };
     let collision_yaw = v.previous_yaw + v.angular_velocity * v.params.dt.to_degrees();
     let collision_center = next + nominal_direction * 100. * if v.reverse { 1. } else { -1. };
+    let mut contact = None;
     for corner in [
         vec3(0., -150., 0.),
         vec3(-80., -150., 0.),
@@ -236,13 +259,13 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
         let radial = rotate(corner, v.previous_yaw, old_pitch, old_roll);
         let from = v.previous + radial;
         let to = collision_center + rotate(corner, collision_yaw, v.pitch, v.roll);
-        let Some(hit) = world.segment(from, to) else {
-            continue;
-        };
-        let normal = hit.normal.truncate();
-        if normal.length_squared() < 1e-8 {
-            continue;
+        if let Some(hit) = world.segment(from, to) {
+            contact = Some((hit, radial));
+            break;
         }
+    }
+    if let Some((hit, radial)) = contact {
+        let normal = hit.normal.truncate();
         v.crash = v.speed > 10.;
         v.crash_object = Some(hit.object);
         v.crash_velocity = v.velocity;
@@ -272,9 +295,11 @@ pub fn tick(v: &mut Vehicle, input: Input, world: &CollisionWorld) {
                 }
             }
         }
-        break;
     }
     v.turbo = (v.turbo - 1).max(0);
+    if v.ending && v.speed < 10. {
+        next = v.previous;
+    }
     v.pos = next;
     v.speed = v.velocity.length();
     v.yaw = v.yaw.rem_euclid(360.);

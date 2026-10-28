@@ -16,3 +16,12 @@ pub mod rules;
 pub mod bus_drive;
 
 pub mod bus_camera;
+
+pub mod bus_ui;
+pub mod scores;
+
+pub mod bus_actor;
+pub mod bus_dozer;
+pub mod bus_hud;
+pub mod bus_mission;
+pub mod bus_rules;

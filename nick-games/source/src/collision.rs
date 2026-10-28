@@ -20,6 +20,7 @@ pub struct Hit {
 }
 pub struct CollisionWorld {
     pub triangles: Vec<Triangle>,
+    moving: Vec<Triangle>,
     cells: HashMap<(i32, i32), Vec<usize>>,
     cell: f32,
     disabled: HashSet<usize>,
@@ -34,43 +35,59 @@ impl CollisionWorld {
     pub fn new(cell: f32) -> Self {
         Self {
             triangles: vec![],
+            moving: Vec::new(),
             cells: HashMap::new(),
             cell,
             disabled: HashSet::new(),
             breakable: HashSet::new(),
         }
     }
-    pub fn add(&mut self, model: &Model, m: Mat4, object: usize) {
-        for f in &model.faces {
-            if f.texture.starts_with("empty") || f.texture.starts_with("shadow") {
+    fn model_triangles(model: &Model, matrix: Mat4, object: usize) -> Vec<Triangle> {
+        let bones = model.animation.matrices(0.);
+        let mut triangles = Vec::new();
+        for face in &model.faces {
+            if face.texture.starts_with("empty") || face.texture.starts_with("shadow") {
                 continue;
             }
-            for i in 1..f.indices.len() - 1 {
-                let a = m.transform_point3(model.vertices[f.indices[0]]);
-                let b = m.transform_point3(model.vertices[f.indices[i]]);
-                let c = m.transform_point3(model.vertices[f.indices[i + 1]]);
+            let m = matrix * bones.get(face.group).copied().unwrap_or(Mat4::IDENTITY);
+            for [ia, ib, ic] in model.triangulate(face) {
+                let a = m.transform_point3(model.vertices[face.indices[ia]]);
+                let b = m.transform_point3(model.vertices[face.indices[ib]]);
+                let c = m.transform_point3(model.vertices[face.indices[ic]]);
                 let normal = (b - a).cross(c - a).normalize_or_zero();
                 if normal.length_squared() < 0.1 {
                     continue;
                 }
-                let index = self.triangles.len();
-                let low = a.min(b).min(c) / self.cell;
-                let high = a.max(b).max(c) / self.cell;
-                for x in low.x.floor() as i32..=high.x.floor() as i32 {
-                    for y in low.y.floor() as i32..=high.y.floor() as i32 {
-                        self.cells.entry((x, y)).or_default().push(index)
-                    }
-                }
-                self.triangles.push(Triangle {
+                triangles.push(Triangle {
                     a,
                     b,
                     c,
                     normal,
-                    texture: f.texture.clone(),
+                    texture: face.texture.clone(),
                     object,
                 });
             }
         }
+        triangles
+    }
+    pub fn add(&mut self, model: &Model, m: Mat4, object: usize) {
+        for triangle in Self::model_triangles(model, m, object) {
+            let index = self.triangles.len();
+            let low = triangle.a.min(triangle.b).min(triangle.c) / self.cell;
+            let high = triangle.a.max(triangle.b).max(triangle.c) / self.cell;
+            for x in low.x.floor() as i32..=high.x.floor() as i32 {
+                for y in low.y.floor() as i32..=high.y.floor() as i32 {
+                    self.cells.entry((x, y)).or_default().push(index);
+                }
+            }
+            self.triangles.push(triangle);
+        }
+    }
+    pub fn clear_moving(&mut self) {
+        self.moving.clear();
+    }
+    pub fn add_moving(&mut self, model: &Model, m: Mat4, object: usize) {
+        self.moving.extend(Self::model_triangles(model, m, object));
     }
     pub fn mark_breakable(&mut self, object: usize) {
         self.breakable.insert(object);
@@ -82,82 +99,165 @@ impl CollisionWorld {
         self.disabled.insert(object);
     }
     pub fn segment(&self, from: Vec3, to: Vec3) -> Option<Hit> {
-        self.segment_where(from, to, |_| true)
+        self.segment_where(from, to, |_| true, true)
+    }
+    pub fn segment_static(&self, from: Vec3, to: Vec3) -> Option<Hit> {
+        self.segment_where(from, to, |_| true, false)
     }
     pub fn walls(&self, from: Vec3, to: Vec3) -> Option<Hit> {
-        self.segment_where(from, to, |t| {
-            t.normal.z.abs() <= 0.65 && t.texture != "finish" && t.texture != "ramp"
-        })
+        self.segment_where(
+            from,
+            to,
+            |t| t.normal.z.abs() <= 0.65 && t.texture != "finish" && t.texture != "ramp",
+            true,
+        )
+    }
+    fn candidates(&self, from: Vec3, to: Vec3, margin: f32, moving: bool) -> Vec<&Triangle> {
+        let low = (from.min(to) - Vec3::splat(margin)) / self.cell;
+        let high = (from.max(to) + Vec3::splat(margin)) / self.cell;
+        let mut seen = HashSet::new();
+        let mut result = Vec::new();
+        for x in low.x.floor() as i32..=high.x.floor() as i32 {
+            for y in low.y.floor() as i32..=high.y.floor() as i32 {
+                if let Some(list) = self.cells.get(&(x, y)) {
+                    for &i in list {
+                        if seen.insert(i) {
+                            result.push(&self.triangles[i]);
+                        }
+                    }
+                }
+            }
+        }
+        if moving {
+            result.extend(self.moving.iter());
+        }
+        result
     }
     fn segment_where(
         &self,
         from: Vec3,
         to: Vec3,
         accept: impl Fn(&Triangle) -> bool,
+        moving: bool,
     ) -> Option<Hit> {
         let dir = to - from;
-        let min = from.min(to) / self.cell;
-        let max = from.max(to) / self.cell;
         let mut best = 1.00001;
         let mut found = None;
-        for x in min.x.floor() as i32..=max.x.floor() as i32 {
-            for y in min.y.floor() as i32..=max.y.floor() as i32 {
-                if let Some(list) = self.cells.get(&(x, y)) {
-                    for &i in list {
-                        let t = &self.triangles[i];
-                        if self.disabled.contains(&t.object) || !accept(t) {
-                            continue;
-                        }
-                        let e1 = t.b - t.a;
-                        let e2 = t.c - t.a;
-                        let p = dir.cross(e2);
-                        let det = e1.dot(p);
-                        if det.abs() < 1e-7 {
-                            continue;
-                        }
-                        let inv = 1. / det;
-                        let s = from - t.a;
-                        let u = s.dot(p) * inv;
-                        if !(-1e-5..=1.00001).contains(&u) {
-                            continue;
-                        }
-                        let q = s.cross(e1);
-                        let v = dir.dot(q) * inv;
-                        if v < -1e-5 || u + v > 1.00001 {
-                            continue;
-                        }
-                        let f = e2.dot(q) * inv;
-                        if (0.00001..=1.).contains(&f) && f < best {
-                            best = f;
-                            let mut normal = t.normal;
-                            if normal.dot(dir) > 0. {
-                                normal = -normal
-                            }
-                            found = Some(Hit {
-                                pos: from + dir * f,
-                                normal,
-                                texture: t.texture.clone(),
-                                object: t.object,
-                                fraction: f,
-                            });
-                        }
-                    }
+        for t in self.candidates(from, to, 0., moving) {
+            if self.disabled.contains(&t.object) || !accept(t) {
+                continue;
+            }
+            let e1 = t.b - t.a;
+            let e2 = t.c - t.a;
+            let p = dir.cross(e2);
+            let det = e1.dot(p);
+            if det.abs() < 1e-7 {
+                continue;
+            }
+            let inv = 1. / det;
+            let s = from - t.a;
+            let u = s.dot(p) * inv;
+            if !(-1e-5..=1.00001).contains(&u) {
+                continue;
+            }
+            let q = s.cross(e1);
+            let v = dir.dot(q) * inv;
+            if v < -1e-5 || u + v > 1.00001 {
+                continue;
+            }
+            let f = e2.dot(q) * inv;
+            if (0.00001..=1.).contains(&f) && f < best {
+                best = f;
+                let mut normal = t.normal;
+                if normal.dot(dir) > 0. {
+                    normal = -normal;
                 }
+                found = Some(Hit {
+                    pos: from + dir * f,
+                    normal,
+                    texture: t.texture.clone(),
+                    object: t.object,
+                    fraction: f,
+                });
             }
         }
         found
     }
     pub fn ground(&self, p: Vec3, up: f32, down: f32) -> Option<Hit> {
-        self.segment_where(p + Vec3::Z * up, p - Vec3::Z * down, |t| {
-            t.normal.z.abs() > 0.1
-        })
+        self.segment_where(
+            p + Vec3::Z * up,
+            p - Vec3::Z * down,
+            |t| t.normal.z.abs() > 0.1,
+            false,
+        )
     }
 }
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn post() -> Model {
+        Model {
+            vertices: vec![
+                vec3(35., -300., 0.),
+                vec3(45., -300., 0.),
+                vec3(45., -300., 200.),
+                vec3(35., -300., 200.),
+            ],
+            faces: vec![crate::model::Face {
+                indices: vec![0, 1, 2, 3],
+                uv: vec![Vec2::ZERO; 4],
+                texture: "wall".into(),
+                group: 0,
+            }],
+            min: vec3(35., -300., 0.),
+            max: vec3(45., -300., 200.),
+            animation: Default::default(),
+        }
+    }
     #[test]
-    fn swept_collision_and_floor_do_not_depend_on_triangle_winding() {
+    fn moving_collision_follows_the_current_visible_object() {
+        let mut world = CollisionWorld::new(500.);
+        world.add_moving(&post(), Mat4::IDENTITY, 7);
+        assert!(
+            world
+                .segment(vec3(40., 0., 100.), vec3(40., -500., 100.))
+                .is_some()
+        );
+        world.clear_moving();
+        world.add_moving(&post(), Mat4::from_translation(vec3(500., 0., 0.)), 7);
+        assert!(
+            world
+                .segment(vec3(40., 0., 100.), vec3(40., -500., 100.))
+                .is_none()
+        );
+        assert_eq!(
+            world
+                .segment(vec3(540., 0., 100.), vec3(540., -500., 100.))
+                .unwrap()
+                .object,
+            7
+        );
+    }
+    #[test]
+    fn collision_uses_the_same_subobject_transform_as_rendering() {
+        let mut model = post();
+        model.animation.parents = vec![-1];
+        model.animation.positions = vec![vec![(0., vec3(500., 0., 0.))]];
+        let mut world = CollisionWorld::new(500.);
+        world.add(&model, Mat4::IDENTITY, 7);
+        assert!(
+            world
+                .segment(vec3(40., 0., 100.), vec3(40., -500., 100.))
+                .is_none()
+        );
+        assert!(
+            world
+                .segment(vec3(540., 0., 100.), vec3(540., -500., 100.))
+                .is_some()
+        );
+    }
+    #[test]
+    fn segment_collision_and_floor_do_not_depend_on_triangle_winding() {
         let m = Model {
             vertices: vec![vec3(-10., -10., 0.), vec3(10., -10., 0.), vec3(0., 10., 0.)],
             faces: vec![crate::model::Face {

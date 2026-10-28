@@ -46,10 +46,10 @@ fn compile(model: &Model, a: &Assets) -> Batches {
                 indices: vec![],
                 texture: a.texture(&face.texture).cloned(),
             });
-        for i in 1..face.indices.len() - 1 {
-            let tri = [0, i, i + 1];
-            let normal = (model.vertices[face.indices[i]] - model.vertices[face.indices[0]])
-                .cross(model.vertices[face.indices[i + 1]] - model.vertices[face.indices[0]])
+        for tri in model.triangulate(face) {
+            let normal = (model.vertices[face.indices[tri[1]]]
+                - model.vertices[face.indices[tri[0]]])
+                .cross(model.vertices[face.indices[tri[2]]] - model.vertices[face.indices[tri[0]]])
                 .normalize_or_zero();
             let shade = 0.78 + 0.22 * normal.z.abs();
             let color = Color::new(shade, shade, shade, 1.);
@@ -226,6 +226,30 @@ impl Renderer {
         self.camera_position = v.pos - v.forward() * dist + Vec3::Z * dist * 0.45;
         self.camera_target = v.pos;
     }
+    pub fn dropoff_camera(&mut self, v: &Vehicle) {
+        let angle = (v.yaw + 150.).to_radians();
+        let mut rig = crate::bus_camera::BusCamera::reset(v, self.camera_mode);
+        rig.position = v.pos - vec3(angle.sin(), -angle.cos(), 0.) * 600.;
+        rig.previous = rig.position;
+        rig.target = v.pos;
+        rig.previous_target = v.pos;
+        self.camera_position = rig.position;
+        self.camera_target = v.pos;
+        self.bus_camera = Some(rig);
+    }
+    pub fn tick_bus_end_camera(&mut self, v: &Vehicle) {
+        if let Some(rig) = &mut self.bus_camera {
+            rig.tick_end(v);
+        }
+    }
+    pub fn recovery_camera(&mut self, v: &Vehicle) {
+        let mut ground_pose = v.clone();
+        ground_pose.pos.z -= 1000. - v.height;
+        self.reset_camera(&ground_pose);
+        if let Some(rig) = &mut self.bus_camera {
+            rig.recovery_locked = true;
+        }
+    }
     pub fn tick_bus_camera(&mut self, w: &World, v: &Vehicle) {
         if v.kind == Kind::Bus {
             if self.bus_camera.is_none() {
@@ -271,6 +295,12 @@ impl Renderer {
                 position + vec3(0., 0., distance * 3.),
                 position + Vec3::new(0., -1., 0.),
             )
+        } else if menu && v.kind == Kind::Bus {
+            let angle = (yaw + 150.).to_radians();
+            (
+                position - vec3(angle.sin(), -angle.cos(), 0.) * 600.,
+                position,
+            )
         } else if menu {
             let a = clock * 0.08;
             (
@@ -310,7 +340,9 @@ impl Renderer {
                 };
             }
         } else {
-            let lerp = if self.smooth {
+            let lerp = if v.kind == Kind::Bus && menu {
+                1.
+            } else if self.smooth {
                 1. - (-get_frame_time().min(0.1) * 8.).exp()
             } else {
                 1.
@@ -466,6 +498,9 @@ impl Renderer {
         }
         gl_use_material(&self.material);
         for (entity_index, e) in w.entities.iter().enumerate() {
+            if menu && v.kind == Kind::Bus && !e.sprite.is_empty() {
+                continue;
+            }
             if e.shape == "target" && w.selected_target != Some(entity_index) {
                 continue;
             }
@@ -480,13 +515,12 @@ impl Renderer {
                 rotation += clock * 60.
             }
             if !e.model.is_empty() {
-                let frame = match e.model.as_str() {
-                    "arnold" | "gerald" | "helga" => {
-                        48. + (clock * 30.).rem_euclid(if e.model == "helga" { 17. } else { 13. })
-                    }
-                    "grandpa" => 48. + (clock * 30.).rem_euclid(15.),
-                    "nickfopbaddie" => 1. + (clock * 20.).rem_euclid(40.),
-                    _ => 0.,
+                let frame = if crate::bus_actor::person(&e.model) {
+                    e.actor.frame(&e.model)
+                } else if e.model == "nickfopbaddie" {
+                    1. + (clock * 20.).rem_euclid(40.)
+                } else {
+                    0.
                 };
                 self.draw_model(
                     a,
@@ -499,7 +533,7 @@ impl Renderer {
                 && let Some(t) = a.texture(&e.sprite)
             {
                 let p = e.position
-                    + Vec3::Z * (clock * 3.).sin() * if v.kind == Kind::Bus { 20. } else { 100. };
+                    + Vec3::Z * (clock * 3.).sin() * if v.kind == Kind::Bus { 0. } else { 100. };
                 let size = if v.kind == Kind::Bus { e.scale } else { 1000. };
                 let right = (self.camera_target - self.camera_position)
                     .cross(Vec3::Z)
@@ -520,24 +554,17 @@ impl Renderer {
                 draw_mesh(&mesh);
             }
         }
-        for e in &w.transitions {
+        for e in w
+            .transitions
+            .iter()
+            .chain(w.passenger.iter())
+            .filter(|e| e.active)
+        {
             self.draw_model(
                 a,
                 &e.model,
-                transform(e.position, e.rotation, e.scale),
-                if e.path_index < e.path.len() {
-                    48. + (clock * 30.).rem_euclid(13.)
-                } else {
-                    26. + (clock * 30.).rem_euclid(18.)
-                },
-            );
-        }
-        if let Some(e) = &w.passenger {
-            self.draw_model(
-                a,
-                &e.model,
-                transform(e.position, e.rotation, e.scale),
-                26. + (clock * 30.).rem_euclid(18.),
+                transform(e.previous.lerp(e.position, alpha), e.rotation, e.scale),
+                e.actor.frame(&e.model),
             );
         }
         let name = if v.kind == Kind::Bus {
@@ -571,7 +598,9 @@ impl Renderer {
             )
         }
         if v.kind == Kind::Bus && self.camera_mode != 2 {
-            let angle = yaw.to_radians();
+            let body = Mat4::from_rotation_z(yaw.rem_euclid(360.).round().to_radians())
+                * Mat4::from_rotation_x(v.pitch.rem_euclid(360.).round().to_radians())
+                * Mat4::from_rotation_y(v.roll.rem_euclid(360.).round().to_radians());
             let local = vec3(
                 35.,
                 -200.,
@@ -583,17 +612,26 @@ impl Renderer {
                     0.625
                 },
             );
-            let offset = vec3(
-                local.x * angle.cos() - local.y * angle.sin(),
-                local.x * angle.sin() + local.y * angle.cos(),
-                local.z,
-            );
+            let offset = body.transform_vector3(local);
             self.draw_model(
                 a,
                 &self.driver,
-                transform(position + offset, yaw, 50.),
+                Mat4::from_translation(position + offset)
+                    * body
+                    * Mat4::from_scale(Vec3::splat(0.5)),
                 if self.driver == "grandpa" { 67. } else { 2. },
             );
+        }
+        if v.kind == Kind::Bus
+            && !menu
+            && let Some(i) = w.selected_target
+            && let Some(target) = w.entities.get(i)
+        {
+            let delta = target.position - v.pos;
+            let yaw = delta.x.atan2(-delta.y).to_degrees();
+            let position =
+                crate::bus_hud::compass_position(self.camera_position, self.camera_target);
+            self.draw_model(a, "arrow", transform(position, yaw, 50.), 0.);
         }
         gl_use_default_material();
         set_default_camera();

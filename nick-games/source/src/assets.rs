@@ -52,6 +52,17 @@ pub struct Assets {
     pub sounds: HashMap<String, Sound>,
     pub texts: HashMap<String, String>,
 }
+/// Extract the section 2 text from a Director XMED styled-text member.
+fn xmed_plain_text(bytes: &[u8]) -> Option<String> {
+    let marker = bytes.windows(5).position(|w| w == b"\x030002")?;
+    let section = &bytes[marker + 5..];
+    let start = section.iter().position(|b| *b == 0)? + 1;
+    let field = &section[start..];
+    let comma = field.iter().position(|b| *b == b',')?;
+    let len = usize::from_str_radix(std::str::from_utf8(&field[..comma]).ok()?, 16).ok()?;
+    let text = field.get(comma + 1..comma + 1 + len)?;
+    Some(String::from_utf8_lossy(text).replace('\r', "\n"))
+}
 impl Assets {
     pub async fn load(game: &str) -> Result<Self, String> {
         let pack = Pack::open();
@@ -145,12 +156,19 @@ impl Assets {
                 load_sound_from_bytes(b).await.map_err(|e| e.to_string())?,
             );
         }
+        let mut texts = manifest.texts;
+        if game == "runaway-bus"
+            && let Some(data) = pack.get("runaway-bus/media/instructions3a")
+            && let Some(copy) = xmed_plain_text(data)
+        {
+            texts.insert("instructions3a".into(), copy);
+        }
         macroquad::logging::info!("Assets ready");
         Ok(Self {
             models,
             textures,
             sounds,
-            texts: manifest.texts,
+            texts,
         })
     }
     pub fn model(&self, name: &str) -> Option<&Model> {
@@ -166,5 +184,18 @@ impl Assets {
             .or_else(|| self.textures.get(&format!("{n}.t")))
             .or_else(|| self.textures.get(&format!("{n}.s")))
             .or_else(|| self.textures.get(&format!("{n}.l")))
+    }
+}
+
+#[cfg(test)]
+mod text_tests {
+    #[test]
+    fn cruise_instructions_are_recovered_from_original_styled_member() {
+        let pack = super::Pack::open();
+        let bytes = pack.get("runaway-bus/media/instructions3a").unwrap();
+        let text = super::xmed_plain_text(bytes).unwrap();
+        assert!(text.starts_with("CRUISE MODE\n\n"));
+        assert!(text.contains("The FutureTek Bulldozers are still there"));
+        assert!(text.ends_with("then submit your score."));
     }
 }

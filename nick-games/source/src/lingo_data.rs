@@ -103,10 +103,13 @@ impl Parser<'_> {
                     self.i += 1
                 }
                 let s = std::str::from_utf8(&self.b[start..self.i]).map_err(|e| e.to_string())?;
-                let n = s
-                    .parse::<f64>()
-                    .map_err(|_| format!("Invalid data literal {s} at {start}"))?;
-                Ok(serde_json::json!(n))
+                if let Ok(n) = s.parse::<f64>() {
+                    return Ok(serde_json::json!(n));
+                }
+                if !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_') {
+                    return Ok(Value::String(s.into()));
+                }
+                Err(format!("Invalid data literal {s} at {start}"))
             }
             None => Err("Unexpected end of data".into()),
         }

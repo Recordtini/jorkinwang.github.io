@@ -3,6 +3,8 @@ use crate::{collision::CollisionWorld, physics::Vehicle};
 use macroquad::prelude::*;
 #[derive(Clone, Debug)]
 pub struct BusCamera {
+    pub recovery_locked: bool,
+    pub end_distance: f32,
     pub previous: Vec3,
     pub position: Vec3,
     pub previous_target: Vec3,
@@ -22,15 +24,34 @@ impl BusCamera {
         let a = v.travel_yaw.to_radians();
         let p = v.pos - vec3(a.sin(), -a.cos(), 0.) * d + Vec3::Z * d * 0.2;
         Self {
+            recovery_locked: false,
+            end_distance: d,
             previous: p,
             position: p,
             previous_target: v.pos,
             target: v.pos,
         }
     }
+    pub fn tick_end(&mut self, v: &Vehicle) {
+        self.previous = self.position;
+        self.previous_target = self.target;
+        self.target = v.pos;
+        self.end_distance = (self.end_distance - 5.).max(350.);
+        let a = (v.yaw + 190.).to_radians();
+        let desired = v.pos - vec3(a.sin(), -a.cos(), 0.) * self.end_distance
+            + Vec3::Z * self.end_distance * 0.2;
+        let delta = desired - self.position;
+        self.position += delta.normalize_or_zero() * delta.length().min(20.);
+    }
     pub fn tick(&mut self, v: &Vehicle, world: &CollisionWorld, mode: u8) {
         self.previous = self.position;
         self.previous_target = self.target;
+        if self.recovery_locked {
+            if v.jumping {
+                return;
+            }
+            self.recovery_locked = false;
+        }
         self.target = v.pos;
         if mode == 2 {
             let b = body(v);

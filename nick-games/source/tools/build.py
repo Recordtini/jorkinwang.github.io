@@ -7,7 +7,7 @@ p=argparse.ArgumentParser();p.add_argument('--native',action='store_true');p.add
 cargo=shutil.which('cargo') or str(Path.home()/'.cargo/bin/cargo')
 def run(*cmd): subprocess.run(cmd,cwd=ROOT,check=True)
 run(sys.executable,str(ROOT/'tools/pack_assets.py'))
-run(cargo,'test','--locked','--lib')
+run(cargo,'test','--locked','--lib','--tests')
 run(cargo,'build','--locked','--release','--target','wasm32-unknown-unknown')
 engine=ROOT/'target/wasm32-unknown-unknown/release/nick-rust.wasm';shutil.copy2(engine,ROOT/'web/engine.wasm')
 metadata=json.loads(subprocess.check_output([cargo,'metadata','--locked','--format-version','1'],cwd=ROOT))
@@ -21,6 +21,7 @@ for game in ['runaway-bus','stupor-highway']:
  import re
  text=re.sub(r' data-engine="[^"]*"','',text)
  text=text.replace('<body ',f'<body data-engine="../engine.wasm?build={digest[:12]}" ',1)
+ text=re.sub(r'src="../bridge.js(?:\?[^" ]*)?"',f'src="../bridge.js?build={digest[:12]}"',text)
  page.write_text(text)
 (ROOT/'web/build.json').write_text(json.dumps({'engine_sha256':digest,'crate':'nick-rust','macroquad':quad['version'],'games':['runaway-bus','stupor-highway']},indent=2)+'\n')
 (ROOT/'web/.nojekyll').touch()

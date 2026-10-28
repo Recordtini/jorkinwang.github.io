@@ -40,6 +40,7 @@ miniquad_add_plugin({name:'nick_browser',version:1,register_plugin(imports){
  imports.env.nick_storage_get=key=>{try{return Number(localStorage.getItem('nick-rust.'+key))||0;}catch{return 0;}};
  imports.env.nick_storage_set=(key,value)=>{try{localStorage.setItem('nick-rust.'+key,String(value));}catch{}};
  imports.env.nick_fullscreen=goFullscreen;
+ imports.env.nick_exit_game=()=>{location.href="../";};
  imports.env.nick_selected_game=()=>document.body.dataset.game==='stupor-highway'?1:0;
  imports.env.nick_debug_state=(ptr,len)=>{try{window.nickState=JSON.parse(new TextDecoder().decode(new Uint8Array(wasm_memory.buffer,ptr,len)));document.querySelector('#telemetry').textContent=JSON.stringify(window.nickState);document.querySelector('#loading').hidden=true;}catch{}};
 }});
