@@ -187,7 +187,7 @@ impl Vehicle {
         } else {
             (260. / speed).clamp(2., if hover { 20. } else { 10. })
         };
-        let steer = input.steer * steer_degrees.to_radians() * if self.reverse { -1. } else { 1. };
+        let steer = -input.steer * steer_degrees.to_radians() * if self.reverse { -1. } else { 1. };
         if speed < 10. {
             self.angular_velocity = 0.;
             if self.acceleration.x <= 0.5 && throttle == 0. {
@@ -296,7 +296,7 @@ impl Vehicle {
             next.z += self.vertical_speed * dt - gravity * dt * dt * 0.5;
             self.vertical_speed -= gravity * dt;
             if hover {
-                self.yaw += input.steer;
+                self.yaw -= input.steer;
             }
         }
         let (half_x, half_y) = if hover { (100., 100.) } else { (80., 150.) };
@@ -460,7 +460,7 @@ mod tests {
                 &world,
             );
         }
-        assert!(car.yaw > 0. && car.yaw < 90., "yaw {}", car.yaw);
+        assert!(car.yaw > 270. && car.yaw < 360., "yaw {}", car.yaw);
         for _ in 0..50 {
             car.tick(
                 Input {
