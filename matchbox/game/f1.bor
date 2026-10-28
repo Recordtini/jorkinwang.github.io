@@ -1,0 +1,1190 @@
+# MODEL FLAGS BIT FORMAT:
+# The default model flags are 3 (MODEL_FLAGS_UV_ROUND | MODEL_FLAGS_GOURAUD)
+#MODEL_FLAGS_UV_ROUND = 1,
+# If set, UV coordinate rounding will be used in the texture mapper.
+# (SET by default unless you encounter texturing issues with certain objects.)
+#MODEL_FLAGS_GOURAUD = 2,
+# If set, gouraud (smooth) shading will be enabled for this model.
+#MODEL_FLAGS_DIRECTIONAL_ONLY = 4,
+# If set, only directional (planar) light types will be applied to this model.
+# IMPORTANT:  Always use directional lighing with the city model/partition!
+#MODEL_FLAGS_NO_ALTERNATE_RENDERING = 8,
+# MD2 files: If set, the renderer will not use the subdividing triangle rasterizer
+# when the model is further away (looks better, but is usually slower.)
+#MODEL_FLAGS_FLIP_VNORMALS = 16,
+# MD2 files: If set, the vertex normals included in the file will be flipped.
+# Some models have normals which don't face the right direction.
+#MODEL_FLAGS_USE_ALPHA_BLENDING = 32,
+# If true, alpha blending will be used to draw any faces which
+# use transparent textures (verses alpha testing).
+# All models which use this flag should be drawn in back to front order
+# relative to the camera!
+# MODEL_FLAGS_DO_NOT_BACKFACE_CULL = 64,
+# If set, backface culling will not be used when rendering this object.
+# NOTE: The software rendering driver currently ignores this flag.
+# MODEL_FLAGS_PERSPECTIVE_CORRECT = 128,
+# MESH models: If set, the model will be rasterized using a perspective
+# correct texture mapper. Is slower, use only when needed.
+# MODEL_FLAGS_DRAW_SHADOW = 256,
+# MODEL_FLAGS_DRAW_SHADOW_DYNAMIC = 512,
+
+*GLB GlobalSettings ThisIsDescriptionOnly=1 
+	UpgradeCop = 0 UpgradeFire = 0 UpgradeAmbul = 0
+	AmbientVolumeScale = 0.5 EngineVolumeScale = 0.45 MusicVolumeScale = 1.0
+	PlainVolumeScale = 0.3
+
+# ----------------------------------------------------------------
+#         This is a Matchbox Game Shapes decription file
+# ----------------------------------------------------------------
+*NNN sky	model_flags=4 depth_mode=2
+
+# ----------- Cop car --------------
+*NNN copcar	model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN tire  model_flags=131 LOD=0
+# ----------- Cop car lights --------------
+*NNN lbrk  model_flags=131 TotalTex=2 LOD=0
+*NNN rbrk  model_flags=131 TotalTex=2 LOD=0
+*NNN lback model_flags=131 TotalTex=2 LOD=0
+*NNN rback  model_flags=131 TotalTex=2 LOD=0
+*NNN leftop model_flags=131 TotalTex=2 LOD=0
+*NNN rigtop model_flags=131 TotalTex=2 LOD=0
+*NNN midbrk model_flags=131 TotalTex=2 LOD=0
+
+# ---------- Upgraded cop car ------------
+*NNN m_body	model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN m_fork	model_flags=131 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN m_bwheel  model_flags=131 LOD=0
+*NNN m_fwheel  model_flags=131 LOD=0
+
+*NNN m_loff  model_flags=131 TotalTex=2 LOD=0
+*NNN m_roff  model_flags=131 TotalTex=2 LOD=0
+*NNN m_tailoff  model_flags=131 TotalTex=2 LOD=0
+*NNN m_lsren  model_flags=131 TotalTex=6 LOD=0
+*NNN m_rsren  model_flags=131 TotalTex=6 LOD=0
+
+# this is the icon at all Cop change stations...
+*NNN CopCarArrow model_flags=131 LOD=0
+
+*MS2 CoponBike LOD=0
+	Phases = fly 0 50 0.5 HitObject 40 50 0.5 ToTurbo 50 64 0.5 LeanL 64 74 0.5 LeanR 74 82 0.5 
+			LegDownL 82 92 0.5 LegDownR 92 102 0.5 Ambient1 102 110 0.5 Ambient2 110 120 0.5 
+			NoLimber 120 130 0.5 NoHander 130 139 0.5 PopWheelie 139 154 0.5 Ambient3 154 170 0.5 
+			Ambient4 170 192 0.5 Ambient5 192 214 0.5 Ambient6 214 249 0.5 Ambient7 249 284 0.5
+			Ambient8 284 332 0.5 *
+
+# ----------- Fire truck --------------
+*NNN firetruck_shell model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN firetrucktire model_flags=131 LOD=0
+
+# ----------- Fire truck lights --------------
+*NNN firetruck_left_red  model_flags=131 TotalTex=2 LOD=0
+*NNN firetruck_right_red model_flags=131 TotalTex=2 LOD=0
+*NNN firetruck_left_white model_flags=131 TotalTex=2 LOD=0
+*NNN firetruck_right_white model_flags=131 TotalTex=2 LOD=0
+*NNN firetruck_sirens model_flags=131 TotalTex=2 LOD=0
+
+
+# ----------- Upgraded Fire truck --------------
+*NNN upfire model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN bigtire model_flags=131 LOD=0
+
+# ----------- Upgraded Fire truck lights --------------
+*NNN uplefoff  model_flags=131 TotalTex=2 LOD=0
+*NNN uprtoff model_flags=131 TotalTex=2 LOD=0
+*NNN upwhtoff model_flags=131 TotalTex=2 LOD=0
+*NNN upsiroff model_flags=131 TotalTex=2 LOD=0
+
+# this is the icon at all fire change stations...
+*NNN FireTr model_flags=131 LOD=0
+
+*MS2 firemansit LOD=0
+	Phases = Ambient 0 47 0.5 Bounce 48 59 0.5 StartFlyL 60 120 0.5 AmbFlyL 72 84 0.5 EndFlyL 84 120 0.5
+			StartFlyR 125 185 0.5 AmbFlyR 136 148 0.5 EndFlyR 148 185 0.5 StartFly 186 200 0.5
+			AmbFly 201 216 0.5 EndFly 216 245 0.5 Look 246 312 0.5 Look2 313 347 0.5 Fist 348 402 0.5
+			Wave 403 436 0.5 Yawn 437 505 0.5 *
+
+# ----------- Ambulance --------------
+*NNN mamb_body model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 TotalTex=2 LOD=0
+*NNN mamb_tire model_flags=131 LOD=0
+*NNN mamb_left model_flags=131 TotalTex=2 LOD=0
+*NNN mamb_right model_flags=131 TotalTex=2 LOD=0
+*NNN mamb_white model_flags=131 TotalTex=2 LOD=0
+
+
+# ----------- Ambulance lights --------------
+*NNN amtop  model_flags=131 TotalTex=2 LOD=0
+*NNN amrbac model_flags=131 TotalTex=2 LOD=0
+*NNN amlbac model_flags=131 TotalTex=2 LOD=0
+*NNN amrtrn model_flags=131 TotalTex=2 LOD=0
+*NNN amltrn model_flags=131 TotalTex=2 LOD=0
+
+# ---------- Upgraded ambulance ------------
+*NNN amb_bod	model_flags=899 CollisionType = 8 ObjectClass=5 ObjectType=5 LOD=0
+*NNN amb_rdor model_flags=3 LOD=0
+*NNN amb_ldor model_flags=3 LOD=0
+*NNN ambtire model_flags=131 LOD=0
+
+# ----------- Upgraded Ambulance lights --------------
+*NNN amb_rin1  model_flags=131 TotalTex=2 LOD=0
+*NNN amb_lin1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_rrv1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_lrv1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_lsr1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_rsr1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_lstp1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_rstp1 model_flags=131 TotalTex=2 LOD=0
+*NNN amb_tsr1 model_flags=131 TotalTex=2 LOD=0
+
+# this is the icon at all Ambulance change stations...
+*NNN AmbIcon model_flags=131 LOD=0
+
+*MS2 ambbounceno1 LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambbounceno2 LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambbounceno3 LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambbounceno4 LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambbounceno5 LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambbounceno6 LOD=0
+	Phases = Ambient 0 60 *
+
+*MS2 ambbounceno7 LOD=0
+	Phases = Ambient 0 60 *
+
+*MS2 ambou1b LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambou3w LOD=0
+	Phases = Ambient 0 21 *
+
+*MS2 ambou4m LOD=0
+	Phases = Ambient 0 21 *
+
+#Speedometer used for software mode...
+*NNN Spedometer depth_mode=3 ScaleValue=0.5 LOD=0
+*NNN Needle depth_mode=3 ScaleValue=0.5 LOD=0
+
+# ------------ Helicopter -------------
+*NNN heli	model_flags=131 CollisionType = 8  LOD=0
+*NNN hblade	model_flags=131 CollisionType = 8  LOD=0
+
+# ------------ Blimp -------------
+*NNN Blimp	model_flags=131 CollisionType = 8  LOD=0
+
+# ------------ car bodies -------------
+*NNN Newferrari	model_flags=387 CollisionType = 8 ObjectClass=5 ObjectType=6 LOD=0
+*NNN action	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4  LOD=0
+*NNN beemer2	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN dmptrk	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN dozer	Editor=1 model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=0 CollisionSoundType=4  LOD=0
+*NNN evac	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=0 CollisionSoundType=4  LOD=0
+*NNN mercedes	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN mustang	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN news	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN recycle	Editor=1 model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN rx7	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN taxi	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN teambus	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN towtruck	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN transprt	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN ftruck	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=4 CollisionSoundType=4 LOD=0
+*NNN AirTractor	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=4 CollisionSoundType=4 LOD=0
+*NNN BeltLoader	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=4 CollisionSoundType=4 LOD=0
+*NNN Ford56	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=3 CollisionSoundType=4 LOD=0
+*NNN ForkliftDriver	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=7 CollisionSoundType=4 LOD=0
+
+*NNN BeemerBody	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN BeemerTire 
+*CAR BeemerBody_tires	ThisIsDescriptionOnly=1	
+	TireDX=168 TireDYFront=285 TireDYBack=298 TireDZ=65
+	TireShapeName = "BeemerTire" NumberOfTires=4
+
+*NNN DumpTruck model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN DumpTruckTire
+*CAR DumpTruck_tires	ThisIsDescriptionOnly=1	
+	TireDX=138 TireDYFront=404 TireDYBack=397 TireDYMid=-186 TireDZ=65
+	TireShapeName = "DumpTruckTire" NumberOfTires=6
+
+*NNN FTruckBody model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN FTruckTires
+*CAR FTruckBody_tires	ThisIsDescriptionOnly=1	
+	TireDX=176 TireDYFront=247 TireDYBack=439 TireDZ=85
+	TireShapeName = "FTruckTires" NumberOfTires=4
+
+*NNN gclux model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN gcluxTire
+*CAR gclux_tires	ThisIsDescriptionOnly=1
+	TireDX=173 TireDYFront=285 TireDYBack=314 TireDZ=79
+	TireShapeName = "gcluxTire" NumberOfTires=4
+
+*NNN gcmali model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN gcmaliTire
+*CAR gcmali_tires	ThisIsDescriptionOnly=1
+	TireDX=174 TireDYFront=280 TireDYBack=300 TireDZ=80
+	TireShapeName = "gcmaliTire" NumberOfTires=4
+
+*NNN gcsho model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN gcshoTire
+*CAR gcsho_tires	ThisIsDescriptionOnly=1
+	TireDX=153 TireDYFront=284 TireDYBack=273 TireDZ=78
+	TireShapeName = "gcshoTire" NumberOfTires=4
+
+*NNN gcsport model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN gcsportTire
+*CAR gcsport_tires	ThisIsDescriptionOnly=1
+	TireDX=158 TireDYFront=263 TireDYBack=297 TireDZ=76
+	TireShapeName = "gcsportTire" NumberOfTires=4
+
+*NNN MustangBody model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN MustangTire
+*CAR MustangBody_tires	ThisIsDescriptionOnly=1
+	TireDX=164 TireDYFront=284 TireDYBack=280 TireDZ=72
+	TireShapeName = "MustangTire" NumberOfTires=4
+
+*NNN Rx7body model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN RX7Tire
+*CAR Rx7body_tires	ThisIsDescriptionOnly=1
+	TireDX=163 TireDYFront=282 TireDYBack=258 TireDZ=83
+	TireShapeName = "RX7Tire" NumberOfTires=4
+
+*NNN SchoolBus model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN SchoolBusTires
+*CAR SchoolBus_tires	ThisIsDescriptionOnly=1
+	TireDX=238 TireDYFront=775 TireDYBack=457 TireDZ=147
+	TireShapeName = "SchoolBusTires" NumberOfTires=4
+
+*NNN Taxibody model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN TaxiTire
+*CAR Taxibody_tires	ThisIsDescriptionOnly=1
+	TireDX=192 TireDYFront=339 TireDYBack=319 TireDZ=94
+	TireShapeName = "TaxiTire" NumberOfTires=4
+
+*NNN TowTruckbody model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN TowTruckTire
+*CAR TowTruckbody_tires	ThisIsDescriptionOnly=1
+	TireDX=180 TireDYFront=532 TireDYBack=278 TireDZ=100
+	TireShapeName = "TowTruckTire" NumberOfTires=4
+
+*NNN TVVan model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=10 CollisionSoundType=4 LOD=0
+*NNN TVVanTire
+*CAR TVVan_tires	ThisIsDescriptionOnly=1
+	TireDX=214 TireDYFront=351 TireDYBack=339 TireDZ=106
+	TireShapeName = "TVVanTire" NumberOfTires=4
+
+*NNN FuelTruck model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=11 CollisionSoundType=4 LOD=0
+*NNN FuelTruckTire
+*CAR FuelTruck_tires	ThisIsDescriptionOnly=1
+	TireDX=209 TireDYFront=478 TireDYBack=459 TireDYMid=-258 TireDZ=94
+	TireShapeName = "FuelTruckTire" NumberOfTires=6
+*NNN AirTractor2	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=11 CollisionSoundType=4 LOD=0
+*NNN BeltLoader2	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=11 CollisionSoundType=4 LOD=0
+
+*NNN ForkliftDriver2	model_flags=259 CollisionType = 8 ObjectClass=5 ObjectType=12 CollisionSoundType=4 LOD=0
+
+# Turn off UV rounding for the arrow so the tip texture maps as expected
+*NNN Arrow	model_flags=2 depth_mode=3 ScaleValue=0.75 LOD=0
+*NNN ArrowDown model_flags=2 ScaleValue=0.75 LOD=0
+
+# Test of object distruction by collision
+*NNN BnchCnct00		CollisionType=1
+*NNN BnchCnct01		CollisionType=1
+*NNN BnchCnct02		CollisionType=1
+*NNN BnchCnct03		CollisionType=1
+
+# ****************************************************************
+#                          Editor Objects
+# ****************************************************************
+*NNN asgnneo5		Editor=1 CollisionType=1 ObjectClass=20 TotalTex=2 AnimRate=45
+*NNN asgnneo6		Editor=1 CollisionType=1 ObjectClass=20 TotalTex=2 AnimRate=45
+*NNN asgnneoh		Editor=1 CollisionType=1 ObjectClass=20 TotalTex=2 AnimRate=45
+*NNN asgntowl		Editor=1 CollisionType=1 ObjectClass=20 TotalTex=2 AnimRate=45
+
+*SGN asgntrf1		Editor=1 CollisionType=111 ObjectClass=1 ObjectType=2 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*SGN asgntrf2		Editor=1 CollisionType=111 ObjectClass=1 ObjectType=2 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*SGN sgnstop		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+
+*NNN baracc		Editor=1 CollisionType=1
+*NNN barhaz		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN barnoent		Editor=1 CollisionType=1 CollisionSoundType=2 Front=90 Back=-90 
+*NNN binscrap		Editor=1 CollisionType=2
+*NNN bnchcnct		Editor=1 CollisionType=2
+*NNN bnchwood		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN busshltr		Editor=1 CollisionType=111
+*NNN cangarbg		Editor=1 CollisionType=1
+*NNN conehaz		Editor=1 CollisionType=1
+#*NNN hackobject		Editor=1 #Editor=1
+*NNN hydrant2		Editor=1 CollisionType=2 model_flags=3 #Editor=1
+*NNN lghtstrd		Editor=1 CollisionType=111 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN lightlmp		Editor=1 CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN lightstrd		Editor=1 CollisionType=111 Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=5
+*NNN lightstrs		Editor=1 CollisionType=111 Left=1400 Right=1700 Front=150 Back=-150 CollisionSoundType=5
+*NNN mailbx01		Editor=1 CollisionType=1
+*NNN mouse		Editor=0	#only loaded/used in the editor
+*NNN mtrprkd		Editor=1 CollisionType=1
+*NNN mtrprks		Editor=1 CollisionType=1
+*NNN namedpoint		Editor=1 CollisionType=1
+*NNN nsgn1		Editor=1 CollisionType=1
+*NNN nsgn2		Editor=1 CollisionType=1
+*NNN nsgn3		Editor=1 CollisionType=1
+*NNN nsgn4		Editor=1 CollisionType=1
+*NNN nsgn5		Editor=1 CollisionType=1
+*NNN nsgn6		Editor=1 CollisionType=1
+*NNN nsgnhotl		Editor=1 CollisionType=1
+*NNN pathnode		Editor=1 CollisionType=1
+*NNN recyclebin		Editor=1 CollisionType=1
+*NNN sclptr01		Editor=1 CollisionType=111 Left=-320 Right=320 Front=320 Back=-320
+*NNN sgn1way		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnbrswg		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnbus		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnintr		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnnoent		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnnoprk		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnsclcr		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnspchg		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN sgnyield		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN spwnstart		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60
+*NNN strdem		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strhans		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strkerry		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strkojik		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strlouis		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strmabam		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strmaria		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strryan		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN strsally		Editor=1   CollisionType=7 Left=-60 Right=60 Front=60 Back=-60 CollisionSoundType=5
+*NNN tree02		Editor=1 CollisionType=111  Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=3
+*NNN trees01		Editor=1 CollisionType=111  Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=3
+*NNN trfclght01		Editor=1 CollisionType=111  Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=5
+*NNN trfclght02		Editor=1 CollisionType=111  Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=5
+
+*NNN Outhouse		Editor=1 CollisionType=1
+*NNN FarmFnce		Editor=1 CollisionType=1 Front=40 Back=-40 CollisionSoundType=6 CollisionVisibleTime=80
+*NNN FarmFnceB		Editor=1 CollisionType=1 Left=-40 Right=40 CollisionSoundType=6 CollisionVisibleTime=80
+*NNN ArrowMin		Editor=1 CollisionType=1
+
+*NNN airtruck		Editor=1 CollisionType=8 ObjectClass=5 
+*NNN pinetree		Editor=1 CollisionType=111 CollisionSoundType=3
+*NNN ptreelg		Editor=1 CollisionType=111 CollisionSoundType=3
+*NNN mininglight	Editor=1 CollisionType=111
+*NNN ladybug		Editor=1 CollisionType=111
+*NNN factorylight	Editor=1 CollisionType=111
+*NNN WaterRainbow	Editor=1 CollisionType=111
+*NNN Watergear		Editor=1 CollisionType=111
+*NNN Watercastle	Editor=1 CollisionType=111
+*NNN Duckswing 		Editor=1 CollisionType=111
+*NNN Traingrain		Editor=1 CollisionType=111
+*NNN Traingas		Editor=1 CollisionType=111
+*NNN WaterMush		Editor=1 CollisionType=111 Left=-90 Right=90 Front=90 Back=-90
+*NNN Farmbarrel		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN Boxwood		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN Palmtree		Editor=1 CollisionType=111 Left=-150 Right=150 Front=150 Back=-150 CollisionSoundType=3
+
+*NNN AreaSgnAir		Editor=1 CollisionType=111
+*NNN AreaSgnAirR	Editor=1 CollisionType=111
+*NNN AreaSgnAirL	Editor=1 CollisionType=111
+*NNN AreaSgnBl_L	Editor=1 CollisionType=111
+*NNN AreaSgnBl_R	Editor=1 CollisionType=111
+*NNN AreaSgnDocL	Editor=1 CollisionType=111
+*NNN AreaSgnDocR	Editor=1 CollisionType=111
+*NNN AreaSgnDowL	Editor=1 CollisionType=111
+*NNN AreaSgnDowR	Editor=1 CollisionType=111
+*NNN AreaSgnFacL	Editor=1 CollisionType=111
+*NNN AreaSgnFacR	Editor=1 CollisionType=111
+*NNN AreaSgnFarL	Editor=1 CollisionType=111
+*NNN AreaSgnFarR	Editor=1 CollisionType=111
+*NNN AreaSgnMinL	Editor=1 CollisionType=111
+*NNN AreaSgnMInR	Editor=1 CollisionType=111
+*NNN AreaSgnShoL	Editor=1 CollisionType=111
+*NNN AreaSgnShoR	Editor=1 CollisionType=111
+*NNN AreaSgnSubL	Editor=1 CollisionType=111
+*NNN AreaSgnSubR	Editor=1 CollisionType=111
+*NNN AreaSgnAmuL	Editor=1 CollisionType=111
+*NNN AreaSgnAmuR	Editor=1 CollisionType=111
+*NNN Twiststatue	Editor=1 CollisionType=111
+*NNN Tennis		Editor=1 CollisionType=111
+*NNN Changeroom		Editor=1 CollisionType=111
+*NNN Airplane		Editor=1 CollisionType=111
+*NNN Seaplane		Editor=1 CollisionType=111
+*NNN ToolboxLg		Editor=1 CollisionType=1
+*NNN ToolboxSm		Editor=1 CollisionType=1
+*NNN Anchor		Editor=1 CollisionType=4
+*NNN CrateBanana	Editor=1 CollisionType=1
+*NNN CrateFish		Editor=1 CollisionType=1
+*NNN Lifesavr		Editor=1 CollisionType=1
+*NNN baggage		Editor=1 CollisionType=1
+*NNN dolly		Editor=1 CollisionType=1
+*NNN jackhammer		Editor=1 CollisionType=1
+*NNN welding		Editor=1 CollisionType=1
+*NNN ladder		Editor=1 CollisionType=1
+*NNN boatsmall		Editor=1 CollisionType=111
+
+*NNN shopcart		Editor=1 CollisionType=1
+*NNN tirespr		Editor=1 CollisionType=1
+*NNN parktlr		Editor=1 CollisionType=1
+*NNN plantstd		Editor=1 CollisionType=1
+*NNN fruitbox		Editor=1 CollisionType=1
+*NNN Border01		Editor=1 CollisionType=111
+*NNN Border02		Editor=1 CollisionType=111
+
+#ObjectClass = 6 means swinging sign type.
+*NNN wsgnbikb		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnbiks		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnblds		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgncffe		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnchzz		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgncnst		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgndnut		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnfmly		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnhrdw		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnhspt		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnpoli		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnrllr		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgntrvl		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsgnwchr		Editor=1 CollisionType=0 ObjectClass=6
+*NNN wsign		Editor=1 CollisionType=0	#oddly enough, not a swinging sign..
+
+#Carnival rides
+*NNN Merry_base		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=50 top=1000
+*NNN Merry_top		CollisionType=111 ObjectClass=898 ObjectType=50
+
+*NNN Gravbase		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=53 top=1000
+*NNN Gravtop		CollisionType=111 ObjectClass=898 ObjectType=53
+
+*NNN Octbase		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=54 top=1000
+*NNN Octtop		CollisionType=111 ObjectClass=898 ObjectType=54
+
+*NNN Rocketbase		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=55 top=1000
+*NNN Rockettopbig	CollisionType=111 ObjectClass=898 ObjectType=55
+*NNN Rockettopsmall	CollisionType=111 ObjectClass=898 ObjectType=55
+
+*NNN Windmill_base	Editor=1 CollisionType=111 ObjectClass=9 ObjectType=52 top=1000 Left=-700 Right=700 Front=700 Back=-700
+*NNN Windmill_top	CollisionType=111 ObjectClass=898 ObjectType=52
+
+*NNN Zipperbase		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=56 top=1000
+*NNN Zippertop		CollisionType=111 ObjectClass=898 ObjectType=56
+
+*NNN Boatbase		Editor=1 CollisionType=111 ObjectClass=9 ObjectType=57 top=1000
+*NNN Boattop		CollisionType=111 ObjectClass=898 ObjectType=57
+
+*NNN FerrisBase		Editor=1 CollisionType=111  ObjectClass=9 ObjectType=58 top=1000
+*NNN FerrisCart		CollisionType=111 ObjectClass=898 ObjectType=58
+*NNN FerrisWheel	CollisionType=111 ObjectClass=898 ObjectType=58
+
+
+# ************************Mission Objects*************************
+*NNN MissionObject	Editor=2
+*NNN BillBoard		Editor=4  CollisionType=111
+*NNN Cadaver		Editor=4
+*NNN Loader		Editor=4 CollisionType=111
+
+*NNN SimplePed		Editor=3
+
+#recent additions
+*NNN goalLoc		Editor=1 CollisionType=1
+*NNN Lion               Editor=1 CollisionType=111
+#added for artist testing
+*NNN Crate01            Editor=1 CollisionType=1
+*NNN Barrel		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN Train		Editor=1 CollisionType=111
+*NNN TrainCrgo		Editor=1 CollisionType=111
+*NNN TrainGasTnk	Editor=1 CollisionType=111
+*NNN WornLog		Editor=1 CollisionType=111
+*NNN Chair		Editor=1 CollisionType=1
+*NNN FountainWtr	Editor=1 CollisionType=111
+*NNN FrontGate		Editor=1 CollisionType=111
+*NNN Longue		Editor=1 CollisionType=1	#lounge chair
+*NNN PickAxe		Editor=1 CollisionType=1
+*NNN Plantvase		Editor=1 CollisionType=1
+*NNN PropnTnks		Editor=1 CollisionType=111
+*NNN Shovel		Editor=1 CollisionType=1
+*NNN UmbrellaTble	Editor=1 CollisionType=4
+*NNN WheelBrll		Editor=1 CollisionType=1
+*NNN WoodBox		Editor=1 CollisionType=1 CollisionSoundType=2
+*NNN Wagon 		Editor=1 CollisionType=4	#Not too sure
+*NNN TreeMine01		Editor=1 CollisionType=111   Left=-90 Right=90 Front=90 Back=-90 CollisionSoundType=3
+*NNN TreeMIne02		Editor=1 CollisionType=111  Left=-90 Right=90 Front=90 Back=-90 CollisionSoundType=3
+
+*NNN Billboard_ep   model_flags=2 Editor=1 CollisionType=111  LOD=0
+*NNN Billboard_MI	Editor=1 CollisionType=111  LOD=0
+*NNN Billboard_SB	Editor=1 CollisionType=111  LOD=0
+
+#Latest objects added
+*NNN AmbuPark		Editor=1 CollisionType=8 ObjectClass=5 
+*NNN CopcarPark		Editor=1 CollisionType=8 ObjectClass=5 
+*NNN FireTrkPark	Editor=1 CollisionType=8 ObjectClass=5 
+*NNN LightHouse		Editor=1 CollisionType=111
+*NNN Haybail		Editor=1 CollisionType=1
+*NNN ticketbth		Editor=1 CollisionType=1
+*NNN bbtree		Editor=1 CollisionType=111 CollisionSoundType=3
+*NNN bbfountain		Editor=1 CollisionType=2
+*NNN bbbench		Editor=1 CollisionType=2
+*NNN bbhfence 		Editor=1 CollisionType=1 Top=240 Bottom=-40 Front=640 Back=-640  Right=40 Left=-40 CollisionSoundType=6
+					CollisionVisibleTime=80
+
+#Latest objects added
+*NNN Motorcycle		Editor=1 CollisionType=8 ObjectClass=5
+*NNN grocerycart	Editor=1 CollisionType=1
+*NNN Billboard01	Editor=1 CollisionType=111
+*NNN Billboard02	Editor=1 CollisionType=111
+*NNN Billboard03	Editor=1 CollisionType=111
+*NNN Billboard04	Editor=1 CollisionType=111
+*NNN Billboard05	Editor=1 CollisionType=111
+*NNN Vanbulace		Editor=1 CollisionType=8 ObjectClass=5
+
+#hack to salvage Jeromes LevelFile.
+*NNN hydrant		Editor=4 CollisionType=1 model_flags=3
+*NNN lghtstrs		Editor=1 CollisionType=111 Left=1520 Right=1600 Front=60 Back=-60
+#*NNN asgnhackobject	Editor=1 CollisionType=1
+
+*MS2 Mime	Editor=3 ObjectClass=3 ObjectType=21 CollisionSoundType=255
+	Skins  = mime *
+	Phases =  GlassWall 0 489 Robot 490 964 Run 965 977 MimeState 978 991*
+#	Phases =  WindWalk 0 55 RopeClimb 0 55 *
+
+*MS2 GuitarG Editor=3 ObjectClass=3 CollisionSoundType=255
+#	Skins  = mime sailor conworkr shoreman *
+	Phases =  Walk 60 75 0.5 Jump 41 59 0.5 Ambient 1 40 0.5 *
+
+*NNN GuitarGCase Editor=1 CollisionType=1
+
+*MS2 HDVendor	Editor=5 Left=-100 Right=100 Front=100 Back=-100 ObjectClass=8 CollisionSoundType=255
+	Skins = HotDog *
+	Phases = Idle 1 30 0.5 Avoid 35 44 0.5 Angry 45 59 0.5 Walk 60 64 0.5 
+		Survey 75 97 0.5 *
+
+*NNN HDcart Editor=1 CollisionType=1
+
+*MS2 seagulls	Editor=3 Left=-100 Right=100 Front=100 Back=-100 Top=100 Bottom=-100
+	Skins = seagull *	
+	Phases = Flying 0 160 0.5 *
+
+*MS2 Pigeon1	Editor=3 Left=-100 Right=100 Front=100 Back=-100 Top=100 Bottom=-100
+ObjectClass=4
+	Skins  = pig1 *
+	Phases =  Pecking 0 57 0.5 LiftOff 58 91 0.5 Hover 92 136 0.5 *
+
+*MS2 Pigeon2	Editor=3 Left=-100 Right=100 Front=100 Back=-100 Top=100 Bottom=-100
+ObjectClass=4
+	Skins  = pig2 *
+	Phases =  Pecking 0 42 0.5 LiftOff 43 81 0.5 Hover 82 96 0.5 *
+
+*MS2 Pigeon3	Editor=3 Left=-100 Right=100 Front=100 Back=-100 Top=100 Bottom=-100
+ObjectClass=4
+	Skins  = pig3 *
+	Phases =  Pecking 0 41 0.5 LiftOff 42 65 0.5 Hover 66 98 0.5 *
+
+*MS2 Pigeon4	Editor=3 Left=-100 Right=100 Front=100 Back=-100 Top=100 Bottom=-100
+ObjectClass=4
+	Skins  = pig4 *
+	Phases =  Pecking 0 41 0.5 LiftOff 42 71 0.5 Hover 72 95 0.5 *
+
+*MS2 Rat	Editor=3 ObjectClass=52 ObjectType=90
+	Phases =  Walking 0 10 0.5 *
+
+*NNN BarAccess Editor=5 ObjectClass=30 ObjectType=31 CollisionType=111 Top = 500
+
+*NNN BarAccBar CollisionType=111 Bottom = -150 Top = 150
+
+*NNN bbhdoorr model_flags=131 Editor=1 ObjectClass=30 ObjectType=32 CollisionType=111 LOD=0
+*NNN bbhdoorl model_flags=131 CollisionType=111 LOD=0
+
+#-------------------------------------
+# Car descriptions
+#-------------------------------------
+
+*CAR CopCarDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.0
+	MaxPower = 14.0
+	MaxBrakes = 0.0005
+	Friction = 0.1
+	TireDX = 175    TireDYFront=270   TireDYBack = 325   TireDZ = 100
+	FrameDX= 220    FrameDY1   =410   FrameDY2   = 530   FrameDZ= 110
+	TopZ = 250
+	NumberOfTires = 4
+	TireShapeName = "Tire"
+	CameraHeight = 330 	CameraDist = 2800
+
+	# ----- Parameters for physical car
+	M = 1   GravityK=5  			# main values
+	MaxSpringDX = 4
+	Ks = 0.04			# spring k
+	Fx = 0.5  Fy = 0.005  Fz = 0.045  	# friction matrix mains
+	v_dump_value = 0.01	k_dump_w = 0.4
+	DrivingForceDZ = 100  PowerK = 0.11 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 1.5
+	ObjectsBounceForce = 1
+	BounceZ = -0.7	BounceX = 0.99	BounceY = 1
+	LocalGravityK = 1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 50
+	SpringO = -80 # spring origin in car (when spring length is 0)
+	SpringMax = 50
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =2	DriveAddPower   =2	DriveDelPower  = 1
+	ReverseStartPower=2	ReverseAddPower =2	ReverseDelPower= 0.5
+	TurboMult = 2.0 	TurboAddPowerMult = 3.0
+	SlideMult = 1	SlideTilt = 0.6	SlideMaxTiltAngle = 10
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+
+*CAR CopMotorcycleDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.0
+	MaxPower = 16.0
+	MaxBrakes = 0.0005
+	Friction = 0.1
+	TireDX = 0    TireDYFront=235   TireDYBack = 220   TireDZ = 200
+	FrameDX= 120    FrameDY1  =290   FrameDY2   = 360   FrameDZ= 110
+#	TireDX = 175    TireDYFront=270   TireDYBack = 325   TireDZ = 100
+#	FrameDX= 220    FrameDY1   =410   FrameDY2   = 530   FrameDZ= 110
+	TopZ = 400
+	NumberOfTires = 4
+	TireShapeName = "m_fwheel"
+	CameraHeight = 260 	CameraDist = 2550
+
+	# ----- Parameters for physical car
+	M = 1   GravityK=5  			# main values
+	MaxSpringDX = 8
+	Ks = 0.05			# spring k
+#	Fx = 0.9  Fy = 0.025  Fz = 0.03  	# friction matrix mains
+#	DrivingForceDZ = 50  PowerK =0.3 	# displacement and K to handicap Power
+	Fx = 0.5  Fy = 0.005  Fz = 0.045  	# friction matrix mains
+	DrivingForceDZ = 0  PowerK = 0.11 	# displacement and K to handicap Power
+	v_dump_value = 0.01	k_dump_w = 0.4
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 1.5
+	ObjectsBounceForce = 1
+	BounceZ = -0.4	BounceX = 0.99	BounceY = 1
+	LocalGravityK = 1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 40
+	SpringO = -140 # spring origin in car (when spring length is 0)
+	SpringMax = 40
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =6	DriveAddPower   =6	DriveDelPower  = 1
+	ReverseStartPower=2	ReverseAddPower =2	ReverseDelPower= 0.5
+	TurboMult = 2.2 	TurboAddPowerMult = 5.0
+	SlideMult = 1	SlideTilt = 0.0		SlideMaxTiltAngle = 15
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+*CAR FireTruckDesc ThisIsDescriptionOnly=1
+	CarWeight = 2.0
+	MaxPower = 12.0
+	MaxBrakes = 0.0005
+	Friction = 0.15
+#	TireDX = 325  TireDYFront = 500  TireDYBack = 580  TireDZ = 100  TireDYMid = -370
+	TireDX = 235  TireDYFront = 450  TireDYBack = 650  TireDZ = 100  TireDYMid = -350
+	FrameDX = 375 FrameDY1 = 770     FrameDY2 =  800   FrameDZ = 180
+	TopZ = 550
+	NumberOfTires = 6
+	TireShapeName = "FireTruckTire"
+	CameraHeight = 620		CameraDist = 3400
+
+	# ----- Parameters for physical car
+	M = 4   GravityK=5  			# main values
+	MaxSpringDX = 6
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.025  Fz = 0.03  	# friction matrix mains
+	DrivingForceDZ = 50  PowerK =0.5 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 0.8
+	ObjectsBounceForce = 5
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 1
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 70
+	SpringO = -20 # spring origin in car (when spring length is 0)
+	SpringMax = 70
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =4	DriveAddPower   =1.0	DriveDelPower  = 0.8
+	ReverseStartPower=4	ReverseAddPower =1.5	ReverseDelPower= 0.5
+	TurboMult = 2.5 	TurboAddPowerMult = 3.0
+	SlideMult = 8	SlideTilt = 0.7		SlideMaxTiltAngle = 15
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+*CAR UpFireTruckDesc ThisIsDescriptionOnly=1
+	CarWeight = 2.0
+	MaxPower = 12.0
+	MaxBrakes = 0.0005
+	Friction = 0.15
+#	TireDX = 325  TireDYFront = 500  TireDYBack = 580  TireDZ = 100  TireDYMid = -370
+	TireDX = 250  TireDYFront = 730  TireDYBack = 685  TireDZ = 100  TireDYMid = -425 Tire4 = 450 Tire5 = -190
+	FrameDX = 375 FrameDY1 = 770     FrameDY2 =  800   FrameDZ = 180
+	TopZ = 550
+	NumberOfTires = 10
+	TireShapeName = "bigtire"
+	CameraHeight = 620		CameraDist = 3400
+
+	# ----- Parameters for physical car
+	M = 4   GravityK=5  			# main values
+	MaxSpringDX = 6
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.025  Fz = 0.03  	# friction matrix mains
+	DrivingForceDZ = 50  PowerK =0.5 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 0.8
+	ObjectsBounceForce = 5
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 1
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 70
+	SpringO = -20 # spring origin in car (when spring length is 0)
+	SpringMax = 70
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =4	DriveAddPower   =1.0	DriveDelPower  = 0.8
+	ReverseStartPower=4	ReverseAddPower =1.5	ReverseDelPower= 0.5
+	TurboMult = 2.5 	TurboAddPowerMult = 3.0
+	SlideMult = 8	SlideTilt = 0.8		SlideMaxTiltAngle = 15
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+*CAR AmbulanceDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.5
+	MaxPower = 12.5
+	MaxBrakes = 0.0005
+	Friction = 0.12
+	TireDX = 200  TireDYFront = 370  TireDYBack = 345  TireDZ = 100
+	FrameDX = 325 FrameDY1 = 500    FrameDY2 =  680  FrameDZ = 120
+	TopZ = 550
+	NumberOfTires = 4
+	TireShapeName = "mamb_tire"
+	CameraHeight = 500 	CameraDist = 2850
+
+	# ----- Parameters for physical car
+	M = 3   GravityK=5  			# main values
+	MaxSpringDX = 10
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.015  Fz = 0.03  	# friction matrix mains
+	DrivingForceDZ = 0  PowerK = 0.33 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 1.1
+	ObjectsBounceForce = 3
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 1
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 50
+	SpringO = -40 # spring origin in car (when spring length is 0)
+	SpringMax = 50
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =3	DriveAddPower   =1.2	DriveDelPower  = 0.8
+	ReverseStartPower=3	ReverseAddPower =2.0	ReverseDelPower= 0.5
+	TurboMult = 2.0 	TurboAddPowerMult = 3.0
+	SlideMult = 2	SlideTilt = 1.1		SlideMaxTiltAngle = 15
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+*CAR UpAmbulanceDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.5
+	MaxPower = 12.5
+	MaxBrakes = 0.0005
+	Friction = 0.12
+	TireDX = 240  TireDYFront = 390  TireDYBack = 300  TireDZ = 100
+	FrameDX = 325 FrameDY1 = 520    FrameDY2 =  580  FrameDZ = 120
+	TopZ = 550
+	NumberOfTires = 4
+	TireShapeName = "ambTire"
+	CameraHeight = 500 	CameraDist = 2850
+
+	# ----- Parameters for physical car
+	M = 3   GravityK=5  			# main values
+	MaxSpringDX = 10
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.015  Fz = 0.03  	# friction matrix mains
+	DrivingForceDZ = 0  PowerK = 0.33 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 1.1
+	ObjectsBounceForce = 3
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 1
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 50
+	SpringO = -40 # spring origin in car (when spring length is 0)
+	SpringMax = 50
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =3	DriveAddPower   =1.2	DriveDelPower  = 0.8
+	ReverseStartPower=3	ReverseAddPower =2.0	ReverseDelPower= 0.5
+	TurboMult = 2.0 	TurboAddPowerMult = 3.0
+	SlideMult = 2	SlideTilt = 1.6		SlideMaxTiltAngle = 20
+	FirstGearEnd=60 SecondGearEnd=120 ThirdGearEnd=180
+
+*CAR GenericCarDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.0
+	MaxPower = 6.2
+	MaxBrakes = 0.0005
+	Friction = 0.11
+	TireDX = 125 TireDYFront = 270 TireDYBack = 325 TireDZ = 100
+	FrameDX = 190 FrameDY1 = 310    FrameDY2 =  410  FrameDZ = 150
+	NumberOfTires = 4
+	TireShapeName = "Tire"
+
+	# ----- Parameters for physical car
+	M = 3   GravityK=5  			# main values
+	TireRadius = 100   MaxSpringDX = 10
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.05  Fz = 0.033  	# friction matrix mains
+	DrivingForceDZ = 50  PowerK = 1.1 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 0.8
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	SpringO = 1.9 # visual spring origin offset: 0-lowest, 1.0 - higest (in relation to TireRadius)
+	SpringK = 0.5 # relation of spring length and visual tire pos
+	SpringUpMax = 50
+	# ---- car engine dynamics -------
+	DriveStartPower  =2	DriveAddPower   =0.6	DriveDelPower  = 0.8
+	ReverseStartPower=2	ReverseAddPower =1.0	ReverseDelPower= 0.5
+
+*CAR CopCarAIDesc ThisIsDescriptionOnly=1
+	CarWeight = 1.0
+	MaxPower = 7.2
+	MaxBrakes = 0.0005
+	Friction = 0.1
+	TireDX = 175    TireDYFront=270   TireDYBack = 325   TireDZ = 60
+	FrameDX= 220    FrameDY1   =340   FrameDY2   = 530   FrameDZ= 110
+	NumberOfTires = 4
+	TireShapeName = "Tire"
+	CameraHeight = 250 	CameraDist = 2000
+
+	# ----- Parameters for physical car
+	M = 1   GravityK=5  			# main values
+	MaxSpringDX = 3
+	Ks = 0.04			# spring k
+	Fx = 0.5  Fy = 0.005  Fz = 0.045  	# friction matrix mains
+	v_dump_value = 0.01	k_dump_w = 0.4
+	DrivingForceDZ = 250  PowerK = 0.11 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 1.5
+	ObjectsBounceForce = 1
+	BounceZ = -0.7	BounceX = 0.99	BounceY = 1
+	LocalGravityK = 1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 50
+	SpringO = -30 # spring origin in car (when spring length is 0)
+	SpringMax = 50
+	BodyO = 0
+	# ---- car engine dynamics -------
+	DriveStartPower  =2	DriveAddPower   =2	DriveDelPower  = 1
+	ReverseStartPower=2	ReverseAddPower =2	ReverseDelPower= 0.5
+
+
+*CAR FireTruckAIDesc ThisIsDescriptionOnly=1
+	CarWeight = 2.0
+	MaxPower = 12.5
+	MaxBrakes = 0.0005
+	Friction = 0.15
+	TireDX = 250  TireDYFront = 450  TireDYBack = 650  TireDZ = 100  TireDYMid = -320
+	FrameDX = 375 FrameDY1 = 770     FrameDY2 =  800   FrameDZ = 180
+	NumberOfTires = 6
+	TireShapeName = "FireTruckTire"
+	CameraHeight = 500		CameraDist = 2500
+
+	# ----- Parameters for physical car
+	M = 4   GravityK=5  			# main values
+	MaxSpringDX = 6
+	Ks = 0.09 				# spring k
+	Fx = 0.9  Fy = 0.025  Fz = 0.03  	# friction matrix mains
+	DrivingForceDZ = 50  PowerK =0.5 	# displacement and K to handicap Power
+	BrakesK = 1000
+	BounceMeRest = 1.5 SmallLightRest = 0	SmallHeavyRest = 0.5	BigLightRest = 0.1	BigHeavyRest = 0.8
+	ObjectsBounceForce = 5
+	BounceZ = -0.6	BounceX = 0.8	BounceY = 1
+	LocalGravityK =1
+	AddGroundCollisionK = -0.1
+	MaxBrakesK = 0.5
+	TireRadius = 70
+	SpringO = -100 # spring origin in car (when spring length is 0)
+	SpringMax = 70
+	BodyO = 100
+	# ---- car engine dynamics -------
+	DriveStartPower  =4	DriveAddPower   =1.0	DriveDelPower  = 0.8
+	ReverseStartPower=4	ReverseAddPower =1.5	ReverseDelPower= 0.5
+
+# Pedestrians
+
+*MS2 WalkingWoman ObjectClass=3 ObjectType=20 CollisionSoundType=255
+	Skins  = pants01 pants02 pants03 pants04 pants05 dress01 dress02 dress03 dress04 *#f-swim01 f-swim02 f-swim03 f-swim04 f-swim05 *
+	Phases =  Walk 1 15 0.5 Sitting 16 85 0.5 Jump 86 105 0.5  Point 106 166 0.5	Ambient 168 230 0.5 *
+
+*MS2 WalkingMan ObjectClass=3 ObjectType=20 CollisionSoundType=255
+	Skins  = suit01 suit02 suit03 shoreman farmer medic mime sailor conworkr painter mtourst mbusker wheelguy *
+	Phases = Walk 1 15 0.5 Sitting 16 92 0.5 Jump 93 104 0.5 Point 105 140 0.5 Ambient 141 177 0.5 *
+
+*MS2 MaleShopper ObjectClass=3 CollisionSoundType=255
+	Skins  = suit01 suit02 suit03 mtourst *
+	Phases = Walk 1 15 0.5 Sitting 16 92 0.5 Jump 93 104 0.5 Point 105 140 0.5 Ambient 141 177 0.5 *
+
+*MS2 FemaleShopper ObjectClass=3 ObjectType=20 CollisionSoundType=255
+	Skins  = pants01 pants02 pants03 pants04 pants05 *
+	Phases = Walk 0 14 0.5 Sitting 15 45 0.5 Jump 46 60 0.5 Ambient 61 200 0.5 Point 201 250 0.5 *
+
+*MS2 LittleGirl ObjectClass=3 CollisionSoundType=255
+	Skins = gchild *
+	Phases = Walk 0 23 0.5 BeginFreeze 24 28 0.5 Freeze 28 43 0.5 Jump 47 58 0.5 Ambient 58 89 0.5 *
+
+*MS2 BManWalk ObjectClass=3 CollisionSoundType=255
+	Skins  = suit01 suit02 suit03 *
+	Phases = Walk 1 15 0.5 Jump 28 38 0.5 Ambient 39 75 0.5 *
+
+*MS2 SkateBChild ObjectClass=3 CollisionSoundType=255
+#	Skins  = boy *
+	Phases = Walk 1 60 0.5 BeginFreeze 60 75 0.5 Freeze 60 75 0.5 Jump 1 22 0.5 *
+
+*MS2 DickieDeeMan ObjectClass=3 CollisionSoundType=255
+	Phases = Walk 1 15 0.5 BeginFreeze 1 15 0.5 Freeze 1 15 0.5 Jump 31 37 0.5 *
+
+*MS2 FemaleJogger ObjectClass=3 CollisionSoundType=255
+	Skins  = fjogger fjogger2 fjogger3 *
+	Phases = Walk 1 11 0.5 BeginFreeze 12 35 0.5 Freeze 12 35 0.5 Jump 36 45 0.5 Ambient 46 95 0.5 *
+
+*MS2 MaleJogger ObjectClass=3 ObjectType=20 CollisionSoundType=255
+	Skins  = mjogger1 mjogger2 mjogger3 mjogger4 *
+	Phases = Walk 1 11 0.5 BeginFreeze 12 35 0.5 Freeze 12 35 0.5 Jump 36 45 0.5 Ambient 46 94 0.5 
+			Point 95 125 0.5 *
+
+#this vendor is only to be used for the firemission 7 vendor.
+*MS2 HDVendor2	Editor=3 ObjectClass=3 ObjectType=22 LOD=0 CollisionSoundType=255
+	Skins = HotDog *
+	Phases = Ambient 1 30 0.5 Jump 35 44 0.5 Angry 45 59 0.5 Walk 60 64 0.5 
+		Survey 75 97 0.5 *
+
+*MS2 MinorPick ObjectClass=3 CollisionSoundType=255
+	Phases = Walk 1 15 0.5 RockPick 16 35 0.5 Jump 36 50 0.5 Point 51 80 0.5 Ambient 82 140 0.5 *
+
+*MS2 Clown ObjectClass=3 CollisionSoundType=255
+	Skins  = clown01 clown02 clown03 *
+	Phases = Walk 1 31 0.5 BeginFreeze 0 30 0.5 Freeze 0 30 0.5 Jump 32 47 0.5 *
+
+*MS2 CrazyClown ObjectClass=3 CollisionSoundType=255
+	Skins  = clown01 clown02 clown03 *
+	Phases = Walk 234 264 0.5 Ambient2 0 37 0.5 BeginFreeze 38 120 0.5 Freeze 121 233 0.5 Ambient 266 275 0.5 Jump 276 286 0.5 *
+
+*MS2 stiltsClown ObjectClass=3 CollisionSoundType=255
+	Skins  = clown01 clown02 clown03 *
+	Phases = Walk 0 19 Jump 100 112 Ambient 20 99 *
+
+# Sparks when the player car hits a wall...
+*MS2 Sparks model_flags=2 depth_mode=3
+	Skins  = Sparks *
+	Phases = SparkFrame 0 7 0.5 *
+
+*NNN CoffeeChair		Editor=1 CollisionType=1 #Top=400
+*NNN CoffeeUmbrella		Editor=1 CollisionType=4 ObjectClass=40
+*MS2 CoffeeDrinker	 ObjectClass=3
+	Phases = Sitting 1 100 0.5 Scared 101 150 0.5 Jump 152 160 0.5 Walk 161 175 0.5 Standing 176 225 0.5 *
+	Skins = dress01 *
+
+# The mission animations...
+# robber staying still
+*MS2 Cop1 LOD=0
+	Skins  = Robber *
+	Phases =  Mission 0 76 0.5 Giveup 77 120 0.5 Stayup 120 120 0.5 *
+
+# Vandal chase
+*MS2 Vandal LOD=0
+	Phases = Ambient 0 30 0.5 Push 31 90 0.5 Run 91 104 0.5 *
+
+*NNN PhoneBooth Editor=1 ObjectClass=30 ObjectType=30 CollisionType=111
+
+# robber and chase
+*MS2 Cop4 LOD=0
+	Skins  = Robber *
+	Phases =  Mission 0 9 0.5 *
+
+# Cop5: cows, quack...
+*MS2 Cow01 Editor=3 CollisionType=111 LOD=0 ObjectClass=51 ObjectType=73 CollisionSoundType=255
+	Skins  = Cow *
+	Phases = Ambient 0 75 0.5 Walk 76 90 0.5 
+			 Eat 0 75 0.5 Ambient 0 75 0.5 Look 0 75 0.5 Look2 0 75 0.5 Run 75 90 2.5 Walk 75 90 0.5 *
+
+*MS2 Cow02 Editor=3 CollisionType=111 LOD=0 ObjectClass=51 ObjectType=73 CollisionSoundType=255
+	Skins  = Cow *
+	Phases = Ambient 0 75 0.5 Walk 75 90 0.5 
+			 Eat 0 75 0.5 Ambient 0 75 0.5 Look 0 75 0.5 Look2 0 75 0.5 Run 75 90 2.5 Walk 75 90 0.5 *
+
+#Cop6: lost Dog
+*MS2 DogWalk ScaleValue = 0.2 LOD=0
+	Phases = Walk 1 30 *
+
+*MS2 BWDress LOD=0
+	Phases = Ambient 176 225 0.5 *
+
+#Cop7: Bicycle thief
+*MS2 BicycleThief LOD=0
+	Phases =  Mission 0 12 0.5 *
+
+# lost boy
+*MS2 Cop8 LOD=0
+	Skins  = boy *
+	Phases =  Mission 16 74 0.5 *
+
+# Mugger
+*MS2 Cop9Mugger LOD=0
+	Phases =  Run 1 13 RtoA 14 34 Ambient 34 98 AtoR 99 115 *
+
+#guy stuck on billboard
+*MS2 Fire02GuyHanging LOD=0
+	Phases = Ambient 1 100 *
+
+#Stationary car fire
+*MS2 ParkingLotAttendent LOD=0
+	Phases = Walk 1 60 Wave 61 90 Switch 90 126 *
+
+*MS2 Fire04MissionAmbient LOD=0
+#	Skins  = ferris *
+	Phases =  Mission 1 50 *
+
+# injured roller blader
+*MS2 ambul2scene LOD=0
+	Skins  = rblader *
+	Phases =  Mission 1 95 *
+
+*MS2 ambul3ambi LOD=0 Editor=5
+	Phases =  Mission 0 180 *
+
+*MS2 ambul4ambi LOD=0
+	Phases =  Mission 16 50 *
+
+*MS2 ambul5ambi LOD=0
+	Phases =  Mission 0 151 *
+
+# guy stuck under a tractor
+*MS2 Ambul6ambi LOD=0
+	Phases =  Mission 0 105 0.5 *
+
+# sailor trapped under an anchor
+*MS2 Ambul7 LOD=0
+#	Skins  = sailor *
+	Phases =  Mission 0 120 0.5 *
+
+*MS2 ambul8ambi CollisionType=111 LOD=0
+	Phases =  Mission 0 180 0.5 *
+
+*MS2 ambul9ambi LOD=0
+	Phases =  Mission 0 194 * #CutScene=1
+
+*BBD firetest
+	Skins = flames01 flames02 flames03 flames04 flames05 flames06 flames07 flames08 * #flames09 *
+
+*BBD FireLR
+	Skins = LRflames01 LRflames02 LRflames03 LRflames04 LRflames05 LRflames06 LRflames07 LRflames08 LRflames09 *
+
+*BBD whitesmoke
+	d3d_diffuse_color = 0x77FFFFFF
+	Skins = smoke01 smoke02 smoke03 smoke04 smoke05 smoke06 smoke07 *
+
+*BBD blacksmoke
+	prim_blend = 1 # NON_PRENULT
+	d3d_diffuse_color = 0x88888888
+	Skins = tsmoke01 tsmoke02 tsmoke03 tsmoke04 tsmoke05 tsmoke06 tsmoke07 *
+
+*MS2 pig Editor=3 ObjectClass=51 ObjectType=70 CollisionSoundType=255
+	Phases = Eat 0 69 0.5 Ambient 70 96 0.5 Look 97 136 0.5 Look2 137 176 0.5 Run 177 182 0.5 Walk 183 195 0.5 *
+
+*MS2 horse Editor=3 ObjectClass=51 ObjectType=70 CollisionSoundType=255
+	Phases = Eat 0 49 0.5 Ambient 50 82 0.5 Look 83 117 0.5 Look2 118 167 0.5 Run 168 174 0.5 Walk 175 190 0.5 *
+
+*MS2 sheep Editor=3 ObjectClass=51 ObjectType=73 CollisionSoundType=255
+	Phases = Eat 0 49 0.5 Ambient 50 82 0.5 Look 83 107 0.5 Look2 108 154 0.5 Run 155 160 0.5 Walk 161 174 0.5 *
+
+*MS2 rooster Editor=3 ObjectClass=51 ObjectType=74 CollisionSoundType=255
+	Phases = Eat 0 43 0.5 Ambient 143 190 0.5 Look 44 92 0.5 Look2 93 142 0.5 Run 191 196 0.5 Walk 197 211 0.5 *
+
+#for time being, the sea animal will act EXACTLY like the other farm animals.
+
+*MS2 seaturtle Editor=3 ObjectClass=51 ObjectType=75
+	Phases = Swim 0 30 0.5 Ambient1 21 60 0.5 Ambient2 60 99 0.5 Walk 101 130 0.5 *
+
+*MS2 killerwhale Editor=3 ObjectClass=51 ObjectType=76
+	Phases = Swim 0 25 0.5 Left 25 75 0.5 Right 75 125 0.5 Jump 125 160 0.5 *
+
+*MS2 hamshark Editor=3 ObjectClass=51 ObjectType=76
+	Phases = Swim 0 30 0.5 Left 30 90 0.5 Right 90 150 0.5*
+
+*MS2 LocMonst Editor=3 ObjectClass=51 ObjectType=76
+	Phases = Swim 0 35 0.5 Left 35 70 0.5 Right 70 105 0.5*
+
+*NNN trainf		CollisionType=11 LOD=0
+*NNN trainm		CollisionType=11 LOD=0
+
+*NNN M3DMap model_flags=130
+*MS2 Beacon 	depth_mode=3 ScaleValue=0.5
+	Phases = N 0 25 0.5 * 
+
+*MS2 Door Phases = Open 0 17 Close 18 28 *
+*NNN Plane
+*NNN Computer ScaleValue = 1 TotalTex=5
+*NNN EscArrow ScaleValue=0.75
+
+*NNN riv1 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv2 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv3 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv4 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv5 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv6 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv7 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv8 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv9 model_flags=128 TotalTex = 10 LOD=0
+*NNN riv10 model_flags=128 TotalTex = 10 LOD=0
+
+*NNN doriv1 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv2 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv3 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv4 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv5 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv6 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv7 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv8 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv9 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv10 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv11 model_flags=128 TotalTex = 10 LOD=0
+*NNN doriv12 model_flags=128 TotalTex = 10 LOD=0
+
+*NNN farm_riv model_flags=128 TotalTex = 10 LOD=0
+*NNN pool_riv model_flags=128 TotalTex = 10 LOD=0
+*NNN bbhpool model_flags=128 TotalTex = 10 LOD=0
+
+*NNN WaterRipple TotalTex=10
+
+*BBD bubble
+	Skins = bub0 bub1 bub2 bub3 bub4 bub5 bub6 bub7 bub8 bub9 *
+
+*MS2 Fish
+	Skins = Fish01 Fish02 Fish03 Fish04 *
+
+*NNN FishingBoat
+
+# -------------------------------------------------
+# README: Possible Collision Type Values
+# -------------------------------------------------
+#	ctIgnoreObject = 0          (DEFAULT)
+#	ctSmallLightObject = 1, // normal collision with no effect at player car
+#	ctSmallHeavyObject = 2, // normal collision with slightly noticable effect at player car
+#	ctBigLightObject = 3,   // slow motion after collision and slight effect on player car
+#	ctBigHeavyObject = 4,   // slow motion after collision and very big effect on player car
+#	ctFlyingObject  = 5
+#	ctFunnyFlyingObject  = 6
+#	ctPoleObject = 7
+#	ctCarObject  = 8
+#	ctBounceMeObject = 111
+
+

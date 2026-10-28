@@ -1,0 +1,257 @@
+; This file is used to control the addressing modes a specified texture uses.
+
+antanae vclamp
+do-bumpr vclamp
+doarm uclamp vclamp
+docbac
+dolcab
+fabrnf
+facade1 uclamp vclamp
+facade2 uclamp vclamp
+facade3 uclamp vclamp
+facade4 uclamp vclamp
+facade5 uclamp vclamp
+facade6 uclamp vclamp
+fafenc vclamp
+fatreer2 uclamp vclamp
+fatreero vclamp
+fawfenc vclamp
+fawind vclamp
+fence vclamp
+fl-liftf
+flowers vclamp
+fueltank vclamp
+grain_st
+ironfnce
+l-crlegs vclamp
+lionteeh vclamp
+sgnneon1
+statgrid
+train
+trainwhl
+airfence 50 maxmip=4
+flowerb.s vclamp
+eplogors uclamp vclamp noresample
+eplog01 uclamp vclamp noresample
+suit01 noresample
+suit02 noresample
+suit03 noresample
+MapA1 uclamp vclamp
+MapA2 uclamp vclamp
+MapA3 uclamp vclamp
+MapA4 uclamp vclamp
+MapB5 uclamp vclamp
+MapB6 uclamp vclamp
+MapB7 uclamp vclamp
+MapB8 uclamp vclamp
+MapD9 uclamp vclamp
+MapD10 uclamp vclamp
+MapD11 uclamp vclamp
+MapD12 uclamp vclamp
+MapD13 uclamp vclamp
+MapD14 uclamp vclamp
+MapD15 uclamp vclamp
+MapD16 uclamp vclamp
+Cop1 noresample
+Cop1n noresample
+Cop1a noresample
+Cop2 noresample
+Cop2n noresample
+Cop2a noresample
+Cop3 noresample
+Cop3n noresample
+Cop3a noresample
+Cop4 noresample
+Cop4n noresample
+Cop4a noresample
+Cop5 noresample
+Cop5n noresample
+Cop5a noresample
+Cop6 noresample
+Cop6n noresample
+Cop6a noresample
+Cop7 noresample
+Cop7n noresample
+Cop7a noresample
+Cop8 noresample
+Cop8n noresample
+Cop8a noresample
+Cop9 noresample
+Cop9n noresample
+Cop9a noresample
+Fire1 noresample
+Fire1n noresample
+Fire1a noresample
+Fire2 noresample
+Fire2n noresample
+Fire2a noresample
+Fire3 noresample
+Fire3n noresample
+Fire3a noresample
+Fire4 noresample
+Fire4n noresample
+Fire4a noresample
+Fire5 noresample
+Fire5n noresample
+Fire5a noresample
+Fire6 noresample
+Fire6n noresample
+Fire6a noresample
+Fire7 noresample
+Fire7n noresample
+Fire7a noresample
+Fire8 noresample
+Fire8n noresample
+Fire8a noresample
+Fire9 noresample
+Fire9n noresample
+Fire9a noresample
+Amb1 noresample
+Amb1n noresample
+Amb1a noresample
+Amb2 noresample
+Amb2n noresample
+Amb2a noresample
+Amb3 noresample
+Amb3n noresample
+Amb3a noresample
+Amb4 noresample
+Amb4n noresample
+Amb4a noresample
+Amb5 noresample
+Amb5n noresample
+Amb5a noresample
+Amb6 noresample
+Amb6n noresample
+Amb6a noresample
+Amb7 noresample
+Amb7n noresample
+Amb7a noresample
+Amb8 noresample
+Amb8n noresample
+Amb8a noresample
+Amb9 noresample
+Amb9n noresample
+Amb9a noresample
+needle1 noresample
+speedo2 noresample
+speedo3 noresample
+ambgurn.s noresample
+CopBoy.s noresample
+CopDog.s noresample
+Firetruk noresample
+Copcow noresample
+Hydrant noresample
+blueA noresample
+blueB noresample
+redA noresample
+redB noresample
+yelloA noresample
+yelloB noresample
+MATTELL noresample
+MBBlimp noresample
+MBBlimp2 noresample
+wheels noresample
+bswheel noresample
+cwheel noresample
+wheel noresample
+wheelb noresample
+cwheel2 noresample
+fwheel noresample
+fwheel2 noresample
+
+01bmwt noresample
+01bmwt noresample
+0ambnew noresample
+0bmw_t noresample
+0firetrk noresample
+0frkgren noresample
+0miniamb noresample
+0motocyc noresample
+1ambnew noresample
+1firetrk noresample
+1frkgren noresample
+1miniamb noresample
+1motocyc noresample
+BLACKM noresample
+BMWTire noresample
+BMWTT noresample
+BrkLogo2 noresample
+CopCar noresample
+cside noresample
+ctop noresample
+EPLog01 noresample
+EPLogoRs noresample
+ferrari noresample
+FireB noresample
+FireTr noresample
+firetruck noresample
+frkgren2 noresample
+lsideb noresample
+polb noresample
+rback noresample
+rightb noresample
+rsideb noresample
+rsidec noresample
+rsidet noresample
+tirem noresample
+tirerx noresample
+towhee noresample
+smoke01 noresample
+smoke02 noresample
+smoke03 noresample
+smoke04 noresample
+smoke05 noresample
+smoke06 noresample
+smoke07 noresample
+flames01 noresample
+flames02 noresample
+flames03 noresample
+flames04 noresample
+flames05 noresample
+flames06 noresample
+flames07 noresample
+flames08 noresample
+flames09 noresample
+motorim noresample
+BK_anchor noresample
+bub0 noresample uclamp vclamp
+bub1 noresample uclamp vclamp
+bub2 noresample uclamp vclamp
+bub3 noresample uclamp vclamp
+bub4 noresample uclamp vclamp
+bub5 noresample uclamp vclamp
+bub6 noresample uclamp vclamp
+bub7 noresample uclamp vclamp
+bub8 noresample uclamp vclamp
+bub9 noresample uclamp vclamp
+contterm noresample
+dockgrnd noresample
+trtrack2 noresample
+trtrack3 noresample
+trtracks noresample
+
+;fatreer2 uclamp vclamp
+;fatreer3 uclamp vclamp
+;fatreero uclamp vclamp
+;tree02.s uclamp vclamp
+;fatree uclamp vclamp
+;tree02 uclamp vclamp
+;tree03 uclamp vclamp
+;tree04.s uclamp vclamp
+;tree05 uclamp vclamp
+;tree05.s uclamp vclamp
+
+
+;fatree vclamp
+;tree01.s
+;tree03.s
+;tree04.s
+;tree05.s
+;tree06.s
+;tree07.s
+;tree08.s
+; Can't enable uclamp/vclamp with tree02 unless it's exported again.
+;tree02.s alphatest=10 uclamp vclamp maxmip=4
+tree02.s alphatest=10 maxmip=4
+

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matchbox Emergency Patrol (web port)</title>
+<style>
+html,body{margin:0;height:100%;background:#000;color:#ddd;font:13px sans-serif;overflow:hidden}
+canvas{width:100%;height:100%;display:block}
+#hud{position:fixed;left:8px;top:6px;text-shadow:0 0 3px #000;pointer-events:none;white-space:pre}
+#msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#000}
+</style></head><body>
+<canvas id="c"></canvas><div id="hud"></div><div id="msg">Loading...</div>
+<script>
+'use strict';
+// This page is a thin shell. The Rust wasm module parses the ORIGINAL game files (megacity.bpk, textures_all2.tex,
+// texture_attributes.dat, ms2_files.dat); the page fetches their bytes, asks Rust to prepare meshes/textures and draws them.
+const $=id=>document.getElementById(id);
+const gl=$('c').getContext('webgl',{antialias:false});
+let M;
+const fetchBytes=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(u+' '+r.status);return new Uint8Array(await r.arrayBuffer())};
+const feed=(fn,d)=>{const p=M.g_alloc(d.length);new Uint8Array(M.memory.buffer,p,d.length).set(d);return fn(p,d.length)};
+const keys={};addEventListener('keydown',e=>{keys[e.code]=true;if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault()});
+addEventListener('keyup',e=>keys[e.code]=false);
+
+// ---- GL (presentation only; lighting/fog/FOV are not decoded yet)
+const VS=`attribute vec3 p;attribute vec2 t;uniform mat4 m;varying vec2 v;varying float f;
+void main(){gl_Position=m*vec4(p,1.0);v=t;f=gl_Position.w;}`;
+const FS=`precision mediump float;varying vec2 v;varying float f;uniform sampler2D s;uniform vec3 fog;uniform float fogEnd;
+void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;float k=clamp(f/fogEnd,0.0,1.0);gl_FragColor=vec4(mix(c.rgb,fog,k*k),1.0);}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
+const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd')};
+gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
+// Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
+gl.frontFace(gl.CW);   // verified: with this front-face convention ground, roofs and walls all show; CCW culls the ground away
+
+const mul=(a,b)=>{const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o};
+const persp=(fov,asp,n,f)=>{const t=1/Math.tan(fov/2);return new Float32Array([t/asp,0,0,0, 0,t,0,0, 0,0,(f+n)/(f-n),1, 0,0,-2*f*n/(f-n),0])};
+function lookAt(e,c,up=[0,1,0]){let fx=c[0]-e[0],fy=c[1]-e[1],fz=c[2]-e[2];let l=Math.hypot(fx,fy,fz);fx/=l;fy/=l;fz/=l;
+ let rx=up[1]*fz-up[2]*fy,ry=up[2]*fx-up[0]*fz,rz=up[0]*fy-up[1]*fx;l=Math.hypot(rx,ry,rz);rx/=l;ry/=l;rz/=l;const ux=fy*rz-fz*ry,uy=fz*rx-fx*rz,uz=fx*ry-fy*rx;
+ return new Float32Array([rx,ux,fx,0, ry,uy,fy,0, rz,uz,fz,0, -(rx*e[0]+ry*e[1]+rz*e[2]),-(ux*e[0]+uy*e[1]+uz*e[2]),-(fx*e[0]+fy*e[1]+fz*e[2]),1])}
+const rotY=(h,x,y,z)=>{const c=Math.cos(h),s=Math.sin(h);return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, x,y,z,1])};
+
+// ---- textures: Rust decodes the palettised .tex entry to RGBA, we upload it
+const texGL=new Map();let whiteTex;
+function glTex(e){if(e===0xffffffff)return whiteTex;let t=texGL.get(e);if(t!==undefined)return t;
+ const s=M.g_tex_size(e),p=M.g_tex_rgba(e);t=whiteTex;
+ if(p){const flags=M.g_tex_flags(e);t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,s,s,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(M.memory.buffer,p,s*s*4));
+  const pot=(s&(s-1))==0&&s>0;if(pot)gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,pot?gl.LINEAR_MIPMAP_LINEAR:gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  const W=(flags&1)?gl.CLAMP_TO_EDGE:gl.REPEAT,H=(flags&2)?gl.CLAMP_TO_EDGE:gl.REPEAT;
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,pot?W:gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,pot?H:gl.CLAMP_TO_EDGE)}
+ texGL.set(e,t);return t}
+
+// ---- meshes: Rust prepared verts (x y z u v), u16 indices and runs (texture entry, first index, count)
+function takeMesh(){
+ const nI=M.g_mesh_nindices(),nR=M.g_mesh_nruns();
+ const v=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,v);
+ // vertex count is not exported separately: it is the largest index + 1
+ const idx=new Uint16Array(M.memory.buffer.slice(M.g_mesh_indices(),M.g_mesh_indices()+nI*2));let mx=0;for(const i of idx)if(i>mx)mx=i;
+ gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(M.memory.buffer.slice(M.g_mesh_verts(),M.g_mesh_verts()+(mx+1)*20)),gl.STATIC_DRAW);
+ const e=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,e);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,idx,gl.STATIC_DRAW);
+ const r=new Uint32Array(M.memory.buffer.slice(M.g_mesh_runs(),M.g_mesh_runs()+nR*12));const runs=[];
+ for(let i=0;i<nR;i++)runs.push([r[3*i],r[3*i+1],r[3*i+2]]);
+ return{v,e,runs}}
+function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
+ gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
+ for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[];
+function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
+
+async function init(){
+ const wasm=await WebAssembly.instantiate(await (await fetch('mep.wasm')).arrayBuffer());M=wasm.instance.exports;
+ whiteTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,whiteTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([200,200,200,255]));
+ const [tex,attr,bpk,zip,bor,mef]=await Promise.all([fetchBytes('game/textures_all2.tex'),fetchBytes('game/texture_attributes.dat'),fetchBytes('game/objects/megacity.bpk'),fetchBytes('game/objects/ms2_files.dat'),fetchBytes('game/f1.bor'),fetchBytes("game/levelfile.mef")]);
+ if(!feed(M.g_tex_load,tex))throw 'textures_all2.tex rejected by Rust';
+ feed(M.g_attr_load,attr);
+ if(!feed(M.g_bpk_load,bpk))throw 'megacity.bpk rejected by Rust';
+ if(!feed(M.g_zip_load,zip))throw 'ms2_files.dat rejected by Rust';
+ feed(M.g_bor_load,bor);if(!feed(M.g_mef_load,mef))throw 'LevelFile.mef rejected by Rust';
+ // SaveGame.dat lives in this browser's storage on the user's PC (the exe keeps it next to xgame.exe)
+ try{const b=localStorage.getItem('mep.SaveGame.dat');if(b)feed(M.g_save_load,Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){}
+ city={n:M.g_bpk_n(),cmin:M.g_bpk_cmin()};
+ // boot like FUN_0044a770: save or new game. DELIBERATE DEVIATION (user request): the new-game pick is seeded from crypto.getRandomValues
+ // instead of the exe's srand(time(0)), whose first rand() only changes every few seconds
+ const first=M.g_start(crypto.getRandomValues(new Uint32Array(1))[0]);if(first==0xff)throw 'start failed (LevelFile.mef / vehicle)';
+ const model=['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'][M.g_car_dept()];
+ const nm=new TextEncoder().encode(model);const np=M.g_alloc(nm.length);new Uint8Array(M.memory.buffer,np,nm.length).set(nm);
+ if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
+ // water objects (FUN_0045f080 creates riv*/doriv*/farm_riv/pool_riv at the world origin; model space == BPK space)
+ for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare(i))water.push(takeMesh());
+ // static props placed by LevelFile.mef (type -1 / 0xdeadbeef.. lists)
+ for(let i=0;i<M.g_prop_count();i++){if(!M.g_prop_prepare(i))continue;const me=takeMesh();const n=M.g_prop_instances(i);
+  const a=new Float32Array(M.memory.buffer.slice(M.g_inst_ptr(),M.g_inst_ptr()+n*64));for(let k=0;k<n;k++)props.push([me,a.subarray(k*16,k*16+16)])}
+ console.log('start:',['Speeder (cop)','Fire2 (fire)','Ambul8 (ambulance)','saved game'][first]);
+ // the exe writes SaveGame.dat on shutdown (FUN_00462330 -> FUN_0044a470)
+ addEventListener('pagehide',()=>{M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
+ $('msg').style.display='none';requestAnimationFrame(frame)}
+
+let st=null,acc=0,last=performance.now();const TICK=1000/30;   // 30 Hz simulation tick (original rate)
+function frame(now){
+ acc+=Math.min(now-last,250);last=now;
+ while(acc>=TICK){acc-=TICK;
+  const k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0);
+  const p=M.g_car_tick(k);if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
+  const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
+ const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
+ gl.viewport(0,0,w,h);gl.clearColor(.55,.7,.9,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ gl.uniform3f(loc.fog,.55,.7,.9);gl.uniform1f(loc.fogEnd,16000);
+ if(st){
+ const[x,y,z]=st.slice(16,19),f=st.slice(20,23),fl=Math.hypot(f[0],f[2])||1,fx=f[0]/fl,fz=f[2]/fl;
+ // camera from FUN_0040c170 (src/camera.rs); projection from rendersoftR viewport FUN_10016a40: horizontal half-angle = pi/6
+ // (fixed, vertical follows the aspect), near 15 / far 13000 BSP units (viewport created at 0x402885)
+ const eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
+ const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
+ const vfov=2*Math.atan(Math.tan(Math.PI/6)*h/w);
+ const vp=mul(persp(vfov,w/h,15,13000),lookAt(eye,ctr,up));
+ const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=12;
+ for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
+  const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
+ for(const wm of water)drawMesh(wm,vp);
+ for(const[me,mm]of props){const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
+ drawMesh(carModel,mul(vp,new Float32Array(st.slice(0,16))));
+ $('hud').textContent=`Arrows/WASD drive, Space siren+turbo
+x ${x.toFixed(0)} y ${y.toFixed(0)} z ${z.toFixed(0)}  speed ${st[19].toFixed(0)}
+Car handling: ported from xgame.exe (src/car.rs). Camera: FUN_0040c170 port`}
+ requestAnimationFrame(frame)}
+init().catch(e=>{$('msg').textContent='Error: '+e;console.error(e)});
+</script></body></html>
