@@ -93,27 +93,6 @@ fn text_lines(text: &str, top: f32, size: f32) {
         center(line, top + i as f32 * (size + 4.), size, WHITE)
     }
 }
-fn original_text(g: &Game, text: &str, x: f32, y: f32, scale: f32) {
-    let mut cursor = x;
-    for c in text.to_lowercase().chars() {
-        let name = format!("{c}sp");
-        if let Some(t) = g.assets.texture(&name) {
-            draw_texture_ex(
-                t,
-                cursor,
-                y,
-                WHITE,
-                DrawTextureParams {
-                    dest_size: Some(vec2(t.width() * scale, t.height() * scale)),
-                    ..Default::default()
-                },
-            );
-            cursor += t.width() * scale - 1.;
-        } else {
-            cursor += 8. * scale;
-        }
-    }
-}
 pub fn draw(g: &mut Game) {
     let aspect = 600. / 320.;
     let sw = screen_width();
@@ -538,121 +517,14 @@ pub fn precise_time(t: f32) -> String {
 fn hud(g: &Game) {
     if g.kind() == Kind::Bus {
         crate::bus_ui::hud(g);
-        if g.minimap {
-            map(g);
-        }
-        return;
-    }
-    if g.kind() == Kind::Bus {
-        draw_rectangle(0., 0., 600., 29., Color::new(0., 0., 0., 0.35));
-        original_text(g, &format!("{:07}", g.score), 12., 6., 1.);
-        if g.mode == 0 {
-            original_text(
-                g,
-                &format!("{:02}/{:02}", g.collected, g.world.tomato_total),
-                259.,
-                6.,
-                1.,
-            );
-        }
-        if g.mode != 2 {
-            original_text(g, &precise_time(g.clock), 478., 6., 0.9);
-        }
-        label(
-            &format!("{} MPH", g.vehicle.speed as i32),
-            495.,
-            305.,
-            20.,
-            YELLOW,
-        );
     } else {
-        if let Some(t) = g.assets.texture("hudsp.s") {
-            draw_texture(t, 9.5, 11.5, WHITE);
-        }
-        original_text(g, &precise_time(g.clock), 14., 30., 1.);
-        original_text(
-            g,
-            &g.world.rank(g.checkpoint, g.lap, g.vehicle.pos).to_string(),
-            14.,
-            77.,
-            1.,
-        );
-        original_text(
-            g,
-            &if g.best_lap > 0. {
-                precise_time(g.best_lap)
-            } else {
-                "-:--:--".into()
-            },
-            14.,
-            124.,
-            1.,
-        );
-        original_text(
-            g,
-            &format!(
-                "{}/{}",
-                g.lap.min(if g.mode == 0 { 2 } else { 1 }),
-                if g.mode == 0 { 2 } else { 1 }
-            ),
-            14.,
-            172.,
-            1.,
-        );
-        original_text(g, &format!("{:07}", g.score), 529., 10., 1.);
-        if g.mode == 1 {
-            label(
-                &format!(
-                    "EMAILS {}/{}",
-                    g.collected,
-                    [0, 5, 10, 15][g.difficulty as usize]
-                ),
-                420.,
-                303.,
-                19.,
-                YELLOW,
-            );
-        }
-        if let Some(t) = g.assets.texture("foptracksp.s") {
-            draw_texture(t, 19.5, 213.5, WHITE);
-        }
-        let map_point = |p: Vec3| vec2(60. - p.x * 0.00013, 260. + p.y * 0.00013);
-        for e in &g.world.entities {
-            if e.active && e.shape == "racer" {
-                let p = map_point(e.position);
-                draw_circle(p.x, p.y, 2., RED);
-            }
-        }
-        let p = map_point(g.vehicle.pos);
-        draw_circle(p.x, p.y, 2.5, GREEN);
-    }
-    if g.message_timer > 0. {
-        center(&g.message, 62., 18., YELLOW)
-    }
-    if g.kind() == Kind::Bus && g.mode != 0 && !g.world.targets.is_empty() {
-        let e = &g.world.entities[g.target];
-        let d = e.position - g.vehicle.pos;
-        let angle = d.x.atan2(-d.y) - g.vehicle.yaw.to_radians();
-        let center = vec2(300., 283.);
-        let dir = vec2(angle.sin(), -angle.cos());
-        draw_triangle(
-            center + dir * 18.,
-            center - dir * 10. + vec2(-dir.y, dir.x) * 8.,
-            center - dir * 10. - vec2(-dir.y, dir.x) * 8.,
-            YELLOW,
-        );
-        label(
-            &format!("{} m", (d.length() / 100.) as i32),
-            330.,
-            288.,
-            14.,
-            YELLOW,
-        );
+        crate::hover_hud::draw(g);
     }
     if g.minimap {
-        map(g)
+        map(g);
     }
 }
+
 fn map(g: &Game) {
     let rect = Rect::new(12., 160., 150., 145.);
     draw_rectangle(rect.x, rect.y, rect.w, rect.h, Color::new(0., 0., 0., 0.8));

@@ -74,6 +74,11 @@ impl Params {
 }
 #[derive(Clone, Debug)]
 pub struct Vehicle {
+    pub hover_collision_ticks: i32,
+    pub hover_actor: crate::hover_actor::Actor,
+    pub hover_track: crate::hover_race::TrackPosition,
+    pub hover_transfers: Vec<(usize, Vec2)>,
+    pub hover_contact: String,
     pub kind: Kind,
     pub pos: Vec3,
     pub previous: Vec3,
@@ -113,12 +118,17 @@ pub struct Vehicle {
     pub travel_yaw: f32,
 }
 fn sign(x: f32) -> f32 {
-    if x == 0. { 0. } else { x.signum() }
+    if x >= 0. { 1. } else { -1. }
 }
 impl Vehicle {
     pub fn new(kind: Kind, pos: Vec3, params: Params, difficulty: u8) -> Self {
         let yaw = if kind == Kind::Bus { -30. } else { 0. };
         Self {
+            hover_collision_ticks: 0,
+            hover_actor: Default::default(),
+            hover_track: Default::default(),
+            hover_transfers: Vec::new(),
+            hover_contact: String::new(),
             kind,
             pos,
             previous: pos,
@@ -166,6 +176,14 @@ impl Vehicle {
         if self.kind == Kind::Bus {
             crate::bus_drive::tick(self, input, world);
             return;
+        }
+        let old_pitch = self.pitch;
+        let old_roll = self.roll;
+        self.hover_collision_ticks -= 1;
+        self.hover_transfers.clear();
+        self.hover_contact.clear();
+        if self.jumping {
+            self.jump_time += self.params.dt;
         }
         self.previous = self.pos;
         self.previous_yaw = self.yaw;
@@ -244,6 +262,7 @@ impl Vehicle {
                 0.
             };
             let side = if v.x != 0. { (v.y / v.x).atan() } else { 0. };
+            self.side_slip = side;
             let weight = p.mass * 9.8 * 0.5;
             let factor = if slip { 0.1 } else { 1. };
             let front = p.front * (side + rot - steer) * weight * factor;
@@ -266,7 +285,7 @@ impl Vehicle {
             self.velocity = vec2(cs * v.x - sn * v.y, sn * v.x + cs * v.y);
             self.speed = v.length();
             let torque = p.wheelbase * 0.5 * (front - rear);
-            let limit = (self.speed / 20.).trunc()
+            let limit = (self.speed / 20.).round()
                 * if hover {
                     3.
                 } else {
@@ -274,124 +293,9 @@ impl Vehicle {
                 };
             self.angular_velocity += dt * (torque / p.inertia).clamp(-limit, limit);
         }
-        let mut next = self.pos
-            + vec3(self.velocity.x, self.velocity.y, 0.)
-                * dt
-                * p.scale
-                * if self.reverse { -1. } else { 1. };
-        if self.speed > 10. {
-            self.yaw += self.angular_velocity * dt * 180. / std::f32::consts::PI;
-        }
-        let ground = world.ground(
-            vec3(next.x, next.y, self.pos.z),
-            if hover { 600. } else { 100. },
-            if self.jumping {
-                (self.vertical_speed * dt).abs() + 300.
-            } else {
-                600.
-            },
-        );
-        if let Some(hit) = ground {
-            let ground_z = hit.pos.z + self.height;
-            if !self.jumping || self.vertical_speed <= 0. && next.z <= ground_z + 200. {
-                next.z = ground_z;
-                self.grounded = true;
-                self.jumping = false;
-                self.vertical_speed = 0.;
-                self.surface = hit.texture;
-                let f = self.forward();
-                let normal = hit.normal;
-                if normal.z.abs() > 0.05 {
-                    let dz = -(normal.x * f.x + normal.y * f.y) / normal.z;
-                    let pitch = -dz.atan().to_degrees();
-                    self.pitch += (pitch - self.pitch).clamp(-2., 2.);
-                }
-                self.roll +=
-                    (-input.steer * (self.speed / 50.).min(12.) - self.roll).clamp(-2., 2.);
-            }
-        } else if !self.jumping {
-            self.jumping = true;
-            self.grounded = false;
-            let slope_speed = (self.speed * p.scale * self.pitch.to_radians().sin()).abs();
-            let ramp = if self.surface.contains("ramp") || self.surface == "rock" {
-                2.
-            } else {
-                1.
-            };
-            self.vertical_speed = if hover {
-                ((500. + slope_speed) * ramp * 3.).min(3000.)
-            } else {
-                (slope_speed * ramp).min(500.)
-            };
-        }
-        if self.jumping {
-            let gravity = p.gravity * p.scale * if hover { 1. } else { 2. };
-            next.z += self.vertical_speed * dt - gravity * dt * dt * 0.5;
-            self.vertical_speed -= gravity * dt;
-            if hover {
-                self.yaw -= input.steer;
-            }
-        }
-        let (half_x, half_y) = if hover { (100., 100.) } else { (80., 150.) };
-        let a = self.yaw.to_radians();
-        let (s, c) = a.sin_cos();
-        for (x, y) in [
-            (0., -half_y),
-            (-half_x, -half_y),
-            (half_x, -half_y),
-            (half_x, half_y),
-            (-half_x, half_y),
-        ] {
-            let corner = vec3(c * x - s * y, s * x + c * y, if hover { 50. } else { 0. });
-            if let Some(hit) = world.walls(self.previous + corner, next + corner) {
-                if hit.normal.z.abs() > 0.65 {
-                    continue;
-                }
-                let n = hit.normal.truncate().normalize_or_zero();
-                let physical = if self.reverse {
-                    -self.velocity
-                } else {
-                    self.velocity
-                };
-                let approach = physical.dot(n);
-                if approach < 0. {
-                    let old_speed = self.speed;
-                    let terrain = hit.object == usize::MAX;
-                    let restitution = if terrain {
-                        if hover { 0.9 } else { 0.5 }
-                    } else {
-                        0.
-                    };
-                    let lever = vec2(-corner.y, corner.x) / p.scale;
-                    let arm = lever.dot(n);
-                    let impulse =
-                        -(1. + restitution) * approach / (1. / p.mass + arm * arm / p.inertia);
-                    let mut bounced = (physical + impulse / p.mass * n) * 0.8;
-                    if bounced.length() < 20. {
-                        bounced = Vec2::ZERO;
-                    }
-                    if bounced.length() > old_speed {
-                        bounced = bounced.normalize_or_zero() * old_speed;
-                    }
-                    self.velocity = if self.reverse { -bounced } else { bounced };
-                    self.speed = self.velocity.length();
-                    next = self.previous + hit.normal * 5.;
-                    self.angular_velocity = if self.speed == 0. {
-                        0.
-                    } else {
-                        arm * impulse / p.inertia * if self.reverse { -1. } else { 1. }
-                    };
-                    self.crash = old_speed > 10.;
-                    self.crash_object = Some(hit.object);
-                    if hover && !terrain && hit.texture != "goal" && old_speed > 10. {
-                        self.damage += (old_speed / 3.).trunc().clamp(1., 25.);
-                    }
-                    break;
-                }
-            }
-        }
-        self.pos = next;
-        self.yaw = self.yaw.rem_euclid(360.);
+        crate::hover_drive::move_and_collide(self, world, input, old_pitch, old_roll);
+        self.hover_actor
+            .tick(input.steer, self.reverse, self.jumping);
     }
 }
 #[cfg(test)]

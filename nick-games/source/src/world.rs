@@ -8,6 +8,7 @@ use macroquad::prelude::*;
 use serde_json::Value;
 #[derive(Clone, Debug)]
 pub struct Entity {
+    pub racer: crate::hover_race::Racer,
     pub shape: String,
     pub model: String,
     pub position: Vec3,
@@ -302,6 +303,7 @@ impl World {
                 world.targets.push(idx)
             }
             world.entities.push(Entity {
+                racer: Default::default(),
                 shape,
                 model,
                 position,
@@ -431,9 +433,7 @@ impl World {
                         .or_else(|| e.data.as_str().and_then(|s| s.parse().ok()))
                         .unwrap_or(0.) as f32
                         * if difficulty == 3 { 500. } else { 400. };
-                    e.path = world.track.clone();
-                    e.path_index =
-                        nearest(&e.path, e.position).saturating_add(1) % e.path.len().max(1)
+                    crate::hover_race::configure(e, &world.track, difficulty, &mut rng);
                 }
                 if e.shape == "stop" {
                     e.active = stops.contains(&i)
@@ -470,6 +470,7 @@ impl World {
                     let Some(i) = locations.pop() else { break };
                     let base = world.track[i] + vec3(0., 0., 500.);
                     world.entities.push(Entity {
+                        racer: Default::default(),
                         shape: shape.into(),
                         model: String::new(),
                         sprite: format!("{shape}sp.t"),
@@ -551,10 +552,24 @@ impl World {
         Ok(world)
     }
     pub fn sync_bus_colliders(&mut self, assets: &Assets) {
-        if self.kind != Kind::Bus {
+        self.collision.clear_moving();
+        if self.kind == Kind::Hover {
+            if let Some(model) = assets.model("box") {
+                for (i, e) in self
+                    .entities
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, e)| e.active && e.shape == "racer")
+                {
+                    let matrix = Mat4::from_translation(e.position - Vec3::Z * e.scale * 0.5)
+                        * Mat4::from_rotation_z(e.rotation.to_radians())
+                        * Mat4::from_scale(vec3(4., 4., 2.5) * e.scale / 100.);
+                    self.collision.add_moving(model, matrix, i);
+                    self.collision.set_velocity(i, e.racer.velocity.truncate());
+                }
+            }
             return;
         }
-        self.collision.clear_moving();
         for (i, e) in self.entities.iter().enumerate() {
             if e.active
                 && e.crash_ticks == 0
@@ -655,7 +670,7 @@ impl World {
             self.particles.drain(..self.particles.len() - 240);
         }
     }
-    pub fn tick_entities(&mut self, slow: bool, hero: Vec3) {
+    pub fn tick_entities(&mut self, _slow: bool, hero: Vec3) {
         for p in &mut self.particles {
             p.position += p.velocity;
             p.velocity.z -= 3.;
@@ -668,13 +683,7 @@ impl World {
             .filter(|e| e.shape == "jelly")
             .map(|e| e.path[0])
             .collect();
-        let gate = self
-            .entities
-            .iter()
-            .find(|e| e.shape == "finishline")
-            .map(|e| e.position)
-            .unwrap_or(Vec3::ZERO);
-        for e in &mut self.entities {
+        for (index, e) in self.entities.iter_mut().enumerate() {
             e.previous = e.position;
             if !e.active {
                 if e.cooldown > 0 {
@@ -683,6 +692,16 @@ impl World {
                         e.active = true
                     }
                 }
+                continue;
+            }
+            if self.kind == Kind::Hover && e.shape == "racer" {
+                crate::hover_race::tick(
+                    e,
+                    index,
+                    &self.collision,
+                    &self.track,
+                    if self.mode == 0 { 2 } else { 1 },
+                );
                 continue;
             }
             if e.crash_ticks > 0 {
@@ -745,46 +764,15 @@ impl World {
             }
             if matches!(
                 e.shape.as_str(),
-                "racer" | "bulldozer" | "path" | "arnold" | "helga" | "gerald" | "grandpa"
+                "bulldozer" | "path" | "arnold" | "gerald" | "helga" | "grandpa"
             ) && e.path.len() > 1
             {
-                let height = if e.shape == "racer" {
-                    0.
-                } else {
-                    e.scale * if e.model == "grandpa" { 1.875 } else { 0.6125 }
-                };
+                let height = e.scale * if e.model == "grandpa" { 1.875 } else { 0.6125 };
                 let destination = e.path[e.path_index % e.path.len()] + Vec3::Z * height;
                 let d = destination - e.position;
-                let target_angle = d.x.atan2(-d.y).to_degrees();
-                let delta = (target_angle - e.rotation + 180.).rem_euclid(360.) - 180.;
-                if e.shape == "racer" {
-                    let change = if delta.abs() <= 0.1 {
-                        delta
-                    } else {
-                        delta.signum() * (delta.abs() * 0.1).max(0.1)
-                    };
-                    e.rotation += change;
-                    if e.speed < 100. {
-                        e.speed += 10.
-                    } else if change.abs() > 0.1 {
-                        e.speed = (e.speed - change.abs().min(10.) * 3.).max(10.)
-                    } else {
-                        e.speed = (e.speed + 10.).min(e.max_speed)
-                    }
-                } else {
-                    e.rotation = target_angle;
-                }
-                let speed = if slow && e.shape == "racer" {
-                    10.
-                } else {
-                    e.speed
-                };
-                if d.length() < speed.max(1.) * 2. {
-                    e.position = if e.shape == "racer" {
-                        destination.with_z(e.position.z)
-                    } else {
-                        destination
-                    };
+                e.rotation = d.x.atan2(-d.y).to_degrees();
+                if d.length() < e.speed.max(1.) * 2. {
+                    e.position = destination;
                     if e.path_loop == "pingpong" {
                         if e.path_direction > 0 && e.path_index + 1 >= e.path.len() {
                             e.path_direction = -1;
@@ -797,57 +785,26 @@ impl World {
                         e.path_index = (e.path_index + 1) % e.path.len();
                     }
                 } else {
-                    let a = e.rotation.to_radians();
-                    e.position += vec3(a.sin(), -a.cos(), 0.) * speed;
-                    if e.shape != "racer" {
-                        e.position.z += d.z / d.length().max(1.) * speed;
-                    }
-                }
-                if e.shape == "racer"
-                    && e.race_progress
-                        .update(&self.track, e.previous, e.position, gate)
-                {
-                    e.lap += 1;
-                }
-                if e.shape == "racer" {
-                    let floor = self.collision.ground(e.position, e.scale + 200., 5000.);
-                    let height = e.scale * 0.5;
-                    let on_ground = floor.as_ref().map(|h| h.pos.z + height);
-                    if e.air_ticks == 0 && on_ground.is_none_or(|z| e.position.z - z > 1200.) {
-                        let slope = (e.speed * 10. * e.tilt.to_radians().sin()).abs();
-                        e.vertical_speed = ((500. + slope)
-                            * 3.
-                            * if e.surface.contains("ramp") { 2. } else { 1. })
-                        .min(3000.);
-                        e.air_ticks = 1;
-                    }
-                    if e.air_ticks > 0 {
-                        e.air_ticks += 1;
-                        e.position.z += e.vertical_speed * 0.05 - 4.5;
-                        e.vertical_speed -= 180.;
-                        if let Some(z) = on_ground
-                            && e.air_ticks > 5
-                            && e.vertical_speed < 0.
-                            && e.position.z <= z + 100.
-                        {
-                            e.air_ticks = 0;
-                            e.position.z = z;
-                        }
-                    } else if let Some(z) = on_ground {
-                        e.position.z = z;
-                    }
-                    if e.air_ticks == 0
-                        && let Some(hit) = floor
-                    {
-                        e.surface = hit.texture;
-                        let angle = e.rotation.to_radians();
-                        let d = -(hit.normal.x * angle.sin() - hit.normal.y * angle.cos())
-                            / hit.normal.z.abs().max(0.1);
-                        e.tilt = (-d.atan().to_degrees()).clamp(-20., 20.);
-                    }
+                    e.position += d.normalize_or_zero() * e.speed;
                 }
             }
         }
+    }
+    pub fn timewarp_racers(&mut self) {
+        for e in &mut self.entities {
+            if e.active && e.shape == "racer" {
+                e.speed = 10.;
+            }
+        }
+    }
+    pub fn hover_rank(&self, hero: &crate::hover_race::TrackPosition) -> usize {
+        1 + self
+            .entities
+            .iter()
+            .filter(|e| {
+                e.active && e.shape == "racer" && e.racer.track.ahead_of(hero, self.track.len())
+            })
+            .count()
     }
     pub fn rank(&self, checkpoint: usize, lap: u32, pos: Vec3) -> usize {
         let n = self.track.len().max(1);

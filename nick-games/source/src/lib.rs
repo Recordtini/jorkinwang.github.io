@@ -27,3 +27,11 @@ pub mod bus_hud;
 pub mod bus_mission;
 pub mod bus_rules;
 pub mod options_ui;
+
+pub mod hover_drive;
+
+pub mod hover_actor;
+
+pub mod hover_race;
+
+pub mod hover_hud;

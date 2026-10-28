@@ -40,6 +40,7 @@ pub struct Player {
 }
 #[derive(Clone)]
 pub struct ActorFrame {
+    pub racer: crate::hover_race::Racer,
     pub index: usize,
     pub pos: Vec3,
     pub yaw: f32,
@@ -48,6 +49,8 @@ pub struct ActorFrame {
 }
 #[derive(Clone)]
 pub struct Frame {
+    pub hover_track: crate::hover_race::TrackPosition,
+    pub hover_actor: crate::hover_actor::Actor,
     pub pos: Vec3,
     pub yaw: f32,
     pub pitch: f32,
@@ -144,13 +147,14 @@ impl Game {
             "stupor-highway"
         };
         let assets = Assets::load(name).await?;
-        let world = World::build(&assets, kind, 1, 0, 1793130001)?;
+        let initial_difficulty = if kind == Kind::Bus { 1 } else { 3 };
+        let world = World::build(&assets, kind, initial_difficulty, 0, 1793130001)?;
         let params = if kind == Kind::Bus {
             Params::bus(&assets)
         } else {
             Params::hover()
         };
-        let vehicle = Vehicle::new(kind, world.start, params, 1);
+        let vehicle = Vehicle::new(kind, world.start, params, initial_difficulty);
         let mut renderer = Renderer::new(&assets)?;
         renderer.reset_camera(&vehicle);
         renderer.smooth = platform::get(10) != 2.;
@@ -175,7 +179,7 @@ impl Game {
             options_selection: 0,
             last_audio_screen: Screen::Title,
             mode: 0,
-            difficulty: 1,
+            difficulty: initial_difficulty,
             driver: 0,
             player_count: 1,
             player_index: 0,
@@ -318,8 +322,19 @@ impl Game {
         self.trace.clear();
         self.recovery.frames.clear();
         self.replay_end = None;
-        self.message.clear();
-        self.message_timer = 0.;
+        self.message = if kind == Kind::Hover {
+            match self.mode {
+                1 => format!(
+                    "Collect {} envelopes before any of the other racers finish!",
+                    [0, 5, 10, 15][self.difficulty as usize]
+                ),
+                2 => "Complete the circuit as fast as you can!".into(),
+                _ => "Beat the other racers to the finish!".into(),
+            }
+        } else {
+            String::new()
+        };
+        self.message_timer = if kind == Kind::Hover { 20. } else { 0. };
         self.mini_message.clear();
         self.mini_message_timer = 0.;
         self.carrying = false;
@@ -452,8 +467,12 @@ impl Game {
         if self.muted {
             return;
         }
-        let channel = if matches!(name, "click.aif" | "rollover.aif") {
+        let channel = if matches!(name, "click.aif" | "rollover.aif" | "baddielaugh.aif") {
             crate::audio::Channel::Voice
+        } else if self.kind() == Kind::Hover
+            && matches!(name, "jump.aif" | "hoverland.aif" | "hovercrash.aif")
+        {
+            crate::audio::Channel::HeroEffect
         } else {
             crate::audio::Channel::Effect
         };
@@ -461,7 +480,16 @@ impl Game {
             channel,
             name,
             self.assets.sound_loops.get(name).copied().unwrap_or(false),
-            self.volume * self.effects_volume,
+            self.volume
+                * self.effects_volume
+                * if channel == crate::audio::Channel::HeroEffect {
+                    crate::audio::hover_gain(crate::hover_race::manhattan(
+                        self.vehicle.pos,
+                        self.renderer.camera_position,
+                    ))
+                } else {
+                    1.
+                },
             true,
         );
         self.apply_audio(commands);
@@ -552,7 +580,7 @@ impl Game {
         let engine = if bus {
             crate::audio::bus_engine(self.vehicle.speed)
         } else {
-            "hoverengine.aif".into()
+            crate::audio::hover_engine(self.vehicle.speed, self.vehicle.turbo).into()
         };
         let gain = if self.muted {
             0.
@@ -562,7 +590,16 @@ impl Game {
         let mut commands = Vec::new();
         {
             let mut mixer = self.mixer.borrow_mut();
-            commands.extend(mixer.set(Channel::Hero, &engine, true, gain * 100. / 255., false));
+            let hero_gain = gain
+                * if bus {
+                    100. / 255.
+                } else {
+                    crate::audio::hover_gain(crate::hover_race::manhattan(
+                        self.vehicle.pos,
+                        self.renderer.camera_position,
+                    ))
+                };
+            commands.extend(mixer.set(Channel::Hero, &engine, true, hero_gain, false));
             self.engine = engine;
             let hero_effect = if bus && self.vehicle.speed == 0. && self.vehicle.acceleration.x > 0.
             {
@@ -574,19 +611,23 @@ impl Game {
             } else {
                 ""
             };
-            commands.extend(
-                mixer.set(
-                    Channel::HeroEffect,
-                    hero_effect,
-                    self.assets
-                        .sound_loops
-                        .get(hero_effect)
-                        .copied()
-                        .unwrap_or(false),
-                    gain * 100. / 255.,
-                    false,
-                ),
-            );
+            if bus {
+                commands.extend(
+                    mixer.set(
+                        Channel::HeroEffect,
+                        hero_effect,
+                        self.assets
+                            .sound_loops
+                            .get(hero_effect)
+                            .copied()
+                            .unwrap_or(false),
+                        gain * 100. / 255.,
+                        false,
+                    ),
+                );
+            } else {
+                commands.extend(mixer.gain(Channel::HeroEffect, hero_gain));
+            }
             self.skidding = hero_effect == "skid.aif";
             let dozer = self
                 .world
@@ -950,6 +991,11 @@ impl Game {
         }
     }
     fn tick(&mut self, input: Input, dt: f32) {
+        let previous_rank = if self.kind() == Kind::Hover {
+            self.world.hover_rank(&self.vehicle.hover_track)
+        } else {
+            1
+        };
         self.clock_ticks += 1;
         self.elapsed += dt;
         if self.kind() == Kind::Bus && self.mode != 2 && !self.unlimited_time {
@@ -977,7 +1023,28 @@ impl Game {
                 .iter()
                 .any(|e| e.active && e.dozer_contact);
         self.world.sync_bus_colliders(&self.assets);
+        let was_jumping = self.vehicle.jumping;
         self.vehicle.tick(input, &self.world.collision);
+        if self.kind() == Kind::Hover {
+            for &(index, impulse) in &self.vehicle.hover_transfers {
+                if let Some(e) = self.world.entities.get_mut(index) {
+                    e.racer.velocity -= impulse.extend(0.);
+                }
+            }
+            self.vehicle.hover_track.update(
+                &self.world.track,
+                self.vehicle.pos,
+                false,
+                &self.vehicle.surface,
+            );
+        }
+        if self.kind() == Kind::Hover && was_jumping != self.vehicle.jumping {
+            self.sound(if self.vehicle.jumping {
+                "jump.aif"
+            } else {
+                "hoverland.aif"
+            });
+        }
         self.renderer.tick_bus_camera(&self.world, &self.vehicle);
         if self.kind() == Kind::Bus {
             self.world
@@ -1004,7 +1071,7 @@ impl Game {
             self.sound(if self.kind() == Kind::Bus {
                 "crash1.aif"
             } else {
-                "hovercrash.aif"
+                "hoverland.aif"
             });
             self.hit_cooldown = 8
         }
@@ -1012,7 +1079,7 @@ impl Game {
             < if self.kind() == Kind::Bus {
                 -500.
             } else {
-                -20000.
+                -40000.
             }
             || !self.vehicle.pos.is_finite()
             || self.kind() == Kind::Bus && self.vehicle.surface == "wat"
@@ -1032,6 +1099,7 @@ impl Game {
         let is_bus = self.kind() == Kind::Bus;
         let mut effects = Vec::new();
         let mut bursts = Vec::new();
+        let mut timewarped = false;
         let mut caught = dozer_caught_before_drive;
         if is_bus
             && crate::bus_rules::Settings::new(self.mode, self.difficulty)
@@ -1095,7 +1163,15 @@ impl Game {
                         self.vehicle.invincible = 200;
                     }
                     if !is_bus && e.shape == "point" {
-                        self.collected += 1
+                        self.collected += 1;
+                        if self.mode == 1 {
+                            self.message = format!(
+                                "{} of {} emails rescued",
+                                self.collected,
+                                [0, 5, 10, 15][self.difficulty as usize]
+                            );
+                            self.message_timer = 2.;
+                        }
                     }
                     effects.push(if is_bus {
                         "bonus.aif"
@@ -1122,18 +1198,12 @@ impl Game {
                 }
                 "timewarp" => {
                     self.score += 500;
-                    self.slow = 200;
+                    timewarped = true;
                     effects.push("bonustimewarp.aif");
                     collected = true;
                 }
-                "racer" => {
-                    if self.hit_cooldown == 0 {
-                        self.vehicle.velocity *= 0.6;
-                        self.vehicle.damage += 15.;
-                        effects.push("hovercrash.aif");
-                        self.hit_cooldown = 25
-                    }
-                }
+                "racer" => {} // Original moving proxy and relative-velocity impulse.
+
                 "jelly" | "bulldozer" => {} // Source dozer probes/contacts above; no extra drag.
                 _ => {}
             }
@@ -1145,6 +1215,9 @@ impl Game {
                     e.cooldown = 200
                 }
             }
+        }
+        if timewarped {
+            self.world.timewarp_racers();
         }
         for p in bursts {
             self.world.burst(p);
@@ -1230,6 +1303,7 @@ impl Game {
         if !is_bus {
             if self.mode == 1
                 && !self.unlimited_time
+                && !self.vehicle.jumping
                 && self
                     .world
                     .entities
@@ -1239,39 +1313,47 @@ impl Game {
                 self.finish(false, "You did not collect all the envelopes in time.");
                 return;
             }
-            let gate = self
-                .world
-                .entities
-                .iter()
-                .find(|e| e.shape == "finishline")
-                .map(|e| e.position)
-                .unwrap_or(Vec3::ZERO);
-            let mut progress = crate::rules::Progress {
-                checkpoint: self.checkpoint,
-                furthest: self.max_checkpoint,
-            };
-            if progress.update(
-                &self.world.track,
-                self.vehicle.previous,
-                self.vehicle.pos,
-                gate,
-            ) {
-                self.lap += 1;
+            if self.world.hover_rank(&self.vehicle.hover_track) > previous_rank {
+                self.sound("baddielaugh.aif");
+            }
+            let track = &mut self.vehicle.hover_track;
+            let completed = self.mode != 1
+                && track.finish(
+                    self.world.track.len(),
+                    &self.vehicle.surface,
+                    &self.vehicle.hover_contact,
+                );
+            self.checkpoint = track.point;
+            self.max_checkpoint = track.counter;
+            self.lap = track.lap;
+            if track.wrong_way > 10 && self.vehicle.surface.contains("dirt") {
+                self.message = "WRONG WAY".into();
+                self.message_timer = 1.;
+            }
+            if completed {
                 self.lap_times.push(self.clock);
                 self.best_lap = self.lap_times.iter().copied().fold(f32::INFINITY, f32::min);
-                self.score += crate::rules::lap_bonus(self.clock, self.difficulty);
-                self.clock = 0.;
-                self.sound("bonus.aif");
+                if self.lap <= if self.mode == 0 { 2 } else { 1 } {
+                    let bonus = crate::rules::lap_bonus(self.clock, self.difficulty);
+                    if bonus > 0 {
+                        self.score += bonus;
+                        self.message = format!("Lap Time Bonus: {bonus}");
+                        self.message_timer = 2.;
+                        self.sound("bonus.aif");
+                    }
+                    self.clock = 0.;
+                }
             }
-            self.checkpoint = progress.checkpoint;
-            self.max_checkpoint = progress.furthest;
-            if self.mode == 1 && self.collected >= [0, 5, 10, 15][self.difficulty as usize] {
+            if self.mode == 1
+                && !self.vehicle.jumping
+                && self.collected >= [0, 5, 10, 15][self.difficulty as usize]
+            {
                 self.finish(true, "EMAILS RESCUED!");
                 return;
             }
             let laps = if self.mode == 0 { 2 } else { 1 };
-            if self.mode != 1 && self.lap > laps {
-                let rank = self.world.rank(self.checkpoint, self.lap, self.vehicle.pos);
+            if self.mode != 1 && !self.vehicle.jumping && self.lap > laps {
+                let rank = self.world.hover_rank(&self.vehicle.hover_track);
                 self.finish(true, &format!("FINISHED IN POSITION {rank}"));
                 return;
             }
@@ -1294,6 +1376,7 @@ impl Game {
             }
             if e.path.len() > 1 || e.crash_ticks > 0 || e.shape == "jelly" {
                 actors.push(ActorFrame {
+                    racer: e.racer.clone(),
                     index: i,
                     pos: e.position,
                     yaw: e.rotation,
@@ -1303,6 +1386,8 @@ impl Game {
             }
         }
         Frame {
+            hover_track: self.vehicle.hover_track.clone(),
+            hover_actor: self.vehicle.hover_actor.clone(),
             pos: self.vehicle.pos,
             yaw: self.vehicle.yaw,
             pitch: self.vehicle.pitch,
@@ -1332,6 +1417,8 @@ impl Game {
         self.vehicle.roll = f.roll;
         self.vehicle.speed = f.speed;
         self.vehicle.jumping = f.jumping;
+        self.vehicle.hover_actor = f.hover_actor.clone();
+        self.vehicle.hover_track = f.hover_track.clone();
         for (i, e) in self.world.entities.iter_mut().enumerate() {
             if e.path.len() <= 1 && e.shape != "jelly" {
                 e.position = e.base;
@@ -1344,6 +1431,7 @@ impl Game {
         }
         for actor in &f.actors {
             if let Some(e) = self.world.entities.get_mut(actor.index) {
+                e.racer = actor.racer.clone();
                 e.previous = e.position;
                 e.position = actor.pos;
                 e.rotation = actor.yaw;

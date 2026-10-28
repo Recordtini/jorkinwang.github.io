@@ -1,6 +1,6 @@
 # Nickelodeon Rust ports
 
-Current priority: **Hey Arnold! Runaway Bus**. The native Rust/WASM build is playable; fidelity review is still in progress. Fairly OddParents code and recovered assets are retained, but it is not the current release priority.
+Current priority: **Fairly OddParents: Information Stupor Highway**. Runaway Bus is released, with remaining original-runtime comparisons tracked in `FIDELITY.md`. Stupor Highway is playable and undergoing a source-backed gameplay pass; see `STUPOR_FIDELITY.md`.
 
 ## Play locally
 
@@ -8,10 +8,10 @@ Current priority: **Hey Arnold! Runaway Bus**. The native Rust/WASM build is pla
 python3 tools/serve.py
 ```
 
-Open `http://127.0.0.1:8765/runaway-bus/`. The checked-in `web/engine.wasm` includes the assets and needs no Flash, Shockwave, Director, or network game service. Serve over HTTP rather than opening the HTML through `file://`.
+Open `http://127.0.0.1:8765/runaway-bus/` or `http://127.0.0.1:8765/stupor-highway/`. The checked-in `web/engine.wasm` includes the assets and needs no Flash, Shockwave, Director, or network game service. Serve over HTTP rather than opening the HTML through `file://`.
 
 - Arrows or WASD: drive; Down brakes and then reverses.
-- Space: powerslide.
+- Space: powerslide in Runaway Bus; boost and drift in Stupor Highway.
 - C: camera; B: recover; Tab: optional map.
 - Escape/P: pause; M: mute; F1: options; F11: fullscreen.
 - Browser controller: triggers accelerate/brake, stick/D-pad steer, X/RB powerslide, Y camera, Start pause, A confirm. D-pad navigates menus.

@@ -21,6 +21,7 @@ pub struct Hit {
 pub struct CollisionWorld {
     pub triangles: Vec<Triangle>,
     moving: Vec<Triangle>,
+    velocities: HashMap<usize, Vec2>,
     cells: HashMap<(i32, i32), Vec<usize>>,
     cell: f32,
     disabled: HashSet<usize>,
@@ -36,6 +37,7 @@ impl CollisionWorld {
         Self {
             triangles: vec![],
             moving: Vec::new(),
+            velocities: HashMap::new(),
             cells: HashMap::new(),
             cell,
             disabled: HashSet::new(),
@@ -87,9 +89,16 @@ impl CollisionWorld {
     }
     pub fn clear_moving(&mut self) {
         self.moving.clear();
+        self.velocities.clear();
     }
     pub fn add_moving(&mut self, model: &Model, m: Mat4, object: usize) {
         self.moving.extend(Self::model_triangles(model, m, object));
+    }
+    pub fn set_velocity(&mut self, object: usize, velocity: Vec2) {
+        self.velocities.insert(object, velocity);
+    }
+    pub fn velocity(&self, object: usize) -> Option<Vec2> {
+        self.velocities.get(&object).copied()
     }
     pub fn mark_breakable(&mut self, object: usize) {
         self.breakable.insert(object);
@@ -102,6 +111,12 @@ impl CollisionWorld {
     }
     pub fn segment(&self, from: Vec3, to: Vec3) -> Option<Hit> {
         self.segment_where(from, to, |_| true, true)
+    }
+    pub fn segment_except(&self, from: Vec3, to: Vec3, object: usize) -> Option<Hit> {
+        self.segment_where(from, to, |t| t.object != object, true)
+    }
+    pub fn segment_object(&self, from: Vec3, to: Vec3, object: usize) -> Option<Hit> {
+        self.segment_where(from, to, |t| t.object == object, true)
     }
     pub fn segment_static(&self, from: Vec3, to: Vec3) -> Option<Hit> {
         self.segment_where(from, to, |_| true, false)

@@ -597,7 +597,7 @@ impl Renderer {
                 let frame = if crate::bus_actor::person(&e.model) {
                     e.actor.frame(&e.model)
                 } else if e.model == "nickfopbaddie" {
-                    1. + (clock * 20.).rem_euclid(40.)
+                    1. + e.racer.phase as f32
                 } else {
                     0.
                 };
@@ -605,7 +605,8 @@ impl Renderer {
                     a,
                     &e.model,
                     transform(e.previous.lerp(e.position, alpha), rotation, e.scale)
-                        * Mat4::from_rotation_x(e.tilt.to_radians()),
+                        * Mat4::from_rotation_x(e.tilt.to_radians())
+                        * Mat4::from_rotation_y(e.racer.bank.to_radians()),
                     frame,
                 );
             } else if !e.sprite.is_empty()
@@ -666,10 +667,10 @@ impl Renderer {
                 name,
                 matrix,
                 if v.kind == Kind::Hover {
-                    if v.jumping {
-                        200.
-                    } else {
+                    if menu {
                         5. + (clock * 20.).rem_euclid(35.)
+                    } else {
+                        v.hover_actor.frame()
                     }
                 } else {
                     0.

@@ -139,3 +139,20 @@ pub fn bus_engine(speed: f32) -> String {
 pub fn dozer_gain(distance: f32) -> f32 {
     (400. - distance * 0.075).round().clamp(0., 255.) / 255.
 }
+
+/// gHeroDrive.engineSound: a turbo pickup owns the boosted loop.
+/// Space alone increases throttle/grip slip but does not select turbo audio.
+pub fn hover_engine(speed: f32, turbo: i32) -> &'static str {
+    if speed == 0. {
+        ""
+    } else if turbo > 0 {
+        "turbo.aif"
+    } else {
+        "hoverengine.aif"
+    }
+}
+
+/// SoundControl.cameraVolume: source Manhattan-distance falloff, then -100.
+pub fn hover_gain(distance: f32) -> f32 {
+    ((255. - 255. / 90000. * distance).min(255.) - 100.).max(10.) / 255.
+}

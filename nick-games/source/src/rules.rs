@@ -32,7 +32,7 @@ pub fn score_multiplier(difficulty: u8) -> i32 {
     [1, 1, 2, 4][difficulty.min(3) as usize]
 }
 pub fn lap_bonus(seconds: f32, difficulty: u8) -> i32 {
-    (120. - seconds).trunc().max(0.) as i32 * 50 * score_multiplier(difficulty)
+    (120. - seconds).round().max(0.) as i32 * 50 * score_multiplier(difficulty)
 }
 pub fn bus_clock_step(dt: f32) -> f32 {
     dt * 100. / 60.
