@@ -38,6 +38,8 @@ impl Pack {
 #[derive(Deserialize)]
 pub struct FileAsset {
     pub file: String,
+    #[serde(default)]
+    pub looped: bool,
 }
 #[derive(Deserialize)]
 pub struct Manifest {
@@ -50,6 +52,7 @@ pub struct Assets {
     pub models: HashMap<String, Model>,
     pub textures: HashMap<String, Texture2D>,
     pub sounds: HashMap<String, Sound>,
+    pub sound_loops: HashMap<String, bool>,
     pub texts: HashMap<String, String>,
 }
 /// Extract the section 2 text from a Director XMED styled-text member.
@@ -71,6 +74,11 @@ impl Assets {
                 .ok_or("Missing game manifest")?,
         )
         .map_err(|e| e.to_string())?;
+        let sound_loops = manifest
+            .sounds
+            .iter()
+            .map(|(name, meta)| (name.clone(), meta.looped))
+            .collect();
         macroquad::logging::info!("Loading {game}");
         let mut models = HashMap::new();
         let mut textures = HashMap::new();
@@ -168,6 +176,7 @@ impl Assets {
             models,
             textures,
             sounds,
+            sound_loops,
             texts,
         })
     }

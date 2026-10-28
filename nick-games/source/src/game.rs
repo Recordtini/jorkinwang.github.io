@@ -74,6 +74,9 @@ pub struct Game {
     pub screen: Screen,
     pub previous_screen: Screen,
     pub options_return: Screen,
+    pub options_tab: u8,
+    pub options_selection: usize,
+    pub last_audio_screen: Screen,
     pub mode: u8,
     pub difficulty: u8,
     pub driver: usize,
@@ -92,6 +95,11 @@ pub struct Game {
     pub won: bool,
     pub volume: f32,
     pub muted: bool,
+    pub effects_volume: f32,
+    pub music_volume: f32,
+    pub mixer: std::cell::RefCell<crate::audio::Mixer>,
+    pub unlimited_time: bool,
+    pub practice_used: bool,
     pub music_enabled: bool,
     pub fps: bool,
     pub minimap: bool,
@@ -148,6 +156,7 @@ impl Game {
         renderer.smooth = platform::get(10) != 2.;
         renderer.filtering = platform::get(11) == 1.;
         renderer.widescreen = platform::get(12) == 1.;
+        renderer.camera_mode = (platform::get(20) as u8).min(if kind == Kind::Bus { 2 } else { 3 });
         let original_words = assets
             .texts
             .get("defaulttext")
@@ -162,6 +171,9 @@ impl Game {
             screen: Screen::Title,
             previous_screen: Screen::Title,
             options_return: Screen::Title,
+            options_tab: 0,
+            options_selection: 0,
+            last_audio_screen: Screen::Title,
             mode: 0,
             difficulty: 1,
             driver: 0,
@@ -184,9 +196,22 @@ impl Game {
                 (platform::get(13) - 1.) as f32
             },
             muted: platform::get(14) == 1.,
+            effects_volume: if platform::get(17) == 0. {
+                1.
+            } else {
+                (platform::get(17) - 1.) as f32
+            },
+            music_volume: if platform::get(18) == 0. {
+                1.
+            } else {
+                (platform::get(18) - 1.) as f32
+            },
+            mixer: Default::default(),
+            unlimited_time: platform::get(16) == 1.,
+            practice_used: false,
             music_enabled: platform::get(15) != 2.,
-            fps: false,
-            minimap: false,
+            fps: platform::get(21) == 1.,
+            minimap: platform::get(19) == 1.,
             best: platform::get(if kind == Kind::Bus { 100 } else { 101 }) as i32,
             target: 0,
             carrying: false,
@@ -238,6 +263,7 @@ impl Game {
     pub fn start(&mut self) -> Result<(), String> {
         let kind = self.kind();
         self.seed = self.seed.wrapping_add(0x9e3779b97f4a7c15);
+        self.practice_used = self.unlimited_time;
         self.world = World::build(&self.assets, kind, self.difficulty, self.mode, self.seed)?;
         let params = if kind == Kind::Bus {
             Params::bus(&self.assets)
@@ -394,19 +420,51 @@ impl Game {
         self.renderer.dropoff_camera(&self.vehicle);
         self.audio_update();
     }
+    fn apply_audio(&self, commands: Vec<crate::audio::Command>) {
+        for command in commands {
+            use crate::audio::Command;
+            match command {
+                Command::Play { name, looped, gain } => {
+                    if let Some(s) = self.assets.sounds.get(&name) {
+                        play_sound(
+                            s,
+                            PlaySoundParams {
+                                looped,
+                                volume: gain,
+                            },
+                        );
+                    }
+                }
+                Command::Stop(name) => {
+                    if let Some(s) = self.assets.sounds.get(&name) {
+                        stop_sound(s);
+                    }
+                }
+                Command::Gain { name, gain } => {
+                    if let Some(s) = self.assets.sounds.get(&name) {
+                        set_sound_volume(s, gain);
+                    }
+                }
+            }
+        }
+    }
     pub fn sound(&self, name: &str) {
         if self.muted {
             return;
         }
-        if let Some(s) = self.assets.sounds.get(name) {
-            play_sound(
-                s,
-                PlaySoundParams {
-                    looped: false,
-                    volume: self.volume,
-                },
-            );
-        }
+        let channel = if matches!(name, "click.aif" | "rollover.aif") {
+            crate::audio::Channel::Voice
+        } else {
+            crate::audio::Channel::Effect
+        };
+        let commands = self.mixer.borrow_mut().set(
+            channel,
+            name,
+            self.assets.sound_loops.get(name).copied().unwrap_or(false),
+            self.volume * self.effects_volume,
+            true,
+        );
+        self.apply_audio(commands);
     }
     pub fn music(&mut self, name: &str) {
         let name = if name == "titlemusic.aif" && self.kind() == Kind::Bus {
@@ -414,112 +472,186 @@ impl Game {
         } else {
             name
         };
-        if self.active_music == name {
-            return;
-        }
-        if let Some(s) = self.assets.sounds.get(&self.active_music) {
-            stop_sound(s)
-        }
         self.active_music = name.into();
-        if self.music_enabled
-            && !self.muted
-            && let Some(s) = self.assets.sounds.get(name)
-        {
-            play_sound(
-                s,
-                PlaySoundParams {
-                    looped: true,
-                    volume: self.volume * 0.55,
-                },
-            );
-        }
+        let gain = if self.music_enabled && !self.muted {
+            self.volume * self.music_volume
+        } else {
+            0.
+        };
+        let commands = if self.music_enabled && !self.muted {
+            self.mixer
+                .borrow_mut()
+                .music(name, &self.assets.sound_loops, gain)
+        } else {
+            self.mixer.borrow_mut().stop(crate::audio::Channel::Music)
+        };
+        self.apply_audio(commands);
     }
     pub fn audio_update(&mut self) {
-        for (name, s) in &self.assets.sounds {
-            let volume = if self.muted {
-                0.
-            } else if name == &self.active_music {
-                if self.music_enabled {
-                    self.volume * 0.55
-                } else {
-                    0.
-                }
-            } else if name == "skid.aif" {
-                if self.skidding && self.screen == Screen::Playing {
-                    self.volume * 0.25
-                } else {
-                    0.
-                }
-            } else if name == &self.engine {
-                if matches!(
-                    self.screen,
-                    Screen::Playing | Screen::Replay | Screen::Ending
-                ) {
-                    self.volume * 0.24
-                } else {
-                    0.
-                }
-            } else {
-                self.volume
-            };
-            set_sound_volume(s, volume);
+        use crate::audio::Channel;
+        let gameplay = matches!(
+            self.screen,
+            Screen::Playing | Screen::Replay | Screen::Ending
+        );
+        let music_allowed = self.music_enabled
+            && !self.muted
+            && !matches!(
+                self.screen,
+                Screen::Paused
+                    | Screen::Finished
+                    | Screen::ScoreEntry
+                    | Screen::Instructions
+                    | Screen::Scores
+                    | Screen::ClearScores
+            );
+        let mut commands = Vec::new();
+        {
+            let mut mixer = self.mixer.borrow_mut();
+            if !gameplay {
+                commands.extend(mixer.stop_gameplay());
+                self.engine.clear();
+                self.skidding = false;
+            }
+            commands.extend(mixer.refresh_music(
+                &self.active_music,
+                &self.assets.sound_loops,
+                self.volume * self.music_volume,
+                music_allowed,
+            ));
         }
+        let effect_gain = if self.muted {
+            0.
+        } else {
+            self.volume * self.effects_volume
+        };
+        {
+            let mut mixer = self.mixer.borrow_mut();
+            commands.extend(mixer.gain(Channel::Effect, effect_gain));
+            commands.extend(mixer.gain(Channel::Voice, effect_gain));
+        }
+        if self.last_audio_screen != self.screen
+            && matches!(
+                self.screen,
+                Screen::Paused
+                    | Screen::Options
+                    | Screen::Finished
+                    | Screen::Instructions
+                    | Screen::Scores
+            )
+        {
+            let mut mixer = self.mixer.borrow_mut();
+            commands.extend(mixer.stop(Channel::Effect));
+            commands.extend(mixer.stop(Channel::Voice));
+        }
+        self.last_audio_screen = self.screen;
+        self.apply_audio(commands);
     }
     fn engine_update(&mut self) {
-        let engine = if self.kind() == Kind::Hover {
-            "hoverengine.aif".to_string()
-        } else if self.vehicle.jumping {
-            "inair.aif".into()
-        } else if self.vehicle.speed < 0.1 {
-            "idle.aif".into()
+        use crate::audio::Channel;
+        let bus = self.kind() == Kind::Bus;
+        let engine = if bus {
+            crate::audio::bus_engine(self.vehicle.speed)
         } else {
-            format!(
-                "engine{}.aif",
-                ((self.vehicle.speed / 20.) as usize).clamp(1, 5)
-            )
+            "hoverengine.aif".into()
         };
-        if engine != self.engine {
-            if let Some(sound) = self.assets.sounds.get(&self.engine) {
-                stop_sound(sound);
-            }
-            self.engine = engine;
-            if let Some(sound) = self.assets.sounds.get(&self.engine) {
-                play_sound(
-                    sound,
-                    PlaySoundParams {
-                        looped: true,
-                        volume: if self.muted { 0. } else { self.volume * 0.24 },
-                    },
-                );
-            }
-        }
-        let skid =
-            self.kind() == Kind::Bus && self.vehicle.speed > 10. && self.vehicle.roll.abs() > 10.;
-        if skid != self.skidding {
-            self.skidding = skid;
-            if let Some(s) = self.assets.sounds.get("skid.aif") {
-                if skid {
-                    play_sound(
-                        s,
-                        PlaySoundParams {
-                            looped: true,
-                            volume: if self.muted { 0. } else { self.volume * 0.25 },
-                        },
-                    );
-                } else {
-                    stop_sound(s);
-                }
-            }
-        }
-        if self.kind() == Kind::Bus
-            && self.vehicle.turbo > 0
-            && self.active_music == "gamemusic.aif"
+        let gain = if self.muted {
+            0.
+        } else {
+            self.volume * self.effects_volume
+        };
+        let mut commands = Vec::new();
         {
+            let mut mixer = self.mixer.borrow_mut();
+            commands.extend(mixer.set(Channel::Hero, &engine, true, gain * 100. / 255., false));
+            self.engine = engine;
+            let hero_effect = if bus && self.vehicle.speed == 0. && self.vehicle.acceleration.x > 0.
+            {
+                "rev.aif"
+            } else if bus && self.vehicle.speed == 0. {
+                "stop.aif"
+            } else if bus && self.vehicle.speed > 10. && self.vehicle.roll.abs() > 10. {
+                "skid.aif"
+            } else {
+                ""
+            };
+            commands.extend(
+                mixer.set(
+                    Channel::HeroEffect,
+                    hero_effect,
+                    self.assets
+                        .sound_loops
+                        .get(hero_effect)
+                        .copied()
+                        .unwrap_or(false),
+                    gain * 100. / 255.,
+                    false,
+                ),
+            );
+            self.skidding = hero_effect == "skid.aif";
+            let dozer = self
+                .world
+                .entities
+                .iter()
+                .find(|e| e.active && e.shape == "jelly");
+            if bus
+                && self.screen == Screen::Playing
+                && let Some(e) = dozer
+            {
+                let distance = crate::bus_rules::manhattan(e.position, self.vehicle.pos);
+                commands.extend(mixer.set(
+                    Channel::Dozer,
+                    "bulldozer.aif",
+                    true,
+                    gain * crate::audio::dozer_gain(distance),
+                    false,
+                ));
+            } else {
+                commands.extend(mixer.stop(Channel::Dozer));
+            }
+        }
+        self.apply_audio(commands);
+        if bus && self.vehicle.turbo > 0 && self.active_music == "gamemusic.aif" {
             self.music("turbo.aif");
         }
-        if self.kind() == Kind::Bus && self.vehicle.turbo == 0 && self.active_music == "turbo.aif" {
+        if bus && self.vehicle.turbo == 0 && self.active_music == "turbo.aif" {
             self.music("gamemusic.aif");
         }
+    }
+    pub fn close_options(&mut self) {
+        self.screen = self.options_return;
+        self.ui_selection = self.options_selection;
+        self.audio_update();
+    }
+    pub fn reset_options(&mut self) {
+        self.renderer.smooth = false;
+        self.renderer.filtering = false;
+        self.renderer.widescreen = false;
+        self.renderer.camera_mode = 0;
+        self.unlimited_time = false;
+        self.minimap = false;
+        self.fps = false;
+        self.volume = 0.7;
+        self.effects_volume = 1.;
+        self.music_volume = 1.;
+        self.music_enabled = true;
+        self.muted = false;
+        for (key, value) in [
+            (10, 2.),
+            (11, 0.),
+            (12, 0.),
+            (13, 1.7),
+            (14, 0.),
+            (15, 1.),
+            (16, 0.),
+            (17, 2.),
+            (18, 2.),
+            (19, 0.),
+            (20, 0.),
+            (21, 0.),
+        ] {
+            platform::set(key, value);
+        }
+        self.audio_update();
     }
     pub fn backup(&mut self) {
         if self.kind() == Kind::Bus {
@@ -580,9 +712,11 @@ impl Game {
         if won && self.kind() == Kind::Bus && self.mode == 0 {
             self.score += crate::bus_mission::time_bonus(self.clock, self.difficulty)
         }
-        self.best = self.best.max(self.score);
-        platform::set(self.score_key(), self.best as f64);
-        if self.kind() == Kind::Hover && won {
+        if !self.practice_used {
+            self.best = self.best.max(self.score);
+            platform::set(self.score_key(), self.best as f64);
+        }
+        if self.kind() == Kind::Hover && won && !self.practice_used {
             if self.mode == 1 {
                 self.best_lap = self.elapsed;
             }
@@ -601,23 +735,24 @@ impl Game {
         self.audio_update();
     }
     pub fn update(&mut self) {
+        if is_key_pressed(KeyCode::F11) {
+            platform::fullscreen()
+        }
+        if is_key_pressed(KeyCode::F1) || platform::input(9) > 0.5 {
+            if self.screen == Screen::Options {
+                self.close_options();
+            } else {
+                self.options_selection = self.ui_selection;
+                self.options_return = self.screen;
+                self.screen = Screen::Options
+            }
+            self.audio_update()
+        }
         if self.screen == Screen::ScoreEntry {
             if is_key_pressed(KeyCode::Escape) {
                 self.screen = Screen::Finished;
             }
             return;
-        }
-        if is_key_pressed(KeyCode::F11) {
-            platform::fullscreen()
-        }
-        if is_key_pressed(KeyCode::F1) {
-            if self.screen == Screen::Options {
-                self.screen = self.options_return
-            } else {
-                self.options_return = self.screen;
-                self.screen = Screen::Options
-            }
-            self.audio_update()
         }
         if is_key_pressed(KeyCode::M) {
             self.music_enabled = !self.music_enabled;
@@ -650,7 +785,7 @@ impl Game {
                     }
                 }
                 Screen::Paused => self.screen = self.previous_screen,
-                Screen::Options => self.screen = self.options_return,
+                Screen::Options => self.close_options(),
                 Screen::Title => {}
                 _ => self.screen = Screen::Title,
             }
@@ -809,14 +944,15 @@ impl Game {
         ) {
             self.engine_update();
         }
+        self.audio_update();
         if self.clock_ticks.is_multiple_of(10) || self.screen != Screen::Playing {
-            platform::debug(&serde_json::json!({"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
+            platform::debug(&serde_json::json!({"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"unlimited_time":self.unlimited_time,"practice":self.practice_used,"music":self.active_music,"engine":self.engine,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
         }
     }
     fn tick(&mut self, input: Input, dt: f32) {
         self.clock_ticks += 1;
         self.elapsed += dt;
-        if self.kind() == Kind::Bus && self.mode != 2 {
+        if self.kind() == Kind::Bus && self.mode != 2 && !self.unlimited_time {
             self.clock -= crate::rules::bus_clock_step(dt);
             if self.clock < 0. && !self.vehicle.jumping {
                 self.finish(false, "TIME IS UP!");
@@ -1093,6 +1229,7 @@ impl Game {
         }
         if !is_bus {
             if self.mode == 1
+                && !self.unlimited_time
                 && self
                     .world
                     .entities

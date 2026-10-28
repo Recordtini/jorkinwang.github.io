@@ -171,7 +171,9 @@ pub fn hud(g: &Game) {
             1.,
         );
     }
-    if g.mode != 2 {
+    if g.mode != 2 && g.unlimited_time {
+        letters(g, "TIME OFF", 480., 17., 0., 1.);
+    } else if g.mode != 2 {
         let clock = crate::bus_hud::clock(g.clock);
         for (c, x) in clock.chars().zip(crate::bus_hud::CLOCK_X) {
             sprite(g, &format!("{c}sp"), x, 17., 1.);
@@ -434,9 +436,12 @@ pub fn draw(g: &mut Game) -> bool {
             if g.players.len() == 1 && button(g, 1, "try again", 480., 100.) {
                 let _ = g.start();
             }
-            if button(g, 2, &word(g, "buttonaddscore"), 480., 140.) {
+            if !g.practice_used && button(g, 2, &word(g, "buttonaddscore"), 480., 140.) {
                 g.screen = Screen::ScoreEntry;
                 g.options_return = Screen::Finished;
+            }
+            if g.practice_used {
+                heading(g, "practice run", 480., 140.);
             }
             let next = g.players.iter().position(|p| !p.done);
             if button(
@@ -607,7 +612,9 @@ pub fn draw(g: &mut Game) -> bool {
             page_text(&word(g, "wordscore"), 79., 165., 18., YELLOW);
             page_text(&g.score.to_string(), 306., 165., 18., YELLOW);
             if page_button(g, 0, &word(g, "submitscore"), 425., 280.) {
-                g.score_page = crate::scores::add(g.mode, g.difficulty, &g.score_name, g.score);
+                if !g.practice_used {
+                    g.score_page = crate::scores::add(g.mode, g.difficulty, &g.score_name, g.score);
+                }
                 g.screen = Screen::Scores;
             }
             if page_button(g, 1, &word(g, "cancelscore"), 175., 281.) {

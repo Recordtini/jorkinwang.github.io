@@ -5,7 +5,7 @@ const pressed = new Set();
 addEventListener("keydown", event => pressed.add(event.code));
 addEventListener("keyup", event => pressed.delete(event.code));
 let padPrevious = [];
-const once = new Float32Array(9);
+const once = new Float32Array(10);
 let cachedInputs = [0,0,0,0,0,0];
 function pollController() {
  const pad = [...(navigator.getGamepads?.() || [])].find(p => p?.connected);
@@ -23,6 +23,7 @@ function browserKey(code) {
 }
 function goFullscreen(){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});}
 document.querySelector('#fullscreen').addEventListener('click',goFullscreen);
+document.querySelector('#options').addEventListener('click',()=>{once[9]=1;canvas.focus();});
 document.querySelector('#pause').addEventListener('click',()=>{once[4]=1;});
 for (const element of document.querySelectorAll('[data-control]')) {
  const key = element.dataset.control;

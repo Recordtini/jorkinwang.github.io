@@ -429,6 +429,7 @@ mod tests {
             models: Default::default(),
             textures: Default::default(),
             sounds: Default::default(),
+            sound_loops: Default::default(),
             texts: manifest.texts,
         };
         let mut bus = Vehicle::new(Kind::Bus, vec3(0., 0., 100.), Params::bus(&assets), 1);
@@ -459,6 +460,7 @@ mod tests {
             models: Default::default(),
             textures: Default::default(),
             sounds: Default::default(),
+            sound_loops: Default::default(),
             texts: manifest.texts,
         };
         let mut v = Vehicle::new(Kind::Bus, vec3(0., 0., 100.), Params::bus(&a), 1);

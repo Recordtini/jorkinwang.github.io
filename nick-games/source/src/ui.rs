@@ -8,14 +8,14 @@ const YELLOW: Color = Color::new(1., 0.84, 0.1, 1.);
 fn label(text: &str, x: f32, y: f32, size: f32, color: Color) {
     draw_text(text, x, y, size, color);
 }
-fn center(text: &str, y: f32, size: f32, color: Color) {
+pub(crate) fn center(text: &str, y: f32, size: f32, color: Color) {
     let d = measure_text(text, None, size as u16, 1.);
     label(text, 300. - d.width / 2., y, size, color)
 }
 fn overlay() {
     draw_rectangle(0., 0., 600., 320., Color::new(0.015, 0.005, 0.04, 0.77));
 }
-fn button(g: &mut Game, idx: usize, text: &str, x: f32, y: f32, w: f32) -> bool {
+pub(crate) fn button(g: &mut Game, idx: usize, text: &str, x: f32, y: f32, w: f32) -> bool {
     let (mx, my) = mouse_position();
     let aspect = 600. / 320.;
     let width = screen_width().min(screen_height() * aspect);
@@ -55,10 +55,10 @@ fn button(g: &mut Game, idx: usize, text: &str, x: f32, y: f32, w: f32) -> bool 
     }
     let d = measure_text(text, None, 17, 1.);
     label(text, x - d.width / 2., y, 17., color);
-    (over && is_mouse_button_pressed(MouseButton::Left))
+    (over && is_mouse_button_released(MouseButton::Left))
         || (selected
-            && (is_key_pressed(KeyCode::Enter)
-                || is_key_pressed(KeyCode::Space)
+            && (is_key_released(KeyCode::Enter)
+                || is_key_released(KeyCode::Space)
                 || platform::input(5) > 0.5))
 }
 fn title(g: &Game) {
@@ -157,7 +157,7 @@ pub fn draw(g: &mut Game) {
         Screen::Title | Screen::Players | Screen::Driver => 4,
         Screen::Mode | Screen::Difficulty | Screen::Finished => 3,
         Screen::Paused => 6,
-        Screen::Options => 8,
+        Screen::Options => crate::options_ui::count(g.options_tab),
         _ => 1,
     };
     if !matches!(
@@ -455,84 +455,7 @@ pub fn draw(g: &mut Game) {
             }
         }
         Screen::Options => {
-            center("OPTIONS", 30., 25., YELLOW);
-            let smooth = format!(
-                "Motion interpolation: {}",
-                if g.renderer.smooth { "ON" } else { "OFF" }
-            );
-            if button(g, 0, &smooth, 300., 70., 400.) {
-                g.renderer.smooth = !g.renderer.smooth;
-                platform::set(10, if g.renderer.smooth { 1. } else { 2. });
-            }
-            let filtering = format!(
-                "Texture filtering: {}",
-                if g.renderer.filtering {
-                    "SMOOTH"
-                } else {
-                    "ORIGINAL"
-                }
-            );
-            if button(g, 1, &filtering, 300., 103., 400.) {
-                g.renderer.filtering = !g.renderer.filtering;
-                platform::set(11, g.renderer.filtering as u8 as f64);
-            }
-            let aspect = format!(
-                "Display: {}",
-                if g.renderer.widescreen {
-                    "WIDESCREEN"
-                } else {
-                    "ORIGINAL ASPECT"
-                }
-            );
-            if button(g, 2, &aspect, 300., 136., 400.) {
-                g.renderer.widescreen = !g.renderer.widescreen;
-                platform::set(12, g.renderer.widescreen as u8 as f64);
-            }
-            if button(
-                g,
-                3,
-                &format!("Volume: {}%", (g.volume * 100.) as i32),
-                300.,
-                169.,
-                400.,
-            ) {
-                g.volume = if g.volume >= 0.99 {
-                    0.
-                } else {
-                    (g.volume + 0.1).min(1.)
-                };
-                platform::set(13, g.volume as f64 + 1.);
-                g.audio_update();
-            }
-            if button(
-                g,
-                4,
-                &format!("Music: {}", if g.music_enabled { "ON" } else { "OFF" }),
-                300.,
-                202.,
-                400.,
-            ) {
-                g.music_enabled = !g.music_enabled;
-                platform::set(15, if g.music_enabled { 1. } else { 2. });
-                g.audio_update();
-            }
-            if button(g, 5, "FULLSCREEN", 195., 243., 190.) {
-                platform::fullscreen()
-            }
-            if button(
-                g,
-                6,
-                &format!("FPS: {}", if g.fps { "ON" } else { "OFF" }),
-                405.,
-                243.,
-                190.,
-            ) {
-                g.fps = !g.fps
-            }
-            if button(g, 7, "DONE", 300., 291., 150.) {
-                g.screen = g.options_return;
-                g.audio_update();
-            }
+            crate::options_ui::draw(g);
         }
         Screen::Finished => {
             center(
@@ -594,7 +517,11 @@ pub fn draw(g: &mut Game) {
         label(&format!("{} FPS", get_fps()), 8., 310., 13., GREEN)
     }
     if g.screen != before {
-        g.ui_selection = 0;
+        g.ui_selection = if before == Screen::Options {
+            g.options_selection
+        } else {
+            0
+        };
         g.sound("click.aif");
         g.audio_update();
     }

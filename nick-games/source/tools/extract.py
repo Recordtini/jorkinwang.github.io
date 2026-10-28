@@ -98,7 +98,7 @@ def export(game,source):
                 if bits==16:sample=b''.join(sample[i:i+2][::-1] for i in range(0,len(sample),2))
                 path='sounds/'+basename.lower()+'.wav';(dest/'sounds').mkdir(exist_ok=True)
                 with wave.open(str(dest/path),'wb') as wav:wav.setnchannels(channels);wav.setsampwidth(bits//8);wav.setframerate(rate>>16);wav.writeframes(sample)
-                manifest['sounds'][name.lower()]={'file':path,'rate':rate>>16,'channels':channels,'bits':bits}
+                manifest['sounds'][name.lower()]={'file':path,'rate':rate>>16,'channels':channels,'bits':bits,'looped':(meta.get('info',{}).get('flags',0)&16)==0}
         except Exception as e:manifest['warnings'].append({'member':name,'error':str(e)})
     (dest/'manifest.json').write_text(json.dumps(manifest,indent=2))
     print(game,{k:len(manifest[k]) for k in ['models','textures','texts','sounds','warnings']})

@@ -13,11 +13,13 @@ use macroquad::{
 };
 use std::collections::HashMap;
 struct Batches {
-    meshes: Vec<(usize, Mesh)>,
+    meshes: Vec<(usize, String, Mesh)>,
 }
 pub struct Renderer {
     models: HashMap<String, Batches>,
     material: Material,
+    character_material: Material,
+    character_repeat_material: Material,
     sky_material: Material,
     terrain_material: Material,
     translucent_material: Material,
@@ -33,7 +35,7 @@ pub struct Renderer {
     last_filter: bool,
     pub bus_camera: Option<crate::bus_camera::BusCamera>,
 }
-fn compile(model: &Model, a: &Assets) -> Batches {
+fn compile(model: &Model, a: &Assets, character: bool) -> Batches {
     let mut groups: HashMap<(usize, String), Mesh> = HashMap::new();
     for face in &model.faces {
         if face.texture.starts_with("empty") {
@@ -51,7 +53,11 @@ fn compile(model: &Model, a: &Assets) -> Batches {
                 - model.vertices[face.indices[tri[0]]])
                 .cross(model.vertices[face.indices[tri[2]]] - model.vertices[face.indices[tri[0]]])
                 .normalize_or_zero();
-            let shade = 0.78 + 0.22 * normal.z.abs();
+            let shade = if character {
+                1.
+            } else {
+                0.78 + 0.22 * normal.z.abs()
+            };
             let color = Color::new(shade, shade, shade, 1.);
             for k in tri {
                 let n = mesh.vertices.len() as u16;
@@ -65,12 +71,13 @@ fn compile(model: &Model, a: &Assets) -> Batches {
         }
     }
     let mut meshes = Vec::new();
-    for ((group, _), mesh) in groups {
+    for ((group, texture_name), mesh) in groups {
         // Macroquad's default index buffer holds 5,000 indices. Keep complete
         // triangles in bounded batches so later parts of the circuit are retained.
         for vertices in mesh.vertices.chunks(3000) {
             meshes.push((
                 group,
+                texture_name.clone(),
                 Mesh {
                     vertices: vertices.to_vec(),
                     indices: (0..vertices.len() as u16).collect(),
@@ -88,12 +95,26 @@ void main(){gl_Position=Projection*Model*vec4(position,1.0);uv=texcoord;color=co
 const FS: &str = r#"#version 100
 precision mediump float;varying highp vec2 uv;varying lowp vec4 color;uniform sampler2D Texture;
 void main(){vec4 t=texture2D(Texture,fract(uv));if(t.a<0.15)discard;gl_FragColor=t*color;}"#;
+// Character maps are single images, not repeating world tiles. Keep UV=1
+// on the final texel instead of wrapping onto the opposite black border.
+const CHARACTER_FS: &str = r#"#version 100
+precision mediump float;varying highp vec2 uv;varying lowp vec4 color;uniform sampler2D Texture;
+void main(){vec4 t=texture2D(Texture,clamp(uv,vec2(0.0),vec2(1.0)));if(t.a<0.15)discard;gl_FragColor=t*color;}"#;
 impl Renderer {
     pub fn new(a: &Assets) -> Result<Self, String> {
         let models = a
             .models
             .iter()
-            .map(|(name, m)| (name.clone(), compile(m, a)))
+            .map(|(name, m)| {
+                (
+                    name.clone(),
+                    compile(
+                        m,
+                        a,
+                        crate::bus_actor::person(name.trim_end_matches(".3gm")),
+                    ),
+                )
+            })
             .collect();
         let material = load_material(
             ShaderSource::Glsl {
@@ -104,6 +125,48 @@ impl Renderer {
                 pipeline_params: PipelineParams {
                     depth_test: Comparison::LessOrEqual,
                     depth_write: true,
+                    color_blend: Some(BlendState::new(
+                        Equation::Add,
+                        BlendFactor::Value(BlendValue::SourceAlpha),
+                        BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+                    )),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        )
+        .map_err(|e| e.to_string())?;
+        let character_material = load_material(
+            ShaderSource::Glsl {
+                vertex: VS,
+                fragment: CHARACTER_FS,
+            },
+            MaterialParams {
+                pipeline_params: PipelineParams {
+                    depth_test: Comparison::LessOrEqual,
+                    depth_write: true,
+                    cull_face: CullFace::Back,
+                    color_blend: Some(BlendState::new(
+                        Equation::Add,
+                        BlendFactor::Value(BlendValue::SourceAlpha),
+                        BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+                    )),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        )
+        .map_err(|e| e.to_string())?;
+        let character_repeat_material = load_material(
+            ShaderSource::Glsl {
+                vertex: VS,
+                fragment: FS,
+            },
+            MaterialParams {
+                pipeline_params: PipelineParams {
+                    depth_test: Comparison::LessOrEqual,
+                    depth_write: true,
+                    cull_face: CullFace::Back,
                     color_blend: Some(BlendState::new(
                         Equation::Add,
                         BlendFactor::Value(BlendValue::SourceAlpha),
@@ -167,6 +230,8 @@ impl Renderer {
         )
         .map_err(|e| e.to_string())?;
         Ok(Self {
+            character_material,
+            character_repeat_material,
             sky_material,
             terrain_material,
             translucent_material,
@@ -185,8 +250,12 @@ impl Renderer {
             bus_camera: None,
         })
     }
-    fn draw_model(&self, a: &Assets, name: &str, matrix: Mat4, frame: f32) {
+    pub fn draw_model(&self, a: &Assets, name: &str, matrix: Mat4, frame: f32) {
         let n = name.to_lowercase();
+        let character = crate::bus_actor::person(n.trim_end_matches(".3gm"));
+        if character {
+            gl_use_material(&self.character_material);
+        }
         if let Some(batches) = self
             .models
             .get(&n)
@@ -196,7 +265,14 @@ impl Renderer {
                 .model(name)
                 .map(|m| m.animation.matrices(frame))
                 .unwrap_or_default();
-            for (group, mesh) in &batches.meshes {
+            for (group, texture_name, mesh) in &batches.meshes {
+                if character {
+                    gl_use_material(if crate::model::clamp_character_texture(texture_name) {
+                        &self.character_material
+                    } else {
+                        &self.character_repeat_material
+                    });
+                }
                 let m = matrix * transforms.get(*group).copied().unwrap_or(Mat4::IDENTITY);
                 unsafe { get_internal_gl().quad_gl.push_model_matrix(m) }
                 if self.doors_open && n == "arnoldbus" && mesh.texture.as_ref() == a.texture("busd")
@@ -212,6 +288,9 @@ impl Renderer {
                 }
                 unsafe { get_internal_gl().quad_gl.pop_model_matrix() }
             }
+        }
+        if character {
+            gl_use_material(&self.material);
         }
     }
     pub fn reset_camera(&mut self, v: &Vehicle) {

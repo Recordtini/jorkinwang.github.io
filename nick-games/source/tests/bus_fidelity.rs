@@ -23,6 +23,7 @@ fn assets() -> Assets {
             .collect(),
         textures: Default::default(),
         sounds: Default::default(),
+        sound_loops: Default::default(),
         texts: m.texts,
     }
 }

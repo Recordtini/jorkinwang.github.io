@@ -24,6 +24,13 @@ fn word(b: &[u8], p: usize) -> Result<u32, String> {
             .unwrap(),
     ))
 }
+/// Skin/eye patches must not repeat black texture borders across the face.
+/// Clothing maps retain their original repeated patterns.
+pub fn clamp_character_texture(name: &str) -> bool {
+    ["eye", "face", "nose", "head", "back", "brow"]
+        .iter()
+        .any(|part| name.contains(part))
+}
 impl Model {
     /// Triangles reference positions in face.indices/uv, preserving their winding.
     /// City wall cutouts and road outlines include concave polygons: a fan can

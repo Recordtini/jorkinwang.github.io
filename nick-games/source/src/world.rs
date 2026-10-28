@@ -927,6 +927,7 @@ mod scene_tests {
                 models,
                 textures: HashMap::new(),
                 sounds: HashMap::new(),
+                sound_loops: HashMap::new(),
                 texts: m.texts,
             };
             for difficulty in 1..=3 {
