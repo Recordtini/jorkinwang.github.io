@@ -1,6 +1,6 @@
 # Runaway Bus fidelity audit
 
-This is a source-backed port in progress, not a certification of full original-runtime parity.
+Runaway Bus is released as a playable source-backed Rust/WASM port. Release status does not certify full original-runtime parity.
 
 ## Evidence
 
@@ -16,9 +16,11 @@ Recovered original Lingo and bytecode are in `reference/runaway-bus/Internal`. T
 - Mission destination exclusion, original time-limit and bonus formulas, target-ground contact and complete-stop arrival, win/loss movement and camera, initial instruction wait.
 - HUD: original glyphs and portrait images, score/tomato/speed/timer positions, 60-tick time display, center message wrapping, temporary tomato/location/stop messages, original camera-relative 3D compass model.
 
-41 Rust checks pass, including the original attract recording's first four straight-line speed/position samples. Native and WASM builds are checked. Browser checks cover menus, Runaway driving across the former curb trap, capture/end transition, corrected Arnold/Gerald seated poses, and the Cruise destination screen. A full manual win and mission cycle still require playing comparison.
+46 Rust checks pass, including the original attract recording's first four straight-line speed/position samples. Native and WASM builds are checked. Browser checks cover menus, Runaway driving across the former curb trap, capture/end transition, corrected Arnold/Gerald seated poses, and the Cruise destination screen. A full manual win and mission cycle still require playing comparison.
 
-## Unresolved comparisons and differences
+## Known issues and remaining comparisons
+
+- Player-reported: the bus often phases through world props instead of hitting or running them over. Object collision and run-over frequency need further correction against the original.
 
 - No original Shockwave runtime is running in this environment (Wine is absent). Groove edge tolerances, simultaneous-hit ordering, animated interpolation and exact moving-object query semantics need original-runtime comparison.
 - The native random generator is a replacement, so randomized positions and character choices will not reproduce Director's random stream for a given seed.
