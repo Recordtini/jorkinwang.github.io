@@ -17,7 +17,7 @@ const gl=$('c').getContext('webgl',{antialias:false});
 let M;
 const fetchBytes=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(u+' '+r.status);return new Uint8Array(await r.arrayBuffer())};
 const feed=(fn,d)=>{const p=M.g_alloc(d.length);new Uint8Array(M.memory.buffer,p,d.length).set(d);return fn(p,d.length)};
-const keys={};addEventListener('keydown',e=>{keys[e.code]=true;if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault()});
+const keys={};let f5=false;addEventListener('keydown',e=>{keys[e.code]=true;if(e.code=='F5'){f5=true;e.preventDefault()}if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
 
 // ---- GL (presentation only; lighting/fog/FOV are not decoded yet)
@@ -65,7 +65,7 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[];
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null;
 function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
 
 async function init(){
@@ -88,6 +88,9 @@ async function init(){
  if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
  // water objects (FUN_0045f080 creates riv*/doriv*/farm_riv/pool_riv at the world origin; model space == BPK space)
  for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare(i))water.push(takeMesh());
+ // mission arrow `Arrow` (DAT_00498ffc) and target marker `ArrowDown` (DAT_00499000), created by FUN_0045f5e0
+ const loadModel=nm=>{const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);return M.g_model_prepare(q,b.length)?takeMesh():null};
+ arrowMesh=loadModel('objects/arrow.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
  // mission objects: Fire02GuyHanging, animation frames 0..100 (phase Ambient 1..100)
  {const gn=new TextEncoder().encode('objects/fire02guyhanging.ms2');const gp=M.g_alloc(gn.length);new Uint8Array(M.memory.buffer,gp,gn.length).set(gn);
   for(let f=0;f<=100;f++)guyFrames.push(M.g_model_prepare_frame(gp,gn.length,f)?takeMesh():null)}
@@ -102,15 +105,39 @@ async function init(){
  addEventListener('pagehide',()=>{M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
  $('msg').style.display='none';requestAnimationFrame(frame)}
 
+// ---- HUD (2D quads in pixels, y down): icon bar FUN_0043eea0 + FUN_00440350, speedometer FUN_0043eb20
+const quadBuf=gl.createBuffer(),quadIdx=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,quadIdx);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array([0,1,2,0,2,3]),gl.STATIC_DRAW);
+const texByName=new Map();function namedTex(n){if(!texByName.has(n)){const b=new TextEncoder().encode(n);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);texByName.set(n,M.g_tex_find(q,b.length))}return glTex(texByName.get(n))}
+// FUN_0043c1c0 (axis-aligned) / FUN_0043c230 (rotated about the centre by `rot` radians)
+function quad(n,x,y,qw,qh,W,H,rot=0){const cx=x+qw/2,cy=y+qh/2,c=Math.cos(rot),sn=Math.sin(rot);const pts=[[-qw/2,-qh/2,0,0],[qw/2,-qh/2,1,0],[qw/2,qh/2,1,1],[-qw/2,qh/2,0,1]];
+ const v=new Float32Array(20);pts.forEach(([px,py,u,t],i)=>{const rx=px*c-py*sn+cx,ry=px*sn+py*c+cy;v.set([rx/W*2-1,1-ry/H*2,0,u,t],i*5)});
+ gl.bindBuffer(gl.ARRAY_BUFFER,quadBuf);gl.bufferData(gl.ARRAY_BUFFER,v,gl.DYNAMIC_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);
+ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,quadIdx);gl.uniformMatrix4fv(loc.m,false,new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));gl.bindTexture(gl.TEXTURE_2D,namedTex(n));gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0)}
+function drawHud(hud,w,h,vh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
+ // speedometer in the 3D view layer: size W/5 at the bottom-right corner, needle at (value + 180) degrees
+ const s5=Math.trunc(w/5);gl.viewport(0,h-vh,w,vh);
+ quad('speedo2',w-s5,vh-s5,s5,s5,w,vh);quad('needle1',w-s5,vh-s5,s5,s5,w,vh,(hud[4]+180)*0.017453292);
+ if(hud[0]){const sh=h-vh,a30=Math.trunc(w/9),a2c=Math.trunc(h*0.85*0.05),a28=Math.trunc(a30/3);gl.viewport(0,0,w,sh);
+  const pre=['Cop','Fire','Amb'][hud[5]],[ea,fa]=[['blueA','blueB'],['yelloA','yelloB'],['redA','redB']][hud[5]],a34=hud[1],cur=hud[2];
+  for(let i=0;i<9;i++){const mi=((i-a34)%9+9)%9;const sw=i<8?a30:w-8*a30,pw=i<8?a28:Math.trunc(sw/3);
+   const icon=(cur>=0&&i==(cur+a34)%9)?pre+(cur+1)+(hud[3]?'n':'a'):pre+(mi+1);
+   quad(icon,a30*i,a2c,sw,sh-a2c,w,sh);
+   const r=hud[6+mi];const pieces=[r>=1?fa:ea,r>=2?fa:ea,r>=3?fa:ea];
+   quad(pieces[0],a30*i,0,pw,a2c,w,sh);quad(pieces[1],a30*i+pw,0,pw,a2c,w,sh);quad(pieces[2],a30*i+2*pw,0,sw-2*pw,a2c,w,sh)}}
+ gl.viewport(0,0,w,h);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,16000)}
+
 let st=null,acc=0,last=performance.now();const TICK=1000/30;   // 30 Hz simulation tick (original rate)
 function frame(now){
  acc+=Math.min(now-last,250);last=now;
  while(acc>=TICK){acc-=TICK;
-  const k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0);
+  const k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0)|(f5?32:0);f5=false;
   const p=M.g_car_tick(k);if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
   const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
  const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
- gl.viewport(0,0,w,h);gl.clearColor(.55,.7,.9,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
+ const vh=hud[0]?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
+ gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(.55,.7,.9,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
  gl.uniform3f(loc.fog,.55,.7,.9);gl.uniform1f(loc.fogEnd,16000);
  if(st){
  const[x,y,z]=st.slice(16,19),f=st.slice(20,23),fl=Math.hypot(f[0],f[2])||1,fx=f[0]/fl,fz=f[2]/fl;
@@ -118,8 +145,8 @@ function frame(now){
  // (fixed, vertical follows the aspect), near 15 / far 13000 BSP units (viewport created at 0x402885)
  const eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
  const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
- const vfov=2*Math.atan(Math.tan(Math.PI/6)*h/w);
- const vp=mul(persp(vfov,w/h,15,13000),lookAt(eye,ctr,up));
+ const vfov=2*Math.atan(Math.tan(Math.PI/6)*vh/w);
+ const vp=mul(persp(vfov,w/vh,15,13000),lookAt(eye,ctr,up));
  const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=12;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
@@ -130,10 +157,13 @@ function frame(now){
  drawMesh(carModel,mul(vp,new Float32Array(st.slice(0,16))));
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
+ if(hud[24]&&arrowMesh)drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));
+ if(hud[41]&&markerMesh)drawMesh(markerMesh,mul(vp,hud.subarray(42,58)));
+ drawHud(hud,w,h,vh);
  const mnl=M.g_mission_name(),mn=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),mnl));
  $('hud').textContent=`Arrows/WASD drive, Space siren+turbo
 x ${x.toFixed(0)} y ${y.toFixed(0)} z ${z.toFixed(0)}  speed ${st[19].toFixed(0)}
-Mission: ${mn||'none'}${td[2]>=0?'  goal '+td[2].toFixed(0):''}  (debug text; HUD, arrow and voices not ported yet)`}
+Mission: ${mn||'none'}${td[2]>=0?'  goal '+td[2].toFixed(0):''}  (debug line; voices and cut-scenes not ported yet; F5 toggles the icon bar)`}
  requestAnimationFrame(frame)}
 init().catch(e=>{$('msg').textContent='Error: '+e;console.error(e)});
 </script></body></html>
