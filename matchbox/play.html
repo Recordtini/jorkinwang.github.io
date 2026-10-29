@@ -5,9 +5,10 @@
 html,body{margin:0;height:100%;background:#000;color:#ddd;font:13px sans-serif;overflow:hidden}
 canvas{width:100%;height:100%;display:block}
 #hud{position:fixed;left:8px;top:6px;text-shadow:0 0 3px #000;pointer-events:none;white-space:pre}
+#newgame{position:fixed;right:8px;top:6px;font:12px sans-serif;opacity:.75}
 #msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#000}
 </style></head><body>
-<canvas id="c"></canvas><div id="hud"></div><div id="msg">Loading...</div>
+<canvas id="c"></canvas><div id="hud"></div><button id="newgame" title="Extra (not in the original): delete the browser save and start a new game">New game</button><div id="msg">Loading...</div>
 <script>
 'use strict';
 // This page is a thin shell. The Rust wasm module parses the ORIGINAL game files (megacity.bpk, textures_all2.tex,
@@ -102,7 +103,9 @@ async function init(){
   for(let k=0;k<n;k++){if(ok){const e=[me,a.subarray(k*16,k*16+16),true];props.push(e);propAt[pbase+k]=e}}pbase+=n}
  console.log('start:',['Speeder (cop)','Fire2 (fire)','Ambul8 (ambulance)','saved game'][first]);
  // the exe writes SaveGame.dat on shutdown (FUN_00462330 -> FUN_0044a470)
- addEventListener('pagehide',()=>{M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
+ // extra (not in the original game, which only starts fresh without SaveGame.dat): delete the save and restart
+ let noSave=false;$('newgame').onclick=()=>{noSave=true;try{localStorage.removeItem('mep.SaveGame.dat')}catch(e){}location.reload()};
+ addEventListener('pagehide',()=>{if(noSave)return;M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
  $('msg').style.display='none';requestAnimationFrame(frame)}
 
 // ---- HUD (2D quads in pixels, y down): icon bar FUN_0043eea0 + FUN_00440350, speedometer FUN_0043eb20
