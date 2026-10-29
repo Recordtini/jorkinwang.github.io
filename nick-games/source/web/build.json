@@ -1,5 +1,5 @@
 {
-  "engine_sha256": "2061883ca91b4e6aa9909ee740d1faffd6965e146c98d47dbe13dc65a808b9b6",
+  "engine_sha256": "7b1302f960ddd85ac0d83556565d773fbed77a1ca3a448c2b279ec3f603079a6",
   "crate": "nick-rust",
   "macroquad": "0.4.16",
   "games": [

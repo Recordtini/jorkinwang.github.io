@@ -15,6 +15,15 @@ use std::collections::HashMap;
 struct Batches {
     meshes: Vec<(usize, String, Mesh)>,
 }
+/// Only surfaces below the player can receive their shadow.
+pub fn shadow_ground(
+    world: &crate::collision::CollisionWorld,
+    position: Vec3,
+) -> Option<crate::collision::Hit> {
+    world
+        .ground(position, 0., 20000.)
+        .filter(|hit| hit.pos.z + 5. < position.z)
+}
 pub struct Renderer {
     models: HashMap<String, Batches>,
     material: Material,
@@ -380,6 +389,7 @@ impl Renderer {
         } else {
             v.pos
         };
+        let shadow_position = position;
         let blend = if self.smooth { alpha } else { 1. };
         let pitch = if v.kind == Kind::Hover {
             v.hover_previous_pose.x + (v.pitch - v.hover_previous_pose.x) * blend
@@ -548,6 +558,50 @@ impl Renderer {
                 0.,
             )
         }
+        // Draw the ground shadow after terrain but before solid actors. It must
+        // never blend over the player even where depth values are very close.
+        gl_use_material(&self.translucent_material);
+        if let Some(hit) = shadow_ground(&w.collision, shadow_position) {
+            let size = if v.kind == Kind::Bus {
+                vec2(210., 480.)
+            } else {
+                vec2(450., 450.)
+            };
+            let m = transform(hit.pos + Vec3::Z * 5., yaw, 100.);
+            let mut corners = [
+                vec3(-size.x / 2., -size.y / 2., 0.),
+                vec3(size.x / 2., -size.y / 2., 0.),
+                vec3(size.x / 2., size.y / 2., 0.),
+                vec3(-size.x / 2., size.y / 2., 0.),
+            ];
+            for p in &mut corners {
+                *p = m.transform_point3(*p);
+                if hit.normal.z.abs() > 0.1 {
+                    p.z = hit.pos.z + 5.
+                        - (hit.normal.x * (p.x - hit.pos.x) + hit.normal.y * (p.y - hit.pos.y))
+                            / hit.normal.z;
+                }
+            }
+            let color = if v.kind == Kind::Bus {
+                Color::new(0., 0., 0., 0.25)
+            } else {
+                WHITE
+            };
+            let tex = if v.kind == Kind::Bus {
+                None
+            } else {
+                a.texture("shadowsquare.l").cloned()
+            };
+            draw_mesh(&Mesh {
+                vertices: corners
+                    .iter()
+                    .zip([vec2(0., 0.), vec2(1., 0.), vec2(1., 1.), vec2(0., 1.)])
+                    .map(|(p, uv)| Vertex::new2(*p, uv, color))
+                    .collect(),
+                indices: vec![0, 1, 2, 0, 2, 3],
+                texture: tex,
+            });
+        }
         gl_use_material(&self.material);
         for (entity_index, e) in w.entities.iter().enumerate() {
             if menu && v.kind == Kind::Bus && !e.sprite.is_empty() {
@@ -701,47 +755,6 @@ impl Renderer {
             self.draw_model(a, "arrow", transform(position, yaw, 50.), 0.);
         }
         gl_use_material(&self.translucent_material);
-        if let Some(hit) = w.collision.ground(position, 600., 20000.) {
-            let size = if v.kind == Kind::Bus {
-                vec2(210., 480.)
-            } else {
-                vec2(450., 450.)
-            };
-            let m = transform(hit.pos + Vec3::Z * 5., yaw, 100.);
-            let mut corners = [
-                vec3(-size.x / 2., -size.y / 2., 0.),
-                vec3(size.x / 2., -size.y / 2., 0.),
-                vec3(size.x / 2., size.y / 2., 0.),
-                vec3(-size.x / 2., size.y / 2., 0.),
-            ];
-            for p in &mut corners {
-                *p = m.transform_point3(*p);
-                if hit.normal.z.abs() > 0.1 {
-                    p.z = hit.pos.z + 5.
-                        - (hit.normal.x * (p.x - hit.pos.x) + hit.normal.y * (p.y - hit.pos.y))
-                            / hit.normal.z;
-                }
-            }
-            let color = if v.kind == Kind::Bus {
-                Color::new(0., 0., 0., 0.25)
-            } else {
-                WHITE
-            };
-            let tex = if v.kind == Kind::Bus {
-                None
-            } else {
-                a.texture("shadowsquare.l").cloned()
-            };
-            draw_mesh(&Mesh {
-                vertices: corners
-                    .iter()
-                    .zip([vec2(0., 0.), vec2(1., 0.), vec2(1., 1.), vec2(0., 1.)])
-                    .map(|(p, uv)| Vertex::new2(*p, uv, color))
-                    .collect(),
-                indices: vec![0, 1, 2, 0, 2, 3],
-                texture: tex,
-            });
-        }
         if v.kind == Kind::Hover {
             self.draw_model(
                 a,
