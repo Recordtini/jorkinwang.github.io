@@ -74,6 +74,8 @@ impl Params {
 }
 #[derive(Clone, Debug)]
 pub struct Vehicle {
+    pub hover_bounce: crate::hover_drive::Bounce,
+    pub hover_boost: bool,
     pub hover_collision_ticks: i32,
     pub hover_actor: crate::hover_actor::Actor,
     pub hover_track: crate::hover_race::TrackPosition,
@@ -124,6 +126,8 @@ impl Vehicle {
     pub fn new(kind: Kind, pos: Vec3, params: Params, difficulty: u8) -> Self {
         let yaw = if kind == Kind::Bus { -30. } else { 0. };
         Self {
+            hover_bounce: Default::default(),
+            hover_boost: false,
             hover_collision_ticks: 0,
             hover_actor: Default::default(),
             hover_track: Default::default(),
@@ -206,50 +210,63 @@ impl Vehicle {
             throttle = max_throttle;
             slip = true
         }
-        let speed = self.speed;
-        if input.throttle > 0. {
-            if self.reverse {
-                brake = max_throttle * input.throttle;
-                if speed < 10. {
-                    self.reverse = false;
-                    self.velocity = Vec2::ZERO;
-                    self.stop_ticks = if hover { 0 } else { 15 }
-                }
-            } else if self.stop_ticks <= 0 {
-                throttle = max_throttle * input.throttle
-            }
+        if self.speed == 0. {
+            self.reverse = false;
         }
-        if input.brake > 0. {
+        let y = if input.throttle > 0. {
+            -input.throttle
+        } else {
+            input.brake
+        };
+        if y < 0. || throttle != 0. {
             if self.reverse {
-                if self.stop_ticks <= 0 {
-                    throttle = max_throttle * input.brake
-                }
+                brake = max_throttle * y.abs().round();
             } else {
-                brake = max_throttle * input.brake;
-                if speed < 10. {
-                    self.reverse = true;
-                    self.velocity = Vec2::ZERO;
-                    self.stop_ticks = if hover { 0 } else { 15 }
-                }
+                throttle = if max_throttle > p.throttle {
+                    max_throttle
+                } else {
+                    max_throttle * y.abs().round()
+                };
             }
         }
+        if y > 0. {
+            if self.speed == 0. {
+                self.reverse = true;
+            }
+            if self.reverse {
+                throttle = max_throttle * y.abs().round();
+            } else {
+                brake = max_throttle * y.abs().round();
+            }
+        }
+        if self.ending && self.speed > 10. {
+            self.speed -= 100.;
+            throttle = 0.;
+        }
+        let speed = self.speed;
         let steer_degrees = if speed <= 10. {
             if hover { 10. } else { 0. }
         } else {
             (260. / speed).clamp(2., if hover { 20. } else { 10. })
         };
-        let steer = -input.steer * steer_degrees.to_radians() * if self.reverse { -1. } else { 1. };
+        let steer = if self.ending && speed > 10. {
+            0.5
+        } else {
+            -input.steer * steer_degrees.to_radians() * if self.reverse { -1. } else { 1. }
+        };
         if speed < 10. {
             self.angular_velocity = 0.;
-            if self.acceleration.x <= 0.5 && throttle == 0. {
+            if self.acceleration.x <= 0.5 || self.ending {
                 self.velocity = Vec2::ZERO;
                 self.speed = 0.
             }
-            if hover {
-                self.yaw += steer.to_degrees()
-            }
         }
-        if !self.jumping {
+        if self.ending && self.speed < 30. {
+            self.speed = 0.;
+            self.velocity = Vec2::ZERO;
+        }
+        self.hover_boost = input.slide || self.turbo > 0;
+        if !self.jumping && !(self.speed == 0. && throttle == 0.) {
             let a = (self.yaw - 90.).to_radians();
             let (sn, cs) = a.sin_cos();
             let mut v = vec2(
@@ -293,7 +310,16 @@ impl Vehicle {
                 };
             self.angular_velocity += dt * (torque / p.inertia).clamp(-limit, limit);
         }
+        let was_air = self.jumping;
         crate::hover_drive::move_and_collide(self, world, input, old_pitch, old_roll);
+        if !self.ending && self.speed < 10. {
+            self.yaw = (self.yaw + steer.to_degrees()).rem_euclid(360.);
+        }
+        if was_air && !self.jumping || self.crash && !self.jumping {
+            self.hover_bounce.start(self.jump_initial_speed);
+        }
+        self.hover_bounce.tick(!self.jumping);
+
         self.hover_actor
             .tick(input.steer, self.reverse, self.jumping);
     }

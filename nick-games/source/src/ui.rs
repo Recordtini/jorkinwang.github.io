@@ -113,6 +113,15 @@ pub fn draw(g: &mut Game) {
         set_default_camera();
         return;
     }
+    if g.kind() == Kind::Hover && crate::hover_ui::draw(g) {
+        if g.screen != before {
+            g.ui_selection = 0;
+            g.audio_update();
+            g.sound("click.aif");
+        }
+        set_default_camera();
+        return;
+    }
     if !matches!(
         g.screen,
         Screen::Playing | Screen::Ready | Screen::Replay | Screen::Ending | Screen::Instructs

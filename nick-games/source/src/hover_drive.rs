@@ -202,7 +202,62 @@ pub fn move_and_collide(
     }
     v.pos = next;
     v.speed = v.velocity.length();
+    if v.jumping && v.hover_collision_ticks < 0 {
+        let y = if input.throttle > 0. {
+            -input.throttle
+        } else {
+            input.brake
+        };
+        if y != 0. {
+            v.speed -= y * (25. / v.speed).min(3.);
+            v.acceleration.x = 1.;
+        }
+    }
     v.pitch = v.pitch.clamp(-20., 20.);
     v.roll = v.roll.clamp(-20., 20.);
     v.yaw = v.yaw.rem_euclid(360.);
+}
+
+/// gHeroDrive's damped hover landing/crash oscillation, at the original tick rate.
+#[derive(Clone, Debug)]
+pub struct Bounce {
+    pub offset: f32,
+    pub count: u32,
+    pub multiplier: f32,
+}
+impl Default for Bounce {
+    fn default() -> Self {
+        Self {
+            offset: 0.,
+            count: 200,
+            multiplier: 0.5,
+        }
+    }
+}
+impl Bounce {
+    pub fn start(&mut self, speed: f32) {
+        self.multiplier = (speed / 500.).clamp(0.5, 2.);
+        self.count = 0;
+        self.calculate();
+    }
+    fn calculate(&mut self) {
+        self.count += 1;
+        self.offset = -self.multiplier
+            * (200. / self.count as f32)
+            * (((self.count - 1) * 15) as f32).to_radians().sin();
+    }
+    pub fn tick(&mut self, ground: bool) {
+        self.count += 1;
+        if self.count < 200 {
+            if ground {
+                self.calculate();
+            }
+        } else {
+            self.offset = 0.;
+        }
+    }
+}
+pub fn collectable(hero: Vec3, object: Vec3) -> bool {
+    let d = hero - object;
+    d.x.abs() + d.y.abs() < 1200. && d.z.abs() < 1200.
 }

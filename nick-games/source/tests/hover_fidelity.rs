@@ -237,3 +237,39 @@ fn timmy_turns_loop_and_return_through_original_authored_ranges() {
     }
     assert_eq!(a.pose, Pose::Idle);
 }
+#[test]
+fn reverse_switches_at_zero_and_up_takes_precedence_over_down() {
+    let w = floor();
+    let mut v = hover();
+    v.speed = 5.;
+    v.velocity = vec2(0., -5.);
+    v.acceleration.x = 1.;
+    v.tick(
+        Input {
+            brake: 1.,
+            ..Default::default()
+        },
+        &w,
+    );
+    assert!(!v.reverse, "low speed alone must not switch to reverse");
+    let mut v = hover();
+    v.tick(
+        Input {
+            brake: 1.,
+            ..Default::default()
+        },
+        &w,
+    );
+    assert!(v.reverse);
+    let mut both = hover();
+    both.tick(
+        Input {
+            throttle: 1.,
+            brake: 1.,
+            ..Default::default()
+        },
+        &w,
+    );
+    assert!(!both.reverse);
+    assert!(both.pos.y < 0.);
+}

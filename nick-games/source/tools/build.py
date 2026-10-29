@@ -22,6 +22,7 @@ for game in ['runaway-bus','stupor-highway']:
  text=re.sub(r' data-engine="[^"]*"','',text)
  text=text.replace('<body ',f'<body data-engine="../engine.wasm?build={digest[:12]}" ',1)
  text=re.sub(r'src="../bridge.js(?:\?[^" ]*)?"',f'src="../bridge.js?build={digest[:12]}"',text)
+ text=re.sub(r'href="../style.css(?:\?[^" ]*)?"',f'href="../style.css?build={digest[:12]}"',text)
  page.write_text(text)
 (ROOT/'web/build.json').write_text(json.dumps({'engine_sha256':digest,'crate':'nick-rust','macroquad':quad['version'],'games':['runaway-bus','stupor-highway']},indent=2)+'\n')
 (ROOT/'web/.nojekyll').touch()

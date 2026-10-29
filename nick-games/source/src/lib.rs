@@ -37,3 +37,7 @@ pub mod hover_race;
 pub mod hover_hud;
 
 pub mod viewport;
+
+pub mod hover_camera;
+
+pub mod hover_ui;

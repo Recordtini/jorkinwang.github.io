@@ -49,6 +49,9 @@ pub struct ActorFrame {
 }
 #[derive(Clone)]
 pub struct Frame {
+    pub surface: String,
+    pub bounce: crate::hover_drive::Bounce,
+    pub boost: bool,
     pub hover_track: crate::hover_race::TrackPosition,
     pub hover_actor: crate::hover_actor::Actor,
     pub pos: Vec3,
@@ -138,6 +141,7 @@ pub struct Game {
     pub demo_phase: f32,
     pub seed: u64,
     pub clock_ticks: u64,
+    pub camera_accumulator: f32,
 }
 impl Game {
     pub async fn load(kind: Kind) -> Result<Self, String> {
@@ -161,9 +165,18 @@ impl Game {
         renderer.filtering = platform::get(11) == 1.;
         renderer.widescreen = platform::get(12) == 1.;
         renderer.camera_mode = (platform::get(20) as u8).min(if kind == Kind::Bus { 2 } else { 3 });
+        if kind == Kind::Hover
+            && let Some(rig) = &mut renderer.hover_camera
+        {
+            rig.replay_points(&world.track, &mut 1793130001);
+        }
         let original_words = assets
             .texts
-            .get("defaulttext")
+            .get(if kind == Kind::Bus {
+                "defaulttext"
+            } else {
+                "gametextnickfop"
+            })
             .map(|text| crate::lingo_data::parse(text))
             .transpose()?
             .unwrap_or_default();
@@ -248,6 +261,7 @@ impl Game {
             demo_phase: 0.,
             seed: 1793130001,
             clock_ticks: 0,
+            camera_accumulator: 0.,
         };
         game.music("titlemusic.aif");
         Ok(game)
@@ -294,12 +308,13 @@ impl Game {
         self.safe_pos = self.vehicle.pos;
         self.safe_yaw = self.vehicle.yaw;
         self.renderer.reset_camera(&self.vehicle);
-        self.screen = if kind == Kind::Bus {
-            Screen::Instructs
-        } else {
-            Screen::Ready
-        };
-        self.countdown = if kind == Kind::Bus { 10. } else { 3. };
+        if kind == Kind::Hover
+            && let Some(rig) = &mut self.renderer.hover_camera
+        {
+            rig.replay_points(&self.world.track, &mut self.seed);
+        }
+        self.screen = Screen::Instructs;
+        self.countdown = 10.;
         if kind == Kind::Bus {
             self.renderer.dropoff_camera(&self.vehicle);
         }
@@ -359,8 +374,6 @@ impl Game {
                 self.message = format!("PLAYER {}: {}", self.player_index + 1, self.message);
             }
             self.message_timer = 20.;
-        } else if kind == Kind::Hover {
-            self.sound("ready.aif");
         }
         if kind == Kind::Bus && self.mode != 0 {
             self.passenger = (self.driver + 1) % 4;
@@ -467,7 +480,10 @@ impl Game {
         if self.muted {
             return;
         }
-        let channel = if matches!(name, "click.aif" | "rollover.aif" | "baddielaugh.aif") {
+        let channel = if matches!(
+            name,
+            "click.aif" | "rollover.aif" | "baddielaugh.aif" | "win.aif" | "lose.aif"
+        ) {
             crate::audio::Channel::Voice
         } else if self.kind() == Kind::Hover
             && matches!(name, "jump.aif" | "hoverland.aif" | "hovercrash.aif")
@@ -701,34 +717,44 @@ impl Game {
             }
             return;
         }
-        if self.kind() == Kind::Hover && !self.world.track.is_empty() {
-            let i = crate::world::nearest(&self.world.track, self.vehicle.pos);
-            let point = self.world.track[i];
-            let floor = self
-                .world
-                .collision
-                .ground(point, 600., 1500.)
-                .map(|h| h.pos)
-                .unwrap_or(point);
-            self.safe_pos = floor + Vec3::Z * self.vehicle.height;
-            let delta = self.world.track[(i + 1) % self.world.track.len()] - point;
-            self.safe_yaw = delta.x.atan2(-delta.y).to_degrees();
+        let mut roads = 0;
+        let found = self.trace.iter().enumerate().rev().find_map(|(i, f)| {
+            if ["track", "dirt", "road", "TK", "platform"]
+                .iter()
+                .any(|s| f.surface.contains(s))
+            {
+                roads += 1;
+                if (roads > 20 || i < 9)
+                    && (crate::hover_race::manhattan(self.vehicle.pos, f.pos) > 2000. || i < 9)
+                {
+                    return Some(f.clone());
+                }
+            }
+            None
+        });
+        if let Some(f) = found {
+            self.vehicle.pos = vec3(
+                f.pos.x.round(),
+                f.pos.y.round(),
+                (f.pos.z + f.bounce.offset - self.vehicle.height).round()
+                    + self.vehicle.height
+                    + 1000.,
+            );
+            self.vehicle.previous = self.vehicle.pos;
+            self.vehicle.yaw = f.yaw.round();
+            self.vehicle.previous_yaw = self.vehicle.yaw;
+            self.vehicle.pitch = f.pitch.round();
+            self.vehicle.roll = f.roll.round();
+            self.vehicle.velocity = Vec2::ZERO;
+            self.vehicle.speed = 0.;
+            self.vehicle.angular_velocity = 0.;
+            self.vehicle.surface = "none".into();
+            self.vehicle.jumping = true;
+            self.vehicle.grounded = false;
+            self.vehicle.jump_time = self.vehicle.params.dt;
+            self.vehicle.jump_start = self.vehicle.pos.z;
+            self.vehicle.jump_initial_speed = -100.;
         }
-        self.vehicle.pos = self.safe_pos + Vec3::Z * 400.;
-        self.vehicle.previous = self.vehicle.pos;
-        self.vehicle.yaw = self.safe_yaw;
-        self.vehicle.previous_yaw = self.safe_yaw;
-        self.vehicle.velocity = Vec2::ZERO;
-        self.vehicle.speed = 0.;
-        self.vehicle.angular_velocity = 0.;
-        self.vehicle.jumping = true;
-        self.vehicle.vertical_speed = 0.;
-        self.vehicle.jump_time = 0.;
-        self.vehicle.jump_start = self.vehicle.pos.z;
-        self.vehicle.jump_initial_speed = 0.;
-        self.vehicle.travel_yaw = self.safe_yaw;
-        self.sound("hoverland.aif");
-        self.renderer.reset_camera(&self.vehicle);
     }
     pub fn finish(&mut self, won: bool, message: &str) {
         self.won = won;
@@ -772,8 +798,17 @@ impl Game {
             p.done = true
         }
         self.replay_end = Some(self.capture_frame());
-        self.music(if won { "win.aif" } else { "lose.aif" });
-        self.audio_update();
+        if self.kind() == Kind::Hover {
+            self.vehicle.ending = true;
+            self.vehicle.hover_actor.end(won);
+            self.countdown = 2.;
+            self.music("");
+            self.audio_update();
+            self.sound(if won { "win.aif" } else { "lose.aif" });
+        } else {
+            self.music(if won { "win.aif" } else { "lose.aif" });
+            self.audio_update();
+        }
     }
     pub fn update(&mut self) {
         if is_key_pressed(KeyCode::F11) {
@@ -857,7 +892,7 @@ impl Game {
                 || (0..4).any(|i| platform::input(i).abs() > 0.3);
             if pressed || self.countdown < 0. {
                 self.screen = Screen::Ready;
-                self.countdown = 1.;
+                self.countdown = if self.kind() == Kind::Hover { 2. } else { 1. };
                 self.message.clear();
                 self.sound("ready.aif");
             }
@@ -878,6 +913,10 @@ impl Game {
                     "go.aif"
                 });
                 self.music("gamemusic.aif");
+                if self.kind() == Kind::Hover {
+                    self.message = "Go!".into();
+                    self.message_timer = 2.;
+                }
                 if self.kind() == Kind::Bus {
                     self.message = "Go!".into();
                     self.message_timer = 2.;
@@ -939,6 +978,14 @@ impl Game {
                     self.renderer.tick_bus_camera(&self.world, &self.vehicle);
                 }
             }
+        } else if matches!(self.screen, Screen::Instructs | Screen::Ready)
+            && self.kind() == Kind::Hover
+        {
+            self.accumulator += frame_dt;
+            while self.accumulator >= step {
+                self.accumulator -= step;
+                self.vehicle.hover_actor.tick(0., false, false);
+            }
         } else if self.screen == Screen::Ending {
             self.countdown -= frame_dt;
             self.accumulator += frame_dt;
@@ -954,6 +1001,14 @@ impl Game {
             if self.countdown <= 0. {
                 let message = self.message.clone();
                 self.finish(self.won, &message);
+            }
+        } else if self.screen == Screen::Finished && self.kind() == Kind::Hover {
+            self.countdown -= frame_dt;
+            self.accumulator += frame_dt;
+            while self.accumulator >= step {
+                self.accumulator -= step;
+                self.world.tick_entities(false, self.vehicle.pos);
+                self.vehicle.tick(Input::default(), &self.world.collision);
             }
         } else if self.screen == Screen::Target {
             self.accumulator += frame_dt;
@@ -982,6 +1037,35 @@ impl Game {
             }
         } else {
             self.accumulator = 0.
+        }
+        if self.kind() == Kind::Hover {
+            use crate::hover_camera::Mode;
+            let mode = match self.screen {
+                Screen::Playing => Mode::User(self.renderer.camera_mode),
+                Screen::Ready if self.countdown < 1. => Mode::User(self.renderer.camera_mode),
+                Screen::Ready => Mode::Orbit,
+                Screen::Instructs => Mode::Start,
+                Screen::Finished | Screen::Ending => Mode::End,
+                Screen::Replay
+                | Screen::Title
+                | Screen::Mode
+                | Screen::Players
+                | Screen::Difficulty => Mode::Replay,
+                _ => self
+                    .renderer
+                    .hover_camera
+                    .as_ref()
+                    .map_or(Mode::User(0), |r| r.mode),
+            };
+            if !matches!(self.screen, Screen::Paused | Screen::Options) {
+                self.camera_accumulator += frame_dt;
+                while self.camera_accumulator >= step {
+                    self.camera_accumulator -= step;
+                    if let Some(rig) = &mut self.renderer.hover_camera {
+                        rig.tick(&self.vehicle, mode);
+                    }
+                }
+            }
         }
         if matches!(
             self.screen,
@@ -1135,14 +1219,7 @@ impl Game {
                     continue;
                 }
             } else {
-                let delta = self.vehicle.pos - self.vehicle.previous;
-                let t = if delta.length_squared() > 0. {
-                    ((e.position - self.vehicle.previous).dot(delta) / delta.length_squared())
-                        .clamp(0., 1.)
-                } else {
-                    0.
-                };
-                if e.position.distance(self.vehicle.previous + delta * t) > 1200. {
+                if !crate::hover_drive::collectable(self.vehicle.previous, e.position) {
                     continue;
                 }
             }
@@ -1186,7 +1263,11 @@ impl Game {
                 }
                 "turbo" => {
                     self.score += if is_bus { 50 } else { 500 };
-                    self.vehicle.turbo = if is_bus { 500 } else { 200 };
+                    self.vehicle.turbo = if is_bus {
+                        500
+                    } else {
+                        self.vehicle.turbo.max(100)
+                    };
                     effects.push(if is_bus {
                         "bonus.aif"
                     } else {
@@ -1390,6 +1471,9 @@ impl Game {
             }
         }
         Frame {
+            surface: self.vehicle.surface.clone(),
+            bounce: self.vehicle.hover_bounce.clone(),
+            boost: self.vehicle.hover_boost,
             hover_track: self.vehicle.hover_track.clone(),
             hover_actor: self.vehicle.hover_actor.clone(),
             pos: self.vehicle.pos,
@@ -1411,7 +1495,7 @@ impl Game {
             best_lap: self.best_lap,
         }
     }
-    fn apply_frame(&mut self, f: &Frame) {
+    pub(crate) fn apply_frame(&mut self, f: &Frame) {
         self.vehicle.previous = self.vehicle.pos;
         self.vehicle.previous_yaw = self.vehicle.yaw;
         self.vehicle.pos = f.pos;
@@ -1422,6 +1506,9 @@ impl Game {
         self.vehicle.speed = f.speed;
         self.vehicle.jumping = f.jumping;
         self.vehicle.hover_actor = f.hover_actor.clone();
+        self.vehicle.surface = f.surface.clone();
+        self.vehicle.hover_bounce = f.bounce.clone();
+        self.vehicle.hover_boost = f.boost;
         self.vehicle.hover_track = f.hover_track.clone();
         for (i, e) in self.world.entities.iter_mut().enumerate() {
             if e.path.len() <= 1 && e.shape != "jelly" {

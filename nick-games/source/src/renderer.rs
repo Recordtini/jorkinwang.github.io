@@ -34,6 +34,7 @@ pub struct Renderer {
     pub doors_open: bool,
     last_filter: bool,
     pub bus_camera: Option<crate::bus_camera::BusCamera>,
+    pub hover_camera: Option<crate::hover_camera::Camera>,
 }
 fn compile(model: &Model, a: &Assets, character: bool) -> Batches {
     let mut groups: HashMap<(usize, String), Mesh> = HashMap::new();
@@ -248,10 +249,15 @@ impl Renderer {
             doors_open: false,
             last_filter: true,
             bus_camera: None,
+            hover_camera: None,
         })
     }
     pub fn draw_model(&self, a: &Assets, name: &str, matrix: Mat4, frame: f32) {
-        let n = name.to_lowercase();
+        let n = if name == "trailturbo" {
+            "trail".into()
+        } else {
+            name.to_lowercase()
+        };
         let character = crate::bus_actor::person(n.trim_end_matches(".3gm"));
         if character {
             gl_use_material(&self.character_material);
@@ -275,7 +281,15 @@ impl Renderer {
                 }
                 let m = matrix * transforms.get(*group).copied().unwrap_or(Mat4::IDENTITY);
                 unsafe { get_internal_gl().quad_gl.push_model_matrix(m) }
-                if self.doors_open && n == "arnoldbus" && mesh.texture.as_ref() == a.texture("busd")
+                if name == "trailturbo" {
+                    draw_mesh(&Mesh {
+                        vertices: mesh.vertices.clone(),
+                        indices: mesh.indices.clone(),
+                        texture: a.texture("trailturbo").cloned(),
+                    });
+                } else if self.doors_open
+                    && n == "arnoldbus"
+                    && mesh.texture.as_ref() == a.texture("busd")
                 {
                     let open = Mesh {
                         vertices: mesh.vertices.clone(),
@@ -301,9 +315,10 @@ impl Renderer {
             self.bus_camera = Some(rig);
             return;
         }
-        let dist = if v.kind == Kind::Bus { 600. } else { 1000. };
-        self.camera_position = v.pos - v.forward() * dist + Vec3::Z * dist * 0.45;
-        self.camera_target = v.pos;
+        let rig = crate::hover_camera::Camera::new(v);
+        self.camera_position = rig.position;
+        self.camera_target = rig.target;
+        self.hover_camera = Some(rig);
     }
     pub fn dropoff_camera(&mut self, v: &Vehicle) {
         let angle = (v.yaw + 150.).to_radians();
@@ -351,11 +366,14 @@ impl Renderer {
             }
             self.last_filter = self.filtering;
         }
-        let position = if self.smooth {
+        let mut position = if self.smooth {
             v.previous.lerp(v.pos, alpha)
         } else {
             v.pos
         };
+        if v.kind == Kind::Hover {
+            position.z += v.hover_bounce.offset;
+        }
         let yaw = if self.smooth {
             v.previous_yaw + angle_delta(v.previous_yaw, v.yaw) * alpha
         } else {
@@ -418,25 +436,25 @@ impl Renderer {
                     rig.target
                 };
             }
-        } else {
-            let lerp = if v.kind == Kind::Bus && menu {
-                1.
-            } else if self.smooth {
-                1. - (-get_frame_time().min(0.1) * 8.).exp()
-            } else {
-                1.
-            };
-            self.camera_position = self.camera_position.lerp(eye, lerp);
-            self.camera_target = self.camera_target.lerp(target, lerp);
-            if !menu
-                && self.camera_mode != 2
-                && let Some(hit) = w
-                    .collision
-                    .segment(self.camera_target + Vec3::Z * 100., self.camera_position)
-                && hit.fraction < 0.98
-            {
-                self.camera_position = hit.pos + hit.normal * 60.;
+        } else if v.kind == Kind::Hover {
+            if self.hover_camera.is_none() {
+                self.reset_camera(v);
             }
+            if let Some(rig) = &self.hover_camera {
+                self.camera_position = if self.smooth {
+                    rig.previous.lerp(rig.position, alpha)
+                } else {
+                    rig.position
+                };
+                self.camera_target = if self.smooth {
+                    rig.previous_target.lerp(rig.target, alpha)
+                } else {
+                    rig.target
+                };
+            }
+        } else {
+            self.camera_position = eye;
+            self.camera_target = target;
         }
         let (sw, sh) = (screen_width(), screen_height());
         let view = crate::viewport::current();
@@ -456,13 +474,25 @@ impl Renderer {
         set_camera(&Camera3D {
             position: self.camera_position,
             target: self.camera_target,
-            up: if self.camera_mode == 3 {
+            up: if self.camera_mode == 3
+                && self
+                    .hover_camera
+                    .as_ref()
+                    .is_some_and(|r| r.mode == crate::hover_camera::Mode::User(3))
+            {
                 vec3(0., -1., 0.)
             } else {
                 Vec3::Z
             },
             fovy: (2.
-                * (((if v.kind == Kind::Bus { 90_f32 } else { 120_f32 }).to_radians() / 2.).tan()
+                * (((if v.kind == Kind::Bus {
+                    90_f32
+                } else {
+                    self.hover_camera.as_ref().map_or(120., |r| r.perspective)
+                })
+                .to_radians()
+                    / 2.)
+                    .tan()
                     / aspect)
                     .atan()),
             viewport,
@@ -538,11 +568,21 @@ impl Renderer {
                 texture: tex,
             });
         }
-        if v.kind == Kind::Hover && v.speed > 10. {
+        if v.kind == Kind::Hover {
+            let rotation = Mat4::from_rotation_z(yaw.to_radians())
+                * Mat4::from_rotation_x(v.pitch.to_radians())
+                * Mat4::from_rotation_y(v.roll.to_radians());
+            let pos = position + rotation.transform_vector3(vec3(0., 270., -10.));
             self.draw_model(
                 a,
-                "trail",
-                transform(position - forward * 270. - Vec3::Z * 10., yaw, 240.),
+                if v.hover_boost { "trailturbo" } else { "trail" },
+                Mat4::from_translation(pos)
+                    * rotation
+                    * Mat4::from_scale(vec3(
+                        240.,
+                        240. * ((v.speed - 50.) / 350.).clamp(0., 1.),
+                        240.,
+                    )),
                 0.,
             );
         }
@@ -605,8 +645,7 @@ impl Renderer {
             } else if !e.sprite.is_empty()
                 && let Some(t) = a.texture(&e.sprite)
             {
-                let p = e.position
-                    + Vec3::Z * (clock * 3.).sin() * if v.kind == Kind::Bus { 0. } else { 100. };
+                let p = e.position;
                 let size = if v.kind == Kind::Bus { e.scale } else { 1000. };
                 let right = (self.camera_target - self.camera_position)
                     .cross(Vec3::Z)
@@ -654,7 +693,13 @@ impl Renderer {
         {
             matrix *= Mat4::from_translation(-(m.min + m.max) / 2.);
         }
-        if self.camera_mode != 2 || menu {
+        if (v.kind == Kind::Bus && (self.camera_mode != 2 || menu))
+            || (v.kind == Kind::Hover
+                && !self
+                    .hover_camera
+                    .as_ref()
+                    .is_some_and(|r| r.mode == crate::hover_camera::Mode::User(2)))
+        {
             self.draw_model(
                 a,
                 name,
@@ -705,6 +750,18 @@ impl Renderer {
             let position =
                 crate::bus_hud::compass_position(self.camera_position, self.camera_target);
             self.draw_model(a, "arrow", transform(position, yaw, 50.), 0.);
+        }
+        if v.kind == Kind::Hover && menu {
+            let f = (self.camera_target - self.camera_position).normalize_or_zero();
+            let r = f.cross(Vec3::Z).normalize_or_zero();
+            let u = r.cross(f).normalize_or_zero();
+            let m = Mat4::from_cols(
+                r.extend(0.),
+                f.extend(0.),
+                u.extend(0.),
+                (self.camera_position + f * 70. + u * 12.).extend(1.),
+            ) * Mat4::from_scale(Vec3::splat(10.));
+            self.draw_model(a, "nickfoplogo", m, (clock * 10.).rem_euclid(35.));
         }
         gl_use_default_material();
         set_default_camera();

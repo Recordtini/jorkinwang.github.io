@@ -17,7 +17,7 @@ References: `reference/stupor-highway/Internal/MovieScript 9 - gHeroDrive parent
 
 ## Validation
 
-The Rust suite passes all 68 checks; native and WASM release builds and Clippy with warnings denied pass. Ten new regression tests cover throttle/boost, angular cap, flight trajectory and landing grace, launch multipliers, wall impulse and damping, ground clearance, sound selection/gain and Timmy's authored pose transitions. They run alongside the existing Arnold/audio/extraction checks.
+The Rust suite passes all 75 checks; native and WASM release builds and Clippy with warnings denied pass. Ten new regression tests cover throttle/boost, angular cap, flight trajectory and landing grace, launch multipliers, wall impulse and damping, ground clearance, sound selection/gain and Timmy's authored pose transitions. They run alongside the existing Arnold/audio/extraction checks.
 
 Browser verification loaded the rebuilt WASM, started Time Trial, drove over the first ramp and back onto the track, and checked pause/resume. Browser telemetry confirmed live acceleration, ramp/road surfaces, pickup scoring and gameplay sound-channel selection.
 
@@ -37,10 +37,16 @@ The updated source-progress driving probe also completes Timmy’s circuit and t
 
 Ten additional regression tests cover HUD centers/clock/glyph spacing, per-racer initialization, steering/acceleration, wall probes, jumps, progress/ranking, moving proxies, relative contact impulse and Timewarp recovery. Full-track simulations finish all five racers on Easy and Medium. With the tested Hard seed, four finish and one follows its randomized lane past the first ramp and is blocked by the stop wall. The diagnostic traces this route and contact; no invented obstacle avoidance or teleport is added. Exact original-runtime behavior for this seed/edge case remains unverified.
 
-## Remaining port work
+## Menus and completion pass
 
-- Original menus, camera paths/transitions, win/loss animations and complete replay presentation still need dedicated source reconciliation.
-- Power-up collection still uses the port's swept-distance check rather than the original per-frame 2D Manhattan/height check. Placement and repeat-collection limits need full audit against `addObstacles` and `dead`/`revive` (the original allows three revivals for non-email power-ups).
-- Input stop/reverse transitions, sub-threshold motion, airborne throttle, exact query edge behavior and animation endpoint timing need further reconciliation. Hard-mode racer ramp/blocker interactions need comparison with the original running game. No original Shockwave runtime is available here.
-- The supplied attract recording starts at a different ground/body height than the current recovered track plus equipment settings. Do not change the track height or certify matching playback based on that recording alone; the original running game is needed to resolve this version/configuration difference.
-- Director's random stream and retired score/backend services remain replaced by the Rust RNG and device-local scores.
+- Recovered NickFOP menu/instruction strings from the original XMED text runs. Menus now draw the original letter sprites instead of the system font, with native 147×34 button bitmaps, authored centers, wording and 70% inactive lettering. Title, mode, players, difficulty, pause and end menus use gMenu positions. The animated original 3D logo is aligned to the menu camera.
+- Added the skippable opening instructions, Ready/Set/Go sequence, source chase distances and field of view, first-person camera, end pan, and randomized trackside replay cameras. The optional overhead camera remains a modern enhancement.
+- Added Timmy's win and alternating loss-loop animations, continuing end motion, hover landing/crash bounce, and speed-dependent normal/turbo trails. Replay frames preserve actor pose, bounce, boost and surface state. End sounds use one-shot voice playback, with no invented looping win/lose music.
+- Corrected the zero-speed reverse transition, Up/Down precedence, low-speed pivot timing and airborne input handling. Turbo guarantees at least 100 ticks rather than resetting to 200. Pickups use the source pre-drive 2D Manhattan range plus independent height check; non-email pickups can revive three times. Recovery searches recorded road history rather than teleporting to the nearest track point.
+- Original instructions are readable with the recovered wording; the retired Flash help layout and online score service are replaced by bitmap help pages and device-local named scores. Phone Options intentionally uses larger browser controls. Shared high-DPI viewport conversion keeps HUD and input aligned.
+
+Six additional regression checks cover original glyph availability/button dimensions, pickup range boundaries, end animations, bounce, camera distances and reverse transitions. Native/WASM builds, Clippy with warnings denied, and five extraction checks pass. The full-track automated Timmy driver still completes the circuit in 114.25 simulated seconds with eight contacts.
+
+## Comparison limits
+
+This is source-backed implementation, not a certification of pixel/frame-perfect original-runtime behavior. The original Shockwave runtime is unavailable here. Hard-mode racer ramp/blocker edge cases, collision query precision, original random-stream results, camera renderer conventions and Flash help-page styling still need direct comparison with the original. The source attract recording uses a different ground/body height from the recovered track/equipment configuration; its version/configuration mismatch is not resolved by changing the track. Modern browser controls, optional cameras and device-local scores are deliberate enhancements/replacements.

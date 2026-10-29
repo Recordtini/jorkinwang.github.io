@@ -72,3 +72,27 @@ pub fn clear(page: usize) {
         platform::set(base + rank * 12 + 10, 0.);
     }
 }
+
+/// Timmy's named scores use a separate store from Arnold's original score pages.
+pub fn add_hover(mode: u8, difficulty: u8, name: &str, score: i32) {
+    let page = (mode as usize * 3 + difficulty as usize - 1) + 20;
+    let mut entries = read(page);
+    let name = if name.trim().is_empty() {
+        "YourName"
+    } else {
+        name.trim()
+    };
+    save_text(9000, name);
+    entries.push(Entry {
+        name: name.into(),
+        score,
+    });
+    entries.sort_by_key(|e| std::cmp::Reverse(e.score));
+    entries.truncate(10);
+    for (rank, e) in entries.iter().enumerate() {
+        let key = 10000 + page as i32 * 200 + rank as i32 * 12;
+        platform::set(key, e.score as f64);
+        save_text(key + 1, &e.name);
+        platform::set(key + 10, 1.);
+    }
+}
