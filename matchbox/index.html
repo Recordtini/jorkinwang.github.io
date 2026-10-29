@@ -83,7 +83,7 @@ async function init(){
  // boot like FUN_0044a770: save or new game. DELIBERATE DEVIATION (user request): the new-game pick is seeded from crypto.getRandomValues
  // instead of the exe's srand(time(0)), whose first rand() only changes every few seconds
  const first=M.g_start(crypto.getRandomValues(new Uint32Array(1))[0]);if(first==0xff)throw 'start failed (LevelFile.mef / vehicle)';
- const model=['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'][M.g_car_dept()];
+ const model=(M.g_car_upgraded()?['objects/m_body.ms2','objects/upfire.ms2','objects/amb_bod.ms2']:['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'])[M.g_car_dept()];
  const nm=new TextEncoder().encode(model);const np=M.g_alloc(nm.length);new Uint8Array(M.memory.buffer,np,nm.length).set(nm);
  if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
  // water objects (FUN_0045f080 creates riv*/doriv*/farm_riv/pool_riv at the world origin; model space == BPK space)
