@@ -142,6 +142,7 @@ function frame(now){
  const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
  const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
  const vh=hud[0]?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
+ M.g_set_view(w,vh);
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(.55,.7,.9,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
  gl.uniform3f(loc.fog,.55,.7,.9);gl.uniform1f(loc.fogEnd,16000);
