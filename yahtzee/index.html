@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ultimate Yahtzee — Classic</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<div id="game" aria-label="Classic Yahtzee game">
+  <canvas id="background" width="640" height="480" aria-label="Original Classic board"></canvas>
+  <canvas id="dice3d" width="640" height="480" aria-label="Dice; click a settled die to hold or release it"></canvas>
+  <img id="top" src="assets/clstop.png" alt="">
+  <img id="bottom" src="assets/clsbtm.png" alt="">
+  <img id="score-art" src="assets/clsright.png" alt="Classic Yahtzee scorecard">
+  <div id="cells" aria-label="Scorecard"></div><span id="player">Player</span>
+  <button id="board-roll" aria-label="Roll dice on board" title="Roll dice"></button>
+  <button id="file" class="menu-hotspot" aria-label="File menu"></button><button id="options" class="menu-hotspot" aria-label="Options menu"></button><button id="help" class="menu-hotspot" aria-label="Help"></button>
+  <div id="popup" role="menu" hidden></div>
+  <div id="title-screen"><canvas id="title-art" width="640" height="480"></canvas><div id="title-buttons"></div></div>
+  <div id="dialog-layer" hidden></div>
+  <p id="error" role="alert"></p>
+</div>
+<p id="status" class="sr-only" role="status">Loading Rust module…</p>
+<noscript>This port requires JavaScript and WebAssembly.</noscript>
+</main><script type="module" src="game.js"></script></body></html>

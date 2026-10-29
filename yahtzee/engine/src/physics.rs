@@ -1,0 +1,260 @@
+//! Classic retail roll path: 00411740, 004113a0, 0040c1c0, 0040c440,
+//! 0040bd30, 0040bb30, 0040c4d0. Original per-die update order is retained.
+use crate::{die::cube_face,matrix::Matrix,rng::RetailRandom,retail_constants::*};
+
+#[derive(Clone,Debug)]
+pub struct Die {
+    pub position:[f32;3],pub velocity:[f32;3],pub orientation:Matrix,pub spin:Matrix,
+    pub world:Matrix,pub world_position:[f32;3],pub sleeping:bool,pub held:bool,pub face:u8,pub rotations:u32,
+    pub saved_position:[f32;3],pub rack:Option<usize>,
+}
+impl Die {
+    fn new(face:u8)->Self{
+        let mut d=Self{position:[0.;3],velocity:[0.;3],orientation:Matrix::default(),spin:Matrix::default(),world:Matrix::default(),world_position:[0.;3],sleeping:false,held:false,face,rotations:0,saved_position:[0.;3],rack:None};
+        d.settle(face,0.);d
+    }
+    fn read_face(&self)->u8{if self.held||self.sleeping{self.face}else{cube_face(self.world.0[0],self.world.0[1])}}
+    fn settle(&mut self,face:u8,yaw:f32){
+        self.settle_tilt(face,yaw,0.);
+    }
+    fn settle_tilt(&mut self,face:u8,yaw:f32,tilt:f32){
+        self.orientation.rotate([0,65536,0],(yaw as f64*C00426198 as f64)as i32,1);
+        if tilt!=0.{self.orientation.rotate([65536,0,0],(tilt as f64*C00426198 as f64)as i32,2);}
+        match face{2=>self.orientation.rotate([65536,0,0],90*65536,2),3=>self.orientation.rotate([0,0,65536],-90*65536,2),4=>self.orientation.rotate([0,0,65536],90*65536,2),5=>self.orientation.rotate([65536,0,0],-90*65536,2),6=>self.orientation.rotate([65536,0,0],180*65536,2),_=>()};
+        self.face=face;
+    }
+    fn yaw(&self,face:u8)->f32{
+        if face==3||face==4{let v=self.orientation.0[2];((v[0]as f64).atan2(v[2]as f64)*C00426190)as f32}
+        else{let v=self.orientation.0[0];((v[2]as f64).atan2(v[0]as f64)*C00426218)as f32}
+    }
+    fn boundary(&self)->[f32;3]{
+        let mut out=[0.;3];if self.position[1].to_bits()>0x80000000{out[1]=C004261B8 as f32;}
+        let radius=((self.position[2]as f64).powi(2)+(self.position[0]as f64).powi(2)).sqrt();
+        // 0040b6eb compares the x87 result before its subsequent f32 store.
+        let r=radius as f32;
+        if 8.<radius{out[0]=(self.position[0]as f64/r as f64*8.)as f32;out[2]=(8./r as f64*self.position[2]as f64)as f32;}
+        out
+    }
+    fn overlaps(&self,other:&Self)->bool{
+        let d: [f32;3]=std::array::from_fn(|i|self.position[i]-other.position[i]);
+        d[1]as f64*d[1]as f64+d[2]as f64*d[2]as f64+d[0]as f64*(d[0]as f64)<C00425348
+    }
+}
+
+#[derive(Clone)]
+pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32}
+impl Simulation {
+    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0}}
+    fn publish(&mut self,i:usize){
+        self.render_counter=self.render_counter.wrapping_add(1);
+        self.dice[i].world=if self.render_counter&127!=0{self.dice[i].orientation.ortho()}else{self.dice[i].orientation};
+        self.dice[i].world_position=self.dice[i].position.map(|p|((p as f64*65536.)as i32)as f32/65536.);
+    }
+    pub fn initialize_layout(&mut self){for i in 0..5{self.dice[i].position=[1.5*i as f32-3.,0.,0.];self.publish(i);}}
+    fn rotation(&mut self,i:usize,axis:[i32;3],angle:i32,mode:u32,spin:bool){
+        let d=&mut self.dice[i];if spin{d.spin.rotate(axis,angle,mode)}else{d.orientation.rotate(axis,angle,mode)}
+        let old=d.rotations;d.rotations=d.rotations.wrapping_add(1);
+        if old&63==0{if spin{d.spin=d.spin.ortho()}else{d.orientation=d.orientation.ortho()}}
+        d.sleeping=false;
+    }
+    fn random_axis(&mut self,coefficient:f32)->i32{
+        let v=32767-(self.random.next_u31()&65535)as i32;
+        (v as f64*coefficient as f64*C00426198 as f64)as i32
+    }
+    pub fn roll(&mut self){
+        let speed=((self.random.next_u31()&127)+100)as f64*C00426730 as f64;
+        let side=(10-(self.random.next_u31()&63)as i32)as f64*C00426730 as f64;
+        self.throw([7.4,0.,-7.6],side as f32,speed as f32);
+    }
+    pub fn throw(&mut self,origin:[f32;3],side:f32,speed:f32){
+        let side=side.clamp(-0.5,0.6);let speed=speed.clamp(0.,0.7);
+        let positions=[[0.,0.,0.],[2.,2.,0.],[2.,0.,2.],[-2.,1.,2.],[-1.,0.,0.]];
+        for(i,p)in positions.iter().enumerate(){if !self.dice[i].held{
+            self.dice[i].position=std::array::from_fn(|a|p[a]+origin[a]);
+            let swap=self.random.next_u31()&128!=0;
+            for n in 0..2{
+                let r=(self.random.next_u31()&65535)as f64;
+                let angle=((r*C004267A4 as f64*C004267A8 as f64+C004267AC as f64)*C00426758 as f64)as i32;
+                let axis=if(n==0)==swap{[65536,0,0]}else{[0,0,65536]};
+                self.rotation(i,axis,angle,if n==0{1}else{3},false);
+            }
+        }}
+        const AXES:[[i32;3];8]=[[65536,0x3333,65536],[0x3333,65536,65536],[65536,0x3333,0x3333],[0,65536,0x8000],[0x3333,65536,65536],[65536,65536,0x3333],[0,0x3333,65536],[65536,0,65536]];
+        for i in 0..5{if !self.dice[i].held{
+            self.wall(i);self.ground(i);
+            let forward=(((self.random.next_u31()&127)+90)as f64*C004267B0 as f64+speed as f64)as f32;
+            let sideways=(10-(self.random.next_u31()&63)as i32)as f64*C004267B0 as f64+side as f64;
+            self.dice[i].velocity[0]=(sideways*C00426718 as f64+self.dice[i].velocity[0]as f64)as f32;
+            self.dice[i].velocity[2]=(forward as f64*C00426718 as f64+self.dice[i].velocity[2]as f64)as f32;
+            self.dice[i].sleeping=false;
+            let axis=(self.random.next_u31()&7)as usize;
+            let angle=(((self.random.next_u31()&127)+80)as f64*C004267B4 as f64*C00426718 as f64*C00426758 as f64)as i32;
+            self.rotation(i,AXES[axis],angle,3,true);self.publish(i);
+        }}
+    }
+    fn ground(&mut self,i:usize){
+        if self.dice[i].sleeping||self.dice[i].held{return}
+        for a in 0..3{self.dice[i].position[a]+=self.dice[i].velocity[a];}
+        self.dice[i].orientation=self.dice[i].orientation.combine(self.dice[i].spin);self.publish(i);
+        if self.dice[i].position[1].to_bits()>0x80000000{
+            self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=-0.5;
+            let face=self.dice[i].read_face();let yaw=self.dice[i].yaw(face);self.dice[i].settle(face,yaw);
+            if self.dice[i].velocity[1]as f64>C004261D8{
+                let v=self.dice[i].spin.vector([65536,0,0]);
+                for a in [0,2]{self.dice[i].velocity[a]=(self.dice[i].velocity[a]as f64*C004261E8)as f32;}
+                if self.dice[i].velocity[1]as f64>=C004261F0{
+                    let angle=self.random_axis(C004261A0);let z=self.random_axis(C004261A0);let y=self.random_axis(C004261A0);let x=self.random_axis(C004261A0);
+                    self.dice[i].spin.rotate([x,y,z],angle,3);
+                }else{
+                    self.dice[i].spin=Matrix::default();
+                    let angle=((v[2]as f64).atan2(v[0]as f64)*C004261F8*C00426200*C00426198 as f64)as i32;
+                    self.dice[i].spin.rotate([0,65536,0],angle,1);
+                }
+            }else{
+                self.dice[i].spin=Matrix::default();self.publish(i);self.dice[i].velocity[1]=0.;self.dice[i].position[1]=0.;
+                for a in [0,2]{self.dice[i].velocity[a]*=f32::from_bits(0x3f4ccccd);}
+                if self.dice[i].velocity[0]as f64<=C004261E0&&self.dice[i].velocity[2]as f64<=C004261E0{
+                    self.dice[i].face=self.dice[i].read_face();self.dice[i].sleeping=true;self.dice[i].velocity=[0.;3];
+                }
+            }
+        }
+        self.dice[i].velocity[1]=(self.dice[i].velocity[1]as f64-C00426208)as f32;
+    }
+    fn wall(&mut self,i:usize){
+        let p=self.dice[i].boundary();if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=-0.5;}
+        if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=-0.5;}}
+    }
+    fn vertical_contact(&mut self,this:usize,a:usize,b:usize,offset:[f32;3],boundary:[f32;3]){
+        self.dice[a].velocity[1]=(self.dice[b].velocity[1]as f64*C00426170)as f32;
+        let r=(self.random.next_u31()&255)as f64;
+        self.dice[b].velocity[1]=((C00426180 as f64-r*C0042617C as f64)*-0.5*self.dice[b].velocity[1]as f64)as f32;
+        self.dice[b].position[1]=(offset[1]as f64*C00426184 as f64+self.dice[b].position[1]as f64)as f32;
+        self.dice[a].position[1]=boundary[1];
+        for axis in [0,2]{
+            self.dice[b].velocity[axis]=((self.dice[a].position[axis]as f64-self.dice[b].position[axis]as f64)*C00426188 as f64+self.dice[b].velocity[axis]as f64)as f32;
+            self.dice[a].velocity[axis]=(self.dice[a].velocity[axis]as f64-self.dice[b].velocity[axis]as f64*-0.5)as f32;
+        }
+        let angle=((self.dice[b].position[0]as f64-self.dice[a].position[0]as f64).atan2(self.dice[b].position[2]as f64-self.dice[a].position[2]as f64)*C00426190)as f32;
+        let mut scratch=Matrix::default();scratch.rotate([0,-65536,0],angle as i32,1);
+        let axis=scratch.vector([65536,0,0]);
+        let spin_angle=self.random_axis(C0042618C);self.dice[b].spin.rotate([axis[0],0,axis[2]],spin_angle,3);
+        let angle=self.random_axis(C0042619C);let z=self.random_axis(C004261A0);let y=self.random_axis(C004261A4);let x=self.random_axis(C004261A0);
+        self.dice[a].spin.rotate([x,y,z],angle,1);
+        let _=this; // all retail body restitution coefficients are -0.5
+    }
+    fn pair(&mut self,a:usize,b:usize)->bool{
+        let mut iterations=0;
+        while self.dice[a].overlaps(&self.dice[b])&&iterations<8{
+            iterations+=1;self.dice[b].sleeping=false;
+            let diff:[f32;3]=std::array::from_fn(|i|self.dice[b].position[i]-self.dice[a].position[i]);
+            let length=(diff[1]as f64*diff[1]as f64+diff[2]as f64*diff[2]as f64+diff[0]as f64*diff[0]as f64).sqrt();
+            // 0040bda6..0040bdee stores the unit vector, but keeps both
+            // the distance and push magnitude in the 53-bit x87 stack.
+            let unit=diff.map(|v|(v as f64/length)as f32);
+            let push=(C004261A8-length)*C004261B0 as f64+C004261B8;
+            let delta:[f32;3]=std::array::from_fn(|i|(unit[i]as f64*push)as f32);
+            let delta=delta.map(|d|d.clamp(C004261C0 as f32,C004261B8 as f32));
+            for i in 0..3{self.dice[b].position[i]+=delta[i];}
+            let boundary_b=self.dice[b].boundary();
+            if boundary_b==[0.;3]{
+                for i in 0..3{self.dice[a].position[i]-=delta[i];}
+                let boundary_a=self.dice[a].boundary();
+                if boundary_a==[0.;3]{
+                    for i in 0..3{let v=self.dice[a].velocity[i];self.dice[a].velocity[i]=self.dice[b].velocity[i];self.dice[b].velocity[i]=v;}
+                    let angle=self.random_axis(C004261A0);let z=self.random_axis(C004261A0);let y=self.random_axis(C004261A0);let x=self.random_axis(C004261A0);
+                    self.dice[a].spin.rotate([x,y,z],angle,3);
+                }else{
+                    if boundary_a[1]!=0.{self.vertical_contact(a,a,b,delta,boundary_a);}
+                    if boundary_a[0]!=0.{
+                        if(boundary_a[2]<0.&&self.dice[b].velocity[2]<0.)||(boundary_a[2]>0.&&self.dice[b].velocity[2]>0.){
+                            self.dice[a].velocity[0]=self.dice[b].velocity[0];self.dice[b].velocity[0]*=-0.5;
+                        }
+                        self.dice[b].position[0]=(delta[0]as f64*C00426180 as f64+self.dice[b].position[0]as f64)as f32;
+                        self.dice[a].position[0]=boundary_a[0];
+                    }
+                    if boundary_a[2]!=0.{self.dice[a].velocity[2]=self.dice[b].velocity[2];self.dice[b].velocity[2]*=-0.5;self.dice[b].position[2]=(delta[2]as f64*C00426180 as f64+self.dice[b].position[2]as f64)as f32;self.dice[a].position[2]=boundary_a[2];}
+                    for i in 0..3{self.dice[b].position[i]-=delta[i];}
+                }
+            }else{
+                if boundary_b[1]!=0.{self.vertical_contact(a,b,a,delta,boundary_b);}
+                if boundary_b[0]!=0.{
+                    if(boundary_b[0]<0.&&self.dice[b].velocity[0]<0.)||(boundary_b[0]>0.&&self.dice[b].velocity[0]>0.){self.dice[b].velocity[0]=self.dice[a].velocity[0];}
+                    self.dice[a].velocity[0]*=-0.5;self.dice[a].position[0]=(delta[0]as f64*C00426184 as f64+self.dice[a].position[0]as f64)as f32;self.dice[b].position[0]=boundary_b[0];
+                }
+                if boundary_b[2]!=0.{
+                    if(boundary_b[2]<0.&&self.dice[b].velocity[2]<0.)||(boundary_b[2]>0.&&self.dice[b].velocity[2]>0.){self.dice[b].velocity[2]=self.dice[a].velocity[2];self.dice[a].velocity[2]*=-0.5;}
+                    self.dice[a].position[2]=(delta[2]as f64*C00426184 as f64+self.dice[a].position[2]as f64)as f32;self.dice[b].position[2]=boundary_b[2];
+                }
+                for i in 0..3{self.dice[b].position[i]-=delta[i];}
+            }
+        }
+        for i in [a,b]{if self.dice[i].boundary()!=[0.;3]{self.dice[i].velocity[2]=if self.dice[i].position[2]>0.{-0.08}else{0.08};}}
+        iterations!=0
+    }
+    pub fn step(&mut self){for i in 0..5{
+        self.ground(i);self.wall(i);
+        if !self.dice[i].held{for j in 0..5{if i!=j&&!self.dice[j].held{self.pair(i,j);}}}
+    }}
+    pub fn settled(&self)->bool{self.dice.iter().all(|d|d.sleeping||d.held)}
+    pub fn faces(&self)->[u8;5]{std::array::from_fn(|i|self.dice[i].read_face())}
+    /// Rack coordinates/angles: YAHTZEE.EXE 0042c0d8; hold/unhold 00412540.
+    pub fn toggle_hold(&mut self,i:usize){
+        const RACK:[[f32;5];5]=[[-3.15,5.7,8.35,-19.4,-20.2],[-4.6,5.7,7.87,-24.2,-20.2],[-6.01,5.7,7.18,-31.2,-20.2],[-7.33,5.7,6.37,-35.8,-20.2],[-8.57,5.7,5.38,-43.2,-20.2]];
+        let face=self.dice[i].read_face();
+        if !self.dice[i].held{
+            let slot=(0..5).find(|s|!self.dice.iter().any(|d|d.rack==Some(*s))).unwrap();
+            let d=&mut self.dice[i];d.saved_position=d.position;d.held=true;d.rack=Some(slot);d.position=[RACK[slot][0],RACK[slot][1],RACK[slot][2]];
+            self.publish(i); // 00411650 publishes the moved clump first.
+            self.dice[i].settle_tilt(face,RACK[slot][3],RACK[slot][4]);
+        }else{
+            let d=&mut self.dice[i];d.position=d.saved_position;d.held=false;d.rack=None;
+            self.publish(i); // 0040c8b0 restores and publishes before settling.
+            self.dice[i].settle(face,0.);
+            let(mut x,mut z)=(-5.,-5.);
+            while !self.valid_placement(i){
+                x+=1.;if x>5.{z+=1.;x=-5.;}
+                if z>5.{self.dice[i].position=[0.;3];break}
+                self.dice[i].position=[x,0.,z];
+            }
+        }
+        self.publish(i);
+    }
+    fn valid_placement(&mut self,i:usize)->bool{
+        if self.dice[i].boundary()!=[0.;3]{return false}
+        for j in 0..5{if i!=j&&self.pair(i,j){return false}}
+        true
+    }
+}
+
+#[cfg(test)]mod tests{
+    use super::*;
+    #[test]fn original_first_frame(){
+        let mut s=Simulation::new(1);s.roll();
+        for(record,b)in include_bytes!("../evidence/first-frame.bin").chunks_exact(728).enumerate(){
+            let i=b[1]as usize;let j=b[2]as usize;
+            match b[0]{0=>s.ground(i),1=>s.wall(i),2=>{s.pair(i,j);},_=>unreachable!()}
+            for k in 0..5{for a in 0..6{let offset=4+k*144+a*4;let expected=f32::from_le_bytes(b[offset..offset+4].try_into().unwrap());let actual=if a<3{s.dice[k].position[a]}else{s.dice[k].velocity[a-3]};assert!((actual-expected).abs()<0.00001,"event {record} {}({i},{j}), die {k} value{a}: {} != {expected}",b[0],actual);}}
+        }
+    }
+    #[test]fn original_full_rolls(){
+        let fixture=include_bytes!("../evidence/roll-trace.bin");let mut offset=0;
+        while offset<fixture.len(){
+            let seed=u32::from_le_bytes(fixture[offset..offset+4].try_into().unwrap());let frames=u32::from_le_bytes(fixture[offset+4..offset+8].try_into().unwrap())as usize;offset+=8;
+            let mut simulation=Simulation::new(seed);simulation.roll();
+            for frame in 0..frames{
+                let record=&fixture[offset..offset+724];offset+=724;
+                for i in 0..5{
+                    let r=&record[i*144..(i+1)*144];let f=|n:usize|f32::from_le_bytes(r[n*4..n*4+4].try_into().unwrap());let word=|n:usize|i32::from_le_bytes(r[n*4..n*4+4].try_into().unwrap());
+                    let d=&simulation.dice[i];
+                    for axis in 0..3{assert!((d.position[axis]-f(axis)).abs()<0.00002,"seed {seed} frame {frame} die {i} position {axis}: {} != {}",d.position[axis],f(axis));assert!((d.velocity[axis]-f(axis+3)).abs()<0.00002,"seed {seed} frame {frame} die {i} velocity {axis}: {} != {}",d.velocity[axis],f(axis+3));}
+                    assert_eq!(d.sleeping,word(6)!=0,"seed {seed} frame {frame} die {i} sleep");
+                    assert_eq!(d.face,word(7)as u8,"seed {seed} frame {frame} die {i} face");
+                    assert_eq!(d.rotations,word(8)as u32,"seed {seed} frame {frame} die {i} rotations");
+                    for(m,matrix)in [d.orientation,d.spin,d.world].iter().enumerate(){for a in 0..3{for b in 0..3{let expected=word(9+m*9+a*3+b);assert!((matrix.0[a][b]-expected).abs()<=1,"seed {seed} frame {frame} die {i} matrix {m}[{a}][{b}]: {} != {expected}",matrix.0[a][b]);}}}
+                }
+                if frame+1<frames{simulation.step();}
+            }
+            assert!(simulation.settled());
+        }
+    }
+}

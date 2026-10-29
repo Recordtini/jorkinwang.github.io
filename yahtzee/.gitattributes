@@ -1,0 +1,5 @@
+engine/evidence/*.bin binary
+engine/evidence/original-rle/*.raw binary
+engine/assets/*.RLE binary
+engine/assets/menu/*.RLE binary
+engine/assets/models/*.bin binary
