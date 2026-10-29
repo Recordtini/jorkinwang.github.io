@@ -17,7 +17,7 @@ References: `reference/stupor-highway/Internal/MovieScript 9 - gHeroDrive parent
 
 ## Validation
 
-The Rust suite passes all 75 checks; native and WASM release builds and Clippy with warnings denied pass. Ten new regression tests cover throttle/boost, angular cap, flight trajectory and landing grace, launch multipliers, wall impulse and damping, ground clearance, sound selection/gain and Timmy's authored pose transitions. They run alongside the existing Arnold/audio/extraction checks.
+The Rust suite passes all 78 checks; native and WASM release builds and Clippy with warnings denied pass. Ten new regression tests cover throttle/boost, angular cap, flight trajectory and landing grace, launch multipliers, wall impulse and damping, ground clearance, sound selection/gain and Timmy's authored pose transitions. They run alongside the existing Arnold/audio/extraction checks.
 
 Browser verification loaded the rebuilt WASM, started Time Trial, drove over the first ramp and back onto the track, and checked pause/resume. Browser telemetry confirmed live acceleration, ramp/road surfaces, pickup scoring and gameplay sound-channel selection.
 
@@ -50,3 +50,14 @@ Six additional regression checks cover original glyph availability/button dimens
 ## Comparison limits
 
 This is source-backed implementation, not a certification of pixel/frame-perfect original-runtime behavior. The original Shockwave runtime is unavailable here. Hard-mode racer ramp/blocker edge cases, collision query precision, original random-stream results, camera renderer conventions and Flash help-page styling still need direct comparison with the original. The source attract recording uses a different ground/body height from the recovered track/equipment configuration; its version/configuration mismatch is not resolved by changing the track. Modern browser controls, optional cameras and device-local scores are deliberate enhancements/replacements.
+
+## Trail, motion and depth follow-up
+
+- Fixed an extra 100× trail scale: Director scale 240 is 2.4 in the native model matrix. Speed still controls trail length with the original `(speed-50)/350` clamp; boost selects the original turbo texture.
+- Camera now advances alongside every simulation step, including catch-up frames, and shares the simulation interpolation fraction. Camera, position, pitch, roll, hover bounce and opponent orientation interpolate consistently. Pausing preserves the fraction instead of snapping backward. Menu cameras use their own interpolation clock; trackside camera changes cut between stations. Opening camera distance now uses the original 10000 units.
+- Shadows, trails and particles draw after opaque world/player geometry with depth testing enabled and depth writes disabled. Particles sort back to front. The far plane uses NickFOP's authored 200000-unit range.
+- Bot speed, acceleration and difficulty constants remain source values. Optional **Opponent pace: RELAXED** scales speeds and acceleration to 75%, is reversible, persists as a browser preference, and marks runs as practice. Original pace remains the default and Original defaults restores it. This is an enhancement, not an inferred correction to the original AI.
+
+Regression checks cover trail percent scale, speed-length limits, rotated mounting offset, authored opening camera distance, replay camera cuts and reversible practice pace. Browser checks exercised a first-ramp jump, the restored trail and the practice flag. These checks do not certify every possible transparent-model intersection or original-runtime AI lap time.
+
+Removed the optional Extra map/Minimap toggle from desktop and phone Options at the user’s request; the original HUD map remains.

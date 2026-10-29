@@ -354,7 +354,16 @@ impl Renderer {
             }
         }
     }
-    pub fn draw(&mut self, a: &Assets, w: &World, v: &Vehicle, alpha: f32, menu: bool, clock: f32) {
+    pub fn draw(
+        &mut self,
+        a: &Assets,
+        w: &World,
+        v: &Vehicle,
+        alphas: (f32, f32),
+        menu: bool,
+        clock: f32,
+    ) {
+        let (alpha, camera_alpha) = alphas;
         let filter = if self.filtering {
             FilterMode::Linear
         } else {
@@ -371,9 +380,22 @@ impl Renderer {
         } else {
             v.pos
         };
+        let blend = if self.smooth { alpha } else { 1. };
+        let pitch = if v.kind == Kind::Hover {
+            v.hover_previous_pose.x + (v.pitch - v.hover_previous_pose.x) * blend
+        } else {
+            v.pitch
+        };
+        let roll = if v.kind == Kind::Hover {
+            v.hover_previous_pose.y + (v.roll - v.hover_previous_pose.y) * blend
+        } else {
+            v.roll
+        };
         if v.kind == Kind::Hover {
-            position.z += v.hover_bounce.offset;
+            position.z +=
+                v.hover_previous_pose.z + (v.hover_bounce.offset - v.hover_previous_pose.z) * blend;
         }
+
         let yaw = if self.smooth {
             v.previous_yaw + angle_delta(v.previous_yaw, v.yaw) * alpha
         } else {
@@ -442,12 +464,12 @@ impl Renderer {
             }
             if let Some(rig) = &self.hover_camera {
                 self.camera_position = if self.smooth {
-                    rig.previous.lerp(rig.position, alpha)
+                    rig.previous.lerp(rig.position, camera_alpha)
                 } else {
                     rig.position
                 };
                 self.camera_target = if self.smooth {
-                    rig.previous_target.lerp(rig.target, alpha)
+                    rig.previous_target.lerp(rig.target, camera_alpha)
                 } else {
                     rig.target
                 };
@@ -498,7 +520,7 @@ impl Renderer {
             viewport,
             aspect: Some(aspect),
             z_near: 10.,
-            z_far: if v.kind == Kind::Bus { 40000. } else { 600000. },
+            z_far: if v.kind == Kind::Bus { 40000. } else { 200000. },
             ..Default::default()
         });
         gl_use_material(&self.sky_material);
@@ -526,88 +548,6 @@ impl Renderer {
                 0.,
             )
         }
-        gl_use_material(&self.translucent_material);
-        if let Some(hit) = w.collision.ground(position, 600., 20000.) {
-            let size = if v.kind == Kind::Bus {
-                vec2(210., 480.)
-            } else {
-                vec2(450., 450.)
-            };
-            let m = transform(hit.pos + Vec3::Z * 5., yaw, 100.);
-            let mut corners = [
-                vec3(-size.x / 2., -size.y / 2., 0.),
-                vec3(size.x / 2., -size.y / 2., 0.),
-                vec3(size.x / 2., size.y / 2., 0.),
-                vec3(-size.x / 2., size.y / 2., 0.),
-            ];
-            for p in &mut corners {
-                *p = m.transform_point3(*p);
-                if hit.normal.z.abs() > 0.1 {
-                    p.z = hit.pos.z + 5.
-                        - (hit.normal.x * (p.x - hit.pos.x) + hit.normal.y * (p.y - hit.pos.y))
-                            / hit.normal.z;
-                }
-            }
-            let color = if v.kind == Kind::Bus {
-                Color::new(0., 0., 0., 0.25)
-            } else {
-                WHITE
-            };
-            let tex = if v.kind == Kind::Bus {
-                None
-            } else {
-                a.texture("shadowsquare.l").cloned()
-            };
-            draw_mesh(&Mesh {
-                vertices: corners
-                    .iter()
-                    .zip([vec2(0., 0.), vec2(1., 0.), vec2(1., 1.), vec2(0., 1.)])
-                    .map(|(p, uv)| Vertex::new2(*p, uv, color))
-                    .collect(),
-                indices: vec![0, 1, 2, 0, 2, 3],
-                texture: tex,
-            });
-        }
-        if v.kind == Kind::Hover {
-            let rotation = Mat4::from_rotation_z(yaw.to_radians())
-                * Mat4::from_rotation_x(v.pitch.to_radians())
-                * Mat4::from_rotation_y(v.roll.to_radians());
-            let pos = position + rotation.transform_vector3(vec3(0., 270., -10.));
-            self.draw_model(
-                a,
-                if v.hover_boost { "trailturbo" } else { "trail" },
-                Mat4::from_translation(pos)
-                    * rotation
-                    * Mat4::from_scale(vec3(
-                        240.,
-                        240. * ((v.speed - 50.) / 350.).clamp(0., 1.),
-                        240.,
-                    )),
-                0.,
-            );
-        }
-        for p in &w.particles {
-            let right = (self.camera_target - self.camera_position)
-                .cross(Vec3::Z)
-                .normalize_or_zero()
-                * p.size
-                * 0.5;
-            let up = Vec3::Z * p.size * 0.5;
-            let color = Color::new(1., 1., 1., p.life as f32 / 20.);
-            draw_mesh(&Mesh {
-                vertices: vec![
-                    Vertex::new2(p.position - right - up, vec2(0., 1.), color),
-                    Vertex::new2(p.position + right - up, vec2(1., 1.), color),
-                    Vertex::new2(p.position + right + up, vec2(1., 0.), color),
-                    Vertex::new2(p.position - right + up, vec2(0., 0.), color),
-                ],
-                indices: vec![0, 1, 2, 0, 2, 3],
-                texture: a
-                    .texture("collectsp.add")
-                    .or_else(|| a.texture("pointsp.t"))
-                    .cloned(),
-            });
-        }
         gl_use_material(&self.material);
         for (entity_index, e) in w.entities.iter().enumerate() {
             if menu && v.kind == Kind::Bus && !e.sprite.is_empty() {
@@ -626,6 +566,15 @@ impl Renderer {
             if e.shape.starts_with("coin") {
                 rotation += clock * 60.
             }
+            let (entity_pitch, entity_bank) = if v.kind == Kind::Hover && e.shape == "racer" {
+                rotation = crate::hover_visual::angle(e.racer.previous_pose.x, rotation, blend);
+                (
+                    crate::hover_visual::angle(e.racer.previous_pose.y, e.tilt, blend),
+                    crate::hover_visual::angle(e.racer.previous_pose.z, e.racer.bank, blend),
+                )
+            } else {
+                (e.tilt, e.racer.bank)
+            };
             if !e.model.is_empty() {
                 let frame = if crate::bus_actor::person(&e.model) {
                     e.actor.frame(&e.model)
@@ -638,8 +587,8 @@ impl Renderer {
                     a,
                     &e.model,
                     transform(e.previous.lerp(e.position, alpha), rotation, e.scale)
-                        * Mat4::from_rotation_x(e.tilt.to_radians())
-                        * Mat4::from_rotation_y(e.racer.bank.to_radians()),
+                        * Mat4::from_rotation_x(entity_pitch.to_radians())
+                        * Mat4::from_rotation_y(entity_bank.to_radians()),
                     frame,
                 );
             } else if !e.sprite.is_empty()
@@ -686,8 +635,8 @@ impl Renderer {
         };
         let scale = if v.kind == Kind::Bus { 200. } else { 240. };
         let mut matrix = transform(position, yaw, scale)
-            * Mat4::from_rotation_x(v.pitch.to_radians())
-            * Mat4::from_rotation_y(v.roll.to_radians());
+            * Mat4::from_rotation_x(pitch.to_radians())
+            * Mat4::from_rotation_y(roll.to_radians());
         if v.kind == Kind::Bus
             && let Some(m) = a.model(name)
         {
@@ -751,6 +700,85 @@ impl Renderer {
                 crate::bus_hud::compass_position(self.camera_position, self.camera_target);
             self.draw_model(a, "arrow", transform(position, yaw, 50.), 0.);
         }
+        gl_use_material(&self.translucent_material);
+        if let Some(hit) = w.collision.ground(position, 600., 20000.) {
+            let size = if v.kind == Kind::Bus {
+                vec2(210., 480.)
+            } else {
+                vec2(450., 450.)
+            };
+            let m = transform(hit.pos + Vec3::Z * 5., yaw, 100.);
+            let mut corners = [
+                vec3(-size.x / 2., -size.y / 2., 0.),
+                vec3(size.x / 2., -size.y / 2., 0.),
+                vec3(size.x / 2., size.y / 2., 0.),
+                vec3(-size.x / 2., size.y / 2., 0.),
+            ];
+            for p in &mut corners {
+                *p = m.transform_point3(*p);
+                if hit.normal.z.abs() > 0.1 {
+                    p.z = hit.pos.z + 5.
+                        - (hit.normal.x * (p.x - hit.pos.x) + hit.normal.y * (p.y - hit.pos.y))
+                            / hit.normal.z;
+                }
+            }
+            let color = if v.kind == Kind::Bus {
+                Color::new(0., 0., 0., 0.25)
+            } else {
+                WHITE
+            };
+            let tex = if v.kind == Kind::Bus {
+                None
+            } else {
+                a.texture("shadowsquare.l").cloned()
+            };
+            draw_mesh(&Mesh {
+                vertices: corners
+                    .iter()
+                    .zip([vec2(0., 0.), vec2(1., 0.), vec2(1., 1.), vec2(0., 1.)])
+                    .map(|(p, uv)| Vertex::new2(*p, uv, color))
+                    .collect(),
+                indices: vec![0, 1, 2, 0, 2, 3],
+                texture: tex,
+            });
+        }
+        if v.kind == Kind::Hover {
+            self.draw_model(
+                a,
+                if v.hover_boost { "trailturbo" } else { "trail" },
+                crate::hover_visual::trail_matrix(position, yaw, pitch, roll, v.speed),
+                0.,
+            );
+        }
+        let mut particles: Vec<_> = w.particles.iter().collect();
+        particles.sort_by(|a, b| {
+            b.position
+                .distance_squared(self.camera_position)
+                .total_cmp(&a.position.distance_squared(self.camera_position))
+        });
+        for p in particles {
+            let right = (self.camera_target - self.camera_position)
+                .cross(Vec3::Z)
+                .normalize_or_zero()
+                * p.size
+                * 0.5;
+            let up = Vec3::Z * p.size * 0.5;
+            let color = Color::new(1., 1., 1., p.life as f32 / 20.);
+            draw_mesh(&Mesh {
+                vertices: vec![
+                    Vertex::new2(p.position - right - up, vec2(0., 1.), color),
+                    Vertex::new2(p.position + right - up, vec2(1., 1.), color),
+                    Vertex::new2(p.position + right + up, vec2(1., 0.), color),
+                    Vertex::new2(p.position - right + up, vec2(0., 0.), color),
+                ],
+                indices: vec![0, 1, 2, 0, 2, 3],
+                texture: a
+                    .texture("collectsp.add")
+                    .or_else(|| a.texture("pointsp.t"))
+                    .cloned(),
+            });
+        }
+        gl_use_material(&self.material);
         if v.kind == Kind::Hover && menu {
             let f = (self.camera_target - self.camera_position).normalize_or_zero();
             let r = f.cross(Vec3::Z).normalize_or_zero();

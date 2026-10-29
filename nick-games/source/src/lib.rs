@@ -41,3 +41,5 @@ pub mod viewport;
 pub mod hover_camera;
 
 pub mod hover_ui;
+
+pub mod hover_visual;

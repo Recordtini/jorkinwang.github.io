@@ -74,6 +74,7 @@ impl Params {
 }
 #[derive(Clone, Debug)]
 pub struct Vehicle {
+    pub hover_previous_pose: Vec3,
     pub hover_bounce: crate::hover_drive::Bounce,
     pub hover_boost: bool,
     pub hover_collision_ticks: i32,
@@ -126,6 +127,7 @@ impl Vehicle {
     pub fn new(kind: Kind, pos: Vec3, params: Params, difficulty: u8) -> Self {
         let yaw = if kind == Kind::Bus { -30. } else { 0. };
         Self {
+            hover_previous_pose: Vec3::ZERO,
             hover_bounce: Default::default(),
             hover_boost: false,
             hover_collision_ticks: 0,
@@ -181,6 +183,7 @@ impl Vehicle {
             crate::bus_drive::tick(self, input, world);
             return;
         }
+        self.hover_previous_pose = vec3(self.pitch, self.roll, self.hover_bounce.offset);
         let old_pitch = self.pitch;
         let old_roll = self.roll;
         self.hover_collision_ticks -= 1;

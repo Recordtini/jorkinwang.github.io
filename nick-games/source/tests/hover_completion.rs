@@ -104,3 +104,41 @@ fn recovered_menu_words_and_bitmap_font_cover_original_menu_labels() {
     assert_eq!(raw["textures"]["buttonsp.s"]["height"], 34);
     assert!(m.texts["instructions2"].contains("Powerslide"));
 }
+#[test]
+fn hover_trail_uses_percent_scale_and_authored_speed_length() {
+    use nick_rust::hover_visual::trail_matrix;
+    let p = vec3(50., 100., 150.);
+    let m = trail_matrix(p, 0., 0., 0., 400.);
+    assert!((m.transform_point3(Vec3::ZERO) - (p + vec3(0., 270., -10.))).length() < 0.001);
+    for axis in [Vec3::X, Vec3::Y, Vec3::Z] {
+        assert!((m.transform_vector3(axis).length() - 2.4).abs() < 0.001);
+    }
+    assert_eq!(
+        trail_matrix(p, 0., 0., 0., 50.).transform_vector3(Vec3::Y),
+        Vec3::ZERO
+    );
+    assert!(
+        (trail_matrix(p, 0., 0., 0., 225.)
+            .transform_vector3(Vec3::Y)
+            .length()
+            - 1.2)
+            .abs()
+            < 0.001
+    );
+    let rotated = trail_matrix(p, 90., 0., 0., 400.);
+    assert!((rotated.transform_point3(Vec3::ZERO) - (p + vec3(-270., 0., -10.))).length() < 0.001);
+}
+#[test]
+fn replay_station_changes_cut_without_interpolating_through_world_geometry() {
+    let mut v = hero();
+    let mut c = Camera::new(&v);
+    assert!((c.position.truncate().distance(v.pos.truncate()) - 10000.).abs() < 0.01);
+    c.replay = vec![vec3(0., 0., 500.), vec3(10000., 0., 500.)];
+    c.tick(&v, Mode::Replay);
+    assert_eq!(c.previous, c.position);
+    v.pos.x = 10000.;
+    c.tick(&v, Mode::Replay);
+    assert_eq!(c.previous, c.position);
+    assert_eq!(c.previous_target, c.target);
+    assert!((nick_rust::hover_visual::angle(359., 1., 0.5) - 360.).abs() < 0.001);
+}

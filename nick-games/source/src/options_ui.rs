@@ -124,27 +124,36 @@ pub fn draw(g: &mut Game) {
                     g.practice_used = true;
                 }
             }
-            if button(
-                g,
-                4,
-                &format!("Minimap: {}", on(g.minimap)),
-                300.,
-                145.,
-                480.,
-            ) {
-                g.minimap = !g.minimap;
-                platform::set(19, g.minimap as u8 as f64);
-            }
             if matches!(g.options_return, Screen::Playing | Screen::Paused) {
-                if button(g, 5, "Recover vehicle", 300., 185., 480.) {
+                if button(g, 4, "Recover vehicle", 300., 145., 480.) {
                     g.backup();
                     g.options_return = Screen::Playing;
                 }
             } else {
-                center("Recovery is available during play", 192., 18., GRAY);
+                center("Recovery is available during play", 152., 18., GRAY);
             }
-            center("Arrows / WASD drive · Space powerslides", 226., 17., WHITE);
-            center("C camera · B recover · Tab minimap", 249., 17., WHITE);
+            if g.kind() == crate::physics::Kind::Hover {
+                if button(
+                    g,
+                    5,
+                    &format!(
+                        "Opponent pace: {}",
+                        if g.relaxed_opponents {
+                            "RELAXED (practice)"
+                        } else {
+                            "ORIGINAL"
+                        }
+                    ),
+                    300.,
+                    185.,
+                    480.,
+                ) {
+                    g.toggle_opponent_pace();
+                }
+            } else {
+                center("Arrows / WASD drive · Space powerslides", 226., 17., WHITE);
+            }
+            center("C camera · B recover", 249., 17., WHITE);
         }
         _ => {
             if let Some(v) = level(g, 3, "Master", g.volume, 104.) {
@@ -205,7 +214,7 @@ pub fn browser_state(g: &Game) -> serde_json::Value {
     if g.screen != Screen::Options {
         return serde_json::Value::Null;
     }
-    serde_json::json!([
+    let mut rows = serde_json::json!([
         [
             1,
             format!("Fill browser window: {}", on(g.renderer.widescreen))
@@ -218,7 +227,6 @@ pub fn browser_state(g: &Game) -> serde_json::Value {
         [4, format!("Change camera ({})", g.renderer.camera_mode + 1)],
         [5, format!("FPS display: {}", on(g.fps))],
         [6, format!("Unlimited time: {}", on(g.unlimited_time))],
-        [7, format!("Extra map: {}", on(g.minimap))],
         [8, "Recover vehicle"],
         [
             9,
@@ -239,7 +247,24 @@ pub fn browser_state(g: &Game) -> serde_json::Value {
         [16, format!("Mute all: {}", on(g.muted))],
         [17, "Original defaults"],
         [18, "Fullscreen"]
-    ])
+    ]);
+    if g.kind() == crate::physics::Kind::Hover {
+        rows.as_array_mut().unwrap().insert(
+            7,
+            serde_json::json!([
+                20,
+                format!(
+                    "Opponent pace: {}",
+                    if g.relaxed_opponents {
+                        "RELAXED (practice)"
+                    } else {
+                        "ORIGINAL"
+                    }
+                )
+            ]),
+        );
+    }
+    rows
 }
 pub fn browser_action(g: &mut Game, id: u32) {
     match id {
@@ -275,10 +300,6 @@ pub fn browser_action(g: &mut Game, id: u32) {
                 g.practice_used = true;
             }
         }
-        7 => {
-            g.minimap = !g.minimap;
-            platform::set(19, g.minimap as u8 as f64);
-        }
         8 => {
             if matches!(g.options_return, Screen::Playing | Screen::Paused) {
                 g.backup();
@@ -307,6 +328,7 @@ pub fn browser_action(g: &mut Game, id: u32) {
         17 => g.reset_options(),
         18 => platform::fullscreen(),
         19 => g.close_options(),
+        20 => g.toggle_opponent_pace(),
         _ => {}
     }
     g.audio_update();

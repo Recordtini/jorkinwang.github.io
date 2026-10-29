@@ -88,6 +88,7 @@ impl TrackPosition {
 }
 #[derive(Clone, Debug, Default)]
 pub struct Racer {
+    pub previous_pose: Vec3,
     pub acceleration: f32,
     pub direction: Vec3,
     pub velocity: Vec3,
@@ -109,6 +110,7 @@ pub fn configure(e: &mut Entity, track: &[Vec3], difficulty: u8, rng: &mut u64) 
         2 => (11., 6),
         _ => (14., 6),
     };
+    e.racer.previous_pose = vec3(e.rotation, e.tilt, e.racer.bank);
     e.racer.acceleration = base + (crate::bus_actor::random(rng, spread) + 1) as f32;
     e.path = track
         .iter()
@@ -176,6 +178,7 @@ pub fn tick(e: &mut Entity, index: usize, world: &CollisionWorld, track: &[Vec3]
     if e.path.is_empty() {
         return;
     }
+    e.racer.previous_pose = vec3(e.rotation, e.tilt, e.racer.bank);
     e.racer.phase = (e.racer.phase + 1) % 18;
     let last_surface = e.surface.clone();
     let old_pitch = e.tilt;

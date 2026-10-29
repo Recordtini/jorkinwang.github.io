@@ -57,6 +57,7 @@ pub struct Particle {
     pub size: f32,
 }
 pub struct World {
+    pub opponent_pace: f32,
     pub kind: Kind,
     pub collision: CollisionWorld,
     pub terrain: Vec<String>,
@@ -122,6 +123,7 @@ impl World {
         let data = lingo_data::parse(raw)?;
         let list = data.as_array().ok_or("Obstacle data is not a list")?;
         let mut world = Self {
+            opponent_pace: 1.,
             kind,
             collision: CollisionWorld::new(if is_bus { 4000. } else { 16000. }),
             terrain: vec![],
@@ -669,6 +671,18 @@ impl World {
         if self.particles.len() > 240 {
             self.particles.drain(..self.particles.len() - 240);
         }
+    }
+    /// Optional practice setting; authored values are restored exactly at pace 1.
+    pub fn set_opponent_pace(&mut self, pace: f32) {
+        let pace = pace.clamp(0.5, 1.);
+        let ratio = pace / self.opponent_pace;
+        for e in self.entities.iter_mut().filter(|e| e.shape == "racer") {
+            e.speed *= ratio;
+            e.max_speed *= ratio;
+            e.racer.acceleration *= ratio;
+            e.racer.velocity *= ratio;
+        }
+        self.opponent_pace = pace;
     }
     pub fn tick_entities(&mut self, _slow: bool, hero: Vec3) {
         for p in &mut self.particles {

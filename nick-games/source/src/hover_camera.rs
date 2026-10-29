@@ -27,8 +27,8 @@ pub struct Camera {
 impl Camera {
     pub fn new(v: &Vehicle) -> Self {
         let a = (v.yaw - 30. + 170.).to_radians();
-        let position = v.pos - vec3(a.sin(), -a.cos(), 0.) * 5000.
-            + Vec3::Z * (5000. * 15f32.to_radians().sin());
+        let position = v.pos - vec3(a.sin(), -a.cos(), 0.) * 10000.
+            + Vec3::Z * (10000. * 15f32.to_radians().sin());
         Self {
             position,
             previous: position,
@@ -37,7 +37,7 @@ impl Camera {
             mode: Mode::Start,
             yaw: v.yaw - 30. + 170.,
             perspective: 120.,
-            look_pitch: ((v.pos.z + 100. - position.z) / 5000.).atan().to_degrees(),
+            look_pitch: ((v.pos.z + 100. - position.z) / 10000.).atan().to_degrees(),
             replay: Vec::new(),
         }
     }
@@ -128,5 +128,11 @@ impl Camera {
             }
         }
         self.target = target;
+        // Authored trackside cameras cut between stations rather than travelling
+        // through the intervening scenery during render interpolation.
+        if mode == Mode::Replay && self.position != self.previous {
+            self.previous = self.position;
+            self.previous_target = self.target;
+        }
     }
 }

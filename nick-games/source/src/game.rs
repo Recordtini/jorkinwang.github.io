@@ -104,6 +104,7 @@ pub struct Game {
     pub effects_volume: f32,
     pub music_volume: f32,
     pub mixer: std::cell::RefCell<crate::audio::Mixer>,
+    pub relaxed_opponents: bool,
     pub unlimited_time: bool,
     pub practice_used: bool,
     pub music_enabled: bool,
@@ -224,6 +225,7 @@ impl Game {
                 (platform::get(18) - 1.) as f32
             },
             mixer: Default::default(),
+            relaxed_opponents: kind == Kind::Hover && platform::get(22) == 1.,
             unlimited_time: platform::get(16) == 1.,
             practice_used: false,
             music_enabled: platform::get(15) != 2.,
@@ -281,8 +283,11 @@ impl Game {
     pub fn start(&mut self) -> Result<(), String> {
         let kind = self.kind();
         self.seed = self.seed.wrapping_add(0x9e3779b97f4a7c15);
-        self.practice_used = self.unlimited_time;
+        self.practice_used = self.unlimited_time || self.relaxed_opponents;
         self.world = World::build(&self.assets, kind, self.difficulty, self.mode, self.seed)?;
+        if self.relaxed_opponents {
+            self.world.set_opponent_pace(0.75);
+        }
         let params = if kind == Kind::Bus {
             Params::bus(&self.assets)
         } else {
@@ -363,6 +368,7 @@ impl Game {
             .unwrap_or(usize::MAX);
         self.won = false;
         self.accumulator = 0.;
+        self.camera_accumulator = 0.;
         self.clock_ticks = 0;
         self.music("");
         if kind == Kind::Bus && self.mode == 0 {
@@ -679,11 +685,26 @@ impl Game {
         self.ui_selection = self.options_selection;
         self.audio_update();
     }
+    pub fn toggle_opponent_pace(&mut self) {
+        if self.kind() != Kind::Hover {
+            return;
+        }
+        self.relaxed_opponents = !self.relaxed_opponents;
+        self.world
+            .set_opponent_pace(if self.relaxed_opponents { 0.75 } else { 1. });
+        platform::set(22, self.relaxed_opponents as u8 as f64);
+        if self.relaxed_opponents {
+            self.practice_used = true;
+        }
+    }
     pub fn reset_options(&mut self) {
         self.renderer.smooth = false;
         self.renderer.filtering = false;
         self.renderer.widescreen = false;
         self.renderer.camera_mode = 0;
+        self.relaxed_opponents = false;
+        self.world.set_opponent_pace(1.);
+        platform::set(22, 0.);
         self.unlimited_time = false;
         self.minimap = false;
         self.fps = false;
@@ -985,6 +1006,7 @@ impl Game {
             while self.accumulator >= step {
                 self.accumulator -= step;
                 self.vehicle.hover_actor.tick(0., false, false);
+                self.tick_hover_camera();
             }
         } else if self.screen == Screen::Ending {
             self.countdown -= frame_dt;
@@ -1009,6 +1031,7 @@ impl Game {
                 self.accumulator -= step;
                 self.world.tick_entities(false, self.vehicle.pos);
                 self.vehicle.tick(Input::default(), &self.world.collision);
+                self.tick_hover_camera();
             }
         } else if self.screen == Screen::Target {
             self.accumulator += frame_dt;
@@ -1026,6 +1049,7 @@ impl Game {
                 if let Some(f) = self.trace.get(self.replay_index).cloned() {
                     self.apply_frame(&f);
                     self.renderer.tick_bus_camera(&self.world, &self.vehicle);
+                    self.tick_hover_camera();
                     self.replay_index += 1;
                 } else {
                     if let Some(f) = self.replay_end.clone() {
@@ -1035,35 +1059,29 @@ impl Game {
                     break;
                 }
             }
-        } else {
+        } else if !matches!(self.screen, Screen::Paused | Screen::Options) {
             self.accumulator = 0.
         }
-        if self.kind() == Kind::Hover {
-            use crate::hover_camera::Mode;
-            let mode = match self.screen {
-                Screen::Playing => Mode::User(self.renderer.camera_mode),
-                Screen::Ready if self.countdown < 1. => Mode::User(self.renderer.camera_mode),
-                Screen::Ready => Mode::Orbit,
-                Screen::Instructs => Mode::Start,
-                Screen::Finished | Screen::Ending => Mode::End,
-                Screen::Replay
-                | Screen::Title
-                | Screen::Mode
-                | Screen::Players
-                | Screen::Difficulty => Mode::Replay,
-                _ => self
-                    .renderer
-                    .hover_camera
-                    .as_ref()
-                    .map_or(Mode::User(0), |r| r.mode),
-            };
-            if !matches!(self.screen, Screen::Paused | Screen::Options) {
+        if self.kind() == Kind::Hover
+            && !matches!(
+                self.screen,
+                Screen::Paused | Screen::Options | Screen::ScoreEntry
+            )
+        {
+            if matches!(
+                self.screen,
+                Screen::Playing
+                    | Screen::Ready
+                    | Screen::Instructs
+                    | Screen::Finished
+                    | Screen::Replay
+            ) {
+                self.camera_accumulator = self.accumulator;
+            } else {
                 self.camera_accumulator += frame_dt;
                 while self.camera_accumulator >= step {
                     self.camera_accumulator -= step;
-                    if let Some(rig) = &mut self.renderer.hover_camera {
-                        rig.tick(&self.vehicle, mode);
-                    }
+                    self.tick_hover_camera();
                 }
             }
         }
@@ -1075,7 +1093,21 @@ impl Game {
         }
         self.audio_update();
         if self.clock_ticks.is_multiple_of(10) || self.screen != Screen::Playing {
-            platform::debug(&serde_json::json!({"browser_options":crate::options_ui::browser_state(self),"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"unlimited_time":self.unlimited_time,"practice":self.practice_used,"music":self.active_music,"engine":self.engine,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
+            platform::debug(&serde_json::json!({"browser_options":crate::options_ui::browser_state(self),"opponent_pace":self.world.opponent_pace,"smooth":self.renderer.smooth,"camera":[self.renderer.camera_position.x,self.renderer.camera_position.y,self.renderer.camera_position.z],"screen":format!("{:?}",self.screen as u8),"mode":self.mode,"unlimited_time":self.unlimited_time,"practice":self.practice_used,"music":self.active_music,"engine":self.engine,"difficulty":self.difficulty,"clock":self.clock,"yaw":self.vehicle.yaw,"jumping":self.vehicle.jumping,"last_collision":self.vehicle.crash_object,"pos":[self.vehicle.pos.x,self.vehicle.pos.y,self.vehicle.pos.z],"speed":self.vehicle.speed,"surface":self.vehicle.surface,"score":self.score,"collected":self.collected,"lap":self.lap,"checkpoint":self.checkpoint,"entities":self.world.entities.iter().filter(|e|e.active).count(),"nearest_tomato":self.world.entities.iter().filter(|e|e.active&&e.shape.starts_with("coin")).min_by(|a,b|a.position.distance_squared(self.vehicle.pos).total_cmp(&b.position.distance_squared(self.vehicle.pos))).map(|e|[e.position.x,e.position.y,e.position.z])}).to_string());
+        }
+    }
+    fn tick_hover_camera(&mut self) {
+        use crate::hover_camera::Mode;
+        let mode = match self.screen {
+            Screen::Playing => Mode::User(self.renderer.camera_mode),
+            Screen::Ready if self.countdown < 1. => Mode::User(self.renderer.camera_mode),
+            Screen::Ready => Mode::Orbit,
+            Screen::Instructs => Mode::Start,
+            Screen::Finished => Mode::End,
+            _ => Mode::Replay,
+        };
+        if let Some(rig) = &mut self.renderer.hover_camera {
+            rig.tick(&self.vehicle, mode);
         }
     }
     fn tick(&mut self, input: Input, dt: f32) {
@@ -1134,6 +1166,7 @@ impl Game {
             });
         }
         self.renderer.tick_bus_camera(&self.world, &self.vehicle);
+        self.tick_hover_camera();
         if self.kind() == Kind::Bus {
             self.world
                 .tick_bus_passengers(&self.vehicle, &mut self.seed);
@@ -1496,6 +1529,11 @@ impl Game {
         }
     }
     pub(crate) fn apply_frame(&mut self, f: &Frame) {
+        self.vehicle.hover_previous_pose = vec3(
+            self.vehicle.pitch,
+            self.vehicle.roll,
+            self.vehicle.hover_bounce.offset,
+        );
         self.vehicle.previous = self.vehicle.pos;
         self.vehicle.previous_yaw = self.vehicle.yaw;
         self.vehicle.pos = f.pos;
@@ -1562,7 +1600,10 @@ impl Game {
             &self.assets,
             &self.world,
             &self.vehicle,
-            alpha,
+            (
+                alpha,
+                (self.camera_accumulator * self.tick_rate()).clamp(0., 1.),
+            ),
             menu,
             get_time() as f32,
         );

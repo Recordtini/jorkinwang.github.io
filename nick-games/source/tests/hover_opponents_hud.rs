@@ -300,3 +300,36 @@ fn player_contacts_use_a_quarter_of_racer_velocity_and_transfer_the_impulse() {
     assert_eq!(v.hover_transfers[0].0, 7);
     assert!((v.hover_transfers[0].1.y - 70.).abs() < 0.001);
 }
+#[test]
+fn relaxed_pace_is_reversible_and_keeps_authored_difficulty_values_separate() {
+    let a = assets();
+    let mut w = World::build(&a, Kind::Hover, 3, 0, 123).unwrap();
+    let authored: Vec<_> = w
+        .entities
+        .iter()
+        .filter(|e| e.shape == "racer")
+        .map(|e| (e.speed, e.max_speed, e.racer.acceleration))
+        .collect();
+    w.set_opponent_pace(0.75);
+    for (e, (speed, max, accel)) in w
+        .entities
+        .iter()
+        .filter(|e| e.shape == "racer")
+        .zip(&authored)
+    {
+        assert!((e.speed - speed * 0.75).abs() < 0.01);
+        assert!((e.max_speed - max * 0.75).abs() < 0.01);
+        assert!((e.racer.acceleration - accel * 0.75).abs() < 0.01);
+    }
+    w.set_opponent_pace(1.);
+    for (e, (speed, max, accel)) in w
+        .entities
+        .iter()
+        .filter(|e| e.shape == "racer")
+        .zip(&authored)
+    {
+        assert!((e.speed - speed).abs() < 0.01);
+        assert!((e.max_speed - max).abs() < 0.01);
+        assert!((e.racer.acceleration - accel).abs() < 0.01);
+    }
+}
