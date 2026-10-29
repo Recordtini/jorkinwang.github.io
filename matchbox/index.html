@@ -65,7 +65,7 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[];
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[];
 function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
 
 async function init(){
@@ -88,9 +88,15 @@ async function init(){
  if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
  // water objects (FUN_0045f080 creates riv*/doriv*/farm_riv/pool_riv at the world origin; model space == BPK space)
  for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare(i))water.push(takeMesh());
+ // mission objects: Fire02GuyHanging, animation frames 0..100 (phase Ambient 1..100)
+ {const gn=new TextEncoder().encode('objects/fire02guyhanging.ms2');const gp=M.g_alloc(gn.length);new Uint8Array(M.memory.buffer,gp,gn.length).set(gn);
+  for(let f=0;f<=100;f++)guyFrames.push(M.g_model_prepare_frame(gp,gn.length,f)?takeMesh():null)}
  // static props placed by LevelFile.mef (type -1 / 0xdeadbeef.. lists)
- for(let i=0;i<M.g_prop_count();i++){if(!M.g_prop_prepare(i))continue;const me=takeMesh();const n=M.g_prop_instances(i);
-  const a=new Float32Array(M.memory.buffer.slice(M.g_inst_ptr(),M.g_inst_ptr()+n*64));for(let k=0;k<n;k++)props.push([me,a.subarray(k*16,k*16+16)])}
+ // propAt[global index] = drawn entry [mesh, matrix, visible]; knocked props are updated each frame from g_props_dynamic
+ let pbase=0;
+ for(let i=0;i<M.g_prop_count();i++){const ok=M.g_prop_prepare(i);const me=ok?takeMesh():null;const n=M.g_prop_instances(i);
+  const a=new Float32Array(M.memory.buffer.slice(M.g_inst_ptr(),M.g_inst_ptr()+n*64));
+  for(let k=0;k<n;k++){if(ok){const e=[me,a.subarray(k*16,k*16+16),true];props.push(e);propAt[pbase+k]=e}}pbase+=n}
  console.log('start:',['Speeder (cop)','Fire2 (fire)','Ambul8 (ambulance)','saved game'][first]);
  // the exe writes SaveGame.dat on shutdown (FUN_00462330 -> FUN_0044a470)
  addEventListener('pagehide',()=>{M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
@@ -118,11 +124,16 @@ function frame(now){
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
  for(const wm of water)drawMesh(wm,vp);
- for(const[me,mm]of props){const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
+ {const n=M.g_props_dynamic(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18);
+  for(let k=0;k<n;k++){const e=propAt[d[k*18]];if(e){e[1]=d.slice(k*18+2,k*18+18);e[2]=d[k*18+1]!=0}}}
+ for(const[me,mm,vis]of props){if(!vis)continue;const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
  drawMesh(carModel,mul(vp,new Float32Array(st.slice(0,16))));
+ const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
+ if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
+ const mnl=M.g_mission_name(),mn=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),mnl));
  $('hud').textContent=`Arrows/WASD drive, Space siren+turbo
 x ${x.toFixed(0)} y ${y.toFixed(0)} z ${z.toFixed(0)}  speed ${st[19].toFixed(0)}
-Car handling: ported from xgame.exe (src/car.rs). Camera: FUN_0040c170 port`}
+Mission: ${mn||'none'}${td[2]>=0?'  goal '+td[2].toFixed(0):''}  (debug text; HUD, arrow and voices not ported yet)`}
  requestAnimationFrame(frame)}
 init().catch(e=>{$('msg').textContent='Error: '+e;console.error(e)});
 </script></body></html>
