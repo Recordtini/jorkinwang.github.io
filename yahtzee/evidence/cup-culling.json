@@ -1,0 +1,31 @@
+{
+  "source_model_sha256": "9b667edfbeac7d0cdd02b804a854a69713d84656e9ca72964ea6669cd221ee6a",
+  "textures": {
+    "matblack": {
+      "bmp_sha256": "b5ebd8ae90b24a4c9e8a924f6e3c704927a51ba0f9f0e3cdd2aae6919786abe1",
+      "png_sha256": "2cb18dbb1944e33090465cbea6802a4846c46bcc0aeb8e22929a32bac0b38024",
+      "rgb_pixels_match": true
+    },
+    "c_clsbt1": {
+      "bmp_sha256": "8da11481fecd85eec50f9f6be48b20844c4fea7d68480b99485f70cae5d45085",
+      "png_sha256": "48fa58d559d5304ba49a29af4bb94c61d4915fb993d80aaa4ce8b010530a0d99",
+      "rgb_pixels_match": true
+    },
+    "c_clssd1": {
+      "bmp_sha256": "85cffc8427c97d6d4486c515cdbb4e5c005984c91fa52f6428e3daeca8a08e3f",
+      "png_sha256": "25a20b6de962d0be9dfb537e4c845f6659d7643690d2285e53a33f9d39ceff3f",
+      "rgb_pixels_match": true
+    }
+  },
+  "source_triangle": "CLASCUP.RWX line 164: Triangle 48 37 36",
+  "source_texture": "C_CLSBT1",
+  "neighboring_wall_texture": "MatBlack",
+  "export_triangle_indices_zero_based": [
+    47,
+    36,
+    35
+  ],
+  "culling_predicate": "RWX20.DLL 10047000",
+  "culling_cases_passed": 1000,
+  "screen_space_rule": "draw negative signed area (screen y increases downward)"
+}

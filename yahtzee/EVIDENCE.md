@@ -24,6 +24,20 @@ added in the preview. WebGL interpolates these verified vertex values; exact
 pixel-level rasterization and a visual comparison with a running original have
 not been established.
 
+## Cup interior
+
+The original `CLASCUP.RWX` assigns the dark `MatBlack` texture to 23 inner
+wall triangles, but assigns `C_CLSBT1` (the cup-bottom texture) to the adjacent
+triangle `48 37 36` at line 164. That triangle projects onto the visible light
+wedge in the pickup view. The original assignment is retained. The lining,
+bottom and exterior PNG pixels match their original BMPs. Hashes and results
+are recorded in `evidence/cup-culling.json`.
+
+The original `RWX20.DLL` draw path at `1002cee0` uses `10047000` to cull back
+faces for these default materials. The browser now enables back-face culling;
+1,000 nondegenerate screen-space triangles were checked against the original
+predicate. This does not establish pixel-perfect equivalence to retail.
+
 ## Gameplay evidence
 
 Four sets of three original rolls, including cup pickup and held dice, were

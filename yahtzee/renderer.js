@@ -36,7 +36,9 @@ export async function createRenderer(canvas,engine){
     }
   }
   const attributes=['position','uv','brightness'].map(n=>gl.getAttribLocation(program,n));attributes.forEach(a=>gl.enableVertexAttribArray(a));
-  gl.enable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);const boxes=[];
+  // RWX20 1002cee0/10047000 reject back faces for the cup's default material
+  // mode. Browser front-facing CCW matches the original screen-space test.
+  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.frontFace(gl.CCW);gl.clearColor(0,0,0,0);const boxes=[];
   function project(p){const v=p.map((v,i)=>v-m[3][i]);const dot=r=>v.reduce((s,v,i)=>s+v*m[r][i],0);return[320*(1-dot(0)/dot(2)/data.view_window[0]),240*(1-dot(1)/dot(2)/data.view_window[1])];}
   function draw(){
     gl.viewport(0,0,640,480);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);boxes.length=0;
