@@ -56,6 +56,25 @@ The original 307 column-choice dialog is used for category-label clicks.
 Original multiplayer/AI, full UI/audio behavior, every possible state transition,
 and visual equivalence to the running original are not established.
 
+## Sound recovery
+
+The original floor, wall and dice-impact sample choices and volumes are derived
+from `004113a0`, `0040c1c0`, `0040c440` and `0040bd30`; eight original roll
+traces exercise the event stream and volume values. Cup shaking uses the original
+`BAT_C1` or `BAT_C2` sounds, selected by the number of dice, as in `00417650`;
+holding and score selection use the mode's click sample, and five of a kind
+plays `YAHTZEE.WAV`. The original title sound and mode-specific short music loops
+are present. Browser tests exercised playback, volume events and the sound-effects
+setting. Browser audio mixing and every original UI/audio transition remain
+unverified, and the original CD music tracks are not present in this copy.
+
+## Painted preparation
+
+`0041b5d0` binds five different die-face color tables. The Rust labels and
+color-category scores were checked against original `00412a20` for all 7,776
+ordered hands. Painted mode is not playable yet: its mode-specific physics,
+assets, scorecard, turn state and audio still need to be connected and tested.
+
 Four sets of three original rolls, including cup pickup and held dice, were
 compared at 2,073 frames for physics and published transforms. Scoring is tested
 against 2,706,048 original dispatcher calls, score mutations against 2,496 cases,

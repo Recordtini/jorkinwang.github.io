@@ -55,9 +55,9 @@ impl Die {
 }
 
 #[derive(Clone)]
-pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool}
+pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool,pub sounds:Vec<(u32,u32,u32)>}
 impl Simulation {
-    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false}}
+    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false,sounds:Vec::new()}}
     fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
     fn publish(&mut self,i:usize){
         self.render_counter=self.render_counter.wrapping_add(1);
@@ -109,12 +109,14 @@ impl Simulation {
             self.rotation(i,AXES[axis],angle,3,true);self.publish(i);
         }}
     }
-    fn ground(&mut self,i:usize){
-        if self.dice[i].sleeping||self.dice[i].held{return}
+    fn ground(&mut self,i:usize)->u32{
+        if self.dice[i].sleeping||self.dice[i].held{return 0}
+        let mut sound=0;
         for a in 0..3{self.dice[i].position[a]+=self.dice[i].velocity[a];}
         self.dice[i].orientation=self.dice[i].orientation.combine(self.dice[i].spin);self.publish(i);
         if self.dice[i].position[1].to_bits()>0x80000000{
             self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=-0.5;
+            sound=(self.dice[i].velocity[1].abs() as f64*C004261D0) as u32;
             let face=self.dice[i].read_face();let yaw=self.dice[i].yaw(face);self.dice[i].settle(face,yaw);
             if self.dice[i].velocity[1]as f64>C004261D8{
                 let v=self.dice[i].spin.vector([65536,0,0]);
@@ -137,10 +139,14 @@ impl Simulation {
             }
         }
         self.dice[i].velocity[1]=(self.dice[i].velocity[1]as f64-C00426208)as f32;
+        sound.min(127)
     }
-    fn wall(&mut self,i:usize){
+    fn wall(&mut self,i:usize)->u32{
         let p=self.boundary(i);if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=-0.5;}
         if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=-0.5;}}
+        let x=if p[0]!=0.{(self.dice[i].velocity[0].abs() as f64*C004261D0) as u32}else{0};
+        let z=if p[2]!=0.{(self.dice[i].velocity[2].abs() as f64*C004261D0) as u32}else{0};
+        (x+z).min(127)
     }
     fn vertical_contact(&mut self,this:usize,a:usize,b:usize,offset:[f32;3],boundary:[f32;3]){
         self.dice[a].velocity[1]=(self.dice[b].velocity[1]as f64*C00426170)as f32;
@@ -210,8 +216,9 @@ impl Simulation {
         iterations!=0
     }
     pub fn step(&mut self){for i in 0..5{
-        self.ground(i);self.wall(i);
-        if !self.dice[i].held{for j in 0..5{if i!=j&&!self.dice[j].held{self.pair(i,j);}}}
+        let ground=self.ground(i);let wall=self.wall(i);let mut collisions=0;
+        if !self.dice[i].held{for j in 0..5{if i!=j&&!self.dice[j].held&&self.pair(i,j){collisions+=40;}}}
+        if ground>0{self.sounds.push((1,i as u32,ground));}if wall>0{self.sounds.push((2,i as u32,wall));}if collisions>0{self.sounds.push((3,i as u32,collisions.min(127)));}
     }}
     pub fn settled(&self)->bool{self.dice.iter().all(|d|d.sleeping||d.held)}
     pub fn faces(&self)->[u8;5]{std::array::from_fn(|i|self.dice[i].read_face())}
@@ -260,7 +267,7 @@ impl Simulation {
         let mut s=Simulation::new(1);s.roll();
         for(record,b)in include_bytes!("../evidence/first-frame.bin").chunks_exact(728).enumerate(){
             let i=b[1]as usize;let j=b[2]as usize;
-            match b[0]{0=>s.ground(i),1=>s.wall(i),2=>{s.pair(i,j);},_=>unreachable!()}
+            match b[0]{0=>{s.ground(i);},1=>{s.wall(i);},2=>{s.pair(i,j);},_=>unreachable!()}
             for k in 0..5{for a in 0..6{let offset=4+k*144+a*4;let expected=f32::from_le_bytes(b[offset..offset+4].try_into().unwrap());let actual=if a<3{s.dice[k].position[a]}else{s.dice[k].velocity[a-3]};assert!((actual-expected).abs()<0.00001,"event {record} {}({i},{j}), die {k} value{a}: {} != {expected}",b[0],actual);}}
         }
     }
@@ -287,4 +294,12 @@ impl Simulation {
     }
     #[test]fn original_full_rolls(){compare_rolls(include_bytes!("../evidence/roll-trace.bin"),false);}
     #[test]fn original_triple_rolls(){compare_rolls(include_bytes!("../evidence/triple-rolls.bin"),true);}
+    #[test]fn original_collision_sound_levels(){
+        let data=include_bytes!("../evidence/audio-oracle.bin");let mut p=0;
+        fn word(data:&[u8],p:&mut usize)->u32{let v=u32::from_le_bytes(data[*p..*p+4].try_into().unwrap());*p+=4;v}
+        while p<data.len(){let triple=word(data,&mut p)!=0;let seed=word(data,&mut p);let frames=word(data,&mut p);
+            let mut s=Simulation::new(seed);s.triple_arena=triple;s.roll_from(if triple{[1.8,6.,-7.]}else{[7.4,0.,-7.6]});
+            for frame in 0..frames{let n=word(data,&mut p);let expected:Vec<_>=(0..n).map(|_|word(data,&mut p)).collect();s.step();let actual:Vec<_>=s.sounds.drain(..).map(|(t,i,v)|t|(i<<8)|(v<<16)).collect();assert_eq!(actual,expected,"triple {triple}, seed {seed}, frame {frame}");}
+        }
+    }
 }

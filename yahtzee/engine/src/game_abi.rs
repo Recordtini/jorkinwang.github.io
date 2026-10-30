@@ -5,9 +5,12 @@ thread_local!{static GAME:RefCell<Game>=RefCell::new(Game::new(1));}
 #[no_mangle]pub extern "C" fn game_new_triple(seed:u32){GAME.with(|g|*g.borrow_mut()=Game::triple(seed));}
 #[no_mangle]pub extern "C" fn game_roll()->u32{GAME.with(|g|g.borrow_mut().roll()as u32)}
 #[no_mangle]pub extern "C" fn game_step(){GAME.with(|g|g.borrow_mut().step());}
+/// One original-derived collision sound: type in bits 0..7, die in 8..15,
+/// volume (0..127) in 16..23; zero means the queue is empty.
+#[no_mangle]pub extern "C" fn game_sound()->u32{GAME.with(|g|{let mut g=g.borrow_mut();if g.simulation.sounds.is_empty(){return 0}let(t,i,v)=g.simulation.sounds.remove(0);t|(i<<8)|(v<<16)})}
 #[no_mangle]pub extern "C" fn game_pickup()->u32{GAME.with(|g|g.borrow_mut().pickup()as u32)}
 #[no_mangle]pub extern "C" fn game_pointer(dx:f32,dy:f32,millis:u32)->u32{GAME.with(|g|g.borrow_mut().pointer(dx,dy,millis)as u32)}
-#[no_mangle]pub extern "C" fn game_cup(field:u32)->f64{GAME.with(|g|{let g=g.borrow();match field{0..=2=>((g.cup.position[field as usize]as f64*65536.)as i32)as f64/65536.,3..=11=>g.cup.orientation().0[(field as usize-3)/3][(field as usize-3)%3]as f64/65536.,12=>g.cup.picked as u32 as f64,_=>0.}})}
+#[no_mangle]pub extern "C" fn game_cup(field:u32)->f64{GAME.with(|g|{let g=g.borrow();match field{0..=2=>((g.cup.position[field as usize]as f64*65536.)as i32)as f64/65536.,3..=11=>g.cup.orientation().0[(field as usize-3)/3][(field as usize-3)%3]as f64/65536.,12=>g.cup.picked as u32 as f64,13=>g.cup.previous_x as f64,_=>0.}})}
 #[no_mangle]pub extern "C" fn game_vertex_light(index:u32,x:i32,y:i32,z:i32,ambient:u32,diffuse:u32,specular:u32)->i32{GAME.with(|g|{let g=g.borrow();let m=if index==5{g.cup.orientation()}else if let Some(d)=g.simulation.dice.get(index as usize){d.world}else{return 0};crate::lighting::vertex(m,[x,y,z],[ambient,diffuse,specular])})}
 #[no_mangle]pub extern "C" fn retail_vertex_light(a:i32,b:i32,c:i32,d:i32,e:i32,f:i32,g:i32,h:i32,i:i32,x:i32,y:i32,z:i32,ambient:u32,diffuse:u32,specular:u32)->i32{crate::lighting::vertex(crate::matrix::Matrix([[a,b,c],[d,e,f],[g,h,i]]),[x,y,z],[ambient,diffuse,specular])}
 #[no_mangle]pub extern "C" fn game_hold(die:u32)->u32{GAME.with(|g|g.borrow_mut().hold(die as usize)as u32)}

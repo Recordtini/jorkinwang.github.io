@@ -1,0 +1,55 @@
+{
+  "source": "004113a0, 0040c1c0, 0040c440, 0040bd30",
+  "cases": [
+    {
+      "triple": false,
+      "seed": 1,
+      "frames": 81,
+      "events": 111
+    },
+    {
+      "triple": false,
+      "seed": 42,
+      "frames": 132,
+      "events": 168
+    },
+    {
+      "triple": false,
+      "seed": 12345678,
+      "frames": 106,
+      "events": 175
+    },
+    {
+      "triple": false,
+      "seed": 4294967295,
+      "frames": 116,
+      "events": 109
+    },
+    {
+      "triple": true,
+      "seed": 1,
+      "frames": 176,
+      "events": 257
+    },
+    {
+      "triple": true,
+      "seed": 42,
+      "frames": 168,
+      "events": 245
+    },
+    {
+      "triple": true,
+      "seed": 12345678,
+      "frames": 241,
+      "events": 284
+    },
+    {
+      "triple": true,
+      "seed": 4294967295,
+      "frames": 187,
+      "events": 238
+    }
+  ],
+  "sha256": "3f1cb3fffebbba2704a5c5dc7881b5af1cde922fc70c497f593371bbeec70612",
+  "limit": "Event volumes before playback channel occupancy is considered"
+}

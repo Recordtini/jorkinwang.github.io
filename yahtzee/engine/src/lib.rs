@@ -3,6 +3,7 @@ pub mod die;
 pub mod matrix;
 pub mod physics;
 pub mod game;
+pub mod painted;
 pub mod cup;
 pub mod lighting;
 mod retail_constants;
