@@ -241,7 +241,8 @@ impl Simulation {
     pub fn toggle_hold(&mut self,i:usize){
         const RACK:[[f32;5];5]=[[-3.15,5.7,8.35,-19.4,-20.2],[-4.6,5.7,7.87,-24.2,-20.2],[-6.01,5.7,7.18,-31.2,-20.2],[-7.33,5.7,6.37,-35.8,-20.2],[-8.57,5.7,5.38,-43.2,-20.2]];
         const TRIPLE_RACK:[[f32;5];5]=[[6.99,3.09,-5.93,0.,0.],[6.99,3.39,-4.76,0.,0.],[6.99,3.69,-3.64,0.,0.],[6.99,3.89,-2.37,0.,0.],[6.99,4.09,-1.25,0.,0.]];
-        let rack=if self.triple_arena{&TRIPLE_RACK}else{&RACK};
+        const PAINTED_RACK:[[f32;5];5]=[[-5.92,4.63,2.61,-99.6,-55.],[-5.69,4.61,1.22,-90.6,-55.],[-5.91,4.25,0.10,-83.4,-55.],[-6.12,4.38,-1.38,-73.8,-55.],[-7.07,3.56,-2.41,-75.6,-55.]];
+        let rack=if self.painted_arena{&PAINTED_RACK}else if self.triple_arena{&TRIPLE_RACK}else{&RACK};
         let face=self.dice[i].read_face();
         if !self.dice[i].held{
             let slot=(0..5).find(|s|!self.dice.iter().any(|d|d.rack==Some(*s))).unwrap();

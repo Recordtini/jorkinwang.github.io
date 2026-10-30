@@ -1,7 +1,8 @@
 // Browser GPU adapter; geometry/camera come from the source export, motion from Rust.
 export async function createRenderer(canvas,engine,mode='classic'){
-  const response=await fetch(`assets/${mode}.json`);if(!response.ok)throw Error('Could not load original dice geometry');
-  const data=await response.json();const gl=canvas.getContext('webgl',{alpha:true,antialias:false,preserveDrawingBuffer:true});
+  const load=async name=>{const response=await fetch(`assets/${name}.json`);if(!response.ok)throw Error('Could not load original dice geometry');return response.json();};
+  const dice=mode==='painted'?await Promise.all([1,2,3,4,5].map(i=>load(`painted${i}`))):null;
+  const data=dice?dice[0]:await load(mode);const gl=canvas.getContext('webgl',{alpha:true,antialias:false,preserveDrawingBuffer:true});
   if(!gl)throw Error('This browser needs WebGL to draw the original dice.');
   const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
   const program=gl.createProgram();
@@ -23,7 +24,8 @@ export async function createRenderer(canvas,engine,mode='classic'){
   for(const[n,r]of [['right',0],['up',1],['forward',2],['eye',3]])gl.uniform3fv(u[n],m[r]);
   gl.uniform2fv(u.windowSize,data.view_window);gl.uniform1i(u.image,0);
   const groups=[];
-  for(const[owner,mesh]of [data,data.cup].entries())for(const triangle of mesh.triangles){
+  const meshes=dice?[...dice.map((mesh,i)=>[i,mesh]),[5,data.cup]]:[[-1,data],[5,data.cup]];
+  for(const[owner,mesh]of meshes)for(const triangle of mesh.triangles){
     const key=JSON.stringify([owner,triangle.texture,triangle.color,triangle.surface]);let g=groups.find(g=>g.key===key);
     if(!g){g={key,owner,...triangle,values:[],vertices:[]};groups.push(g);}
     for(const i of triangle.indices){const v=mesh.vertices[i];g.vertices.push(v);g.values.push(...v.position,...v.uv);}
@@ -53,13 +55,13 @@ export async function createRenderer(canvas,engine,mode='classic'){
     for(let i=0;i<6;i++){
       if(i<5&&engine.game_cup(12)&&!engine.game_die(i,13))continue;
       const get=i===5?k=>engine.game_cup(k):k=>engine.game_die(i,k);
-      const mesh=i===5?data.cup:data;
+      const mesh=i===5?data.cup:dice?dice[i]:data;
       const p=[0,1,2].map(get);const r=Array.from({length:9},(_,k)=>get(k+3));
       const model=[...r.slice(0,3),0,...r.slice(3,6),0,...r.slice(6,9),0,...p,1];gl.uniformMatrix4fv(u.model,false,model);
       const vertices=mesh.vertices.map(v=>project([0,1,2].map(k=>p[k]+v.position.reduce((s,v,j)=>s+v*r[j*3+k],0))));
       boxes.push({i,minX:Math.min(...vertices.map(v=>v[0])),maxX:Math.max(...vertices.map(v=>v[0])),minY:Math.min(...vertices.map(v=>v[1])),maxY:Math.max(...vertices.map(v=>v[1]))});
       for(const g of groups){
-        if(g.owner!==(i===5?1:0))continue;
+        if(g.owner!==i&&!(g.owner===-1&&i<5))continue;
         gl.bindBuffer(gl.ARRAY_BUFFER,g.buffer);gl.vertexAttribPointer(attributes[0],3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(attributes[1],2,gl.FLOAT,false,20,12);
         const brightness=new Float32Array(g.vertices.map(v=>engine.game_vertex_light(i,...v.normal.map(n=>Math.trunc(n*65536)),...v.surface)/(31*65536)));
         gl.bindBuffer(gl.ARRAY_BUFFER,g.lightBuffer);gl.bufferData(gl.ARRAY_BUFFER,brightness,gl.DYNAMIC_DRAW);gl.vertexAttribPointer(attributes[2],1,gl.FLOAT,false,4,0);

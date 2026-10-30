@@ -1,0 +1,50 @@
+[
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_PNTBT1.BMP",
+    "output": "c_pntbt1.png",
+    "source_sha256": "99cc71516aa79ac68d382b9cab960abc7df27ee1080050855262fe5d2fefc007",
+    "output_sha256": "c91a84b26fc760ada89f9eecb60288db6f78a6ec87f5edd2198318f8eb761e10"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_PNTSD1.BMP",
+    "output": "c_pntsd1.png",
+    "source_sha256": "29f3588a5bbf3a0105ae33a6e30745872f41bb1997e236825eb3b1693c0f491c",
+    "output_sha256": "e33c059ba939abfbe4f19522fe53ee2d0bcf58ab2c72ed75748c3ecda89f77d1"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_BL5.BMP",
+    "output": "pnt_bl5.png",
+    "source_sha256": "5f059c8212d9bed18742d89ad915208be197448e6f69ee771c410aa6b0ec6c6d",
+    "output_sha256": "a68b0cbbdd96f5df795b1b69e702a175413e0d40214ec91d5b78959990c235d8"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_G3.BMP",
+    "output": "pnt_g3.png",
+    "source_sha256": "011663a99f5df3eae59b64b0a6fb246d660064d7817f955229b116698386689b",
+    "output_sha256": "1f8ff83176df398a1bc4a634d605942eefd63ddd8a159ab49bc32c8d9ca0490d"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_P6.BMP",
+    "output": "pnt_p6.png",
+    "source_sha256": "666b9007c32070a481b5740b1eb7af71a594b5e5ce013c79b4e58ddd379b0832",
+    "output_sha256": "c365fc9c15db5d25e82da7db3fa84cde725432b2e907494d0555729317b53a94"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_R2.BMP",
+    "output": "pnt_r2.png",
+    "source_sha256": "3d3cd5f829234b0a9f9c36769e5b5ef1a850bbb053eaeeee969e8835f2c9d592",
+    "output_sha256": "86510798a4c464d8556be55793c386385310a7b14bf1ce24feab0a8c89493411"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_Y1.BMP",
+    "output": "pnt_y1.png",
+    "source_sha256": "b5fe7e76b50111ad53e956205d198f8d4d4bc5a4a8dba09a14a7cec1cca36e10",
+    "output_sha256": "e623602a1aa4b732b58b63f316b8adc62b0dcb1bb0770d58964d3e6895c81c83"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PNT_Y4.BMP",
+    "output": "pnt_y4.png",
+    "source_sha256": "59a9ab398c63fda80552975d6a9915cda106d6fa4b7d1b83647c2ea838c92f9d",
+    "output_sha256": "af834ac0a4f65135cd6eda962dc2bb515f3034ceba7ffec00ccfefd20ae3afda"
+  }
+]

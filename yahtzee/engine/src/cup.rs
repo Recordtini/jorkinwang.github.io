@@ -2,11 +2,11 @@
 //! 00417190. Browser relative pointer coordinates replace Win32 cursor warping.
 use crate::matrix::Matrix;
 #[derive(Clone,Debug)]
-pub struct Cup{pub position:[f32;3],pub yaw:f32,pub pitch:f32,pub target:f32,pub velocity:f32,pub previous_x:f32,pub picked:bool,pub triple:bool}
-impl Default for Cup{fn default()->Self{Self{position:[7.4,0.,-7.6],yaw:0.,pitch:-90.,target:0.,velocity:0.,previous_x:0.,picked:false,triple:false}}}
+pub struct Cup{pub position:[f32;3],pub yaw:f32,pub pitch:f32,pub target:f32,pub velocity:f32,pub previous_x:f32,pub picked:bool,pub triple:bool,pub painted:bool}
+impl Default for Cup{fn default()->Self{Self{position:[7.4,0.,-7.6],yaw:0.,pitch:-90.,target:0.,velocity:0.,previous_x:0.,picked:false,triple:false,painted:false}}}
 impl Cup{
-    pub fn pickup(&mut self){self.position=if self.triple{[1.8,6.,-7.]}else{[0.,8.,-9.]};self.yaw=0.;self.pitch=-60.;self.target=0.;self.velocity=0.;self.picked=true;}
-    pub fn rest(&mut self){self.position=if self.triple{[-2.5,-1.3,-7.2]}else{[7.4,0.,-7.6]};self.yaw=0.;self.pitch=-90.;self.target=0.;self.velocity=0.;self.picked=false;}
+    pub fn pickup(&mut self){self.position=if self.painted{[2.,6.5,-8.]}else if self.triple{[1.8,6.,-7.]}else{[0.,8.,-9.]};self.yaw=0.;self.pitch=-60.;self.target=0.;self.velocity=0.;self.picked=true;}
+    pub fn rest(&mut self){self.position=if self.painted{[-1.2,6.2,-10.]}else if self.triple{[-2.5,-1.3,-7.2]}else{[7.4,0.,-7.6]};self.yaw=0.;self.pitch=-90.;self.target=0.;self.velocity=0.;self.picked=false;}
     pub fn orientation(&self)->Matrix{let mut m=Matrix::default();m.rotate([65536,0,0],((self.pitch as f64+90.)*65536.)as i32,2);m.rotate([0,65536,0],(-self.yaw as f64*65536.)as i32,2);m}
     pub fn motion(&mut self,x:f32,y:f32)->bool{
         if y as f64*0.4+self.pitch as f64>=0.{return true}
@@ -38,6 +38,6 @@ impl Cup{
         }
     }
     #[test]fn original_motion(){
-        for(case,b)in include_bytes!("../evidence/cup-motion.bin").chunks_exact(76).enumerate(){let f=|i:usize|f32::from_le_bytes(b[i*4..i*4+4].try_into().unwrap());let mut c=Cup{position:[f(0),f(1),f(2)],yaw:f(3),pitch:f(4),target:f(5),velocity:f(6),previous_x:f(7),picked:true,triple:false};let thrown=c.motion(f(8),f(9));assert_eq!(thrown,u32::from_le_bytes(b[40..44].try_into().unwrap())!=0,"case {case}");let after=[c.position[0],c.position[1],c.position[2],c.yaw,c.pitch,c.target,c.velocity,c.previous_x];assert_eq!(after.map(f32::to_bits),std::array::from_fn::<_,8,_>(|i|f(i+11).to_bits()),"case {case}");}
+        for(case,b)in include_bytes!("../evidence/cup-motion.bin").chunks_exact(76).enumerate(){let f=|i:usize|f32::from_le_bytes(b[i*4..i*4+4].try_into().unwrap());let mut c=Cup{position:[f(0),f(1),f(2)],yaw:f(3),pitch:f(4),target:f(5),velocity:f(6),previous_x:f(7),picked:true,triple:false,painted:false};let thrown=c.motion(f(8),f(9));assert_eq!(thrown,u32::from_le_bytes(b[40..44].try_into().unwrap())!=0,"case {case}");let after=[c.position[0],c.position[1],c.position[2],c.yaw,c.pitch,c.target,c.velocity,c.previous_x];assert_eq!(after.map(f32::to_bits),std::array::from_fn::<_,8,_>(|i|f(i+11).to_bits()),"case {case}");}
     }
 }

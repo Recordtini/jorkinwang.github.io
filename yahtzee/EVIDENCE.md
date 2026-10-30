@@ -1,6 +1,6 @@
 # Ultimate Yahtzee Classic recovery
 
-This is a playable single-player Classic and Triple preview, not a complete 1:1 port.
+This is a playable single-player Classic, Triple and Painted preview, not a complete 1:1 port.
 The original title artwork, Classic board, scorecard, dice and cup geometry,
 textures, and UI resource layouts are used. Full original menu/dialog behavior,
 other players and remaining modes, original audio behavior, and pixel-identical rasterizing
@@ -83,15 +83,20 @@ were checked against the Rust implementation. Initial and post-roll transforms
 were also checked in actual WASM for both tables; original-window visual
 equivalence is not established.
 
-## Painted preparation
+## Painted evidence
 
 `0041b5d0` binds five different die-face color tables. The Rust labels and
 color-category scores were checked against original `00412a20` for all 7,776
-ordered hands. Painted mode is not playable yet: its mode-specific physics,
-assets, scorecard, turn state and audio still need to be connected and tested.
-Its rectangular arena boundary also matches 1,375 original-code cases. Four
-rolls using its original bounds, pickup position and -0.7 dice restitution match
-1,274 original-code frames; the preview does not yet activate that physics.
+ordered hands. All 30 source face texture names agree with those color tables.
+Its rectangular arena boundary matches 1,375 original-code cases; four rolls
+using its original bounds, pickup position and -0.7 dice restitution match
+1,274 original-code frames. Its original camera, five dice meshes, cup,
+scorecard, board frames, rack, and mode WAVs are used. Painted's directional
+lights match 911 original RenderWare cases using rotating die matrices.
+A 20-turn browser game was completed, with held dice and a reroll checked in
+another game; a Rust test also completes all 20 categories with held rerolls.
+Original UI transitions, multiplayer/AI, pixel rendering and visual/audio
+comparison with a running original remain unverified or incomplete.
 
 Four sets of three original rolls, including cup pickup and held dice, were
 compared at 2,073 frames for physics and published transforms. Scoring is tested

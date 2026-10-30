@@ -8,8 +8,11 @@ fn inverse(m:Matrix)->Matrix{
     if determinant!=0{let d=div(65536,determinant);for row in &mut inverse.0{for v in row{*v=mul(*v,d)}}}inverse
 }
 pub fn vertex(matrix:Matrix,normal:[i32;3],surface:[u32;3])->i32{
+    vertex_mode(matrix,normal,surface,false)
+}
+pub fn vertex_mode(matrix:Matrix,normal:[i32;3],surface:[u32;3],painted:bool)->i32{
     let inv=inverse(matrix);
-    let sources=[[0,-65536,0],[-65536,-19660,0],[0,-19660,-65536]];
+    let sources=[[if painted{13107}else{0},-65536,0],[-65536,-19660,0],[0,-19660,-65536]];
     let mut result=(surface[0]as i32*0x1f0000)>>8;
     for (source,intensity) in sources.into_iter().zip([14,14,3]){
         let source=fixed::normalize(source).0.map(|v|-v);
@@ -40,6 +43,13 @@ pub fn vertex(matrix:Matrix,normal:[i32;3],surface:[u32;3])->i32{
             let w=|j:usize|i32::from_le_bytes(b[j*4..j*4+4].try_into().unwrap());
             let matrix=Matrix(std::array::from_fn(|r|std::array::from_fn(|c|w(r*3+c))));
             assert_eq!(vertex(matrix,[w(9),w(10),w(11)],[w(12)as u32,w(13)as u32,w(14)as u32]),w(15),"case {i}");
+        }
+    }
+    #[test]fn original_painted_rotated_lighting(){
+        for(i,b)in include_bytes!("../evidence/painted-lighting-rotations.bin").chunks_exact(72).enumerate(){
+            let w=|j:usize|i32::from_le_bytes(b[j*4..j*4+4].try_into().unwrap());
+            let m=Matrix(std::array::from_fn(|r|std::array::from_fn(|c|w(r*3+c))));
+            assert_eq!(vertex_mode(m,[w(9),w(10),w(11)],[w(12)as u32,w(13)as u32,w(14)as u32],true),w(15),"case {i}");
         }
     }
 }
