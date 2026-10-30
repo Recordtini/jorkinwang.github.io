@@ -1,0 +1,28 @@
+{
+  "rolls": [
+    {
+      "seed": 1,
+      "frames": 267
+    },
+    {
+      "seed": 42,
+      "frames": 284
+    },
+    {
+      "seed": 12345678,
+      "frames": 310
+    },
+    {
+      "seed": 4294967295,
+      "frames": 413
+    }
+  ],
+  "sha256": "000f24762c13d3e6de31757ba4eaaeaef46bb190fb5dec6f90d8378a53e8ebf1",
+  "bounds": "0041b5d0",
+  "origin": [
+    2.0,
+    6.5,
+    -8.0
+  ],
+  "note": "Validates physics after pickup, not the UI or all turn states."
+}

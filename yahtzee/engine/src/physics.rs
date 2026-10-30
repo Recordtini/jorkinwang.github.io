@@ -61,10 +61,11 @@ impl Die {
 }
 
 #[derive(Clone)]
-pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool,pub sounds:Vec<(u32,u32,u32)>}
+pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool,pub painted_arena:bool,pub sounds:Vec<(u32,u32,u32)>}
 impl Simulation {
-    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false,sounds:Vec::new()}}
-    fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
+    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false,painted_arena:false,sounds:Vec::new()}}
+    fn restitution(&self)->f32{if self.painted_arena{-0.7}else{-0.5}}
+    fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.painted_arena{painted_boundary(d.position,d.velocity[2])}else if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
     fn publish(&mut self,i:usize){
         self.render_counter=self.render_counter.wrapping_add(1);
         self.dice[i].world=if self.render_counter&127!=0{self.dice[i].orientation.ortho()}else{self.dice[i].orientation};
@@ -121,7 +122,7 @@ impl Simulation {
         for a in 0..3{self.dice[i].position[a]+=self.dice[i].velocity[a];}
         self.dice[i].orientation=self.dice[i].orientation.combine(self.dice[i].spin);self.publish(i);
         if self.dice[i].position[1].to_bits()>0x80000000{
-            self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=-0.5;
+            self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=self.restitution();
             sound=(self.dice[i].velocity[1].abs() as f64*C004261D0) as u32;
             let face=self.dice[i].read_face();let yaw=self.dice[i].yaw(face);self.dice[i].settle(face,yaw);
             if self.dice[i].velocity[1]as f64>C004261D8{
@@ -148,8 +149,8 @@ impl Simulation {
         sound.min(127)
     }
     fn wall(&mut self,i:usize)->u32{
-        let p=self.boundary(i);if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=-0.5;}
-        if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=-0.5;}}
+        let p=self.boundary(i);let restitution=self.restitution();if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=restitution;}
+        if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=restitution;}}
         let x=if p[0]!=0.{(self.dice[i].velocity[0].abs() as f64*C004261D0) as u32}else{0};
         let z=if p[2]!=0.{(self.dice[i].velocity[2].abs() as f64*C004261D0) as u32}else{0};
         (x+z).min(127)
@@ -157,12 +158,13 @@ impl Simulation {
     fn vertical_contact(&mut self,this:usize,a:usize,b:usize,offset:[f32;3],boundary:[f32;3]){
         self.dice[a].velocity[1]=(self.dice[b].velocity[1]as f64*C00426170)as f32;
         let r=(self.random.next_u31()&255)as f64;
-        self.dice[b].velocity[1]=((C00426180 as f64-r*C0042617C as f64)*-0.5*self.dice[b].velocity[1]as f64)as f32;
+        let restitution=self.restitution() as f64;
+        self.dice[b].velocity[1]=((C00426180 as f64-r*C0042617C as f64)*restitution*self.dice[b].velocity[1]as f64)as f32;
         self.dice[b].position[1]=(offset[1]as f64*C00426184 as f64+self.dice[b].position[1]as f64)as f32;
         self.dice[a].position[1]=boundary[1];
         for axis in [0,2]{
             self.dice[b].velocity[axis]=((self.dice[a].position[axis]as f64-self.dice[b].position[axis]as f64)*C00426188 as f64+self.dice[b].velocity[axis]as f64)as f32;
-            self.dice[a].velocity[axis]=(self.dice[a].velocity[axis]as f64-self.dice[b].velocity[axis]as f64*-0.5)as f32;
+            self.dice[a].velocity[axis]=(self.dice[a].velocity[axis]as f64-self.dice[b].velocity[axis]as f64*restitution)as f32;
         }
         let angle=((self.dice[b].position[0]as f64-self.dice[a].position[0]as f64).atan2(self.dice[b].position[2]as f64-self.dice[a].position[2]as f64)*C00426190)as f32;
         let mut scratch=Matrix::default();scratch.rotate([0,-65536,0],angle as i32,1);
@@ -170,9 +172,10 @@ impl Simulation {
         let spin_angle=self.random_axis(C0042618C);self.dice[b].spin.rotate([axis[0],0,axis[2]],spin_angle,3);
         let angle=self.random_axis(C0042619C);let z=self.random_axis(C004261A0);let y=self.random_axis(C004261A4);let x=self.random_axis(C004261A0);
         self.dice[a].spin.rotate([x,y,z],angle,1);
-        let _=this; // all retail body restitution coefficients are -0.5
+        let _=this; // Each mode's dice share a restitution coefficient.
     }
     fn pair(&mut self,a:usize,b:usize)->bool{
+        let restitution=self.restitution();
         let mut iterations=0;
         while self.dice[a].overlaps(&self.dice[b])&&iterations<8{
             iterations+=1;self.dice[b].sleeping=false;
@@ -197,22 +200,22 @@ impl Simulation {
                     if boundary_a[1]!=0.{self.vertical_contact(a,a,b,delta,boundary_a);}
                     if boundary_a[0]!=0.{
                         if(boundary_a[2]<0.&&self.dice[b].velocity[2]<0.)||(boundary_a[2]>0.&&self.dice[b].velocity[2]>0.){
-                            self.dice[a].velocity[0]=self.dice[b].velocity[0];self.dice[b].velocity[0]*=-0.5;
+                            self.dice[a].velocity[0]=self.dice[b].velocity[0];self.dice[b].velocity[0]*=restitution;
                         }
                         self.dice[b].position[0]=(delta[0]as f64*C00426180 as f64+self.dice[b].position[0]as f64)as f32;
                         self.dice[a].position[0]=boundary_a[0];
                     }
-                    if boundary_a[2]!=0.{self.dice[a].velocity[2]=self.dice[b].velocity[2];self.dice[b].velocity[2]*=-0.5;self.dice[b].position[2]=(delta[2]as f64*C00426180 as f64+self.dice[b].position[2]as f64)as f32;self.dice[a].position[2]=boundary_a[2];}
+                    if boundary_a[2]!=0.{self.dice[a].velocity[2]=self.dice[b].velocity[2];self.dice[b].velocity[2]*=restitution;self.dice[b].position[2]=(delta[2]as f64*C00426180 as f64+self.dice[b].position[2]as f64)as f32;self.dice[a].position[2]=boundary_a[2];}
                     for i in 0..3{self.dice[b].position[i]-=delta[i];}
                 }
             }else{
                 if boundary_b[1]!=0.{self.vertical_contact(a,b,a,delta,boundary_b);}
                 if boundary_b[0]!=0.{
                     if(boundary_b[0]<0.&&self.dice[b].velocity[0]<0.)||(boundary_b[0]>0.&&self.dice[b].velocity[0]>0.){self.dice[b].velocity[0]=self.dice[a].velocity[0];}
-                    self.dice[a].velocity[0]*=-0.5;self.dice[a].position[0]=(delta[0]as f64*C00426184 as f64+self.dice[a].position[0]as f64)as f32;self.dice[b].position[0]=boundary_b[0];
+                    self.dice[a].velocity[0]*=restitution;self.dice[a].position[0]=(delta[0]as f64*C00426184 as f64+self.dice[a].position[0]as f64)as f32;self.dice[b].position[0]=boundary_b[0];
                 }
                 if boundary_b[2]!=0.{
-                    if(boundary_b[2]<0.&&self.dice[b].velocity[2]<0.)||(boundary_b[2]>0.&&self.dice[b].velocity[2]>0.){self.dice[b].velocity[2]=self.dice[a].velocity[2];self.dice[a].velocity[2]*=-0.5;}
+                    if(boundary_b[2]<0.&&self.dice[b].velocity[2]<0.)||(boundary_b[2]>0.&&self.dice[b].velocity[2]>0.){self.dice[b].velocity[2]=self.dice[a].velocity[2];self.dice[a].velocity[2]*=restitution;}
                     self.dice[a].position[2]=(delta[2]as f64*C00426184 as f64+self.dice[a].position[2]as f64)as f32;self.dice[b].position[2]=boundary_b[2];
                 }
                 for i in 0..3{self.dice[b].position[i]-=delta[i];}
@@ -284,11 +287,11 @@ impl Simulation {
             for k in 0..5{for a in 0..6{let offset=4+k*144+a*4;let expected=f32::from_le_bytes(b[offset..offset+4].try_into().unwrap());let actual=if a<3{s.dice[k].position[a]}else{s.dice[k].velocity[a-3]};assert!((actual-expected).abs()<0.00001,"event {record} {}({i},{j}), die {k} value{a}: {} != {expected}",b[0],actual);}}
         }
     }
-    fn compare_rolls(fixture:&[u8],triple:bool){
+    fn compare_rolls(fixture:&[u8],mode:u8){
         let mut offset=0;
         while offset<fixture.len(){
             let seed=u32::from_le_bytes(fixture[offset..offset+4].try_into().unwrap());let frames=u32::from_le_bytes(fixture[offset+4..offset+8].try_into().unwrap())as usize;offset+=8;
-            let mut simulation=Simulation::new(seed);simulation.triple_arena=triple;if triple{simulation.roll_from([1.8,6.,-7.]);}else{simulation.roll();}
+            let mut simulation=Simulation::new(seed);simulation.triple_arena=mode==1;simulation.painted_arena=mode==2;simulation.roll_from(match mode{1=>[1.8,6.,-7.],2=>[2.,6.5,-8.],_=>[7.4,0.,-7.6]});
             for frame in 0..frames{
                 let record=&fixture[offset..offset+724];offset+=724;
                 for i in 0..5{
@@ -305,8 +308,9 @@ impl Simulation {
             assert!(simulation.settled());
         }
     }
-    #[test]fn original_full_rolls(){compare_rolls(include_bytes!("../evidence/roll-trace.bin"),false);}
-    #[test]fn original_triple_rolls(){compare_rolls(include_bytes!("../evidence/triple-rolls.bin"),true);}
+    #[test]fn original_full_rolls(){compare_rolls(include_bytes!("../evidence/roll-trace.bin"),0);}
+    #[test]fn original_triple_rolls(){compare_rolls(include_bytes!("../evidence/triple-rolls.bin"),1);}
+    #[test]fn original_painted_rolls(){compare_rolls(include_bytes!("../evidence/painted-rolls.bin"),2);}
     #[test]fn original_collision_sound_levels(){
         let data=include_bytes!("../evidence/audio-oracle.bin");let mut p=0;
         fn word(data:&[u8],p:&mut usize)->u32{let v=u32::from_le_bytes(data[*p..*p+4].try_into().unwrap());*p+=4;v}
