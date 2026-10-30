@@ -78,8 +78,8 @@ impl Simulation {
         self.dice[i].world=if self.render_counter&127!=0{self.dice[i].orientation.ortho()}else{self.dice[i].orientation};
         self.dice[i].world_position=self.dice[i].position.map(|p|((p as f64*65536.)as i32)as f32/65536.);
     }
-    pub fn initialize_layout(&mut self){for i in 0..5{self.dice[i].position=[1.5*i as f32-3.,0.,0.];self.publish(i);}}
-    pub fn initialize_pyramid(&mut self){self.pyramid_arena=true;for i in 0..5{let d=&mut self.dice[i];d.pyramid=true;d.orientation=Matrix::default();let face=(i%4+1)as u8;d.settle(face,0.);d.position=if i==0{[-1.,0.,-2.]}else if i==4{[0.5,0.,-2.]}else{[1.5*i as f32-3.,0.,0.]};self.publish(i);}}
+    pub fn initialize_layout(&mut self){for i in 0..5{self.dice[i].position=[1.5*i as f32-3.25,0.,0.];self.publish(i);}}
+    pub fn initialize_pyramid(&mut self){self.pyramid_arena=true;for i in 0..5{let d=&mut self.dice[i];d.pyramid=true;d.orientation=Matrix::default();let face=(i%4+1)as u8;d.settle(face,0.);d.position=if i==0{[-1.,0.,-2.]}else if i==4{[0.5,0.,-2.]}else{[1.5*i as f32-3.25,0.,0.]};self.publish(i);}}
     fn rotation(&mut self,i:usize,axis:[i32;3],angle:i32,mode:u32,spin:bool){
         let d=&mut self.dice[i];if spin{d.spin.rotate(axis,angle,mode)}else{d.orientation.rotate(axis,angle,mode)}
         let old=d.rotations;d.rotations=d.rotations.wrapping_add(1);
