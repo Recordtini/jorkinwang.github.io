@@ -1,0 +1,5 @@
+{
+  "calls": "YAHTZEE.EXE 00411fb0..00411ff9, RWX20 RwMatrixRotate",
+  "cases": 35,
+  "sha256": "67c01b238a3cbedc1f7d816a40adce60d7cdb9984d9874da7d170ddbbf7ecfd0"
+}

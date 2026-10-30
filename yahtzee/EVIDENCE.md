@@ -28,8 +28,7 @@ not been established.
 
 The original `CLASCUP.RWX` assigns the dark `MatBlack` texture to 23 inner
 wall triangles, but assigns `C_CLSBT1` (the cup-bottom texture) to the adjacent
-triangle `48 37 36` at line 164. That triangle projects onto the visible light
-wedge in the pickup view. The original assignment is retained. The lining,
+triangle `48 37 36` at line 164. The original assignment is retained. The lining,
 bottom and exterior PNG pixels match their original BMPs. Hashes and results
 are recorded in `evidence/cup-culling.json`.
 
@@ -68,14 +67,21 @@ are present. Browser tests exercised playback, volume events and the sound-effec
 setting. Browser audio mixing and every original UI/audio transition remain
 unverified, and the original CD music tracks are not present in this copy.
 
-The original `004113a0` overwrites each die's floor, wall and collision results
-while processing a group of physics substeps, then plays at most the last result
-of each kind for that update. The browser now drains every substep but dispatches
-only the final substep's events once per animation update. At a simulated 30 fps,
-an instrumented browser roll had 47 multi-step updates and no collision playback
-before an update's final substep. Browser physics still steps all dice in each
-substep, whereas the original processes one die's substeps together; exact
-event timing across those different update orders is not established.
+The original `004113a0` processes all substeps for a die before advancing to
+the next die, then dispatches that die's final substep's collision results.
+The port now follows that order. Eight original-code roll traces with 1, 2, 3,
+and 6 substeps per update match impact events and die positions/velocities at
+504 update boundaries. Collision samples are decoded ahead of time and played
+through Web Audio; separate measurements of the old media-element path showed
+13–66 ms start delays in one browser roll. Exact Miles mixer/output equivalence
+and listening comparison with the running original remain unverified.
+
+Cup orientation now follows `00411f30`: rotate X by stored pitch plus 90 degrees,
+then Y by negative yaw. The original pickup path `00411080` initializes pitch
+to -60 degrees; resting pitch is -90. Thirty-five original RWX20 matrix cases
+were checked against the Rust implementation. Initial and post-roll transforms
+were also checked in actual WASM for both tables; original-window visual
+equivalence is not established.
 
 ## Painted preparation
 

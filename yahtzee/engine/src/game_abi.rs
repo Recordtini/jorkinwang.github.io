@@ -5,6 +5,7 @@ thread_local!{static GAME:RefCell<Game>=RefCell::new(Game::new(1));}
 #[no_mangle]pub extern "C" fn game_new_triple(seed:u32){GAME.with(|g|*g.borrow_mut()=Game::triple(seed));}
 #[no_mangle]pub extern "C" fn game_roll()->u32{GAME.with(|g|g.borrow_mut().roll()as u32)}
 #[no_mangle]pub extern "C" fn game_step(){GAME.with(|g|g.borrow_mut().step());}
+#[no_mangle]pub extern "C" fn game_step_batch(steps:u32){GAME.with(|g|g.borrow_mut().step_batch(steps.clamp(1,20)));}
 /// One original-derived collision sound: type in bits 0..7, die in 8..15,
 /// volume (0..127) in 16..23; zero means the queue is empty.
 #[no_mangle]pub extern "C" fn game_sound()->u32{GAME.with(|g|{let mut g=g.borrow_mut();if g.simulation.sounds.is_empty(){return 0}let(t,i,v)=g.simulation.sounds.remove(0);t|(i<<8)|(v<<16)})}

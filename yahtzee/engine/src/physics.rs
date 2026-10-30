@@ -224,9 +224,15 @@ impl Simulation {
         for i in [a,b]{if self.boundary(i)!=[0.;3]{self.dice[i].velocity[2]=if self.dice[i].position[2]>0.{-0.08}else{0.08};}}
         iterations!=0
     }
-    pub fn step(&mut self){for i in 0..5{
-        let ground=self.ground(i);let wall=self.wall(i);let mut collisions=0;
-        if !self.dice[i].held{for j in 0..5{if i!=j&&!self.dice[j].held&&self.pair(i,j){collisions+=40;}}}
+    pub fn step(&mut self){self.step_batch(1);}
+    /// 004113a0 runs all substeps for one die before advancing to the next,
+    /// then emits only the last substep's impact values for that die.
+    pub fn step_batch(&mut self,steps:u32){for i in 0..5{
+        let(mut ground,mut wall,mut collisions)=(0,0,0);
+        for _ in 0..steps{
+            ground=self.ground(i);wall=self.wall(i);collisions=0;
+            if !self.dice[i].held{for j in 0..5{if i!=j&&!self.dice[j].held&&self.pair(i,j){collisions+=40;}}}
+        }
         if ground>0{self.sounds.push((1,i as u32,ground));}if wall>0{self.sounds.push((2,i as u32,wall));}if collisions>0{self.sounds.push((3,i as u32,collisions.min(127)));}
     }}
     pub fn settled(&self)->bool{self.dice.iter().all(|d|d.sleeping||d.held)}
@@ -317,6 +323,18 @@ impl Simulation {
         while p<data.len(){let triple=word(data,&mut p)!=0;let seed=word(data,&mut p);let frames=word(data,&mut p);
             let mut s=Simulation::new(seed);s.triple_arena=triple;s.roll_from(if triple{[1.8,6.,-7.]}else{[7.4,0.,-7.6]});
             for frame in 0..frames{let n=word(data,&mut p);let expected:Vec<_>=(0..n).map(|_|word(data,&mut p)).collect();s.step();let actual:Vec<_>=s.sounds.drain(..).map(|(t,i,v)|t|(i<<8)|(v<<16)).collect();assert_eq!(actual,expected,"triple {triple}, seed {seed}, frame {frame}");}
+        }
+    }
+    #[test]fn original_batched_rolls_and_sounds(){
+        let data=include_bytes!("../evidence/batched-rolls.bin");let mut p=0;
+        fn word(data:&[u8],p:&mut usize)->u32{let v=u32::from_le_bytes(data[*p..*p+4].try_into().unwrap());*p+=4;v}
+        while p<data.len(){let triple=word(data,&mut p)!=0;let seed=word(data,&mut p);let frames=word(data,&mut p);
+            let mut s=Simulation::new(seed);s.triple_arena=triple;s.roll_from(if triple{[1.8,6.,-7.]}else{[7.4,0.,-7.6]});
+            for frame in 0..frames{let steps=word(data,&mut p);let n=word(data,&mut p);let expected:Vec<_>=(0..n).map(|_|word(data,&mut p)).collect();s.step_batch(steps);
+                let actual:Vec<_>=s.sounds.drain(..).map(|(t,i,v)|t|(i<<8)|(v<<16)).collect();assert_eq!(actual,expected,"sounds triple {triple} seed {seed} frame {frame}");
+                let record=&data[p..p+724];p+=724;
+                for i in 0..5{let r=&record[i*144..(i+1)*144];let f=|n:usize|f32::from_le_bytes(r[n*4..n*4+4].try_into().unwrap());let d=&s.dice[i];for axis in 0..3{assert!((d.position[axis]-f(axis)).abs()<0.00002,"position triple {triple} seed {seed} frame {frame} die {i}");assert!((d.velocity[axis]-f(axis+3)).abs()<0.00002,"velocity triple {triple} seed {seed} frame {frame} die {i}");}}
+            }
         }
     }
 }

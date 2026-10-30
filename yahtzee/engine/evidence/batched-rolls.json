@@ -1,0 +1,47 @@
+{
+  "scheduler": "004113a0 per-die substeps",
+  "source": "original 0040c1c0, 0040c440, 0040bd30",
+  "cases": [
+    {
+      "triple": false,
+      "seed": 1,
+      "updates": 30
+    },
+    {
+      "triple": false,
+      "seed": 42,
+      "updates": 91
+    },
+    {
+      "triple": false,
+      "seed": 12345678,
+      "updates": 46
+    },
+    {
+      "triple": false,
+      "seed": 4294967295,
+      "updates": 41
+    },
+    {
+      "triple": true,
+      "seed": 1,
+      "updates": 71
+    },
+    {
+      "triple": true,
+      "seed": 42,
+      "updates": 58
+    },
+    {
+      "triple": true,
+      "seed": 12345678,
+      "updates": 72
+    },
+    {
+      "triple": true,
+      "seed": 4294967295,
+      "updates": 95
+    }
+  ],
+  "sha256": "c54a8cbce49022db6ed16234ffaff1d9893de64092afa71fcd4e0cb03881a822"
+}

@@ -34,6 +34,7 @@ impl Game {
         if self.cup.motion(x,y){let dt=millis.max(1)as f64;return self.throw((-dx as f64/dt*0.25)as f32,(-dy as f64/dt*0.25)as f32)}false
     }
     pub fn step(&mut self){if self.moving{self.simulation.step();if self.simulation.settled(){self.moving=false;}}else if self.cup.picked{self.cup.tick();}}
+    pub fn step_batch(&mut self,steps:u32){if self.moving{self.simulation.step_batch(steps);if self.simulation.settled(){self.moving=false;}}else if self.cup.picked{for _ in 0..steps{self.cup.tick();}}}
     pub fn hold(&mut self,i:usize)->bool{
         if i>=5||self.rolls==0||self.moving||self.turns==13*self.columns as u32||self.cup.picked{return false}
         self.simulation.toggle_hold(i);true

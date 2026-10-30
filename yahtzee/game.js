@@ -11,22 +11,35 @@ const titleSound=new Audio('assets/title.wav');titleSound.preload='none';
 const dieChannels=Array(5).fill(null);
 const transientSounds=Array(10).fill(null);
 let cupShake=null;
+let effectContext=null,effectBuffers=null;
 const sounds={classic:{floor:'cls_f',wall:'cls_w',die:'cls_w'},triple:{floor:'trp_f',wall:'trp_w',die:'trp_die'}};
 // Original defaults are read with GetPrivateProfileIntA at 00418230.
 let settings={advice:true,sound:true,hints:true,music:'none'};
 try{const saved=JSON.parse(localStorage.getItem('ultimate-yahtzee-settings')||'null');if(saved&&typeof saved==='object'){for(const key of ['advice','sound','hints'])if(typeof saved[key]==='boolean')settings[key]=saved[key];if(['none','loop'].includes(saved.music))settings.music=saved.music;}}catch{}
 const strip=s=>s.replaceAll('&','');
 function error(e){$('#error').textContent=e.message||String(e);console.error(e);}
-function playTransient(source,volume=127){if(!settings.sound)return;const slot=transientSounds.findIndex(a=>!a||a.paused||a.ended);if(slot<0)return;const audio=new Audio(source);audio.volume=Math.min(1,volume/127);transientSounds[slot]=audio;audio.play().catch(()=>{});}
+async function prepareEffects(){
+  if(!effectContext){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)throw Error('This browser needs Web Audio for game sound');effectContext=new AudioContextClass();}
+  const resumed=effectContext.resume();
+  if(!effectBuffers){const names=['cls_clk','cls_f','cls_w','trp_clk','trp_f','trp_w','trp_die','yahtzee'];effectBuffers=Object.fromEntries(await Promise.all(names.map(async name=>{const response=await fetch(`assets/${name}.wav`);if(!response.ok)throw Error(`Could not load ${name} sound`);return[name,await effectContext.decodeAudioData(await response.arrayBuffer())];})));}
+  await resumed;
+}
+function playEffect(source,volume,channels,index){
+  if(!settings.sound||!effectContext||!effectBuffers)return;
+  const name=source.split('/').pop().replace(/\.wav$/i,''),buffer=effectBuffers[name];if(!buffer)return;
+  if(index===undefined){index=channels.findIndex(a=>!a);if(index<0)return;}else if(channels[index])channels[index].stop();
+  const node=effectContext.createBufferSource(),gain=effectContext.createGain();node.buffer=buffer;gain.gain.value=Math.min(1,volume/127);node.connect(gain).connect(effectContext.destination);channels[index]=node;
+  node.onended=()=>{if(channels[index]===node)channels[index]=null;node.disconnect();gain.disconnect();};node.start();
+}
+function playTransient(source,volume=127){playEffect(source,volume,transientSounds);}
 function soundClick(){playTransient(clickSound.src,80);}
 function collisionSounds(events){for(const event of events){
   if(!settings.sound)continue;
   const type=event&255,die=(event>>>8)&255,volume=(event>>>16)&255;
-  const previous=dieChannels[die];if(type===3&&previous&&!previous.paused&&!previous.ended)continue;
-  if(type===2&&previous&&!previous.paused)previous.pause();
+  const previous=dieChannels[die];if(type===3&&previous)continue;
   const source=`assets/${sounds[mode][type===1?'floor':type===2?'wall':'die']}.wav`;
   if(type===1){playTransient(source,volume);continue;}
-  const audio=new Audio(source);audio.volume=Math.min(1,volume/127);dieChannels[die]=audio;audio.play().catch(()=>{});
+  playEffect(source,volume,dieChannels,die);
 }}
 function setMusic(){if(settings.music==='loop'&&playing)music.play().catch(error);else music.pause();}
 function closeMenu(){$('#popup').hidden=true;}
@@ -35,7 +48,7 @@ function rect(element,r,width=427,height=295){const[a,b,c,d]=r;element.style.lef
 function control(id){return ui.dialogs[mode==='triple'?139:308].controls.find(c=>c.id===id);}
 function title(command=0){if(!x.title_open(command))throw Error('Original title decoding failed');const bytes=new Uint8ClampedArray(x.memory.buffer,x.frame_ptr(),x.frame_len());$('#title-art').getContext('2d').putImageData(new ImageData(bytes,640,480),0,0);}
 function showTitle(){playing=false;closeMenu();closeDialog();$('#title-screen').hidden=false;title();setMusic();if(settings.sound){titleSound.currentTime=0;titleSound.play().catch(()=>{});}$('#status').textContent='Ultimate Yahtzee — select a game';}
-async function start(){try{ready=false;titleSound.pause();const seed=crypto.getRandomValues(new Uint32Array(1))[0];if(mode==='triple')x.game_new_triple(seed);else x.game_new(seed);renderer=await createRenderer($('#dice3d'),x,mode);boards=await Promise.all(Array.from({length:4},async(_,i)=>{const image=new Image();image.src=`assets/${mode==='triple'?'triple-board':'board'}${i}.png`;await image.decode();return image;}));music.src=`assets/${mode==='triple'?'triploop':'clasloop'}.wav`;clickSound.src=`assets/${mode==='triple'?'trp_clk':'cls_clk'}.wav`;setupBoard();ready=true;playing=true;lastTime=0;accumulator=0;boardIndex=-1;closeMenu();closeDialog();$('#title-screen').hidden=true;refresh();draw();setMusic();}catch(e){error(e);}}
+async function start(){try{ready=false;titleSound.pause();const effects=prepareEffects();const seed=crypto.getRandomValues(new Uint32Array(1))[0];if(mode==='triple')x.game_new_triple(seed);else x.game_new(seed);renderer=await createRenderer($('#dice3d'),x,mode);boards=await Promise.all(Array.from({length:4},async(_,i)=>{const image=new Image();image.src=`assets/${mode==='triple'?'triple-board':'board'}${i}.png`;await image.decode();return image;}));await effects;music.src=`assets/${mode==='triple'?'triploop':'clasloop'}.wav`;clickSound.src=`assets/${mode==='triple'?'trp_clk':'cls_clk'}.wav`;setupBoard();ready=true;playing=true;lastTime=0;accumulator=0;boardIndex=-1;closeMenu();closeDialog();$('#title-screen').hidden=true;refresh();draw();setMusic();}catch(e){error(e);}}
 function draw(){renderer.draw();const b=renderer.boxes.find(b=>b.i===5);if(b){const e=$('#board-roll');e.style.left=`${b.minX/6.4}%`;e.style.top=`${b.minY/4.8}%`;e.style.width=`${(b.maxX-b.minX)/6.4}%`;e.style.height=`${(b.maxY-b.minY)/4.8}%`;}}
 function roll(){if(!ready||!playing||!$('#dialog-layer').hidden)return;
   if(!x.game_cup(12)){if(x.game_pickup()){closeMenu();lastPointerTime=0;refresh();draw();$('#dice3d').requestPointerLock?.()?.catch(()=>{});}return}
@@ -134,7 +147,7 @@ $('#game').addEventListener('pointermove',event=>{
   draw();
 });
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();closeDialog();}});
-function frame(time){try{if(ready&&playing&&(x.game_state(2)||x.game_cup(12))&&$('#dialog-layer').hidden){accumulator+=lastTime?Math.min(100,time-lastTime):6;let events=null,yahtzee=false;while(accumulator>=6&&(x.game_state(2)||x.game_cup(12))){const wasMoving=!!x.game_state(2);x.game_step();events=[];let event;while((event=x.game_sound())!==0)events.push(event);if(wasMoving&&!x.game_state(2)){const face=x.game_die(0,12);yahtzee=Array.from({length:5},(_,i)=>x.game_die(i,12)).every(f=>f===face);}accumulator-=6;}if(events)collisionSounds(events);if(yahtzee)playTransient('assets/yahtzee.wav');draw();if(!x.game_state(2))refresh();}lastTime=time;requestAnimationFrame(frame);}catch(e){ready=false;error(e);}}
+function frame(time){try{if(ready&&playing&&(x.game_state(2)||x.game_cup(12))&&$('#dialog-layer').hidden){accumulator+=lastTime?Math.min(100,time-lastTime):6;if(accumulator>=6){const wasMoving=!!x.game_state(2),steps=Math.max(1,Math.floor(accumulator/5));accumulator=0;x.game_step_batch(steps);const events=[];let event;while((event=x.game_sound())!==0)events.push(event);collisionSounds(events);if(wasMoving&&!x.game_state(2)){const face=x.game_die(0,12);if(Array.from({length:5},(_,i)=>x.game_die(i,12)).every(f=>f===face))playTransient('assets/yahtzee.wav');}draw();if(!x.game_state(2))refresh();}}lastTime=time;requestAnimationFrame(frame);}catch(e){ready=false;error(e);}}
 try{
   const response=await fetch('retail_yahtzee.wasm',{cache:'no-cache'});if(!response.ok)throw Error(`WASM HTTP ${response.status}`);({instance:{exports:x}}=await WebAssembly.instantiate(await response.arrayBuffer()));
   const r=await fetch('assets/ui.json');if(!r.ok)throw Error('Original UI resources did not load');ui=await r.json();
