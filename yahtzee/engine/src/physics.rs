@@ -10,6 +10,9 @@ pub fn triple_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
 pub fn painted_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
     rectangular_boundary(position,velocity_z,[-3.,3.,-3.4,4.])
 }
+pub fn battle_boundary(position:[f32;3],velocity_z:f32,wide:bool)->[f32;3]{
+    rectangular_boundary(position,velocity_z,[-3.,3.,-3.4,if wide{6.}else{3.}])
+}
 pub fn pyramid_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
     let [x,y,z]=position;let mut out=[0.;3];if y.to_bits()>0x80000000{out[1]=0.1;}
     if z>2.2f32{out[2]=2.2;}if z< -3.&&((y.to_bits() as i32)<0x40400000||velocity_z.to_bits()>0x80000000){out[2]=-3.;}
@@ -292,6 +295,11 @@ impl Simulation {
             let f=|n:usize| f32::from_le_bytes(b[n*4..n*4+4].try_into().unwrap());
             let result=super::painted_boundary([f(0),f(1),f(2)],f(3));
             assert_eq!(result.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");
+        }
+    }
+    #[test]fn original_battle_boundaries(){
+        for(wide,bytes)in [(false,include_bytes!("../evidence/battle-boundary.bin").as_slice()),(true,include_bytes!("../evidence/battle-wide-boundary.bin").as_slice())]{
+            for(i,b)in bytes.chunks_exact(32).enumerate(){let f=|n:usize|f32::from_le_bytes(b[n*4..n*4+4].try_into().unwrap());let out=super::battle_boundary([f(0),f(1),f(2)],f(3),wide);assert_eq!(out.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"wide {wide} case {i}");}
         }
     }
     #[test]fn original_pyramid_boundary(){
