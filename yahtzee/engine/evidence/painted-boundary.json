@@ -1,0 +1,12 @@
+{
+  "original": "YAHTZEE.EXE 0040b610",
+  "arena_setup": "0041b5d0",
+  "bounds": [
+    -3.0,
+    3.0,
+    -3.4,
+    4.0
+  ],
+  "cases": 1375,
+  "sha256": "a3e03e70f988a25a78bcdf9f8554fab795100ee51c046927feecfe0d0d4ecef9"
+}

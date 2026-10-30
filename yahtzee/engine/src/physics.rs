@@ -5,13 +5,19 @@ use crate::{die::cube_face,matrix::Matrix,rng::RetailRandom,retail_constants::*}
 /// Rectangular arena selected by Triple's original initializer 00402d40.
 /// Returns the boundary vector from 0040b610 (zero means no contact).
 pub fn triple_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
+    rectangular_boundary(position,velocity_z,[-4.2,4.,-3.9,4.5])
+}
+pub fn painted_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
+    rectangular_boundary(position,velocity_z,[-3.,3.,-3.4,4.])
+}
+fn rectangular_boundary(position:[f32;3],velocity_z:f32,bounds:[f32;4])->[f32;3]{
     let [x,y,z]=position;
     let mut out=[0.;3];
     if y.to_bits()>0x80000000{out[1]=0.1;}
-    if x < -4.2f32 {out[0]=-4.2f32;}
-    if x > 4.0 {out[0]=4.0;}
-    if z < -3.9f32 && ((y.to_bits() as i32)<0x40400000 || velocity_z.to_bits()>0x80000000){out[2]=-3.9f32;}
-    if z > 4.5 {out[2]=4.5;}
+    if x < bounds[0] {out[0]=bounds[0];}
+    if x > bounds[1] {out[0]=bounds[1];}
+    if z < bounds[2] && ((y.to_bits() as i32)<0x40400000 || velocity_z.to_bits()>0x80000000){out[2]=bounds[2];}
+    if z > bounds[3] {out[2]=bounds[3];}
     out
 }
 
@@ -260,6 +266,13 @@ impl Simulation {
             let result=super::triple_boundary([f(0),f(1),f(2)],f(3));
             assert_eq!(result.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");
             assert_eq!(result.iter().any(|&x|x!=0.) as u32,u32::from_le_bytes(b[16..20].try_into().unwrap()),"case {i}");
+        }
+    }
+    #[test]fn original_painted_boundary(){
+        for (i,b) in include_bytes!("../evidence/painted-boundary.bin").chunks_exact(32).enumerate(){
+            let f=|n:usize| f32::from_le_bytes(b[n*4..n*4+4].try_into().unwrap());
+            let result=super::painted_boundary([f(0),f(1),f(2)],f(3));
+            assert_eq!(result.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");
         }
     }
     use super::*;

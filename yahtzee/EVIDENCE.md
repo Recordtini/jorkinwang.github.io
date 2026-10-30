@@ -74,6 +74,7 @@ unverified, and the original CD music tracks are not present in this copy.
 color-category scores were checked against original `00412a20` for all 7,776
 ordered hands. Painted mode is not playable yet: its mode-specific physics,
 assets, scorecard, turn state and audio still need to be connected and tested.
+Its rectangular arena boundary also matches 1,375 original-code cases.
 
 Four sets of three original rolls, including cup pickup and held dice, were
 compared at 2,073 frames for physics and published transforms. Scoring is tested
