@@ -19,7 +19,7 @@ const strip=s=>s.replaceAll('&','');
 function error(e){$('#error').textContent=e.message||String(e);console.error(e);}
 function playTransient(source,volume=127){if(!settings.sound)return;const slot=transientSounds.findIndex(a=>!a||a.paused||a.ended);if(slot<0)return;const audio=new Audio(source);audio.volume=Math.min(1,volume/127);transientSounds[slot]=audio;audio.play().catch(()=>{});}
 function soundClick(){playTransient(clickSound.src,80);}
-function collisionSounds(){let event;while((event=x.game_sound())!==0){
+function collisionSounds(events){for(const event of events){
   if(!settings.sound)continue;
   const type=event&255,die=(event>>>8)&255,volume=(event>>>16)&255;
   const previous=dieChannels[die];if(type===3&&previous&&!previous.paused&&!previous.ended)continue;
@@ -134,7 +134,7 @@ $('#game').addEventListener('pointermove',event=>{
   draw();
 });
 document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();closeDialog();}});
-function frame(time){try{if(ready&&playing&&(x.game_state(2)||x.game_cup(12))&&$('#dialog-layer').hidden){accumulator+=lastTime?Math.min(100,time-lastTime):6;while(accumulator>=6&&(x.game_state(2)||x.game_cup(12))){const wasMoving=!!x.game_state(2);x.game_step();collisionSounds();if(wasMoving&&!x.game_state(2)){const face=x.game_die(0,12);if(Array.from({length:5},(_,i)=>x.game_die(i,12)).every(f=>f===face))playTransient('assets/yahtzee.wav');}accumulator-=6;}draw();if(!x.game_state(2))refresh();}lastTime=time;requestAnimationFrame(frame);}catch(e){ready=false;error(e);}}
+function frame(time){try{if(ready&&playing&&(x.game_state(2)||x.game_cup(12))&&$('#dialog-layer').hidden){accumulator+=lastTime?Math.min(100,time-lastTime):6;let events=null,yahtzee=false;while(accumulator>=6&&(x.game_state(2)||x.game_cup(12))){const wasMoving=!!x.game_state(2);x.game_step();events=[];let event;while((event=x.game_sound())!==0)events.push(event);if(wasMoving&&!x.game_state(2)){const face=x.game_die(0,12);yahtzee=Array.from({length:5},(_,i)=>x.game_die(i,12)).every(f=>f===face);}accumulator-=6;}if(events)collisionSounds(events);if(yahtzee)playTransient('assets/yahtzee.wav');draw();if(!x.game_state(2))refresh();}lastTime=time;requestAnimationFrame(frame);}catch(e){ready=false;error(e);}}
 try{
   const response=await fetch('retail_yahtzee.wasm',{cache:'no-cache'});if(!response.ok)throw Error(`WASM HTTP ${response.status}`);({instance:{exports:x}}=await WebAssembly.instantiate(await response.arrayBuffer()));
   const r=await fetch('assets/ui.json');if(!r.ok)throw Error('Original UI resources did not load');ui=await r.json();

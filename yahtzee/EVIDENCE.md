@@ -68,6 +68,15 @@ are present. Browser tests exercised playback, volume events and the sound-effec
 setting. Browser audio mixing and every original UI/audio transition remain
 unverified, and the original CD music tracks are not present in this copy.
 
+The original `004113a0` overwrites each die's floor, wall and collision results
+while processing a group of physics substeps, then plays at most the last result
+of each kind for that update. The browser now drains every substep but dispatches
+only the final substep's events once per animation update. At a simulated 30 fps,
+an instrumented browser roll had 47 multi-step updates and no collision playback
+before an update's final substep. Browser physics still steps all dice in each
+substep, whereas the original processes one die's substeps together; exact
+event timing across those different update orders is not established.
+
 ## Painted preparation
 
 `0041b5d0` binds five different die-face color tables. The Rust labels and
