@@ -1,6 +1,6 @@
 //! Classic retail roll path: 00411740, 004113a0, 0040c1c0, 0040c440,
 //! 0040bd30, 0040bb30, 0040c4d0. Original per-die update order is retained.
-use crate::{die::cube_face,matrix::Matrix,rng::RetailRandom,retail_constants::*};
+use crate::{die::{cube_face,pyramid_face,pyramid_settle},matrix::Matrix,rng::RetailRandom,retail_constants::*};
 
 /// Rectangular arena selected by Triple's original initializer 00402d40.
 /// Returns the boundary vector from 0040b610 (zero means no contact).
@@ -9,6 +9,11 @@ pub fn triple_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
 }
 pub fn painted_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
     rectangular_boundary(position,velocity_z,[-3.,3.,-3.4,4.])
+}
+pub fn pyramid_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
+    let [x,y,z]=position;let mut out=[0.;3];if y.to_bits()>0x80000000{out[1]=0.1;}
+    if z>2.2f32{out[2]=2.2;}if z< -3.&&((y.to_bits() as i32)<0x40400000||velocity_z.to_bits()>0x80000000){out[2]=-3.;}
+    let edge=z as f64*-0.5+1.2;if edge<x as f64{out[0]=edge as f32;out[2]=z;}if -edge>x as f64{out[0]=-edge as f32;out[2]=z;}out
 }
 fn rectangular_boundary(position:[f32;3],velocity_z:f32,bounds:[f32;4])->[f32;3]{
     let [x,y,z]=position;
@@ -25,24 +30,26 @@ fn rectangular_boundary(position:[f32;3],velocity_z:f32,bounds:[f32;4])->[f32;3]
 pub struct Die {
     pub position:[f32;3],pub velocity:[f32;3],pub orientation:Matrix,pub spin:Matrix,
     pub world:Matrix,pub world_position:[f32;3],pub sleeping:bool,pub held:bool,pub face:u8,pub rotations:u32,
-    pub saved_position:[f32;3],pub rack:Option<usize>,
+    pub saved_position:[f32;3],pub rack:Option<usize>,pub pyramid:bool,
 }
 impl Die {
     fn new(face:u8)->Self{
-        let mut d=Self{position:[0.;3],velocity:[0.;3],orientation:Matrix::default(),spin:Matrix::default(),world:Matrix::default(),world_position:[0.;3],sleeping:false,held:false,face,rotations:0,saved_position:[0.;3],rack:None};
+        let mut d=Self{position:[0.;3],velocity:[0.;3],orientation:Matrix::default(),spin:Matrix::default(),world:Matrix::default(),world_position:[0.;3],sleeping:false,held:false,face,rotations:0,saved_position:[0.;3],rack:None,pyramid:false};
         d.settle(face,0.);d
     }
-    fn read_face(&self)->u8{if self.held||self.sleeping{self.face}else{cube_face(self.world.0[0],self.world.0[1])}}
+    fn read_face(&self)->u8{if self.held||self.sleeping{self.face}else if self.pyramid{pyramid_face(self.orientation)}else{cube_face(self.world.0[0],self.world.0[1])}}
     fn settle(&mut self,face:u8,yaw:f32){
         self.settle_tilt(face,yaw,0.);
     }
     fn settle_tilt(&mut self,face:u8,yaw:f32,tilt:f32){
+        if self.pyramid{self.orientation=pyramid_settle(self.orientation,face,yaw);self.face=face;return}
         self.orientation.rotate([0,65536,0],(yaw as f64*C00426198 as f64)as i32,1);
         if tilt!=0.{self.orientation.rotate([65536,0,0],(tilt as f64*C00426198 as f64)as i32,2);}
         match face{2=>self.orientation.rotate([65536,0,0],90*65536,2),3=>self.orientation.rotate([0,0,65536],-90*65536,2),4=>self.orientation.rotate([0,0,65536],90*65536,2),5=>self.orientation.rotate([65536,0,0],-90*65536,2),6=>self.orientation.rotate([65536,0,0],180*65536,2),_=>()};
         self.face=face;
     }
     fn yaw(&self,face:u8)->f32{
+        if self.pyramid{return 0.}
         if face==3||face==4{let v=self.orientation.0[2];((v[0]as f64).atan2(v[2]as f64)*C00426190)as f32}
         else{let v=self.orientation.0[0];((v[2]as f64).atan2(v[0]as f64)*C00426218)as f32}
     }
@@ -61,17 +68,18 @@ impl Die {
 }
 
 #[derive(Clone)]
-pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool,pub painted_arena:bool,pub sounds:Vec<(u32,u32,u32)>}
+pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool,pub painted_arena:bool,pub pyramid_arena:bool,pub sounds:Vec<(u32,u32,u32)>}
 impl Simulation {
-    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false,painted_arena:false,sounds:Vec::new()}}
-    fn restitution(&self)->f32{if self.painted_arena{-0.7}else{-0.5}}
-    fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.painted_arena{painted_boundary(d.position,d.velocity[2])}else if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
+    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false,painted_arena:false,pyramid_arena:false,sounds:Vec::new()}}
+    fn restitution(&self,i:usize)->f32{if self.pyramid_arena{if i==0{-0.7}else{-0.65}}else if self.painted_arena{-0.7}else{-0.5}}
+    fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.pyramid_arena{pyramid_boundary(d.position,d.velocity[2])}else if self.painted_arena{painted_boundary(d.position,d.velocity[2])}else if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
     fn publish(&mut self,i:usize){
         self.render_counter=self.render_counter.wrapping_add(1);
         self.dice[i].world=if self.render_counter&127!=0{self.dice[i].orientation.ortho()}else{self.dice[i].orientation};
         self.dice[i].world_position=self.dice[i].position.map(|p|((p as f64*65536.)as i32)as f32/65536.);
     }
     pub fn initialize_layout(&mut self){for i in 0..5{self.dice[i].position=[1.5*i as f32-3.,0.,0.];self.publish(i);}}
+    pub fn initialize_pyramid(&mut self){self.pyramid_arena=true;for i in 0..5{let d=&mut self.dice[i];d.pyramid=true;d.orientation=Matrix::default();let face=(i%4+1)as u8;d.settle(face,0.);d.position=if i==0{[-1.,0.,-2.]}else if i==4{[0.5,0.,-2.]}else{[1.5*i as f32-3.,0.,0.]};self.publish(i);}}
     fn rotation(&mut self,i:usize,axis:[i32;3],angle:i32,mode:u32,spin:bool){
         let d=&mut self.dice[i];if spin{d.spin.rotate(axis,angle,mode)}else{d.orientation.rotate(axis,angle,mode)}
         let old=d.rotations;d.rotations=d.rotations.wrapping_add(1);
@@ -122,7 +130,7 @@ impl Simulation {
         for a in 0..3{self.dice[i].position[a]+=self.dice[i].velocity[a];}
         self.dice[i].orientation=self.dice[i].orientation.combine(self.dice[i].spin);self.publish(i);
         if self.dice[i].position[1].to_bits()>0x80000000{
-            self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=self.restitution();
+            self.dice[i].position[1]=0.;self.dice[i].velocity[1]*=self.restitution(i);
             sound=(self.dice[i].velocity[1].abs() as f64*C004261D0) as u32;
             let face=self.dice[i].read_face();let yaw=self.dice[i].yaw(face);self.dice[i].settle(face,yaw);
             if self.dice[i].velocity[1]as f64>C004261D8{
@@ -149,7 +157,7 @@ impl Simulation {
         sound.min(127)
     }
     fn wall(&mut self,i:usize)->u32{
-        let p=self.boundary(i);let restitution=self.restitution();if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=restitution;}
+        let p=self.boundary(i);let restitution=self.restitution(i);if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=restitution;}
         if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=restitution;}}
         let x=if p[0]!=0.{(self.dice[i].velocity[0].abs() as f64*C004261D0) as u32}else{0};
         let z=if p[2]!=0.{(self.dice[i].velocity[2].abs() as f64*C004261D0) as u32}else{0};
@@ -158,7 +166,7 @@ impl Simulation {
     fn vertical_contact(&mut self,this:usize,a:usize,b:usize,offset:[f32;3],boundary:[f32;3]){
         self.dice[a].velocity[1]=(self.dice[b].velocity[1]as f64*C00426170)as f32;
         let r=(self.random.next_u31()&255)as f64;
-        let restitution=self.restitution() as f64;
+        let restitution=self.restitution(this) as f64;
         self.dice[b].velocity[1]=((C00426180 as f64-r*C0042617C as f64)*restitution*self.dice[b].velocity[1]as f64)as f32;
         self.dice[b].position[1]=(offset[1]as f64*C00426184 as f64+self.dice[b].position[1]as f64)as f32;
         self.dice[a].position[1]=boundary[1];
@@ -175,7 +183,7 @@ impl Simulation {
         let _=this; // Each mode's dice share a restitution coefficient.
     }
     fn pair(&mut self,a:usize,b:usize)->bool{
-        let restitution=self.restitution();
+        let restitution=self.restitution(a);
         let mut iterations=0;
         while self.dice[a].overlaps(&self.dice[b])&&iterations<8{
             iterations+=1;self.dice[b].sleeping=false;
@@ -242,7 +250,8 @@ impl Simulation {
         const RACK:[[f32;5];5]=[[-3.15,5.7,8.35,-19.4,-20.2],[-4.6,5.7,7.87,-24.2,-20.2],[-6.01,5.7,7.18,-31.2,-20.2],[-7.33,5.7,6.37,-35.8,-20.2],[-8.57,5.7,5.38,-43.2,-20.2]];
         const TRIPLE_RACK:[[f32;5];5]=[[6.99,3.09,-5.93,0.,0.],[6.99,3.39,-4.76,0.,0.],[6.99,3.69,-3.64,0.,0.],[6.99,3.89,-2.37,0.,0.],[6.99,4.09,-1.25,0.,0.]];
         const PAINTED_RACK:[[f32;5];5]=[[-5.92,4.63,2.61,-99.6,-55.],[-5.69,4.61,1.22,-90.6,-55.],[-5.91,4.25,0.10,-83.4,-55.],[-6.12,4.38,-1.38,-73.8,-55.],[-7.07,3.56,-2.41,-75.6,-55.]];
-        let rack=if self.painted_arena{&PAINTED_RACK}else if self.triple_arena{&TRIPLE_RACK}else{&RACK};
+        const PYRAMID_RACK:[[f32;5];5]=[[1.66,3.59,1.51,-24.,0.],[2.08,3.59,0.51,-24.,0.],[2.5,3.59,-0.45,-24.,0.],[2.91,3.59,-1.4,-24.,0.],[3.31,3.59,-2.37,-24.,0.]];
+        let rack=if self.pyramid_arena{&PYRAMID_RACK}else if self.painted_arena{&PAINTED_RACK}else if self.triple_arena{&TRIPLE_RACK}else{&RACK};
         let face=self.dice[i].read_face();
         if !self.dice[i].held{
             let slot=(0..5).find(|s|!self.dice.iter().any(|d|d.rack==Some(*s))).unwrap();
@@ -285,6 +294,9 @@ impl Simulation {
             assert_eq!(result.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");
         }
     }
+    #[test]fn original_pyramid_boundary(){
+        for(i,b)in include_bytes!("../evidence/pyramid-boundary.bin").chunks_exact(32).enumerate(){let f=|n:usize|f32::from_le_bytes(b[n*4..n*4+4].try_into().unwrap());let out=super::pyramid_boundary([f(0),f(1),f(2)],f(3));assert_eq!(out.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");}
+    }
     use super::*;
     #[test]fn original_first_frame(){
         let mut s=Simulation::new(1);s.roll();
@@ -298,7 +310,7 @@ impl Simulation {
         let mut offset=0;
         while offset<fixture.len(){
             let seed=u32::from_le_bytes(fixture[offset..offset+4].try_into().unwrap());let frames=u32::from_le_bytes(fixture[offset+4..offset+8].try_into().unwrap())as usize;offset+=8;
-            let mut simulation=Simulation::new(seed);simulation.triple_arena=mode==1;simulation.painted_arena=mode==2;simulation.roll_from(match mode{1=>[1.8,6.,-7.],2=>[2.,6.5,-8.],_=>[7.4,0.,-7.6]});
+            let mut simulation=Simulation::new(seed);simulation.triple_arena=mode==1;simulation.painted_arena=mode==2;if mode==3{simulation.initialize_pyramid();}simulation.roll_from(match mode{1=>[1.8,6.,-7.],2=>[2.,6.5,-8.],3=>[1.,3.5,-6.],_=>[7.4,0.,-7.6]});
             for frame in 0..frames{
                 let record=&fixture[offset..offset+724];offset+=724;
                 for i in 0..5{
@@ -318,6 +330,7 @@ impl Simulation {
     #[test]fn original_full_rolls(){compare_rolls(include_bytes!("../evidence/roll-trace.bin"),0);}
     #[test]fn original_triple_rolls(){compare_rolls(include_bytes!("../evidence/triple-rolls.bin"),1);}
     #[test]fn original_painted_rolls(){compare_rolls(include_bytes!("../evidence/painted-rolls.bin"),2);}
+    #[test]fn original_pyramid_rolls(){compare_rolls(include_bytes!("../evidence/pyramid-rolls.bin"),3);}
     #[test]fn original_collision_sound_levels(){
         let data=include_bytes!("../evidence/audio-oracle.bin");let mut p=0;
         fn word(data:&[u8],p:&mut usize)->u32{let v=u32::from_le_bytes(data[*p..*p+4].try_into().unwrap());*p+=4;v}

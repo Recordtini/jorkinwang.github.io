@@ -11,10 +11,14 @@ pub fn vertex(matrix:Matrix,normal:[i32;3],surface:[u32;3])->i32{
     vertex_mode(matrix,normal,surface,false)
 }
 pub fn vertex_mode(matrix:Matrix,normal:[i32;3],surface:[u32;3],painted:bool)->i32{
+    vertex_scene(matrix,normal,surface,if painted{1}else{0})
+}
+pub fn vertex_scene(matrix:Matrix,normal:[i32;3],surface:[u32;3],mode:u8)->i32{
     let inv=inverse(matrix);
-    let sources=[[if painted{13107}else{0},-65536,0],[-65536,-19660,0],[0,-19660,-65536]];
+    let sources=if mode==2{[[0,-65536,65536],[32768,-65536,0],[0,0,65536]]}else{[[if mode==1{13107}else{0},-65536,0],[-65536,-19660,0],[0,-19660,-65536]]};
+    let intensity=if mode==2{[19,12,12]}else{[14,14,3]};
     let mut result=(surface[0]as i32*0x1f0000)>>8;
-    for (source,intensity) in sources.into_iter().zip([14,14,3]){
+    for (source,intensity) in sources.into_iter().zip(intensity){
         let source=fixed::normalize(source).0.map(|v|-v);
         let local=fixed::normalize(inv.vector(source)).0;
         let dot=((0..3).map(|k|normal[k]as i64*local[k]as i64).sum::<i64>()>>16)as i32;
@@ -51,5 +55,8 @@ pub fn vertex_mode(matrix:Matrix,normal:[i32;3],surface:[u32;3],painted:bool)->i
             let m=Matrix(std::array::from_fn(|r|std::array::from_fn(|c|w(r*3+c))));
             assert_eq!(vertex_mode(m,[w(9),w(10),w(11)],[w(12)as u32,w(13)as u32,w(14)as u32],true),w(15),"case {i}");
         }
+    }
+    #[test]fn original_pyramid_rotated_lighting(){
+        for(i,b)in include_bytes!("../evidence/pyramid-lighting-rotations.bin").chunks_exact(72).enumerate(){let w=|j:usize|i32::from_le_bytes(b[j*4..j*4+4].try_into().unwrap());let m=Matrix(std::array::from_fn(|r|std::array::from_fn(|c|w(r*3+c))));assert_eq!(vertex_scene(m,[w(9),w(10),w(11)],[w(12)as u32,w(13)as u32,w(14)as u32],2),w(15),"case {i}");}
     }
 }

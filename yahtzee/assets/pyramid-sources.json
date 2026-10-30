@@ -1,0 +1,38 @@
+[
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_PYRBT1.BMP",
+    "output": "c_pyrbt1.png",
+    "source_sha256": "1d18cb979f656f13286715808b11a5824fa28695539ed6ec1a446af09326dbe2",
+    "output_sha256": "ffacc1afbddb286f627637bbf2fb60c88d54f90e2cf551fe0bd981ac42745cfb"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_PYRSD1.BMP",
+    "output": "c_pyrsd1.png",
+    "source_sha256": "2d20a80cfb26083667309b1166e4bb2b63aeaa0eff7ecd22646e5332d3b47e0f",
+    "output_sha256": "87f288e5a431d57baf633ed0bce3c4f36acd5146f570a8c439308917c7c44b73"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PYR_D132.BMP",
+    "output": "pyr_d132.png",
+    "source_sha256": "96e351d20c01907faf17968a6a383201b4fe42c43d622726a7b187248918c2a2",
+    "output_sha256": "8f4aea4e59feea96b30329542b4713b3bfcdfff0f78536711c37db7fb77f15e2"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PYR_D143.BMP",
+    "output": "pyr_d143.png",
+    "source_sha256": "076fc75084d367526ba315897e1591a84e1b95ea6fd02c38854fc8ee70e3e9fc",
+    "output_sha256": "e31b64ab0e70f1b4f22983259c22317304535e56645f94d7027fa4a11baa2b34"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PYR_D342.BMP",
+    "output": "pyr_d342.png",
+    "source_sha256": "cbed6ced2229994cab0ce2d9a4439d2e264f7eaf121cc48ec20b80371c6fc7ef",
+    "output_sha256": "411242a84930db91119d489c3064a75b5122089a7fc837c2427d70c0cc76069f"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/PYR_D412.BMP",
+    "output": "pyr_d412.png",
+    "source_sha256": "f8d2cba60d96c13e266d8f5dab1b55d9b252f2d4d481b13ceedf98d18efb3433",
+    "output_sha256": "9003166bdb7afe6dbb4fbd428df8f54e2e1774c50282d22a33ecd51e4960378c"
+  }
+]

@@ -1,6 +1,6 @@
 # Ultimate Yahtzee Classic recovery
 
-This is a playable single-player Classic, Triple and Painted preview, not a complete 1:1 port.
+This is a playable single-player Classic, Triple, Painted and Pyramid preview, not a complete 1:1 port.
 The original title artwork, Classic board, scorecard, dice and cup geometry,
 textures, and UI resource layouts are used. Full original menu/dialog behavior,
 other players and remaining modes, original audio behavior, and pixel-identical rasterizing
@@ -114,3 +114,14 @@ virtual tables and exported library names are available.
 
 Run the bundled Rust checks from the repository root with
 `cargo test --manifest-path yahtzee/engine/Cargo.toml --lib`.
+
+
+## Pyramid recovery
+
+Pyramid uses its original four-sided die model, table artwork, cup and WAV
+assets. The original 0040b960 and 0040c4d0 face/settle routines were compared
+with 1,000 orientations each, including rack yaw; 1,375 original triangular
+boundary cases, 819 transformed lighting cases, and 1,144 original physics
+frames across four rolls are included in the Rust checks. A browser run scored
+all 11 categories through game over. This verifies that path, not full visual,
+audio, multiplayer or menu parity with the running original.
