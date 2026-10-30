@@ -1,0 +1,56 @@
+[
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_TRPBT1.BMP",
+    "output": "c_trpbt1.png",
+    "source_sha256": "bc5283c85727d3dfe51a230640dba22fba6a7b3b22a0782802a2ca5bd209d084",
+    "output_sha256": "7820c4823c246f09eabec4f9f6dd047c53beaca17ea897534bda78e58cfd7bff"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/C_TRPSD1.BMP",
+    "output": "c_trpsd1.png",
+    "source_sha256": "ac6be21c0c82fac695a4d3d8f53de41df42216ba06d6cc9b0704034cd2e950c2",
+    "output_sha256": "8862f517c8d87b13711c2e0fda8ded4f073a40b1e22302ba79ad133aa56be7cb"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/MATBLACK.BMP",
+    "output": "matblack.png",
+    "source_sha256": "b5ebd8ae90b24a4c9e8a924f6e3c704927a51ba0f9f0e3cdd2aae6919786abe1",
+    "output_sha256": "2cb18dbb1944e33090465cbea6802a4846c46bcc0aeb8e22929a32bac0b38024"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D1.BMP",
+    "output": "trp_d1.png",
+    "source_sha256": "abf383ae46ebf29b28375cccc3256ea786fe29110c2c250e6b92f03eeb17a61f",
+    "output_sha256": "ea3293af8472a5036efbc26864cfb0b78b60d5a74af8d3c44369cefbd22ad28c"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D2.BMP",
+    "output": "trp_d2.png",
+    "source_sha256": "acdbf5640f1f391d7c336d3362f74f06289ad33a446ee28eba9bfdcc42884b63",
+    "output_sha256": "db0646f796bdbe6180af0fa9fbbaa23cb6c1795f1f892c597bb4143eb80127cc"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D3.BMP",
+    "output": "trp_d3.png",
+    "source_sha256": "77a05d9c132d43a92baba5e056c470209fc22ad54a3518520c1a87c0c7c9d99c",
+    "output_sha256": "d1c2ec299b75c07d3d31bffdaec8ec672e7b96259b284222456684530450cad0"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D4.BMP",
+    "output": "trp_d4.png",
+    "source_sha256": "a86e33fa8bc95674518629fab07e308ed01acee77710df09f56f2c2d53119de3",
+    "output_sha256": "d00140ed65395c1cdc834be6bb5e903236a7a05beced1614f482296a813715d8"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D5.BMP",
+    "output": "trp_d5.png",
+    "source_sha256": "8a5a31937e4aca438962b00d9e46107747714bdb44f3f20ca7c530d52975dea3",
+    "output_sha256": "94a03289f11be27fb280c6c8dd07e185b7fb0dec362b2ddacfa969c00b0b1b46"
+  },
+  {
+    "source": "Yahtzee/YAHTZEE/TEXTURES/TRP_D6.BMP",
+    "output": "trp_d6.png",
+    "source_sha256": "eaeaf15c7f511280f92a2b78d7a0c0de29e3993495931026e53b3f45b1728c0e",
+    "output_sha256": "8fea718a00e03f6df32102056d576d4a25b92da03a1752fbec3f80ba8c2fe33f"
+  }
+]

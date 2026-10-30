@@ -2,6 +2,19 @@
 //! 0040bd30, 0040bb30, 0040c4d0. Original per-die update order is retained.
 use crate::{die::cube_face,matrix::Matrix,rng::RetailRandom,retail_constants::*};
 
+/// Rectangular arena selected by Triple's original initializer 00402d40.
+/// Returns the boundary vector from 0040b610 (zero means no contact).
+pub fn triple_boundary(position:[f32;3],velocity_z:f32)->[f32;3]{
+    let [x,y,z]=position;
+    let mut out=[0.;3];
+    if y.to_bits()>0x80000000{out[1]=0.1;}
+    if x < -4.2f32 {out[0]=-4.2f32;}
+    if x > 4.0 {out[0]=4.0;}
+    if z < -3.9f32 && ((y.to_bits() as i32)<0x40400000 || velocity_z.to_bits()>0x80000000){out[2]=-3.9f32;}
+    if z > 4.5 {out[2]=4.5;}
+    out
+}
+
 #[derive(Clone,Debug)]
 pub struct Die {
     pub position:[f32;3],pub velocity:[f32;3],pub orientation:Matrix,pub spin:Matrix,
@@ -42,9 +55,10 @@ impl Die {
 }
 
 #[derive(Clone)]
-pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32}
+pub struct Simulation {pub dice:[Die;5],pub random:RetailRandom,pub render_counter:u32,pub triple_arena:bool}
 impl Simulation {
-    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0}}
+    pub fn new(seed:u32)->Self{Self{dice:std::array::from_fn(|i|Die::new(i as u8+1)),random:RetailRandom::new(seed),render_counter:0,triple_arena:false}}
+    fn boundary(&self,i:usize)->[f32;3]{let d=&self.dice[i];if self.triple_arena{triple_boundary(d.position,d.velocity[2])}else{d.boundary()}}
     fn publish(&mut self,i:usize){
         self.render_counter=self.render_counter.wrapping_add(1);
         self.dice[i].world=if self.render_counter&127!=0{self.dice[i].orientation.ortho()}else{self.dice[i].orientation};
@@ -62,9 +76,12 @@ impl Simulation {
         (v as f64*coefficient as f64*C00426198 as f64)as i32
     }
     pub fn roll(&mut self){
+        self.roll_from([7.4,0.,-7.6]);
+    }
+    fn roll_from(&mut self,origin:[f32;3]){
         let speed=((self.random.next_u31()&127)+100)as f64*C00426730 as f64;
         let side=(10-(self.random.next_u31()&63)as i32)as f64*C00426730 as f64;
-        self.throw([7.4,0.,-7.6],side as f32,speed as f32);
+        self.throw(origin,side as f32,speed as f32);
     }
     pub fn throw(&mut self,origin:[f32;3],side:f32,speed:f32){
         let side=side.clamp(-0.5,0.6);let speed=speed.clamp(0.,0.7);
@@ -112,7 +129,8 @@ impl Simulation {
                 }
             }else{
                 self.dice[i].spin=Matrix::default();self.publish(i);self.dice[i].velocity[1]=0.;self.dice[i].position[1]=0.;
-                for a in [0,2]{self.dice[i].velocity[a]*=f32::from_bits(0x3f4ccccd);}
+                let friction=if self.triple_arena{f32::from_bits(0x3f6147ae)}else{f32::from_bits(0x3f4ccccd)};
+                for a in [0,2]{self.dice[i].velocity[a]*=friction;}
                 if self.dice[i].velocity[0]as f64<=C004261E0&&self.dice[i].velocity[2]as f64<=C004261E0{
                     self.dice[i].face=self.dice[i].read_face();self.dice[i].sleeping=true;self.dice[i].velocity=[0.;3];
                 }
@@ -121,7 +139,7 @@ impl Simulation {
         self.dice[i].velocity[1]=(self.dice[i].velocity[1]as f64-C00426208)as f32;
     }
     fn wall(&mut self,i:usize){
-        let p=self.dice[i].boundary();if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=-0.5;}
+        let p=self.boundary(i);if p[0]!=0.{self.dice[i].position[0]=p[0];self.dice[i].velocity[0]*=-0.5;}
         if p[2]!=0.{self.dice[i].position[2]=p[2];if p[2]>0.||self.dice[i].velocity[2]<0.{self.dice[i].velocity[2]*=-0.5;}}
     }
     fn vertical_contact(&mut self,this:usize,a:usize,b:usize,offset:[f32;3],boundary:[f32;3]){
@@ -155,10 +173,10 @@ impl Simulation {
             let delta:[f32;3]=std::array::from_fn(|i|(unit[i]as f64*push)as f32);
             let delta=delta.map(|d|d.clamp(C004261C0 as f32,C004261B8 as f32));
             for i in 0..3{self.dice[b].position[i]+=delta[i];}
-            let boundary_b=self.dice[b].boundary();
+            let boundary_b=self.boundary(b);
             if boundary_b==[0.;3]{
                 for i in 0..3{self.dice[a].position[i]-=delta[i];}
-                let boundary_a=self.dice[a].boundary();
+                let boundary_a=self.boundary(a);
                 if boundary_a==[0.;3]{
                     for i in 0..3{let v=self.dice[a].velocity[i];self.dice[a].velocity[i]=self.dice[b].velocity[i];self.dice[b].velocity[i]=v;}
                     let angle=self.random_axis(C004261A0);let z=self.random_axis(C004261A0);let y=self.random_axis(C004261A0);let x=self.random_axis(C004261A0);
@@ -188,7 +206,7 @@ impl Simulation {
                 for i in 0..3{self.dice[b].position[i]-=delta[i];}
             }
         }
-        for i in [a,b]{if self.dice[i].boundary()!=[0.;3]{self.dice[i].velocity[2]=if self.dice[i].position[2]>0.{-0.08}else{0.08};}}
+        for i in [a,b]{if self.boundary(i)!=[0.;3]{self.dice[i].velocity[2]=if self.dice[i].position[2]>0.{-0.08}else{0.08};}}
         iterations!=0
     }
     pub fn step(&mut self){for i in 0..5{
@@ -200,12 +218,14 @@ impl Simulation {
     /// Rack coordinates/angles: YAHTZEE.EXE 0042c0d8; hold/unhold 00412540.
     pub fn toggle_hold(&mut self,i:usize){
         const RACK:[[f32;5];5]=[[-3.15,5.7,8.35,-19.4,-20.2],[-4.6,5.7,7.87,-24.2,-20.2],[-6.01,5.7,7.18,-31.2,-20.2],[-7.33,5.7,6.37,-35.8,-20.2],[-8.57,5.7,5.38,-43.2,-20.2]];
+        const TRIPLE_RACK:[[f32;5];5]=[[6.99,3.09,-5.93,0.,0.],[6.99,3.39,-4.76,0.,0.],[6.99,3.69,-3.64,0.,0.],[6.99,3.89,-2.37,0.,0.],[6.99,4.09,-1.25,0.,0.]];
+        let rack=if self.triple_arena{&TRIPLE_RACK}else{&RACK};
         let face=self.dice[i].read_face();
         if !self.dice[i].held{
             let slot=(0..5).find(|s|!self.dice.iter().any(|d|d.rack==Some(*s))).unwrap();
-            let d=&mut self.dice[i];d.saved_position=d.position;d.held=true;d.rack=Some(slot);d.position=[RACK[slot][0],RACK[slot][1],RACK[slot][2]];
+            let d=&mut self.dice[i];d.saved_position=d.position;d.held=true;d.rack=Some(slot);d.position=[rack[slot][0],rack[slot][1],rack[slot][2]];
             self.publish(i); // 00411650 publishes the moved clump first.
-            self.dice[i].settle_tilt(face,RACK[slot][3],RACK[slot][4]);
+            self.dice[i].settle_tilt(face,rack[slot][3],rack[slot][4]);
         }else{
             let d=&mut self.dice[i];d.position=d.saved_position;d.held=false;d.rack=None;
             self.publish(i); // 0040c8b0 restores and publishes before settling.
@@ -220,13 +240,21 @@ impl Simulation {
         self.publish(i);
     }
     fn valid_placement(&mut self,i:usize)->bool{
-        if self.dice[i].boundary()!=[0.;3]{return false}
+        if self.boundary(i)!=[0.;3]{return false}
         for j in 0..5{if i!=j&&self.pair(i,j){return false}}
         true
     }
 }
 
 #[cfg(test)]mod tests{
+    #[test]fn original_triple_boundary(){
+        for (i,b) in include_bytes!("../evidence/triple-boundary.bin").chunks_exact(32).enumerate(){
+            let f=|n:usize| f32::from_le_bytes(b[n*4..n*4+4].try_into().unwrap());
+            let result=super::triple_boundary([f(0),f(1),f(2)],f(3));
+            assert_eq!(result.map(f32::to_bits),[f(5),f(6),f(7)].map(f32::to_bits),"case {i}");
+            assert_eq!(result.iter().any(|&x|x!=0.) as u32,u32::from_le_bytes(b[16..20].try_into().unwrap()),"case {i}");
+        }
+    }
     use super::*;
     #[test]fn original_first_frame(){
         let mut s=Simulation::new(1);s.roll();
@@ -236,11 +264,11 @@ impl Simulation {
             for k in 0..5{for a in 0..6{let offset=4+k*144+a*4;let expected=f32::from_le_bytes(b[offset..offset+4].try_into().unwrap());let actual=if a<3{s.dice[k].position[a]}else{s.dice[k].velocity[a-3]};assert!((actual-expected).abs()<0.00001,"event {record} {}({i},{j}), die {k} value{a}: {} != {expected}",b[0],actual);}}
         }
     }
-    #[test]fn original_full_rolls(){
-        let fixture=include_bytes!("../evidence/roll-trace.bin");let mut offset=0;
+    fn compare_rolls(fixture:&[u8],triple:bool){
+        let mut offset=0;
         while offset<fixture.len(){
             let seed=u32::from_le_bytes(fixture[offset..offset+4].try_into().unwrap());let frames=u32::from_le_bytes(fixture[offset+4..offset+8].try_into().unwrap())as usize;offset+=8;
-            let mut simulation=Simulation::new(seed);simulation.roll();
+            let mut simulation=Simulation::new(seed);simulation.triple_arena=triple;if triple{simulation.roll_from([1.8,6.,-7.]);}else{simulation.roll();}
             for frame in 0..frames{
                 let record=&fixture[offset..offset+724];offset+=724;
                 for i in 0..5{
@@ -257,4 +285,6 @@ impl Simulation {
             assert!(simulation.settled());
         }
     }
+    #[test]fn original_full_rolls(){compare_rolls(include_bytes!("../evidence/roll-trace.bin"),false);}
+    #[test]fn original_triple_rolls(){compare_rolls(include_bytes!("../evidence/triple-rolls.bin"),true);}
 }

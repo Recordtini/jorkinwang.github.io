@@ -2,6 +2,7 @@ use crate::game::Game;
 use std::cell::RefCell;
 thread_local!{static GAME:RefCell<Game>=RefCell::new(Game::new(1));}
 #[no_mangle]pub extern "C" fn game_new(seed:u32){GAME.with(|g|*g.borrow_mut()=Game::new(seed));}
+#[no_mangle]pub extern "C" fn game_new_triple(seed:u32){GAME.with(|g|*g.borrow_mut()=Game::triple(seed));}
 #[no_mangle]pub extern "C" fn game_roll()->u32{GAME.with(|g|g.borrow_mut().roll()as u32)}
 #[no_mangle]pub extern "C" fn game_step(){GAME.with(|g|g.borrow_mut().step());}
 #[no_mangle]pub extern "C" fn game_pickup()->u32{GAME.with(|g|g.borrow_mut().pickup()as u32)}
@@ -12,6 +13,9 @@ thread_local!{static GAME:RefCell<Game>=RefCell::new(Game::new(1));}
 #[no_mangle]pub extern "C" fn game_hold(die:u32)->u32{GAME.with(|g|g.borrow_mut().hold(die as usize)as u32)}
 #[no_mangle]pub extern "C" fn game_commit(category:u32)->u32{GAME.with(|g|g.borrow_mut().commit(category)as u32)}
 #[no_mangle]pub extern "C" fn game_preview(category:u32)->i32{GAME.with(|g|g.borrow().preview(category))}
+#[no_mangle]pub extern "C" fn game_preview_column(category:u32,column:u32)->i32{GAME.with(|g|g.borrow().preview_column(category,column as usize))}
+#[no_mangle]pub extern "C" fn game_commit_column(category:u32,column:u32)->u32{GAME.with(|g|g.borrow_mut().commit_column(category,column as usize)as u32)}
+#[no_mangle]pub extern "C" fn game_cell_column(category:u32,column:u32)->i32{GAME.with(|g|{let g=g.borrow();if column==0||column as usize>g.columns{return -1}g.book.cells.get(category as usize).map_or(-1,|r|r[column as usize-1])})}
 #[no_mangle]pub extern "C" fn game_cell(category:u32)->i32{GAME.with(|g|g.borrow().book.cells.get(category as usize).map_or(-1,|r|r[0]))}
 #[no_mangle]pub extern "C" fn game_state(field:u32)->u32{GAME.with(|g|{let g=g.borrow();match field{0=>g.rolls,1=>g.turns,2=>g.moving as u32,3=>g.total()as u32,_=>0}})}
 #[no_mangle]pub extern "C" fn game_die(index:u32,field:u32)->f64{GAME.with(|g|{

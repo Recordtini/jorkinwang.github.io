@@ -1,6 +1,6 @@
 // Browser GPU adapter; geometry/camera come from the source export, motion from Rust.
-export async function createRenderer(canvas,engine){
-  const response=await fetch('assets/classic.json');if(!response.ok)throw Error('Could not load original dice geometry');
+export async function createRenderer(canvas,engine,mode='classic'){
+  const response=await fetch(`assets/${mode}.json`);if(!response.ok)throw Error('Could not load original dice geometry');
   const data=await response.json();const gl=canvas.getContext('webgl',{alpha:true,antialias:false,preserveDrawingBuffer:true});
   if(!gl)throw Error('This browser needs WebGL to draw the original dice.');
   const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
@@ -39,9 +39,17 @@ export async function createRenderer(canvas,engine){
   // RWX20 1002cee0/10047000 reject back faces for the cup's default material
   // mode. Browser front-facing CCW matches the original screen-space test.
   gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.frontFace(gl.CCW);gl.clearColor(0,0,0,0);const boxes=[];
+  const limits=gl.getParameter(gl.MAX_VIEWPORT_DIMS),max=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
   function project(p){const v=p.map((v,i)=>v-m[3][i]);const dot=r=>v.reduce((s,v,i)=>s+v*m[r][i],0);return[320*(1-dot(0)/dot(2)/data.view_window[0]),240*(1-dot(1)/dot(2)/data.view_window[1])];}
   function draw(){
-    gl.viewport(0,0,640,480);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);boxes.length=0;
+    // Rasterize geometry at the displayed device-pixel size, within GPU limits.
+    // Projection and hit testing remain in the original 640x480 coordinate space.
+    const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+    const requestedWidth=Math.max(1,Math.round(rect.width*dpr)),requestedHeight=Math.max(1,Math.round(rect.height*dpr));
+    const fit=Math.min(1,limits[0]/requestedWidth,limits[1]/requestedHeight,max/requestedWidth,max/requestedHeight);
+    const width=Math.max(1,Math.floor(requestedWidth*fit)),height=Math.max(1,Math.floor(requestedHeight*fit));
+    if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+    gl.viewport(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);boxes.length=0;
     for(let i=0;i<6;i++){
       if(i<5&&engine.game_cup(12)&&!engine.game_die(i,13))continue;
       const get=i===5?k=>engine.game_cup(k):k=>engine.game_die(i,k);

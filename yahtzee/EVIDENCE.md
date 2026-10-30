@@ -1,9 +1,9 @@
 # Ultimate Yahtzee Classic recovery
 
-This is a playable single-player Classic preview, not a complete 1:1 port.
+This is a playable single-player Classic and Triple preview, not a complete 1:1 port.
 The original title artwork, Classic board, scorecard, dice and cup geometry,
 textures, and UI resource layouts are used. Full original menu/dialog behavior,
-other players and modes, original audio behavior, and pixel-identical rasterizing
+other players and remaining modes, original audio behavior, and pixel-identical rasterizing
 remain unfinished. Some original menu commands are disabled until recovered.
 
 The runtime is Rust compiled to WebAssembly, with browser input and WebGL drawing.
@@ -38,7 +38,23 @@ faces for these default materials. The browser now enables back-face culling;
 1,000 nondegenerate screen-space triangles were checked against the original
 predicate. This does not establish pixel-perfect equivalence to retail.
 
+The local pending resize update renders 3D geometry at the displayed device-pixel
+size subject to WebGL limits, retaining original 640-by-480 game coordinates.
+The original 2D artwork remains pixelated. Rendering at higher resolution is a
+requested web enhancement and is not a claim of retail pixel equivalence.
+
 ## Gameplay evidence
+
+Triple uses the original `ETRIPL16.RLE` decoded board frames and `TRPTOP`,
+`TRPRIGHT`, `TRPBTM`, `DIE.RWX` and `DICECUP.RWX` assets, with camera 0 from
+`00402b00`. The original `00402d40` specifies rectangular limits and a die
+friction coefficient of 0.88. `0040b610` was compared over 1,375 boundary cases;
+four rolls from the Triple pickup position were compared across 776 frames to
+the original physics and published transforms. A 39-turn game was completed
+through browser controls, and a Rust game test also holds and releases dice.
+The original 307 column-choice dialog is used for category-label clicks.
+Original multiplayer/AI, full UI/audio behavior, every possible state transition,
+and visual equivalence to the running original are not established.
 
 Four sets of three original rolls, including cup pickup and held dice, were
 compared at 2,073 frames for physics and published transforms. Scoring is tested
