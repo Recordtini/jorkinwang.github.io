@@ -24,11 +24,11 @@ addEventListener('keyup',e=>keys[e.code]=false);
 // ---- GL (presentation only; lighting/fog/FOV are not decoded yet)
 const VS=`attribute vec3 p;attribute vec2 t;uniform mat4 m;varying vec2 v;varying float f;
 void main(){gl_Position=m*vec4(p,1.0);v=t;f=gl_Position.w;}`;
-const FS=`precision mediump float;varying vec2 v;varying float f;uniform sampler2D s;uniform vec3 fog;uniform float fogEnd;
-void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;float k=clamp(f/fogEnd,0.0,1.0);gl_FragColor=vec4(mix(c.rgb,fog,k*k),1.0);}`;
+const FS=`precision mediump float;varying vec2 v;varying float f;uniform sampler2D s;uniform vec3 fog;uniform float fogEnd;uniform vec3 tint;
+void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;float k=clamp(f/fogEnd,0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k*k),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
-const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd')};
+const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
 gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
 // Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
 gl.frontFace(gl.CW);   // verified: with this front-face convention ground, roofs and walls all show; CCW culls the ground away
@@ -66,11 +66,11 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null;
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[];
 function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
 
 async function init(){
- const wasm=await WebAssembly.instantiate(await (await fetch('mep.wasm')).arrayBuffer());M=wasm.instance.exports;
+ const wasm=await WebAssembly.instantiate(await (await fetch('mep.wasm',{cache:'no-cache'})).arrayBuffer());M=wasm.instance.exports;
  whiteTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,whiteTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([200,200,200,255]));
  const [tex,attr,bpk,zip,bor,mef]=await Promise.all([fetchBytes('game/textures_all2.tex'),fetchBytes('game/texture_attributes.dat'),fetchBytes('game/objects/megacity.bpk'),fetchBytes('game/objects/ms2_files.dat'),fetchBytes('game/f1.bor'),fetchBytes("game/levelfile.mef")]);
  if(!feed(M.g_tex_load,tex))throw 'textures_all2.tex rejected by Rust';
@@ -94,7 +94,7 @@ async function init(){
  arrowMesh=loadModel('objects/arrow.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
  // station icons (CopCarArrow / FireTr / AmbIcon, FUN_0043c700) and the player models per department (FUN_0043fbd0)
  iconMeshes=['objects/copcararrow.ms2','objects/firetr.ms2','objects/ambicon.ms2'].map(loadModel);
- carKey=M.g_car_dept()+'/'+M.g_car_upgraded();
+ carKey='';   // the frame loop loads the vehicle and tyre models on its first pass
  // mission objects: Fire02GuyHanging, animation frames 0..100 (phase Ambient 1..100)
  {const gn=new TextEncoder().encode('objects/fire02guyhanging.ms2');const gp=M.g_alloc(gn.length);new Uint8Array(M.memory.buffer,gp,gn.length).set(gn);
   for(let f=0;f<=100;f++)guyFrames.push(M.g_model_prepare_frame(gp,gn.length,f)?takeMesh():null)}
@@ -163,13 +163,18 @@ function frame(now){
  for(const[me,mm,vis]of props){if(!vis)continue;const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
  {const key=M.g_car_dept()+'/'+M.g_car_upgraded();if(key!=carKey){carKey=key;
   const nm=(M.g_car_upgraded()?['objects/m_body.ms2','objects/upfire.ms2','objects/amb_bod.ms2']:['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'])[M.g_car_dept()];
-  const me=loadModel(nm);if(me)carModel=me}}
+  const me=loadModel(nm);if(me)carModel=me;
+  // tyre models (TireShapeName, or the motorcycle's front / rear wheels)
+  tireMeshes=[0,1].map(i=>{const l=M.g_car_tire_model(i);if(!l)return null;const n=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l));return loadModel(n)})}}
+ {const n=M.g_car_tires(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
+  for(let k=0;k<n;k++){const me=tireMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)))}}
  drawMesh(carModel,mul(vp,new Float32Array(st.slice(0,16))));
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=iconMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)))}}
- if(hud[24]&&arrowMesh)drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));
+ // the arrow is lit only by light slot 4, whose ambient colour goes green (far) -> red (near): Guide::arrow_light
+ if(hud[24]&&arrowMesh){gl.uniform3f(loc.tint,hud[58],hud[59],hud[60]);drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));gl.uniform3f(loc.tint,1,1,1)}
  if(hud[41]&&markerMesh)drawMesh(markerMesh,mul(vp,hud.subarray(42,58)));
  drawHud(hud,w,h,vh);
  const mnl=M.g_mission_name(),mn=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),mnl));
