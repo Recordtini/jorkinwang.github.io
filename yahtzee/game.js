@@ -1,4 +1,5 @@
 import {createRenderer} from './renderer.js';
+import {channelBusy,selectChannel} from './audio.js';
 const $=s=>document.querySelector(s);
 // IDs follow the Classic handler at 004017c0, not the internal category-array order.
 const classicRows=[[1,'Ones',1005,1021],[2,'Twos',1006,1022],[3,'Threes',1015,1023],[4,'Fours',1016,1024],[5,'Fives',1007,1025],[6,'Sixes',1038,1042],[16,'Three of a kind',1008,1107],[17,'Four of a kind',1009,1044],[18,'Full house',1010,1045],[19,'Small straight',1011,1046],[20,'Large straight',1013,1047],[21,'Yahtzee',1018,1048],[22,'Chance',1019,1049]];
@@ -30,16 +31,16 @@ async function prepareEffects(){
 function playEffect(source,volume,channels,index){
   if(!settings.sound||!effectContext||!effectBuffers)return;
   const name=source.split('/').pop().replace(/\.wav$/i,''),buffer=effectBuffers[name];if(!buffer)return;
-  if(index===undefined){index=channels.findIndex(a=>!a);if(index<0)return;}else if(channels[index])channels[index].stop();
-  const node=effectContext.createBufferSource(),gain=effectContext.createGain();node.buffer=buffer;gain.gain.value=Math.min(1,volume/127);node.connect(gain).connect(effectContext.destination);channels[index]=node;
-  node.onended=()=>{if(channels[index]===node)channels[index]=null;node.disconnect();gain.disconnect();};node.start();
+  const now=effectContext.currentTime;index=selectChannel(channels,now,index);if(index<0)return;if(channels[index])channels[index].node.stop();
+  const node=effectContext.createBufferSource(),gain=effectContext.createGain();node.buffer=buffer;gain.gain.value=Math.min(1,volume/127);node.connect(gain).connect(effectContext.destination);const channel={node,endsAt:now+buffer.duration};channels[index]=channel;
+  node.onended=()=>{if(channels[index]===channel)channels[index]=null;node.disconnect();gain.disconnect();};node.start();
 }
 function playTransient(source,volume=127){playEffect(source,volume,transientSounds);}
 function soundClick(){playTransient(clickSound.src,80);}
 function collisionSounds(events){for(const event of events){
   if(!settings.sound)continue;
   const type=event&255,die=(event>>>8)&255,volume=(event>>>16)&255;
-  const previous=dieChannels[die];if(type===3&&previous)continue;
+  if(type===3&&channelBusy(dieChannels[die],effectContext?.currentTime??0))continue;
   const source=`assets/${sounds[mode][type===1?'floor':type===2?'wall':'die']}.wav`;
   if(type===1){playTransient(source,volume);continue;}
   playEffect(source,volume,dieChannels,die);

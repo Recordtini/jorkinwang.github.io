@@ -125,3 +125,16 @@ boundary cases, 819 transformed lighting cases, and 1,144 original physics
 frames across four rolls are included in the Rust checks. A browser run scored
 all 11 categories through game over. This verifies that path, not full visual,
 audio, multiplayer or menu parity with the running original.
+
+
+## Playback channel checks
+
+The original 0040a180/0040a220/0040a260/0040a360 wrappers were executed in
+six controlled occupancy scenarios. Only the external Miles API calls were
+stubbed; the resulting channel selection, replacement and volume calls are
+recorded in engine/evidence/audio-playback.json. This is channel-policy
+evidence, not rendered-audio or listening comparison. Browser occupancy now
+uses AudioContext time and sample duration, so delayed onended callbacks do
+not suppress a subsequent dice contact or hold a shared channel busy. The
+existing 10 shared and 5 die channels agree with 16 original handles less the
+reserved cup channel (0040a3d0, 004108d0, 00410a60).

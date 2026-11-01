@@ -1,0 +1,349 @@
+{
+  "source": "YAHTZEE.EXE 0040a180/0040a220/0040a260/0040a360",
+  "boundary": "Miles calls stubbed to controlled channel occupancy, no audio rendering",
+  "cases": [
+    {
+      "case": "floor-free",
+      "entry": "0x40a220",
+      "occupied": [],
+      "result": 0,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            100
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            100
+          ]
+        ],
+        [
+          "_AIL_init_sample_4",
+          [
+            100
+          ]
+        ],
+        [
+          "_AIL_set_sample_loop_count_8",
+          [
+            100,
+            1
+          ]
+        ],
+        [
+          "_AIL_set_sample_file_12",
+          [
+            100,
+            17956864,
+            4294967295
+          ]
+        ],
+        [
+          "_AIL_set_sample_volume_8",
+          [
+            100,
+            80
+          ]
+        ],
+        [
+          "_AIL_start_sample_4",
+          [
+            100
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "floor-one-free",
+      "entry": "0x40a220",
+      "occupied": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108
+      ],
+      "result": 0,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            100
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            101
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            102
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            103
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            104
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            105
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            106
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            107
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            108
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            109
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            109
+          ]
+        ],
+        [
+          "_AIL_init_sample_4",
+          [
+            109
+          ]
+        ],
+        [
+          "_AIL_set_sample_loop_count_8",
+          [
+            109,
+            1
+          ]
+        ],
+        [
+          "_AIL_set_sample_file_12",
+          [
+            109,
+            17956864,
+            4294967295
+          ]
+        ],
+        [
+          "_AIL_set_sample_volume_8",
+          [
+            109,
+            80
+          ]
+        ],
+        [
+          "_AIL_start_sample_4",
+          [
+            109
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "floor-full",
+      "entry": "0x40a220",
+      "occupied": [
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109
+      ],
+      "result": 10,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            100
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            101
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            102
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            103
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            104
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            105
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            106
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            107
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            108
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            109
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "wall-replace",
+      "entry": "0x40a180",
+      "occupied": [
+        114
+      ],
+      "result": 0,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            114
+          ]
+        ],
+        [
+          "_AIL_end_sample_4",
+          [
+            114
+          ]
+        ],
+        [
+          "_AIL_sample_status_4",
+          [
+            114
+          ]
+        ],
+        [
+          "_AIL_init_sample_4",
+          [
+            114
+          ]
+        ],
+        [
+          "_AIL_set_sample_loop_count_8",
+          [
+            114,
+            1
+          ]
+        ],
+        [
+          "_AIL_set_sample_file_12",
+          [
+            114,
+            17956864,
+            4294967295
+          ]
+        ],
+        [
+          "_AIL_set_sample_volume_8",
+          [
+            114,
+            55
+          ]
+        ],
+        [
+          "_AIL_start_sample_4",
+          [
+            114
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "die-idle",
+      "entry": "0x40a360",
+      "occupied": [],
+      "result": 0,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            114
+          ]
+        ]
+      ]
+    },
+    {
+      "case": "die-busy",
+      "entry": "0x40a360",
+      "occupied": [
+        114
+      ],
+      "result": 1,
+      "calls": [
+        [
+          "_AIL_sample_status_4",
+          [
+            114
+          ]
+        ]
+      ]
+    }
+  ]
+}
