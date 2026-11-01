@@ -33,6 +33,35 @@ gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.enable(gl
 // Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
 gl.frontFace(gl.CW);   // verified: with this front-face convention ground, roofs and walls all show; CCW culls the ground away
 
+// ---- vehicle shadow (Rust shadow.rs, renderd3dR.dll FUN_1000a9c0): the shadow mesh as a 256x256 silhouette in light space
+// (index 0 transparent, 1 black at alpha 0x80), then the ground polygons drawn with it: alpha blend, z bias, no z write, no fog
+const SVS=`attribute vec3 p;attribute vec2 t;uniform mat4 m;varying vec2 v;void main(){gl_Position=m*vec4(p,1.0);v=t;}`;
+const SFS=`precision mediump float;varying vec2 v;uniform sampler2D s;uniform float sil;
+void main(){gl_FragColor=sil>0.5?vec4(1.0):vec4(0.0,0.0,0.0,texture2D(s,v).r*0.5);}`;
+const sprog=gl.createProgram();gl.attachShader(sprog,sh(gl.VERTEX_SHADER,SVS));gl.attachShader(sprog,sh(gl.FRAGMENT_SHADER,SFS));
+gl.bindAttribLocation(sprog,gl.getAttribLocation(prog,'p'),'p');gl.bindAttribLocation(sprog,gl.getAttribLocation(prog,'t'),'t');gl.linkProgram(sprog);
+const sloc={m:gl.getUniformLocation(sprog,'m'),sil:gl.getUniformLocation(sprog,'sil')};
+const shTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,shTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,256,256,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+const shFbo=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,shFbo);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,shTex,0);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+const shBuf=gl.createBuffer();
+function drawShadow(vp,view){const n=M.g_car_shadow();if(n<2)return;const d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n).slice();
+ const ns=d[0],ng=d[1];if(!ng)return;
+ gl.useProgram(sprog);gl.bindBuffer(gl.ARRAY_BUFFER,shBuf);
+ // silhouette pass
+ const sv=new Float32Array(ns*3*5);for(let i=0;i<ns*3;i++){sv[i*5]=d[2+i*2]*2-1;sv[i*5+1]=d[3+i*2]*2-1}
+ gl.bindFramebuffer(gl.FRAMEBUFFER,shFbo);gl.viewport(0,0,256,256);gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+ gl.uniform1f(sloc.sil,1);gl.uniformMatrix4fv(sloc.m,false,new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));
+ gl.bufferData(gl.ARRAY_BUFFER,sv,gl.STREAM_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);
+ gl.drawArrays(gl.TRIANGLES,0,ns*3);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(view[0],view[1],view[2],view[3]);
+ // ground pass
+ gl.enable(gl.DEPTH_TEST);gl.depthMask(false);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);
+ gl.uniform1f(sloc.sil,0);gl.uniformMatrix4fv(sloc.m,false,vp);gl.bindTexture(gl.TEXTURE_2D,shTex);
+ gl.bufferData(gl.ARRAY_BUFFER,d.subarray(2+ns*6,2+ns*6+ng*15),gl.STREAM_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);
+ gl.drawArrays(gl.TRIANGLES,0,ng*3);
+ gl.disable(gl.POLYGON_OFFSET_FILL);gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.useProgram(prog)}
+
 const mul=(a,b)=>{const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o};
 const persp=(fov,asp,n,f)=>{const t=1/Math.tan(fov/2);return new Float32Array([t/asp,0,0,0, 0,t,0,0, 0,0,(f+n)/(f-n),1, 0,0,-2*f*n/(f-n),0])};
 function lookAt(e,c,up=[0,1,0]){let fx=c[0]-e[0],fy=c[1]-e[1],fz=c[2]-e[2];let l=Math.hypot(fx,fy,fz);fx/=l;fy/=l;fz/=l;
@@ -66,7 +95,11 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[];
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='';
+// a model drawn with texture set `set` (digit-prefixed materials, g_model_prepare_set), cached per name and set
+function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==undefined)return m;
+ const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
+ m=M.g_model_prepare_set(q,b.length,0,set)?takeMesh():null;setMeshes.set(key,m);return m}
 function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
 
 async function init(){
@@ -163,12 +196,17 @@ function frame(now){
  for(const[me,mm,vis]of props){if(!vis)continue;const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
  {const key=M.g_car_dept()+'/'+M.g_car_upgraded();if(key!=carKey){carKey=key;
   const nm=(M.g_car_upgraded()?['objects/m_body.ms2','objects/upfire.ms2','objects/amb_bod.ms2']:['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'])[M.g_car_dept()];
-  const me=loadModel(nm);if(me)carModel=me;
+  const me=loadModel(nm);if(me)carModel=me;carBody=nm;
   // tyre models (TireShapeName, or the motorcycle's front / rear wheels)
   tireMeshes=[0,1].map(i=>{const l=M.g_car_tire_model(i);if(!l)return null;const n=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l));return loadModel(n)})}}
  {const n=M.g_car_tires(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=tireMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)))}}
- drawMesh(carModel,mul(vp,new Float32Array(st.slice(0,16))));
+ drawShadow(vp,[0,h-vh,w,vh]);
+ // lamps (texture set = lamp frame: unlit 0 / lit 1) and the upgraded ambulance's doors (Rust car/parts.rs)
+ {const n=M.g_car_parts(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18).slice();
+  for(let k=0;k<n;k++){const l=M.g_car_part_name(d[k*18]);if(!l)continue;
+   const me=modelSet(new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),d[k*18+1]);if(me)drawMesh(me,mul(vp,d.subarray(k*18+2,k*18+18)))}}
+ {const bs=M.g_car_body_set();drawMesh(bs?(modelSet(carBody,bs)||carModel):carModel,mul(vp,new Float32Array(st.slice(0,16))))}
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
