@@ -138,3 +138,12 @@ uses AudioContext time and sample duration, so delayed onended callbacks do
 not suppress a subsequent dice contact or hold a shared channel busy. The
 existing 10 shared and 5 die channels agree with 16 original handles less the
 reserved cup channel (0040a3d0, 004108d0, 00410a60).
+
+
+## Undo
+
+Options > Undo follows handler 004176d0: restore the last scoring choice
+and its roll/turn state, retain keeper-slot dice placement, and allow only
+one undo. 00411740 clears eligibility when the next roll starts; game over
+also rejects Undo. Native tests cover all four available modes and the
+browser scored and undid a Classic category through the original menu.

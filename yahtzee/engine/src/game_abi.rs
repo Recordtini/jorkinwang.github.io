@@ -28,3 +28,6 @@ thread_local!{static GAME:RefCell<Game>=RefCell::new(Game::new(1));}
     let g=g.borrow();let Some(d)=g.simulation.dice.get(index as usize)else{return 0.};
     match field{0..=2=>d.world_position[field as usize]as f64,3..=11=>d.world.0[(field as usize-3)/3][(field as usize-3)%3]as f64/65536.,12=>g.simulation.faces()[index as usize]as f64,13=>d.held as u32 as f64,14=>d.sleeping as u32 as f64,15..=17=>d.position[field as usize-15]as f64,18..=20=>d.velocity[field as usize-18]as f64,21=>d.face as f64,_=>0.}
 })}
+
+#[no_mangle]pub extern "C" fn game_can_undo()->u32{GAME.with(|g|g.borrow().can_undo() as u32)}
+#[no_mangle]pub extern "C" fn game_undo()->u32{GAME.with(|g|g.borrow_mut().undo() as u32)}

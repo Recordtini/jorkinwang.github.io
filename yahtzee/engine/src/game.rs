@@ -5,12 +5,13 @@ use crate::{physics::Simulation,scorecard::Scorecard,scoring,cup::Cup};
 pub const CATEGORIES:[u32;13]=[1,2,3,4,5,6,17,16,18,19,20,21,22];
 pub const PAINTED_CATEGORIES:[u32;20]=[1,2,3,4,5,6,9,10,11,12,13,17,27,18,24,23,20,26,21,25];
 pub const PYRAMID_CATEGORIES:[u32;11]=[1,2,3,4,17,16,18,28,29,21,22];
-pub struct Game {pub simulation:Simulation,pub book:Scorecard,pub rolls:u32,pub turns:u32,pub moving:bool,pub cup:Cup,pub columns:usize}
+struct Undo {book:Scorecard,rolls:u32,turns:u32}
+pub struct Game {pub simulation:Simulation,pub book:Scorecard,pub rolls:u32,pub turns:u32,pub moving:bool,pub cup:Cup,pub columns:usize,undo:Option<Undo>}
 impl Game {
     pub fn new(seed:u32)->Self{
         let mut simulation=Simulation::new(seed);
         simulation.initialize_layout();
-        Self{simulation,book:Scorecard::default(),rolls:0,turns:0,moving:false,cup:Cup::default(),columns:1}
+        Self{simulation,book:Scorecard::default(),rolls:0,turns:0,moving:false,cup:Cup::default(),columns:1,undo:None}
     }
     pub fn triple(seed:u32)->Self{let mut g=Self::new(seed);g.columns=3;g.simulation.triple_arena=true;g.cup.triple=true;g.cup.position=[-2.5,-1.3,-7.2];g}
     pub fn painted(seed:u32)->Self{let mut g=Self::new(seed);g.simulation.painted_arena=true;g.cup.painted=true;g.cup.position=[-1.2,6.2,-10.];g}
@@ -30,7 +31,7 @@ impl Game {
     }
     fn throw(&mut self,side:f32,speed:f32)->bool{
         if !self.cup.picked{return false}
-        self.simulation.throw(self.cup.position,side,speed);self.rolls+=1;self.moving=true;self.cup.rest();true
+        self.undo=None;self.simulation.throw(self.cup.position,side,speed);self.rolls+=1;self.moving=true;self.cup.rest();true
     }
     pub fn pointer(&mut self,dx:f32,dy:f32,millis:u32)->bool{
         if !self.cup.picked{return false}
@@ -58,17 +59,21 @@ impl Game {
     }
     pub fn commit_column(&mut self,category:u32,column:usize)->bool{
         if self.preview_column(category,column)<0||self.turns==self.turn_limit(){return false}
+        let undo=Undo{book:self.book.clone(),rolls:self.rolls,turns:self.turns};
         let dice=self.simulation.faces();let result=if self.simulation.painted_arena{self.book.commit_colored(dice,crate::painted::colors(dice).unwrap(),category,column,self.columns)}else{self.book.commit(dice,category,column,self.columns)};
         if result!=Ok(true){return false}
         // 00414520: Classic upper bonus is awarded at 63, total sums positive rows.
         let n=column-1;let(end,threshold,bonus)=if self.simulation.pyramid_arena{(4,35,20)}else{(6,63,35)};if (1..=end).map(|c|self.book.cells[c][n].max(0)).sum::<i32>()>=threshold*column as i32{self.book.cells[7][n]=bonus*column as i32;}
         if self.simulation.painted_arena&&(9..=13).map(|c|self.book.cells[c][0].max(0)).sum::<i32>()>=75{self.book.cells[14][0]=25;}
-        self.turns+=1;self.rolls=0;
+        self.undo=Some(undo);self.turns+=1;self.rolls=0;
         // 00414ca0 -> 004170a0: put all five dice in the rack after scoring.
         // 004157f0 clears held flags when the next turn's cup is picked up.
         for i in 0..5{if !self.simulation.dice[i].held{self.simulation.toggle_hold(i);}}
         true
     }
+    // 004176d0 restores score state, leaving the dice in their keeper slots.
+    pub fn can_undo(&self)->bool{self.undo.is_some()&&self.turns<self.turn_limit()&&!self.moving&&!self.cup.picked}
+    pub fn undo(&mut self)->bool{if !self.can_undo(){return false}let u=self.undo.take().unwrap();self.book=u.book;self.rolls=u.rolls;self.turns=u.turns;true}
     pub fn total(&self)->i32{self.book.cells.iter().map(|row|row[..self.columns].iter().map(|v|(*v).max(0)).sum::<i32>()).sum()}
 }
 #[cfg(test)]mod tests{
@@ -102,5 +107,6 @@ impl Game {
         for category in PAINTED_CATEGORIES{assert!(g.roll());settle(&mut g);let face=g.simulation.faces()[0];assert!(g.hold(0));assert!(g.roll());settle(&mut g);assert_eq!(g.simulation.faces()[0],face);assert!(g.hold(0));let score=g.preview(category);assert!(score>=0);assert!(g.commit(category));assert_eq!(g.book.cells[category as usize][0],score);}
         assert_eq!(g.turns,20);assert!(!g.roll());
     }
+    #[test]fn undo_last_score_in_each_mode(){for make in [Game::new,Game::triple,Game::painted,Game::pyramid]{let mut g=make(42);assert!(!g.undo());assert!(g.roll());settle(&mut g);let before=g.book.clone();assert!(g.commit(1));assert!(g.can_undo());assert!(g.undo());assert_eq!(g.book,before);assert_eq!(g.rolls,1);assert_eq!(g.turns,0);assert!(!g.undo());assert!(g.commit(1));assert!(g.roll());assert!(!g.can_undo());}}
     #[test]fn pyramid_game_completes_all_categories(){let mut g=Game::pyramid(42);for category in PYRAMID_CATEGORIES{assert!(g.roll());settle(&mut g);let face=g.simulation.faces()[0];assert!(g.hold(0));assert!(g.roll());settle(&mut g);assert_eq!(g.simulation.faces()[0],face);assert!(g.hold(0));let score=g.preview(category);assert!(score>=0);assert!(g.commit(category));assert_eq!(g.book.cells[category as usize][0],score);}assert_eq!(g.turns,11);assert!(!g.roll());}
 }
