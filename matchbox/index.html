@@ -223,11 +223,12 @@ function frame(now){
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
  {const n=M.g_heli(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*16).slice();for(let k=0;k<n;k++)if(heliMeshes[k])drawMesh(heliMeshes[k],mul(vp,d.subarray(k*16,k*16+16)))}
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
- // other mission objects (Fire4 ambient, ambulance patients): animation frames prepared on first use, cached per model and frame
- if(tk==3){const l=M.g_mission_object_name(),nm=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),fr=Math.floor(td[1]),key=nm+'#'+fr;
-  let g=objFrames.get(key);if(g===undefined){const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
-   g=M.g_model_prepare_frame(q,b.length,fr)?takeMesh():null;objFrames.set(key,g)}
-  if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
+ // the mission's scripted objects (Fire4 ambient, patients, runners, robber, cows): frames prepared on first use per model and frame
+ {const n=M.g_mission_objects(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
+  for(let k=0;k<n;k++){const l=M.g_mission_object_name(k),nm=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),fr=Math.floor(d[k*17]),key=nm+'#'+fr;
+   let g=objFrames.get(key);if(g===undefined){const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
+    g=M.g_model_prepare_frame(q,b.length,fr)?takeMesh():null;objFrames.set(key,g)}
+   if(g)drawMesh(g,mul(vp,d.subarray(k*17+1,k*17+17)))}}
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=iconMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)))}}
  // the arrow is lit only by light slot 4, whose ambient colour goes green (far) -> red (near): Guide::arrow_light
