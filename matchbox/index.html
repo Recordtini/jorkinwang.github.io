@@ -95,7 +95,7 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='';
+const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[];
 // a model drawn with texture set `set` (digit-prefixed materials, g_model_prepare_set), cached per name and set
 function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==undefined)return m;
  const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
@@ -126,6 +126,7 @@ async function init(){
  loadModel=nm=>{const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);return M.g_model_prepare(q,b.length)?takeMesh():null};
  arrowMesh=loadModel('objects/arrow.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
  // station icons (CopCarArrow / FireTr / AmbIcon, FUN_0043c700) and the player models per department (FUN_0043fbd0)
+ gateMeshes=['objects/baraccess.ms2','objects/baraccbar.ms2'].map(loadModel);   // access gates (Rust gates.rs)
  iconMeshes=['objects/copcararrow.ms2','objects/firetr.ms2','objects/ambicon.ms2'].map(loadModel);
  carKey='';   // the frame loop loads the vehicle and tyre models on its first pass
  // mission objects: Fire02GuyHanging, animation frames 0..100 (phase Ambient 1..100)
@@ -194,6 +195,8 @@ function frame(now){
  {const n=M.g_props_dynamic(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18);
   for(let k=0;k<n;k++){const e=propAt[d[k*18]];if(e){e[1]=d.slice(k*18+2,k*18+18);e[2]=d[k*18+1]!=0}}}
  for(const[me,mm,vis]of props){if(!vis)continue;const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}
+ {const n=M.g_gate_parts(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
+  for(let k=0;k<n;k++){const me=gateMeshes[d[k*17]],mm=d.subarray(k*17+1,k*17+17),dx=mm[12]-x,dz=mm[14]-z;if(me&&dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm))}}
  {const key=M.g_car_dept()+'/'+M.g_car_upgraded();if(key!=carKey){carKey=key;
   const nm=(M.g_car_upgraded()?['objects/m_body.ms2','objects/upfire.ms2','objects/amb_bod.ms2']:['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'])[M.g_car_dept()];
   const me=loadModel(nm);if(me)carModel=me;carBody=nm;
