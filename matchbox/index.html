@@ -95,7 +95,7 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},carModel,water=[],props=[],propAt=[],guyFrames=[],arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[];
+const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[];
 // a model drawn with texture set `set` (digit-prefixed materials, g_model_prepare_set), cached per name and set
 function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==undefined)return m;
  const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
@@ -124,9 +124,11 @@ async function init(){
  for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare(i))water.push(takeMesh());
  // mission arrow `Arrow` (DAT_00498ffc) and target marker `ArrowDown` (DAT_00499000), created by FUN_0045f5e0
  loadModel=nm=>{const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);return M.g_model_prepare(q,b.length)?takeMesh():null};
- arrowMesh=loadModel('objects/arrow.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
+ arrowMesh=loadModel('objects/arrow.ms2');
+ // the sky (FUN_0045f080 0x45f5c8, DAT_00499290): object `Sky` at the origin, F1.bor model_flags=4 depth_mode=2
+ skyMesh=loadModel('objects/sky.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
  // station icons (CopCarArrow / FireTr / AmbIcon, FUN_0043c700) and the player models per department (FUN_0043fbd0)
- gateMeshes=['objects/baraccess.ms2','objects/baraccbar.ms2'].map(loadModel);   // access gates (Rust gates.rs)
+ gateMeshes=['objects/baraccess.ms2','objects/baraccbar.ms2','objects/bbhdoorr.ms2','objects/bbhdoorl.ms2'].map(loadModel);   // access gates and the big gate (Rust gates.rs)
  iconMeshes=['objects/copcararrow.ms2','objects/firetr.ms2','objects/ambicon.ms2'].map(loadModel);
  carKey='';   // the frame loop loads the vehicle and tyre models on its first pass
  // mission objects: Fire02GuyHanging, animation frames 0..100 (phase Ambient 1..100)
@@ -188,6 +190,13 @@ function frame(now){
  const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
  const vfov=2*Math.atan(Math.tan(Math.PI/6)*vh/w);
  const vp=mul(persp(vfov,w/vh,15,13000),lookAt(eye,ctr,up));
+ // sky: renderd3dR depth mode 2 (0x10008e16) = fog off, ZFUNC ALWAYS, ZWRITE off, drawn before the world.
+ // APPROXIMATION (flagged): centred on the camera. The exe never moves the object from the origin and the code applying
+ // model_flags 4 was not found, but the model (x +-9615, z +-11103) is a third of the city's size, so it must follow the viewer.
+ // Also flagged: drawn without face culling - its faces point outwards, so the viewer inside sees their backs.
+ if(skyMesh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
+  drawMesh(skyMesh,mul(vp,new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, eye[0],eye[1],eye[2],1])));
+  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,16000)}
  const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=12;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
@@ -212,6 +221,11 @@ function frame(now){
  {const bs=M.g_car_body_set();drawMesh(bs?(modelSet(carBody,bs)||carModel):carModel,mul(vp,new Float32Array(st.slice(0,16))))}
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
+ // other mission objects (Fire4 ambient, ambulance patients): animation frames prepared on first use, cached per model and frame
+ if(tk==3){const l=M.g_mission_object_name(),nm=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),fr=Math.floor(td[1]),key=nm+'#'+fr;
+  let g=objFrames.get(key);if(g===undefined){const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
+   g=M.g_model_prepare_frame(q,b.length,fr)?takeMesh():null;objFrames.set(key,g)}
+  if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=iconMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)))}}
  // the arrow is lit only by light slot 4, whose ambient colour goes green (far) -> red (near): Guide::arrow_light
