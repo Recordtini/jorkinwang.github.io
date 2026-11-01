@@ -95,7 +95,7 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[];
+const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[],heliMeshes=[];
 // a model drawn with texture set `set` (digit-prefixed materials, g_model_prepare_set), cached per name and set
 function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==undefined)return m;
  const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
@@ -128,6 +128,7 @@ async function init(){
  // the sky (FUN_0045f080 0x45f5c8, DAT_00499290): object `Sky` at the origin, F1.bor model_flags=4 depth_mode=2
  skyMesh=loadModel('objects/sky.ms2');markerMesh=loadModel('objects/arrowdown.ms2');
  // station icons (CopCarArrow / FireTr / AmbIcon, FUN_0043c700) and the player models per department (FUN_0043fbd0)
+ heliMeshes=['objects/heli.ms2','objects/hblade.ms2'].map(loadModel);   // the helicopter (Rust heli.rs)
  gateMeshes=['objects/baraccess.ms2','objects/baraccbar.ms2','objects/bbhdoorr.ms2','objects/bbhdoorl.ms2'].map(loadModel);   // access gates and the big gate (Rust gates.rs)
  iconMeshes=['objects/copcararrow.ms2','objects/firetr.ms2','objects/ambicon.ms2'].map(loadModel);
  carKey='';   // the frame loop loads the vehicle and tyre models on its first pass
@@ -220,6 +221,7 @@ function frame(now){
    const me=modelSet(new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),d[k*18+1]);if(me)drawMesh(me,mul(vp,d.subarray(k*18+2,k*18+18)))}}
  {const bs=M.g_car_body_set();drawMesh(bs?(modelSet(carBody,bs)||carModel):carModel,mul(vp,new Float32Array(st.slice(0,16))))}
  const tk=M.g_mission_target(),td=new Float32Array(M.memory.buffer,M.g_inst_ptr(),19).slice();
+ {const n=M.g_heli(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*16).slice();for(let k=0;k<n;k++)if(heliMeshes[k])drawMesh(heliMeshes[k],mul(vp,d.subarray(k*16,k*16+16)))}
  if(tk==1){const g=guyFrames[Math.floor(td[1])]||guyFrames[0];if(g)drawMesh(g,mul(vp,td.subarray(3,19)))}
  // other mission objects (Fire4 ambient, ambulance patients): animation frames prepared on first use, cached per model and frame
  if(tk==3){const l=M.g_mission_object_name(),nm=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),fr=Math.floor(td[1]),key=nm+'#'+fr;
