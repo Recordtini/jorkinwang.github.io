@@ -21,14 +21,16 @@ const feed=(fn,d)=>{const p=M.g_alloc(d.length);new Uint8Array(M.memory.buffer,p
 const keys={};let f5=false;addEventListener('keydown',e=>{keys[e.code]=true;if(e.code=='F5'){f5=true;e.preventDefault()}if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
 
-// ---- GL (presentation only; lighting/fog/FOV are not decoded yet)
-const VS=`attribute vec3 p;attribute vec2 t;uniform mat4 m;varying vec2 v;varying float f;
-void main(){gl_Position=m*vec4(p,1.0);v=t;f=gl_Position.w;}`;
-const FS=`precision mediump float;varying vec2 v;varying float f;uniform sampler2D s;uniform vec3 fog;uniform float fogEnd;uniform vec3 tint;
-void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;float k=clamp(f/fogEnd,0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k*k),1.0);}`;
+// ---- GL (presentation; fog and FOV follow the exe / renderd3dR, lighting not decoded yet)
+// fog distance = range from the eye (renderd3dR FUN_1000d0e0 turns on D3DRS_RANGEFOGENABLE): the eye-space position is rebuilt
+// from clip space with pk = (1/P[0], 1/P[5]) of the perspective matrix
+const VS=`attribute vec3 p;attribute vec2 t;uniform mat4 m;uniform vec2 pk;varying vec2 v;varying float f;
+void main(){gl_Position=m*vec4(p,1.0);v=t;f=length(vec3(gl_Position.x*pk.x,gl_Position.y*pk.y,gl_Position.w));}`;
+const FS=`precision mediump float;varying vec2 v;varying float f;uniform sampler2D s;uniform vec3 fog;uniform float fogStart;uniform float fogEnd;uniform vec3 tint;
+void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;float k=clamp((f-fogStart)/(fogEnd-fogStart),0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
-const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
+const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),fogStart:gl.getUniformLocation(prog,'fogStart'),pk:gl.getUniformLocation(prog,'pk'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
 gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
 // Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
 gl.frontFace(gl.CW);   // verified: with this front-face convention ground, roofs and walls all show; CCW culls the ground away
@@ -101,6 +103,14 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
+// city cells to render (-citycells=, DAT_0047b77c, clamped 1..12 at 0x4023c0): 12 by default here (the port's choice, as with
+// `-citycells=12`); `?original` = the exe's fallback with no options / saved config (3, 0x40237c); `?citycells=N` sets it.
+// APPROXIMATION (flagged): a saved detail setting (DAT_0048613c, loaded with DAT_00486114) is not traced.
+const QS=new URLSearchParams(location.search);
+const CITY_CELLS=Math.min(12,Math.max(1,parseInt(QS.get('citycells'))||(QS.has('original')?3:12)));
+// fog (0x402410 mode 0 / 0x402b35): colour 88 A3 FF, linear, start S*(n-2) (S*(n-0.5) below 3 cells), end S*n, S = the BPK's
+// cell size (header +0x34 via partition vtable +4 = 1000 BPK units)
+const FOG_START=CITY_CELLS<3?1000*(CITY_CELLS-0.5):1000*(CITY_CELLS-2),FOG_END=1000*CITY_CELLS,FOG_COL=[0x88/255,0xa3/255,1];
 // set by the New game button: no save writes until the reload
 let noSave=false;
 const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[],heliMeshes=[];
@@ -183,7 +193,7 @@ function drawHud(hud,w,h,vh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
    quad(icon,a30*i,a2c,sw,sh-a2c,w,sh);
    const r=hud[6+mi];const pieces=[r>=1?fa:ea,r>=2?fa:ea,r>=3?fa:ea];
    quad(pieces[0],a30*i,0,pw,a2c,w,sh);quad(pieces[1],a30*i+pw,0,pw,a2c,w,sh);quad(pieces[2],a30*i+2*pw,0,sw-2*pw,a2c,w,sh)}}
- gl.viewport(0,0,w,h);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,16000)}
+ gl.viewport(0,0,w,h);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END)}
 
 let st=null,acc=0,last=performance.now();const TICK=1000/30;   // 30 Hz simulation tick (original rate)
 function frame(now){
@@ -197,8 +207,8 @@ function frame(now){
  const vh=hud[0]?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
  M.g_set_view(w,vh);
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
- gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(.55,.7,.9,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
- gl.uniform3f(loc.fog,.55,.7,.9);gl.uniform1f(loc.fogEnd,16000);
+ gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FOG_COL[0],FOG_COL[1],FOG_COL[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
+ gl.uniform3f(loc.fog,FOG_COL[0],FOG_COL[1],FOG_COL[2]);gl.uniform1f(loc.fogStart,FOG_START);gl.uniform1f(loc.fogEnd,FOG_END);
  if(st){
  const[x,y,z]=st.slice(16,19),f=st.slice(20,23),fl=Math.hypot(f[0],f[2])||1,fx=f[0]/fl,fz=f[2]/fl;
  // camera from FUN_0040c170 (src/camera.rs); projection from rendersoftR viewport FUN_10016a40: horizontal half-angle = pi/6
@@ -206,15 +216,17 @@ function frame(now){
  const eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
  const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
  const vfov=2*Math.atan(Math.tan(Math.PI/6)*vh/w);
- const cam=lookAt(eye,ctr,up),vp=mul(persp(vfov,w/vh,15,13000),cam);
+ const cam=lookAt(eye,ctr,up),P=persp(vfov,w/vh,15,13000),vp=mul(P,cam);gl.uniform2f(loc.pk,1/P[0],1/P[5]);
  // sky: renderd3dR depth mode 2 (0x10008e16) = fog off, ZFUNC ALWAYS, ZWRITE off, drawn before the world.
  // APPROXIMATION (flagged): centred on the camera. The exe never moves the object from the origin and the code applying
  // model_flags 4 was not found, but the model (x +-9615, z +-11103) is a third of the city's size, so it must follow the viewer.
  // Also flagged: drawn without face culling - its faces point outwards, so the viewer inside sees their backs.
  if(skyMesh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
   drawMesh(skyMesh,mul(vp,new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, eye[0],eye[1],eye[2],1])));
-  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,16000)}
- const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=12;
+  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END)}
+ // APPROXIMATION (flagged): a square of CITY_CELLS cells around the camera's cell (the renderer's own cell selection not traced;
+ // the fog is complete at CITY_CELLS cells)
+ const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=CITY_CELLS;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
  for(const wm of water)drawMesh(wm,vp);
