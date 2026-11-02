@@ -6,9 +6,23 @@ html,body{margin:0;height:100%;background:#000;color:#ddd;font:13px sans-serif;o
 canvas{width:100%;height:100%;display:block}
 #hud{position:fixed;left:8px;top:6px;text-shadow:0 0 3px #000;pointer-events:none;white-space:pre}
 #newgame{position:fixed;right:8px;top:6px;font:12px sans-serif;opacity:.75}
+#opts{position:fixed;right:88px;top:6px;font:12px sans-serif;opacity:.75}
+#optpanel{position:fixed;right:8px;top:32px;width:250px;padding:10px 12px;background:rgba(20,24,32,.92);color:#ddd;font:12px sans-serif;
+ border:1px solid #556;border-radius:4px;display:none;z-index:5}
+#optpanel.on{display:block}#optpanel label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+#optpanel .hint{color:#99a;font-size:11px;margin:2px 0 6px}#optpanel button{font:12px sans-serif}
 #msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:#000}
 </style></head><body>
-<canvas id="c"></canvas><div id="hud"></div><button id="newgame" title="Extra (not in the original): delete the browser save and start a new game">New game</button><div id="msg">Loading...</div>
+<canvas id="c"></canvas><div id="hud"></div><button id="opts" title="Extra (not in the original): view and debug options">Options</button><button id="newgame" title="Extra (not in the original): delete the browser save and start a new game">New game</button>
+<div id="optpanel">
+ <label>City cells <span><input id="o_cells" type="range" min="1" max="12" step="1"> <b id="o_cellsv"></b></span></label>
+ <div class="hint">How far the city is drawn and where the fog sits (-citycells). <button id="o_orig">Original (3)</button></div>
+ <label>Fog <input id="o_fog" type="checkbox"></label>
+ <label>Sky <input id="o_sky" type="checkbox"></label>
+ <label>Traffic <select id="o_traffic"></select></label>
+ <label>Noclip camera <input id="o_noclip" type="checkbox"></label>
+ <div class="hint">Noclip: WASD move, arrows look, E / Q up / down, Shift faster. The vehicle stays parked.</div>
+</div><div id="msg">Loading...</div>
 <script>
 'use strict';
 // This page is a thin shell. The Rust wasm module parses the ORIGINAL game files (megacity.bpk, textures_all2.tex,
@@ -103,14 +117,23 @@ function takeMesh(){
 function drawMesh(me,mvp){gl.uniformMatrix4fv(loc.m,false,mvp);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}}
-// city cells to render (-citycells=, DAT_0047b77c, clamped 1..12 at 0x4023c0): 12 by default here (the port's choice, as with
-// `-citycells=12`); `?original` = the exe's fallback with no options / saved config (3, 0x40237c); `?citycells=N` sets it.
+// Options panel (extra, not in the original), kept in this browser; URL parameters override (?original, ?citycells=N, ?nofog,
+// ?nosky, ?noclip). City cells to render (-citycells=, DAT_0047b77c, clamped 1..12 at 0x4023c0): 12 by default here (the port's
+// choice, as with `-citycells=12`); the exe's fallback with no options / saved config is 3 (0x40237c).
 // APPROXIMATION (flagged): a saved detail setting (DAT_0048613c, loaded with DAT_00486114) is not traced.
 const QS=new URLSearchParams(location.search);
-const CITY_CELLS=Math.min(12,Math.max(1,parseInt(QS.get('citycells'))||(QS.has('original')?3:12)));
-// fog (0x402410 mode 0 / 0x402b35): colour 88 A3 FF, linear, start S*(n-2) (S*(n-0.5) below 3 cells), end S*n, S = the BPK's
-// cell size (header +0x34 via partition vtable +4 = 1000 BPK units)
-const FOG_START=CITY_CELLS<3?1000*(CITY_CELLS-0.5):1000*(CITY_CELLS-2),FOG_END=1000*CITY_CELLS,FOG_COL=[0x88/255,0xa3/255,1];
+const OPT=Object.assign({cells:12,fog:true,sky:true,noclip:false,traffic:2},(()=>{try{return JSON.parse(localStorage.getItem('mep.options'))||{}}catch(e){return{}}})());
+if(QS.has('original'))OPT.cells=3;if(QS.get('citycells'))OPT.cells=parseInt(QS.get('citycells'))||OPT.cells;
+if(QS.has('nofog'))OPT.fog=false;if(QS.has('nosky'))OPT.sky=false;if(QS.has('noclip'))OPT.noclip=true;
+OPT.cells=Math.min(12,Math.max(1,OPT.cells|0));
+// fog (0x402410 mode 0 / 0x402b35, on unless -nofog): colour 88 A3 FF, linear, start S*(n-2) (S*(n-0.5) below 3 cells), end S*n,
+// S = the BPK's cell size (header +0x34 via partition vtable +4 = 1000 BPK units)
+const FOG_COL=[0x88/255,0xa3/255,1];let CITY_CELLS,FOG_START,FOG_END;
+function applyOpts(){CITY_CELLS=OPT.cells;FOG_START=OPT.fog?(CITY_CELLS<3?1000*(CITY_CELLS-0.5):1000*(CITY_CELLS-2)):1e9;FOG_END=OPT.fog?1000*CITY_CELLS:1e9+1;
+ try{localStorage.setItem('mep.options',JSON.stringify(OPT))}catch(e){}}
+applyOpts();
+// noclip free camera (extra): position / yaw / pitch in BPK space, taken from the game camera when switched on
+let free=null;
 // set by the New game button: no save writes until the reload
 let noSave=false;
 const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[],heliMeshes=[];
@@ -143,6 +166,7 @@ async function init(){
  // boot like FUN_0044a770: save or new game. DELIBERATE DEVIATION (user request): the new-game pick is seeded from crypto.getRandomValues
  // instead of the exe's srand(time(0)), whose first rand() only changes every few seconds
  const first=M.g_start(crypto.getRandomValues(new Uint32Array(1))[0]);if(first==0xff)throw 'start failed (LevelFile.mef / vehicle)';
+ M.g_set_traffic(OPT.traffic); // NPC traffic density (traffic.rs; 2 = the original's 10 per category)
  const model=(M.g_car_upgraded()?['objects/m_body.ms2','objects/upfire.ms2','objects/amb_bod.ms2']:['objects/copcar.ms2','objects/firetruck_shell.ms2','objects/mamb_body.ms2'])[M.g_car_dept()];
  const nm=new TextEncoder().encode(model);const np=M.g_alloc(nm.length);new Uint8Array(M.memory.buffer,np,nm.length).set(nm);
  if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
@@ -170,6 +194,14 @@ async function init(){
  console.log('start:',['Speeder (cop)','Fire2 (fire)','Ambul8 (ambulance)','saved game'][first]);
  // the exe writes SaveGame.dat on shutdown (FUN_00462330 -> FUN_0044a470)
  // extra (not in the original game, which only starts fresh without SaveGame.dat): delete the save and restart
+ {const P=$('optpanel'),cells=$('o_cells'),cv=$('o_cellsv'),tr=$('o_traffic');
+  ['Off','Low (5)','Normal (10, original)','High (20)','Very high (30)'].forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;tr.appendChild(o)});
+  const sync=()=>{cells.value=OPT.cells;cv.textContent=OPT.cells;$('o_fog').checked=OPT.fog;$('o_sky').checked=OPT.sky;$('o_noclip').checked=OPT.noclip;tr.value=OPT.traffic};
+  sync();$('opts').onclick=e=>{P.classList.toggle('on');e.target.blur()};
+  cells.oninput=()=>{OPT.cells=+cells.value;applyOpts();sync()};$('o_orig').onclick=()=>{OPT.cells=3;applyOpts();sync()};
+  $('o_fog').onchange=e=>{OPT.fog=e.target.checked;applyOpts()};$('o_sky').onchange=e=>{OPT.sky=e.target.checked;applyOpts()};
+  $('o_noclip').onchange=e=>{OPT.noclip=e.target.checked;applyOpts();e.target.blur()};tr.onchange=()=>{OPT.traffic=+tr.value;applyOpts();if(M.g_set_traffic)M.g_set_traffic(OPT.traffic)};
+  P.addEventListener('keydown',e=>e.stopPropagation())}
  $('newgame').onclick=()=>{noSave=true;try{localStorage.removeItem('mep.SaveGame.dat')}catch(e){}location.reload()};
  addEventListener('pagehide',()=>{if(noSave)return;M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
  $('msg').style.display='none';requestAnimationFrame(frame)}
@@ -199,8 +231,15 @@ let st=null,acc=0,last=performance.now();const TICK=1000/30;   // 30 Hz simulati
 function frame(now){
  acc+=Math.min(now-last,250);last=now;
  while(acc>=TICK){acc-=TICK;
-  const k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0)|(f5?32:0);f5=false;
+  let k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0)|(f5?32:0);f5=false;
+  if(OPT.noclip&&free){k&=32;const sp=keys.ShiftLeft||keys.ShiftRight?120:30,cy=Math.cos(free.yaw),sy=Math.sin(free.yaw);
+   // BPK space is mirrored against the game's (x = -game x), so yaw and strafe run the other way round
+   const mv=(keys.KeyW?1:0)-(keys.KeyS?1:0),st_=(keys.KeyA?1:0)-(keys.KeyD?1:0);
+   free.pos[0]+=(cy*mv-sy*st_)*sp;free.pos[2]+=(sy*mv+cy*st_)*sp;free.pos[1]+=((keys.KeyE?1:0)-(keys.KeyQ?1:0))*sp;
+   free.yaw+=((keys.ArrowLeft?1:0)-(keys.ArrowRight?1:0))*0.04;free.pitch=Math.max(-1.5,Math.min(1.5,free.pitch+((keys.ArrowUp?1:0)-(keys.ArrowDown?1:0))*0.03))}
   const p=M.g_car_tick(k);if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
+  if(OPT.noclip&&!free&&st){const e=st.slice(26,29),fw=st.slice(29,32);free={pos:[e[0],e[1],e[2]],yaw:Math.atan2(fw[2],fw[0]),pitch:Math.asin(Math.max(-1,Math.min(1,fw[1])))}}
+  if(!OPT.noclip)free=null;
   const sl=M.g_save_out_len();if(sl&&!noSave){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
  const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
  const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
@@ -213,7 +252,8 @@ function frame(now){
  const[x,y,z]=st.slice(16,19),f=st.slice(20,23),fl=Math.hypot(f[0],f[2])||1,fx=f[0]/fl,fz=f[2]/fl;
  // camera from FUN_0040c170 (src/camera.rs); projection from rendersoftR viewport FUN_10016a40: horizontal half-angle = pi/6
  // (fixed, vertical follows the aspect), near 15 / far 13000 BSP units (viewport created at 0x402885)
- const eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
+ let eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
+ if(free){eye=free.pos;fw=[Math.cos(free.pitch)*Math.cos(free.yaw),Math.sin(free.pitch),Math.cos(free.pitch)*Math.sin(free.yaw)];up=[0,1,0]}
  const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
  const vfov=2*Math.atan(Math.tan(Math.PI/6)*vh/w);
  const cam=lookAt(eye,ctr,up),P=persp(vfov,w/vh,15,13000),vp=mul(P,cam);gl.uniform2f(loc.pk,1/P[0],1/P[5]);
@@ -221,12 +261,12 @@ function frame(now){
  // APPROXIMATION (flagged): centred on the camera. The exe never moves the object from the origin and the code applying
  // model_flags 4 was not found, but the model (x +-9615, z +-11103) is a third of the city's size, so it must follow the viewer.
  // Also flagged: drawn without face culling - its faces point outwards, so the viewer inside sees their backs.
- if(skyMesh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
+ if(skyMesh&&OPT.sky){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
   drawMesh(skyMesh,mul(vp,new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, eye[0],eye[1],eye[2],1])));
   gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END)}
  // APPROXIMATION (flagged): a square of CITY_CELLS cells around the camera's cell (the renderer's own cell selection not traced;
  // the fog is complete at CITY_CELLS cells)
- const ccx=Math.floor(x/1000)-city.cmin,ccz=Math.floor(z/1000)-city.cmin,R=CITY_CELLS;
+ const cxw=free?free.pos[0]:x,czw=free?free.pos[2]:z,ccx=Math.floor(cxw/1000)-city.cmin,ccz=Math.floor(czw/1000)-city.cmin,R=CITY_CELLS;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
  for(const wm of water)drawMesh(wm,vp);
