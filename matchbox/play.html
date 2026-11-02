@@ -41,6 +41,12 @@ void main(){gl_FragColor=sil>0.5?vec4(1.0):vec4(0.0,0.0,0.0,texture2D(s,v).r*0.5
 const sprog=gl.createProgram();gl.attachShader(sprog,sh(gl.VERTEX_SHADER,SVS));gl.attachShader(sprog,sh(gl.FRAGMENT_SHADER,SFS));
 gl.bindAttribLocation(sprog,gl.getAttribLocation(prog,'p'),'p');gl.bindAttribLocation(sprog,gl.getAttribLocation(prog,'t'),'t');gl.linkProgram(sprog);
 const sloc={m:gl.getUniformLocation(sprog,'m'),sil:gl.getUniformLocation(sprog,'sil')};
+// ---- billboards (mission fires): textured quad times the shape colour, no fog
+const BFS=`precision mediump float;varying vec2 v;uniform sampler2D s;uniform vec4 col;void main(){gl_FragColor=texture2D(s,v)*col;}`;
+const bprog=gl.createProgram();gl.attachShader(bprog,sh(gl.VERTEX_SHADER,SVS));gl.attachShader(bprog,sh(gl.FRAGMENT_SHADER,BFS));
+gl.bindAttribLocation(bprog,gl.getAttribLocation(prog,'p'),'p');gl.bindAttribLocation(bprog,gl.getAttribLocation(prog,'t'),'t');gl.linkProgram(bprog);
+const bloc={m:gl.getUniformLocation(bprog,'m'),col:gl.getUniformLocation(bprog,'col'),p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t')};
+const bbuf=gl.createBuffer();
 const shTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,shTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,256,256,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
@@ -175,7 +181,7 @@ function frame(now){
  while(acc>=TICK){acc-=TICK;
   const k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0)|(f5?32:0);f5=false;
   const p=M.g_car_tick(k);if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
-  const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
+  const sl=M.g_save_out_len();if(sl&&!noSave){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
  const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
  const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
  const vh=hud[0]?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
@@ -190,7 +196,7 @@ function frame(now){
  const eye=st.slice(26,29),fw=st.slice(29,32),up=[M.g_cam_up(0),M.g_cam_up(1),M.g_cam_up(2)];
  const ctr=[eye[0]+fw[0]*100,eye[1]+fw[1]*100,eye[2]+fw[2]*100];
  const vfov=2*Math.atan(Math.tan(Math.PI/6)*vh/w);
- const vp=mul(persp(vfov,w/vh,15,13000),lookAt(eye,ctr,up));
+ const cam=lookAt(eye,ctr,up),vp=mul(persp(vfov,w/vh,15,13000),cam);
  // sky: renderd3dR depth mode 2 (0x10008e16) = fog off, ZFUNC ALWAYS, ZWRITE off, drawn before the world.
  // APPROXIMATION (flagged): centred on the camera. The exe never moves the object from the origin and the code applying
  // model_flags 4 was not found, but the model (x +-9615, z +-11103) is a third of the city's size, so it must follow the viewer.
@@ -234,6 +240,19 @@ function frame(now){
  // the arrow is lit only by light slot 4, whose ambient colour goes green (far) -> red (near): Guide::arrow_light
  if(hud[24]&&arrowMesh){gl.uniform3f(loc.tint,hud[58],hud[59],hud[60]);drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));gl.uniform3f(loc.tint,1,1,1)}
  if(hud[41]&&markerMesh)drawMesh(markerMesh,mul(vp,hud.subarray(42,58)));
+ // mission fires (Rust fire.rs, g_billboards): camera-facing quads, flames additive (F1.bor *BBD firetest, colour 0xE6FFFFFF),
+ // depth-tested without depth writes, drawn last
+ {const n=M.g_billboards(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*11).slice();
+  if(n){const r=[cam[0],cam[4],cam[8]],u=[cam[1],cam[5],cam[9]];
+   gl.enable(gl.BLEND);gl.depthMask(false);gl.disable(gl.CULL_FACE);gl.useProgram(bprog);gl.uniformMatrix4fv(bloc.m,false,vp);
+   for(let k=0;k<n;k++){const o=k*11,c=[d[o+1],d[o+2],d[o+3]],hw=d[o+4]/2,hh=d[o+5]/2;
+    const v=[];for(const[a,b,s,t]of[[-1,-1,0,1],[1,-1,1,1],[1,1,1,0],[-1,-1,0,1],[1,1,1,0],[-1,1,0,0]])
+     v.push(c[0]+r[0]*a*hw+u[0]*b*hh,c[1]+r[1]*a*hw+u[1]*b*hh,c[2]+r[2]*a*hw+u[2]*b*hh,s,t);
+    if(d[o+10]==0)gl.blendFunc(gl.SRC_ALPHA,gl.ONE);else gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.uniform4f(bloc.col,d[o+6],d[o+7],d[o+8],d[o+9]);gl.bindTexture(gl.TEXTURE_2D,glTex(d[o]));
+    gl.bindBuffer(gl.ARRAY_BUFFER,bbuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(v),gl.STREAM_DRAW);
+    gl.vertexAttribPointer(bloc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(bloc.t,2,gl.FLOAT,false,20,12);gl.drawArrays(gl.TRIANGLES,0,6)}
+   gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.useProgram(prog)}}
  drawHud(hud,w,h,vh);
  const mnl=M.g_mission_name(),mn=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),mnl));
  $('hud').textContent=`Arrows/WASD drive, Space siren+turbo
