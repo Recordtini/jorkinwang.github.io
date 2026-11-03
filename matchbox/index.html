@@ -45,16 +45,23 @@ addEventListener('keyup',e=>keys[e.code]=false);
 // colour = texture * min(ambient + diffuse * max(n . -L, 0), 1). nm = the model matrix (normals to world, renormalised).
 // APPROXIMATIONS (flagged): material colours white and the global ambient render state 0 (neither traced); per-object masks
 // (+0x5d) other than the arrow's are not read (all lit objects use the default).
-const VS=`attribute vec3 p;attribute vec2 t;attribute vec3 n;uniform mat4 m;uniform mat3 nm;uniform float lit;uniform vec2 pk;
-uniform vec3 sunDir;uniform vec3 sunAmb;uniform vec3 sunDif;varying vec2 v;varying float f;varying vec3 lc;
+// The siren beacon (g_siren_lights): two D3D spot lights (theta 25, phi 100 degrees -> cos 0.97630, 0.64279; range 1200,
+// attenuation 1, falloff 1) added to the lit models' colour while the siren runs.
+const VS=`attribute vec3 p;attribute vec2 t;attribute vec3 n;uniform mat4 m;uniform mat4 mw;uniform mat3 nm;uniform float lit;uniform vec2 pk;
+uniform vec3 sunDir;uniform vec3 sunAmb;uniform vec3 sunDif;uniform vec4 spP[2];uniform vec3 spD[2];uniform vec3 spC[2];
+varying vec2 v;varying float f;varying vec3 lc;
+vec3 spot(int i,vec3 wp,vec3 wn){vec3 L=spP[i].xyz-wp;float d=length(L);if(spP[i].w<0.5||d>1200.0||d<=0.0)return vec3(0.0);L/=d;
+ float rho=dot(-L,spD[i]);float sf=rho>0.97630?1.0:(rho<=0.64279?0.0:(rho-0.64279)/(0.97630-0.64279));
+ return spC[i]*max(dot(wn,L),0.0)*sf;}
 void main(){gl_Position=m*vec4(p,1.0);v=t;f=length(vec3(gl_Position.x*pk.x,gl_Position.y*pk.y,gl_Position.w));
- vec3 wn=normalize(nm*n);lc=lit>0.5?min(sunAmb+sunDif*max(dot(wn,-sunDir),0.0),vec3(1.0)):vec3(1.0);}`;
+ vec3 wn=normalize(nm*n);vec3 wp=(mw*vec4(p,1.0)).xyz;
+ lc=lit>0.5?min(sunAmb+sunDif*max(dot(wn,-sunDir),0.0)+spot(0,wp,wn)+spot(1,wp,wn),vec3(1.0)):vec3(1.0);}`;
 const FS=`precision mediump float;varying vec2 v;varying float f;varying vec3 lc;uniform sampler2D s;uniform vec3 fog;uniform float fogStart;uniform float fogEnd;uniform vec3 tint;
 void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;c.rgb*=lc;float k=clamp((f-fogStart)/(fogEnd-fogStart),0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
 const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),n:gl.getAttribLocation(prog,'n'),nm:gl.getUniformLocation(prog,'nm'),
- lit:gl.getUniformLocation(prog,'lit'),sunDir:gl.getUniformLocation(prog,'sunDir'),sunAmb:gl.getUniformLocation(prog,'sunAmb'),sunDif:gl.getUniformLocation(prog,'sunDif'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),fogStart:gl.getUniformLocation(prog,'fogStart'),pk:gl.getUniformLocation(prog,'pk'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
+ lit:gl.getUniformLocation(prog,'lit'),mw:gl.getUniformLocation(prog,'mw'),spP:gl.getUniformLocation(prog,'spP'),spD:gl.getUniformLocation(prog,'spD'),spC:gl.getUniformLocation(prog,'spC'),sunDir:gl.getUniformLocation(prog,'sunDir'),sunAmb:gl.getUniformLocation(prog,'sunAmb'),sunDif:gl.getUniformLocation(prog,'sunDif'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),fogStart:gl.getUniformLocation(prog,'fogStart'),pk:gl.getUniformLocation(prog,'pk'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
 gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.disableVertexAttribArray(loc.n);gl.vertexAttrib3f(loc.n,0,1,0);
 {const l=Math.hypot(0.3,-0.7,0.3);gl.useProgram(prog);gl.uniform3f(loc.sunDir,0.3/l,-0.7/l,0.3/l);gl.uniform3f(loc.sunAmb,0.5,0.5,0.5);gl.uniform3f(loc.sunDif,5,5,5);gl.uniform1f(loc.lit,0)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
 // Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
@@ -129,7 +136,7 @@ function takeMesh(){
 function drawMesh(me,mvp,mm){gl.uniformMatrix4fv(loc.m,false,mvp);const sb=(me.stride||5)*4,lit=!!(mm&&me.stride==8&&OPT.light);
  gl.bindBuffer(gl.ARRAY_BUFFER,me.v);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,sb,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,sb,12);
  if(lit){gl.enableVertexAttribArray(loc.n);gl.vertexAttribPointer(loc.n,3,gl.FLOAT,false,sb,20);
-  gl.uniformMatrix3fv(loc.nm,false,new Float32Array([mm[0],mm[1],mm[2],mm[4],mm[5],mm[6],mm[8],mm[9],mm[10]]));gl.uniform1f(loc.lit,1)}
+  gl.uniformMatrix3fv(loc.nm,false,new Float32Array([mm[0],mm[1],mm[2],mm[4],mm[5],mm[6],mm[8],mm[9],mm[10]]));gl.uniformMatrix4fv(loc.mw,false,mm);gl.uniform1f(loc.lit,1)}
  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,me.e);
  for(const[t,s,n]of me.runs){gl.bindTexture(gl.TEXTURE_2D,glTex(t));gl.drawElements(gl.TRIANGLES,n,gl.UNSIGNED_SHORT,s*2)}
  if(lit){gl.disableVertexAttribArray(loc.n);gl.uniform1f(loc.lit,0)}}
@@ -265,6 +272,10 @@ function frame(now){
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FOG_COL[0],FOG_COL[1],FOG_COL[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
  gl.uniform3f(loc.fog,FOG_COL[0],FOG_COL[1],FOG_COL[2]);gl.uniform1f(loc.fogStart,FOG_START);gl.uniform1f(loc.fogEnd,FOG_END);
+ {M.g_siren_lights();const sl=new Float32Array(M.memory.buffer,M.g_inst_ptr(),22).slice();
+  gl.uniform4fv(loc.spP,new Float32Array([sl[1],sl[2],sl[3],sl[0], sl[12],sl[13],sl[14],sl[11]]));
+  gl.uniform3fv(loc.spD,new Float32Array([sl[4],sl[5],sl[6], sl[15],sl[16],sl[17]]));
+  gl.uniform3fv(loc.spC,new Float32Array([sl[7],sl[8],sl[9], sl[18],sl[19],sl[20]]))}
  if(st){
  const[x,y,z]=st.slice(16,19),f=st.slice(20,23),fl=Math.hypot(f[0],f[2])||1,fx=f[0]/fl,fz=f[2]/fl;
  // camera from FUN_0040c170 (src/camera.rs); projection from rendersoftR viewport FUN_10016a40: horizontal half-angle = pi/6
