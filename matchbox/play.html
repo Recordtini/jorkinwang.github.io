@@ -20,6 +20,8 @@ canvas{width:100%;height:100%;display:block}
  <label>Fog <input id="o_fog" type="checkbox"></label>
  <label>Sky <input id="o_sky" type="checkbox"></label>
  <label>Lighting <input id="o_light" type="checkbox"></label>
+ <label>Bright siren beacon <input id="o_beacon" type="checkbox"></label>
+ <div class="hint">On: the beacon also lights sunlit surfaces (not in the original). Off: exe behaviour, only visible in shade.</div>
  <label>Traffic <select id="o_traffic"></select></label>
  <label>Noclip camera <input id="o_noclip" type="checkbox"></label>
  <div class="hint">Noclip: WASD move, arrows look, E / Q up / down, Shift faster. The vehicle stays parked.</div>
@@ -47,21 +49,26 @@ addEventListener('keyup',e=>keys[e.code]=false);
 // (+0x5d) other than the arrow's are not read (all lit objects use the default).
 // The siren beacon (g_siren_lights): two D3D spot lights (theta 25, phi 100 degrees -> cos 0.97630, 0.64279; range 1200,
 // attenuation 1, falloff 1) added to the lit models' colour while the siren runs.
+// APPROXIMATION (flagged, option "Bright siren beacon", default on): the exe's beacon is per-vertex D3D lighting summed with the sun and clamped, so in sunlight it vanishes
+// into the saturated sun term. Here the spot terms are computed per pixel and added AFTER the sun's clamp, so the beacon colours
+// every lit surface (world, props, vehicles, pedestrians) in sun and shade alike.
 const VS=`attribute vec3 p;attribute vec2 t;attribute vec3 n;uniform mat4 m;uniform mat4 mw;uniform mat3 nm;uniform float lit;uniform vec2 pk;
-uniform vec3 sunDir;uniform vec3 sunAmb;uniform vec3 sunDif;uniform vec4 spP[2];uniform vec3 spD[2];uniform vec3 spC[2];
-varying vec2 v;varying float f;varying vec3 lc;
-vec3 spot(int i,vec3 wp,vec3 wn){vec3 L=spP[i].xyz-wp;float d=length(L);if(spP[i].w<0.5||d>1200.0||d<=0.0)return vec3(0.0);L/=d;
- float rho=dot(-L,spD[i]);float sf=rho>0.97630?1.0:(rho<=0.64279?0.0:(rho-0.64279)/(0.97630-0.64279));
- return spC[i]*max(dot(wn,L),0.0)*sf;}
+uniform vec3 sunDir;uniform vec3 sunAmb;uniform vec3 sunDif;
+varying vec2 v;varying float f;varying vec3 lc;varying vec3 wP;varying vec3 wN;varying float lt;
 void main(){gl_Position=m*vec4(p,1.0);v=t;f=length(vec3(gl_Position.x*pk.x,gl_Position.y*pk.y,gl_Position.w));
- vec3 wn=normalize(nm*n);vec3 wp=(mw*vec4(p,1.0)).xyz;
- lc=lit>0.5?min(sunAmb+sunDif*max(dot(wn,-sunDir),0.0)+spot(0,wp,wn)+spot(1,wp,wn),vec3(1.0)):vec3(1.0);}`;
-const FS=`precision mediump float;varying vec2 v;varying float f;varying vec3 lc;uniform sampler2D s;uniform vec3 fog;uniform float fogStart;uniform float fogEnd;uniform vec3 tint;
-void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;c.rgb*=lc;float k=clamp((f-fogStart)/(fogEnd-fogStart),0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k),1.0);}`;
+ vec3 wn=normalize(nm*n);wN=wn;wP=(mw*vec4(p,1.0)).xyz;lt=lit;
+ lc=lit>0.5?sunAmb+sunDif*max(dot(wn,-sunDir),0.0):vec3(1.0);}`;
+const FS=`precision highp float;varying vec2 v;varying float f;varying vec3 lc;varying vec3 wP;varying vec3 wN;varying float lt;uniform sampler2D s;uniform vec3 fog;uniform float fogStart;uniform float fogEnd;uniform vec3 tint;
+uniform vec4 spP[2];uniform vec3 spD[2];uniform vec3 spC[2];uniform float boost;
+vec3 spot(vec4 P,vec3 D,vec3 C,vec3 wn){vec3 L=P.xyz-wP;float d=length(L);if(P.w<0.5||d>1200.0||d<=0.0)return vec3(0.0);L/=d;
+ float rho=dot(-L,D);float sf=rho>0.97630?1.0:(rho<=0.64279?0.0:(rho-0.64279)/(0.97630-0.64279));
+ return C*max(dot(wn,L),0.0)*sf;}
+void main(){vec4 c=texture2D(s,v);if(c.a<0.5)discard;vec3 l=min(lc,vec3(1.0));if(lt>0.5){vec3 wn=normalize(wN);vec3 sp=spot(spP[0],spD[0],spC[0],wn)+spot(spP[1],spD[1],spC[1],wn);l=boost>0.5?l+sp:min(lc+sp,vec3(1.0));}
+ c.rgb*=l;float k=clamp((f-fogStart)/(fogEnd-fogStart),0.0,1.0);gl_FragColor=vec4(mix(c.rgb*tint,fog,k),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
 const loc={p:gl.getAttribLocation(prog,'p'),t:gl.getAttribLocation(prog,'t'),n:gl.getAttribLocation(prog,'n'),nm:gl.getUniformLocation(prog,'nm'),
- lit:gl.getUniformLocation(prog,'lit'),mw:gl.getUniformLocation(prog,'mw'),spP:gl.getUniformLocation(prog,'spP'),spD:gl.getUniformLocation(prog,'spD'),spC:gl.getUniformLocation(prog,'spC'),sunDir:gl.getUniformLocation(prog,'sunDir'),sunAmb:gl.getUniformLocation(prog,'sunAmb'),sunDif:gl.getUniformLocation(prog,'sunDif'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),fogStart:gl.getUniformLocation(prog,'fogStart'),pk:gl.getUniformLocation(prog,'pk'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
+ lit:gl.getUniformLocation(prog,'lit'),mw:gl.getUniformLocation(prog,'mw'),boost:gl.getUniformLocation(prog,'boost'),spP:gl.getUniformLocation(prog,'spP'),spD:gl.getUniformLocation(prog,'spD'),spC:gl.getUniformLocation(prog,'spC'),sunDir:gl.getUniformLocation(prog,'sunDir'),sunAmb:gl.getUniformLocation(prog,'sunAmb'),sunDif:gl.getUniformLocation(prog,'sunDif'),m:gl.getUniformLocation(prog,'m'),fog:gl.getUniformLocation(prog,'fog'),fogEnd:gl.getUniformLocation(prog,'fogEnd'),fogStart:gl.getUniformLocation(prog,'fogStart'),pk:gl.getUniformLocation(prog,'pk'),tint:gl.getUniformLocation(prog,'tint')};gl.uniform3f(loc.tint,1,1,1);
 gl.enableVertexAttribArray(loc.p);gl.enableVertexAttribArray(loc.t);gl.disableVertexAttribArray(loc.n);gl.vertexAttrib3f(loc.n,0,1,0);
 {const l=Math.hypot(0.3,-0.7,0.3);gl.useProgram(prog);gl.uniform3f(loc.sunDir,0.3/l,-0.7/l,0.3/l);gl.uniform3f(loc.sunAmb,0.5,0.5,0.5);gl.uniform3f(loc.sunDif,5,5,5);gl.uniform1f(loc.lit,0)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);
 // Original rule (rendersoftR FUN_1000f700): a triangle (A,B,C) is drawn when ((C-B)x(A-B)).B >= 0 in camera space, i.e. plain back-face culling.
@@ -145,7 +152,7 @@ function drawMesh(me,mvp,mm){gl.uniformMatrix4fv(loc.m,false,mvp);const sb=(me.s
 // choice, as with `-citycells=12`); the exe's fallback with no options / saved config is 3 (0x40237c).
 // APPROXIMATION (flagged): a saved detail setting (DAT_0048613c, loaded with DAT_00486114) is not traced.
 const QS=new URLSearchParams(location.search);
-const OPT=Object.assign({cells:12,fog:true,sky:true,light:true,noclip:false,traffic:2},(()=>{try{return JSON.parse(localStorage.getItem('mep.options'))||{}}catch(e){return{}}})());
+const OPT=Object.assign({cells:12,fog:true,sky:true,light:true,beacon:true,noclip:false,traffic:2},(()=>{try{return JSON.parse(localStorage.getItem('mep.options'))||{}}catch(e){return{}}})());
 if(QS.has('original'))OPT.cells=3;if(QS.get('citycells'))OPT.cells=parseInt(QS.get('citycells'))||OPT.cells;
 if(QS.has('nofog'))OPT.fog=false;if(QS.has('nosky'))OPT.sky=false;if(QS.has('noclip'))OPT.noclip=true;
 OPT.cells=Math.min(12,Math.max(1,OPT.cells|0));
@@ -220,10 +227,10 @@ async function init(){
  // extra (not in the original game, which only starts fresh without SaveGame.dat): delete the save and restart
  {const P=$('optpanel'),cells=$('o_cells'),cv=$('o_cellsv'),tr=$('o_traffic');
   ['Off','Low (5)','Normal (10, original)','High (20)','Very high (30)'].forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;tr.appendChild(o)});
-  const sync=()=>{cells.value=OPT.cells;cv.textContent=OPT.cells;$('o_fog').checked=OPT.fog;$('o_sky').checked=OPT.sky;$('o_light').checked=OPT.light;$('o_noclip').checked=OPT.noclip;tr.value=OPT.traffic};
+  const sync=()=>{cells.value=OPT.cells;cv.textContent=OPT.cells;$('o_fog').checked=OPT.fog;$('o_sky').checked=OPT.sky;$('o_light').checked=OPT.light;$('o_beacon').checked=OPT.beacon;$('o_noclip').checked=OPT.noclip;tr.value=OPT.traffic};
   sync();$('opts').onclick=e=>{P.classList.toggle('on');e.target.blur()};
   cells.oninput=()=>{OPT.cells=+cells.value;applyOpts();sync()};$('o_orig').onclick=()=>{OPT.cells=3;applyOpts();sync()};
-  $('o_fog').onchange=e=>{OPT.fog=e.target.checked;applyOpts()};$('o_sky').onchange=e=>{OPT.sky=e.target.checked;applyOpts()};$('o_light').onchange=e=>{OPT.light=e.target.checked;applyOpts()};
+  $('o_fog').onchange=e=>{OPT.fog=e.target.checked;applyOpts()};$('o_sky').onchange=e=>{OPT.sky=e.target.checked;applyOpts()};$('o_light').onchange=e=>{OPT.light=e.target.checked;applyOpts()};$('o_beacon').onchange=e=>{OPT.beacon=e.target.checked;applyOpts()};
   $('o_noclip').onchange=e=>{OPT.noclip=e.target.checked;applyOpts();e.target.blur()};tr.onchange=()=>{OPT.traffic=+tr.value;applyOpts();if(M.g_set_traffic)M.g_set_traffic(OPT.traffic)};
   P.addEventListener('keydown',e=>e.stopPropagation())}
  $('newgame').onclick=()=>{noSave=true;try{localStorage.removeItem('mep.SaveGame.dat')}catch(e){}location.reload()};
@@ -272,7 +279,7 @@ function frame(now){
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FOG_COL[0],FOG_COL[1],FOG_COL[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
  gl.uniform3f(loc.fog,FOG_COL[0],FOG_COL[1],FOG_COL[2]);gl.uniform1f(loc.fogStart,FOG_START);gl.uniform1f(loc.fogEnd,FOG_END);
- {M.g_siren_lights();const sl=new Float32Array(M.memory.buffer,M.g_inst_ptr(),22).slice();
+ {gl.uniform1f(loc.boost,OPT.beacon?1:0);M.g_siren_lights();const sl=new Float32Array(M.memory.buffer,M.g_inst_ptr(),22).slice();
   gl.uniform4fv(loc.spP,new Float32Array([sl[1],sl[2],sl[3],sl[0], sl[12],sl[13],sl[14],sl[11]]));
   gl.uniform3fv(loc.spD,new Float32Array([sl[4],sl[5],sl[6], sl[15],sl[16],sl[17]]));
   gl.uniform3fv(loc.spC,new Float32Array([sl[7],sl[8],sl[9], sl[18],sl[19],sl[20]]))}
