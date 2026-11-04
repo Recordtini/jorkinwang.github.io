@@ -296,7 +296,7 @@ function frame(now){
  // the fog is complete at CITY_CELLS cells)
  const cxw=free?free.pos[0]:x,czw=free?free.pos[2]:z,ccx=Math.floor(cxw/1000)-city.cmin,ccz=Math.floor(czw/1000)-city.cmin,R=CITY_CELLS;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
-  const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp)}
+  const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp,IDENT)}
  for(const wm of water)drawMesh(wm,vp,IDENT);
  {const n=M.g_props_dynamic(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18);
   for(let k=0;k<n;k++){const e=propAt[d[k*18]];if(e){e[1]=d.slice(k*18+2,k*18+18);e[2]=d[k*18+1]!=0}}}
