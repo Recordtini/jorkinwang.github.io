@@ -22,10 +22,15 @@ canvas{width:100%;height:100%;display:block}
  <label>Lighting <input id="o_light" type="checkbox"></label>
  <label>Bright siren beacon <input id="o_beacon" type="checkbox"></label>
  <div class="hint">On: the beacon also lights sunlit surfaces (not in the original). Off: exe behaviour, only visible in shade.</div>
+ <label>HUD <select id="o_hud"><option value="compact">Compact</option><option value="orig">Original (stretched bar)</option></select></label>
  <label>Traffic <select id="o_traffic"></select></label>
+ <label>Sound volume <span><input id="o_vol" type="range" min="0" max="100" step="5"> <b id="o_volv"></b></span></label>
+ <label>Mute <input id="o_mute" type="checkbox"></label>
+ <div class="hint">Extra (not in the original): master volume. The browser only starts sound after the first key press or click.</div>
  <label>Noclip camera <input id="o_noclip" type="checkbox"></label>
  <div class="hint">Noclip: WASD move, arrows look, E / Q up / down, Shift faster. The vehicle stays parked.</div>
 </div><div id="msg">Loading...</div>
+<script src="smkplayer.js?v=2"></script>
 <script>
 'use strict';
 // This page is a thin shell. The Rust wasm module parses the ORIGINAL game files (megacity.bpk, textures_all2.tex,
@@ -152,9 +157,9 @@ function drawMesh(me,mvp,mm){gl.uniformMatrix4fv(loc.m,false,mvp);const sb=(me.s
 // choice, as with `-citycells=12`); the exe's fallback with no options / saved config is 3 (0x40237c).
 // APPROXIMATION (flagged): a saved detail setting (DAT_0048613c, loaded with DAT_00486114) is not traced.
 const QS=new URLSearchParams(location.search);
-const OPT=Object.assign({cells:12,fog:true,sky:true,light:true,beacon:true,noclip:false,traffic:2},(()=>{try{return JSON.parse(localStorage.getItem('mep.options'))||{}}catch(e){return{}}})());
+const OPT=Object.assign({cells:12,fog:true,sky:true,light:true,beacon:true,hud:'compact',noclip:false,traffic:2,vol:70,mute:false},(()=>{try{return JSON.parse(localStorage.getItem('mep.options'))||{}}catch(e){return{}}})());
 if(QS.has('original'))OPT.cells=3;if(QS.get('citycells'))OPT.cells=parseInt(QS.get('citycells'))||OPT.cells;
-if(QS.has('nofog'))OPT.fog=false;if(QS.has('nosky'))OPT.sky=false;if(QS.has('noclip'))OPT.noclip=true;
+if(QS.has('mute'))OPT.mute=true;if(QS.has('nofog'))OPT.fog=false;if(QS.has('nosky'))OPT.sky=false;if(QS.has('noclip'))OPT.noclip=true;
 OPT.cells=Math.min(12,Math.max(1,OPT.cells|0));
 // fog (0x402410 mode 0 / 0x402b35, on unless -nofog): colour 88 A3 FF, linear, start S*(n-2) (S*(n-0.5) below 3 cells), end S*n,
 // S = the BPK's cell size (header +0x34 via partition vtable +4 = 1000 BPK units)
@@ -174,6 +179,42 @@ function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==u
  m=M.g_model_prepare_set(q,b.length,0,set)?takeMesh():null;setMeshes.set(key,m);return m}
 function cellMesh(i){let m=cells.get(i);if(m!==undefined)return m;m=M.g_cell_prepare(i)?takeMesh():null;cells.set(i,m);return m}
 
+// ---- sound player (extra shell around audio.rs): Rust decides what plays; this only maps its events (play / stop / volume index /
+// frequency) onto WebAudio. Volume index 0..63 -> the millibel table of sbox10r.dll (_sl_set_volume), frequency argument f -> playback
+// rate f / 44100 (_sl_set_frequency). Browsers only start audio after a user gesture: sounds requested before it are kept and joined
+// at their running position when the first key press / click unlocks the context.
+const VOL_MB=[-10000,-4143,-3449,-3044,-2756,-2533,-2351,-2197,-2063,-1945,-1840,-1745,-1658,-1578,-1504,-1435,-1370,-1309,-1252,-1198,-1147,-1098,-1052,-1007,-965,-924,-885,-847,-810,-775,-741,-709,-677,-646,-616,-587,-559,-532,-505,-479,-454,-429,-405,-381,-358,-336,-314,-292,-271,-251,-231,-211,-191,-172,-154,-135,-117,-100,-82,-65,-48,-32,-16,0];
+const AU={ctx:null,master:null,V:new Map(),buf:new Map(),rate:new Map()};
+const auGain=i=>i<=0?0:Math.pow(10,VOL_MB[Math.min(63,i)]/2000);
+function auVolume(){if(AU.master)AU.master.gain.value=OPT.mute?0:OPT.vol/100}
+function auUnlock(){if(!AU.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AU.ctx=new C();AU.master=AU.ctx.createGain();AU.master.connect(AU.ctx.destination);auVolume()}
+ if(AU.ctx.state!='running')AU.ctx.resume().then(()=>{for(const v of AU.V.values())auStart(v)}).catch(()=>{});else for(const v of AU.V.values())auStart(v)}
+['keydown','pointerdown','touchstart'].forEach(e=>addEventListener(e,auUnlock,{passive:true}));
+document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume()});
+// PCM of sound id -> AudioBuffer (8-bit unsigned or 16-bit signed, the game's files are mono)
+function auBuffer(id){if(AU.buf.has(id))return AU.buf.get(id);let b=null;
+ if(M&&AU.ctx){const o=M.g_alloc(20);if(M.g_snd_info(id,o)){const h=new Uint32Array(M.memory.buffer,o,5),[p,n,rate,bits,ch]=h;
+  const bytes=bits==16?2:1,frames=Math.floor(n/(bytes*ch));b=AU.ctx.createBuffer(1,Math.max(1,frames),rate);const d=b.getChannelData(0),m=new Uint8Array(M.memory.buffer,p,n);
+  if(bits==16){const dv=new DataView(M.memory.buffer,p,n);for(let i=0;i<frames;i++)d[i]=dv.getInt16(i*2*ch,true)/32768}else for(let i=0;i<frames;i++)d[i]=(m[i*ch]-128)/128}}
+ if(AU.ctx)AU.buf.set(id,b);return b}
+function auStart(v){if(!AU.ctx||AU.ctx.state!='running'||v.src||v.dead)return;const b=auBuffer(v.id);if(!b){v.dead=true;if(AU.V.get(v.id)===v)AU.V.delete(v.id);return}
+ const r0=AU.rate.get(v.id)||44100,src=AU.ctx.createBufferSource(),g=AU.ctx.createGain();src.buffer=b;src.loop=!!v.loop;
+ const rate=a=>Math.min(100000/b.sampleRate,Math.max(100/b.sampleRate,a/44100));
+ src.playbackRate.value=rate(r0);g.gain.value=auGain(v.idx);src.connect(g);g.connect(AU.master);
+ const el=(performance.now()-v.t0)/1000*src.playbackRate.value;let off=0;
+ if(v.loop)off=el%b.duration;else{if(el>=b.duration){v.dead=true;if(AU.V.get(v.id)===v)AU.V.delete(v.id);return}off=el}
+ src.onended=()=>{if(v.src===src){v.dead=true;if(AU.V.get(v.id)===v)AU.V.delete(v.id)}};
+ v.src=src;v.g=g;v.rateFn=rate;src.start(0,off)}
+function auKill(id){const v=AU.V.get(id);if(!v)return;AU.V.delete(id);v.dead=true;if(v.src){v.src.onended=null;try{v.src.stop()}catch(e){}v.src.disconnect();v.g.disconnect()}}
+function auPump(){if(!M||!M.g_audio_ev_len)return;const n=M.g_audio_ev_len();if(!n)return;
+ const ev=new Int32Array(M.memory.buffer,M.g_audio_ev_ptr(),n).slice();M.g_audio_ev_clear();
+ for(let i=0;i<n;i+=4){const op=ev[i],id=ev[i+1],a=ev[i+2],b=ev[i+3];
+  if(op==1){auKill(id);const v={id,loop:a,idx:b,t0:performance.now(),src:null,dead:false};AU.V.set(id,v);auStart(v)}
+  else if(op==2)auKill(id);
+  else if(op==3){AU.rate.set(id,a);const v=AU.V.get(id);if(v&&v.src)v.src.playbackRate.value=v.rateFn(a)}
+  else if(op==4){const v=AU.V.get(id);if(v){v.idx=a;if(v.g)v.g.gain.value=auGain(a)}}
+  else if(op==5){AU.rate.delete(id);auKill(id)}}}
+
 async function init(){
  const wasm=await WebAssembly.instantiate(await (await fetch('mep.wasm',{cache:'no-cache'})).arrayBuffer());M=wasm.instance.exports;
  whiteTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,whiteTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([200,200,200,255]));
@@ -191,6 +232,9 @@ async function init(){
  if(!feed(M.g_bpk_load,bpk))throw 'megacity.bpk rejected by Rust';
  if(!feed(M.g_zip_load,zip))throw 'ms2_files.dat rejected by Rust';
  feed(M.g_bor_load,bor);if(!feed(M.g_mef_load,mef))throw 'LevelFile.mef rejected by Rust';
+ // sound: wave.dat (282 WAV) and Voices.dat (dispatcher voices) are parsed by Rust (audio.rs); a missing file just means no sound
+ // sound: wave.dat (282 WAV) and Voices.dat (dispatcher voices) are parsed by Rust (audio.rs); a missing file just means no sound
+ try{const [wv,vc]=await Promise.all([fetchBytes('game/wave.dat'),fetchBytes('game/voices.dat')]);feed(M.g_audio_load,wv);feed(M.g_audio_load,vc)}catch(e){console.warn('sound files not loaded:',e)}
  // SaveGame.dat lives in this browser's storage on the user's PC (the exe keeps it next to xgame.exe)
  try{const b=localStorage.getItem('mep.SaveGame.dat');if(b)feed(M.g_save_load,Uint8Array.from(atob(b),c=>c.charCodeAt(0)))}catch(e){}
  city={n:M.g_bpk_n(),cmin:M.g_bpk_cmin()};
@@ -227,15 +271,16 @@ async function init(){
  // extra (not in the original game, which only starts fresh without SaveGame.dat): delete the save and restart
  {const P=$('optpanel'),cells=$('o_cells'),cv=$('o_cellsv'),tr=$('o_traffic');
   ['Off','Low (5)','Normal (10, original)','High (20)','Very high (30)'].forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;tr.appendChild(o)});
-  const sync=()=>{cells.value=OPT.cells;cv.textContent=OPT.cells;$('o_fog').checked=OPT.fog;$('o_sky').checked=OPT.sky;$('o_light').checked=OPT.light;$('o_beacon').checked=OPT.beacon;$('o_noclip').checked=OPT.noclip;tr.value=OPT.traffic};
+  const sync=()=>{cells.value=OPT.cells;cv.textContent=OPT.cells;$('o_fog').checked=OPT.fog;$('o_sky').checked=OPT.sky;$('o_light').checked=OPT.light;$('o_beacon').checked=OPT.beacon;$('o_hud').value=OPT.hud;$('o_noclip').checked=OPT.noclip;tr.value=OPT.traffic;$('o_vol').value=OPT.vol;$('o_volv').textContent=OPT.vol;$('o_mute').checked=OPT.mute};
   sync();$('opts').onclick=e=>{P.classList.toggle('on');e.target.blur()};
   cells.oninput=()=>{OPT.cells=+cells.value;applyOpts();sync()};$('o_orig').onclick=()=>{OPT.cells=3;applyOpts();sync()};
   $('o_fog').onchange=e=>{OPT.fog=e.target.checked;applyOpts()};$('o_sky').onchange=e=>{OPT.sky=e.target.checked;applyOpts()};$('o_light').onchange=e=>{OPT.light=e.target.checked;applyOpts()};$('o_beacon').onchange=e=>{OPT.beacon=e.target.checked;applyOpts()};
-  $('o_noclip').onchange=e=>{OPT.noclip=e.target.checked;applyOpts();e.target.blur()};tr.onchange=()=>{OPT.traffic=+tr.value;applyOpts();if(M.g_set_traffic)M.g_set_traffic(OPT.traffic)};
+  $('o_hud').onchange=e=>{OPT.hud=e.target.value;applyOpts();e.target.blur()};$('o_noclip').onchange=e=>{OPT.noclip=e.target.checked;applyOpts();e.target.blur()};tr.onchange=()=>{OPT.traffic=+tr.value;applyOpts();if(M.g_set_traffic)M.g_set_traffic(OPT.traffic)};
+  $('o_vol').oninput=e=>{OPT.vol=+e.target.value;applyOpts();sync();auVolume()};$('o_mute').onchange=e=>{OPT.mute=e.target.checked;applyOpts();auVolume();e.target.blur()};
   P.addEventListener('keydown',e=>e.stopPropagation())}
  $('newgame').onclick=()=>{noSave=true;try{localStorage.removeItem('mep.SaveGame.dat')}catch(e){}location.reload()};
  addEventListener('pagehide',()=>{if(noSave)return;M.g_save_now();const sl=M.g_save_out_len();if(sl){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}});
- $('msg').style.display='none';requestAnimationFrame(frame)}
+ $('msg').style.display='none';last=performance.now();requestAnimationFrame(frame)}
 
 // ---- HUD (2D quads in pixels, y down): icon bar FUN_0043eea0 + FUN_00440350, speedometer FUN_0043eb20
 const quadBuf=gl.createBuffer(),quadIdx=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,quadIdx);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array([0,1,2,0,2,3]),gl.STATIC_DRAW);
@@ -246,6 +291,15 @@ function quad(n,x,y,qw,qh,W,H,rot=0){const cx=x+qw/2,cy=y+qh/2,c=Math.cos(rot),s
  gl.bindBuffer(gl.ARRAY_BUFFER,quadBuf);gl.bufferData(gl.ARRAY_BUFFER,v,gl.DYNAMIC_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(loc.t,2,gl.FLOAT,false,20,12);
  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,quadIdx);gl.uniformMatrix4fv(loc.m,false,new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));gl.bindTexture(gl.TEXTURE_2D,namedTex(n));gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0)}
 function drawHud(hud,w,h,vh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
+ if(OPT.hud!='orig'){
+  // Compact HUD (extra, not in the original): the 3D view keeps the whole window, the icons are drawn square at their own
+  // aspect instead of stretched over the screen. Speedometer small at the bottom right, the current mission's icon at the bottom
+  // left (the original's 3 rating pieces are just a missions-done counter, left out here); F5 (the original's icon bar toggle) shows / hides that icon.
+  const s=Math.trunc(Math.min(w/9,h/4.5)),mg=Math.trunc(s*0.1);gl.viewport(0,0,w,h);
+  quad('speedo2',w-s-mg,h-s-mg,s,s,w,h);quad('needle1',w-s-mg,h-s-mg,s,s,w,h,(hud[4]+180)*0.017453292);
+  if(hud[0]&&hud[2]>=0){const cur=hud[2],pre=['Cop','Fire','Amb'][hud[5]];
+   quad(pre+(cur+1)+(hud[3]?'n':'a'),mg,h-s-mg,s,s,w,h)}
+  gl.viewport(0,0,w,h);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END);return}
  // speedometer in the 3D view layer: size W/5 at the bottom-right corner, needle at (value + 180) degrees
  const s5=Math.trunc(w/5);gl.viewport(0,h-vh,w,vh);
  quad('speedo2',w-s5,vh-s5,s5,s5,w,vh);quad('needle1',w-s5,vh-s5,s5,s5,w,vh,(hud[4]+180)*0.017453292);
@@ -258,8 +312,15 @@ function drawHud(hud,w,h,vh){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
    quad(pieces[0],a30*i,0,pw,a2c,w,sh);quad(pieces[1],a30*i+pw,0,pw,a2c,w,sh);quad(pieces[2],a30*i+2*pw,0,sw-2*pw,a2c,w,sh)}}
  gl.viewport(0,0,w,h);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END)}
 
+// Smacker videos (smkplayer.js, src/smk.rs): the cut-scenes (the boot intro MIIntro / opening, main loop 0x460e20, is deliberately not played: the game starts straight in gameplay) the mission logic requests
+// (scene object FUN_00439570). ?novideo skips them all. The game is paused while one plays; the game's own sound is muted meanwhile.
+const NOVID=/[?&]novideo/.test(location.search);
+async function playVideos(names){if(NOVID)return;
+ for(const n of names)await smkPlay(M,n,{au:AU,unlock:auUnlock,volume:()=>OPT.mute?0:OPT.vol/100,
+  onStart:()=>{if(AU.master)AU.master.gain.value=0},onEnd:()=>{auVolume();for(const k in keys)keys[k]=false}})}
 let st=null,acc=0,last=performance.now();const TICK=1000/30;   // 30 Hz simulation tick (original rate)
 function frame(now){
+ if(SMK.active){last=now;acc=0;requestAnimationFrame(frame);return}   // a video is playing: the game is paused (smack_play blocks the main loop)
  acc+=Math.min(now-last,250);last=now;
  while(acc>=TICK){acc-=TICK;
   let k=(keys.ArrowUp||keys.KeyW?1:0)|(keys.ArrowDown||keys.KeyS?2:0)|(keys.ArrowLeft||keys.KeyA?4:0)|(keys.ArrowRight||keys.KeyD?8:0)|(keys.Space?16:0)|(f5?32:0);f5=false;
@@ -268,13 +329,13 @@ function frame(now){
    const mv=(keys.KeyW?1:0)-(keys.KeyS?1:0),st_=(keys.KeyA?1:0)-(keys.KeyD?1:0);
    free.pos[0]+=(cy*mv-sy*st_)*sp;free.pos[2]+=(sy*mv+cy*st_)*sp;free.pos[1]+=((keys.KeyE?1:0)-(keys.KeyQ?1:0))*sp;
    free.yaw+=((keys.ArrowLeft?1:0)-(keys.ArrowRight?1:0))*0.04;free.pitch=Math.max(-1.5,Math.min(1.5,free.pitch+((keys.ArrowUp?1:0)-(keys.ArrowDown?1:0))*0.03))}
-  const p=M.g_car_tick(k);if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
+  const p=M.g_car_tick(k);auPump();{const v=smkTakeRequest(M);if(v){playVideos([v]);acc=0;break}}if(p)st=Array.from(new Float32Array(M.memory.buffer,p,32));
   if(OPT.noclip&&!free&&st){const e=st.slice(26,29),fw=st.slice(29,32);free={pos:[e[0],e[1],e[2]],yaw:Math.atan2(fw[2],fw[0]),pitch:Math.asin(Math.max(-1,Math.min(1,fw[1])))}}
   if(!OPT.noclip)free=null;
   const sl=M.g_save_out_len();if(sl&&!noSave){try{localStorage.setItem('mep.SaveGame.dat',btoa(String.fromCharCode(...new Uint8Array(M.memory.buffer,M.g_save_out_ptr(),sl))))}catch(e){}M.g_save_out_clear()}}
  const c=$('c');const w=c.clientWidth*devicePixelRatio|0,h=c.clientHeight*devicePixelRatio|0;if(c.width!=w||c.height!=h){c.width=w;c.height=h}
  const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
- const vh=hud[0]?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
+ const vh=(hud[0]&&OPT.hud=='orig')?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
  M.g_set_view(w,vh);
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FOG_COL[0],FOG_COL[1],FOG_COL[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
@@ -335,7 +396,6 @@ function frame(now){
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=iconMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)),d.subarray(k*17+1,k*17+17))}}
  // the arrow is lit only by light slot 4, whose ambient colour goes green (far) -> red (near): Guide::arrow_light
- if(hud[24]&&arrowMesh){gl.uniform3f(loc.tint,hud[58],hud[59],hud[60]);drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));gl.uniform3f(loc.tint,1,1,1)}
  if(hud[41]&&markerMesh)drawMesh(markerMesh,mul(vp,hud.subarray(42,58)));
  // mission fires (Rust fire.rs, g_billboards): orient_type 2 quads turned about the vertical towards the camera (renderd3dR
  // FUN_1000bb40), flames SRCALPHA/ONE (prim_blend 3), smoke SRCALPHA/INVSRCALPHA (prim_blend 1), no depth writes, drawn last
@@ -350,6 +410,9 @@ function frame(now){
     gl.bindBuffer(gl.ARRAY_BUFFER,bbuf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(v),gl.STREAM_DRAW);
     gl.vertexAttribPointer(bloc.p,3,gl.FLOAT,false,20,0);gl.vertexAttribPointer(bloc.t,2,gl.FLOAT,false,20,12);gl.drawArrays(gl.TRIANGLES,0,6)}
    gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.useProgram(prog)}}
+ // the mission arrow is drawn last with the depth buffer cleared so it is never hidden behind the car or the scenery
+ // (extra, not in the original, where it can be occluded)
+ if(hud[24]&&arrowMesh){gl.clear(gl.DEPTH_BUFFER_BIT);gl.uniform3f(loc.tint,hud[58],hud[59],hud[60]);drawMesh(arrowMesh,mul(vp,hud.subarray(25,41)));gl.uniform3f(loc.tint,1,1,1)}
  drawHud(hud,w,h,vh);
  const mnl=M.g_mission_name(),mn=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),mnl));
  $('hud').textContent=`Arrows/WASD drive, Space siren+turbo
