@@ -1,5 +1,5 @@
 // Punch a Bunch on the game's own screen 049 (ui.js: background, podium, Higher/Lower/Keep/Continue buttons; the punch board is the game's `punchBoardFull` art, a 10 x 5 grid of coin holes); rules from tpir::punchabunch (Rust/WASM).
-import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 49).preload();
@@ -45,7 +45,7 @@ function frame(now) {
   }
   ui.draw(g, ptr.x, ptr.y, 'btn');   // buttons last, above the board and the slip paper
   if (ph === 3 && s[2] === 0 && !won && punched.every((p) => !p)) font2.draw(g, 'NO CHIPS — NO CASH', 270, 300, '#f77');
-  if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  if (caption) font.caption(g, caption);
   window.__pb = { ph, item, chips, cash, won, total, pending, tag, real: [s[11], s[12], s[13], s[14]], punched, vals, idle: !au.speaking && !au.speechQ.length };
 }
 requestAnimationFrame(frame); window.__ready = true;

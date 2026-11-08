@@ -1,0 +1,9 @@
+<!doctype html><meta charset="utf-8"><title>GWVideo test</title><body style="background:#345;color:#fff;margin:0"><canvas id="c" width="900" height="500"></canvas>
+<script type="module">
+import { Sprite } from './video.js';
+const ex = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports; const g = document.getElementById('c').getContext('2d');
+const list = [['022/004190_0','Strike'],['011/004199_0','RewardConfetti'],['080/003322_0','ParticulesWin'],['022/004195_0','WiningLight'],['011/004198_0','RewardBill']];
+const sp = []; for (const [p, n] of list) sp.push([n, await Sprite.load(ex, 'zip/' + p.split('/')[0] + '/' + p.split('/')[1] + '.GWVideo')]);
+window.__v = sp.map(([n, s]) => ({ n, w: s.w, h: s.h, frames: s.frames, imgs: s.imgs.length })); window.__ready = true; const t0 = performance.now();
+(function f(){ requestAnimationFrame(f); g.clearRect(0,0,900,500); sp.forEach(([n, s], i) => { const t = (performance.now() - t0); s.draw(g, t, 10 + i * 175, 10, 165, 165 * s.h / s.w, true); g.fillStyle = '#fff'; g.fillText(n, 10 + i * 175, 490); }); })();
+</script>

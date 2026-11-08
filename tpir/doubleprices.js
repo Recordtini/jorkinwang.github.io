@@ -14,6 +14,6 @@ function frame() {
     if (hov && glow) { g.save(); g.globalAlpha = 0.6; g.drawImage(glow, b.x - 15, b.y - 15, b.w + 30, b.h + 30); g.restore(); }
     const t = K.money(vals[i]); K.text(t, b.x + (b.w - K.font2.width(t)) / 2, b.y + b.h / 2 + 12, done && i === realSide ? '#1a1' : '#222', true); });
   if (done) K.center(won ? 'THAT MATCHES — YOU WIN!' : "THE PRICES DON'T MATCH — YOU LOSE", 540, won ? '#7f7' : '#f77', true);
-  K.drawCaption(); window.__dp = { done: !!done, won, realSide, idle: K.idle() };
+  K.drawCaption(); window.__dp = { done: !!done, won, realSide, real: Math.round(prod.price), idle: K.idle() };
 }
 requestAnimationFrame(frame); window.__ready = true;

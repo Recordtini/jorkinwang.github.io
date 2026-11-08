@@ -1,6 +1,6 @@
 // Big Wheel: the real stage + wheel model driven by the Rust game logic (tpir::bigwheel).
 import { StageView } from './stageview.js';
-import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const cv = document.getElementById('c'); const sv = new StageView(cv, ex);
 const bytes = async (u) => new Uint8Array(await (await fetch(u)).arrayBuffer());
@@ -43,7 +43,7 @@ function frame(now) {
   for (let i = 0; i < n; i++) { const o = 7 + i * 4; const t = `${i === 0 ? 'YOU' : 'P' + (i + 1)}: ${f2(s[o])}${s[o + 2] ? ' BUST' : ''}${s[o + 3] ? '  +$' + s[o + 3] : ''}`; font.draw(hud, (i === cur ? '▶ ' : '   ') + t, 596, 392 + i * 22, i === cur ? '#ffd84a' : '#cfd8ff'); }
   if (phase === 6) { const m = win >= 0 ? (win === 0 ? 'YOU WIN THE SHOWDOWN!' : `CONTESTANT ${win + 1} WINS`) : 'EVERYONE BUSTED'; big.draw(hud, m, 400 - big.width(m) / 2, 90, win === 0 ? '#7f7' : '#ffd84a'); }
   if (imReflex) { hud.save(); hud.globalAlpha = 0.35; hud.drawImage(imReflex, 280, 44, 210, 485); hud.restore(); }
-  ui.draw(hud, hptr.x, hptr.y, 'btn'); if (caption) { hud.fillStyle = 'rgba(0,0,0,.65)'; hud.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(hud, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  ui.draw(hud, hptr.x, hptr.y, 'btn'); if (caption) font.caption(hud, caption);
   window.__bw = { phase, cur, pos, speed, win, ang, totals: Array.from({ length: n }, (_, i) => s[7 + i * 4]) }; 
 }
 requestAnimationFrame(frame); window.__ready = true;

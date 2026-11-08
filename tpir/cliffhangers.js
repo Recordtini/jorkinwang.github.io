@@ -1,5 +1,5 @@
 // Cliff Hangers on the original screen 032 art; logic from tpir::cliffhangers (Rust/WASM).
-import { Audio } from './audio.js'; import { Font } from './font.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -29,7 +29,7 @@ function frame() {
   font2.draw(g, ph === 3 ? 'YOU WIN!' : ph === 4 ? 'THE HIKER FELL!' : `Item ${Math.min(item + 1, 3)} of 3`, 20, 40, ph === 4 ? '#f77' : '#fff'); font.draw(g, `Step ${pos} of 25`, 20, 70, '#fc4');
   if (ph === 1 && item < 3) { const pi = pimg[item]; const sc = Math.min(220 / pi.width, 180 / pi.height); g.drawImage(pi, 20, 100, pi.width * sc, pi.height * sc); }
   if (ph >= 3) font2.draw(g, 'Last price: $' + Math.round(pick[Math.min(item, 2)].price), 20, 330, '#ffd84a');
-  if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  if (caption) font.caption(g, caption);
   window.__ch = { ph, item, pos, steps, real: pick.map((p) => Math.round(p.price)) };
 }
 requestAnimationFrame(frame); window.__ready = true;

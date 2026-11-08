@@ -1,5 +1,5 @@
 // One Away on the game's own screen 047 (ui.js: background, panels, Up/Down arrow buttons, OK; digit tiles from the game's Block/Black/Blue/Red images); rules from tpir::oneaway (Rust/WASM).
-import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 47).preload();
@@ -39,7 +39,7 @@ function frame(now) {
   if (ph === 3) font2.draw(g, 'ACTUAL PRICE', 215, 380, '#fff');
   const sc = Math.min(170 / pimg.width, 120 / pimg.height); g.drawImage(pimg, 14, 430, pimg.width * sc, pimg.height * sc);
   if (ph === 1) font2.draw(g, `${r1} RIGHT`, 290, 360, '#fff'); if (ph === 3) font2.draw(g, won ? 'YOU WIN!' : 'NOT THIS TIME', 290, 440, won ? '#7f7' : '#f77');
-  if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  if (caption) font.caption(g, caption);
   window.__oa = { ph, won, r1, rn, dir, shown, real, idle: !au.speaking && !au.speechQ.length };
 }
 requestAnimationFrame(frame); window.__ready = true;

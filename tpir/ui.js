@@ -1,7 +1,7 @@
 // Generic GWScreen UI runtime: draws the game's own screen layouts (widget trees from the GWScreen trailer) on an 800x600 canvas.
 // EVIDENCE (docs/FORMATS.md "GWScreen widgets"): containers carry the number of direct child records that follow; Image.res / Button.res are global resource ids
 // (Button.res = a Style entry: 4 x 38-byte state records {u16 image, ffffffff, 8 zero, u16 font, rgba} = normal, pressed, over, disabled); ids are file numbers.
-import { Font } from './font.js';
+import { Font } from './font.js?v=2';
 import { decodeJ32 } from './video.js';
 const SCREENS = Array.from({ length: 80 }, (_, i) => i + 1);
 export class Reg {                      // all manifests: resource id -> entry (name, type, text, style body), plus file index
@@ -36,7 +36,7 @@ export class UI {
       if (n.class === 'image' && mode !== 'btn') { const im = this.reg.imgs.get(n.res); const b = im && im.then ? null : im; if (b) { if (n.crop != null) g.drawImage(b, 0, 0, Math.max(1, b.width * n.crop), b.height, x, y, (n.w || b.width) * n.crop, n.h || b.height); else g.drawImage(b, x, y, n.w || b.width, n.h || b.height); } else if (im && im.then) im.then((v) => this.reg.imgs.set(n.res, v)); }
       else if (n.class === 'button' && mode !== 'nobtn') { const st = this.reg.style(n.res); const inside = mx >= x && mx < x + n.w && my >= y && my < y + n.h; const dis = this.disabled.has(n.inst); if (inside && !dis) this.hover = n;
         const si = dis ? 3 : (inside && this.down === n) ? 1 : inside ? 2 : 0; const s = st && st[si]; const b = s && this.reg.imgs.get(s.img); if (b && !b.then) g.drawImage(b, x, y, n.w, n.h); else if (b && b.then) b.then((v) => this.reg.imgs.set(s.img, v));
-        const label = this.txt.get(n.inst) ?? this.reg.text(n.text) ?? ''; if (label && s) { const f = this.reg.fonts.get(s.font); if (f && !f.then) { const c = s.rgba; const col = `rgba(${c[0]},${c[1]},${c[2]},${c[3] / 255})`; const t = label.toUpperCase(); f.draw(g, t, x + (n.w - f.width(t)) / 2, y + n.h / 2 + 7, col); } } }
+        const label = this.txt.get(n.inst) ?? this.reg.by[n.text]?.text ?? ''; if (label && s) { const f = this.reg.fonts.get(s.font); if (f && !f.then) { const c = s.rgba; const col = `rgba(${c[0]},${c[1]},${c[2]},${c[3] / 255})`; const lines = label.toUpperCase().split(/\r?\n/).map(t=>t.trim()).filter(Boolean); const lineHeight=f.lineHeight || 20; const widest=Math.max(1,...lines.map(t=>f.width(t))); const scale=Math.min(1,(n.w-16)/widest,(n.h-12)/(lineHeight*lines.length)); g.save(); g.translate(x+n.w/2,y+n.h/2); g.scale(scale,scale); lines.forEach((t,i)=>f.draw(g,t,-f.width(t)/2,(i-(lines.length-1)/2)*lineHeight+7,col)); g.restore(); } } }
       else if (n.class === 'rect' && mode !== 'btn' && this.fills.has(n.inst)) { const f = this.fills.get(n.inst); g.save(); g.fillStyle = f.fill; g.strokeStyle = f.stroke || 'transparent'; g.lineWidth = 3; g.beginPath(); g.roundRect(x, y, n.w, n.h, f.r ?? 18); g.fill(); if (f.stroke) g.stroke(); g.restore(); }
       else if (n.class === 'label' && mode !== 'btn') { const f = this.reg.fonts.get(n.res); const t = this.txt.get(n.inst); if (t && f && !f.then) f.draw(g, t, x + (this.labelCenter ? (n.w - f.width(t)) / 2 : 0), y + n.h / 2 + 10, this.labelColor || '#fff'); }
       n.children.forEach((c) => walk(c, x, y)); }; walk(this.root, 0, 0); if (this.overlay && mode !== 'nobtn') this.overlay(g);

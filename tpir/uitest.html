@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>GWUI test</title><body style="margin:0;background:#222"><canvas id="c" width="800" height="600"></canvas>
+<script type="module">
+import { Reg, UI } from './ui.js';
+const ex = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports; const idx = await (await fetch('zip-index.json')).json();
+const reg = await Reg.load(ex, idx); const scr = +(new URLSearchParams(location.search).get('s') || 67); const ui = await new UI(reg, scr).preload(); window.__ui = ui; window.__reg = reg;
+const hide = new URLSearchParams(location.search).get('hide'); if (hide) ui.hide(...hide.split(','));
+const g = document.getElementById('c').getContext('2d'); window.__ready = true; (function f() { requestAnimationFrame(f); g.fillStyle = '#334'; g.fillRect(0, 0, 800, 600); ui.draw(g, -1, -1); })();
+</script>

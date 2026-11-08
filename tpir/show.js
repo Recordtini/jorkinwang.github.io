@@ -3,7 +3,8 @@
 //   Main Menu -> Single Player (CLASSIC / 3 STRIKES) | Arcade | Achievements | Leaderboards | My Profile | Help & Options | Credits | Exit
 //   Show (Single): Come On Down -> Contestants' Row -> pricing game -> Showcase Showdown (the wheel) -> the Showcase.
 // Saves (profiles, high scores, unlocks, options) live in localStorage.
-import { Audio } from './audio.js'; import { Sprite } from './video.js'; import { Reg, UI } from './ui.js';
+import { gameWinnings, rowWinnings } from './show-results.js';
+import { Audio } from './audio.js?v=2'; import { Sprite } from './video.js'; import { Reg, UI } from './ui.js?v=2';
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const idx = await (await fetch('zip-index.json')).json();
@@ -30,8 +31,8 @@ function applyOptions() { Audio.defaultVolume = save.options.speech; Audio.capti
 // ------------------------------------------------------------------ audio of the shell
 const au = new Audio(ex, idx); await au.addScreens([27, 24, 10, 3]); au.onCaption = (t) => { $('scap').textContent = t; };
 const reg = await Reg.load(ex, idx);   // all GWScreen manifests (resource ids -> art/fonts/styles) for the real-UI runtime (ui.js)
-let music = null, musicSrc = null;
-async function startMusic() { if (musicSrc) return; au.unlock(); musicSrc = await au.music('Music_ComeOnDown.loop', save.options.music); }
+let music = null, musicSrc = null, musicStarting = null;
+async function startMusic() { if (musicSrc || !navigator.userActivation?.hasBeenActive) return; if (musicStarting) return musicStarting; musicStarting = (async () => { await au.unlock(); musicSrc = await au.music('Music_ComeOnDown.loop', save.options.music); })(); try { await musicStarting; } finally { musicStarting = null; } }
 function setMusicVolume() { au.volume = 1; /* speech uses module volume; music gain follows below */ }
 
 // ------------------------------------------------------------------ module loader (only the active module animates)
@@ -44,15 +45,15 @@ const GAMES = {
   mostexpensive: { key: '__me', name: 'Most Expensive', done: (s) => s.ph === 3, won: (s) => s.won === 1 },
   squeezeplay: { key: '__sq', name: 'Squeeze Play', done: (s) => s.ph === 3, won: (s) => s.won === 1 },
   flipflop: { key: '__ff', name: 'Flip Flop', done: (s) => s.ph === 3, won: (s) => s.won === 1, unlock: 'FlipFlop', gated: true },
-  clockgame: { key: '__ck', name: 'Clock Game', done: (s) => s.ph >= 3, won: (s) => s.ph === 3 },
+  clockgame: { key: '__ck', name: 'Clock Game', done: (s) => s.ph >= 3 && s.idle, won: (s) => s.ph === 3 },
   grocerygame: { key: '__gr', name: 'Grocery Game', done: (s) => s.ph >= 2, won: (s) => s.ph === 2 },
-  safecrackers: { key: '__sc', name: 'Safe Crackers', done: (s) => s.ph >= 2, won: (s) => s.ph === 2 },
-  luckyseven: { key: '__l7', name: 'Lucky Seven', done: (s) => s.ph === 2, won: (s) => s.won === 1 },
-  checkgame: { key: '__cg', name: 'Check Game', done: (s) => s.done && s.idle, won: (s) => s.won === 1, cash: (s) => (s.won ? s.cash + s.price : 0) },
+  safecrackers: { key: '__sc', name: 'Safe Crackers', done: (s) => (s.ph === 2 || s.ph === 3) && s.idle, won: (s) => s.ph === 2 },
+  luckyseven: { key: '__l7', name: 'Lucky Seven', done: (s) => s.ph === 2 && s.idle, won: (s) => s.won === 1 },
+  checkgame: { key: '__cg', name: 'Check Game', done: (s) => s.done && s.idle, won: (s) => s.won === 1 },
   doubleprices: { key: '__dp', name: 'Double Prices', done: (s) => s.done && s.idle, won: (s) => s.won === 1 },
   freezeframe: { key: '__fz', name: 'Freeze Frame', done: (s) => s.done && s.idle, won: (s) => s.won === 1 },
   checkout: { key: '__co', name: 'Check Out', done: (s) => s.done && s.idle, won: (s) => s.won === 1 },
-  punchabunch: { key: '__pb', name: 'Punch a Bunch', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1, cash: (s) => s.cash },
+  punchabunch: { key: '__pb', name: 'Punch a Bunch', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1 },
   oneaway: { key: '__oa', name: 'One Away', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1 },
   bonkers: { key: '__bk', name: 'Bonkers', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1, unlock: 'Bonkers' },
 };
@@ -60,10 +61,10 @@ const PRICING = Object.keys(GAMES);
 const NOT_PORTED = ['Dice Game', 'Golden Road', 'Half Off', 'Hole in One', "It's in the Bag", 'Master Key', 'Money Game', 'Plinko', 'Push Over', 'Race Game', 'Secret X', 'Spelling Bee', 'Three Strikes'];
 let styleEls = [], version = 0, inShow = false, quitting = false;
 function teardown() {
-  gen++; Audio.stopAll(au);
+  window.__disposeSegment?.(); delete window.__disposeSegment; gen++; Audio.stopAll(au);
   for (const c of document.querySelectorAll('#stage canvas')) { try { c.getContext('webgl2')?.getExtension('WEBGL_lose_context')?.loseContext(); } catch (e) { /* 2d canvas */ } }
   $('stage').replaceChildren(); styleEls.forEach((s) => s.remove()); styleEls = []; $('scap').textContent = '';
-  for (const k of ['__rg', '__sg', '__ch', '__me', '__sq', '__ff', '__ck', '__gr', '__sc', '__l7', '__bw', '__cr', '__sc2', '__ready']) delete window[k];
+  for (const k of [...Object.values(GAMES).map(g => g.key), '__bw', '__cr', '__sc2', '__ready']) delete window[k];
 }
 async function loadModule(name) {
   teardown(); const html = await (await fetch(`${name}.html`)).text(); const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -163,14 +164,12 @@ function leaderboards() {
 function profileMenu(first) {
   const names = Object.keys(save.profiles); const p = save.current ? me() : null;
   panel(`<h1>${first === true ? 'WHAT\'S YOUR NAME?' : tx(67, 'MyProfile', 'MY PROFILE')}</h1>
-    ${p ? `<div class="who">${avatar(p.avatar, p.name, 64)} <div style="text-align:left"><b>${p.name}</b><br>${tx(59, 'Rank' + rankOf(p.winnings))}<br>Shows ${p.shows} · Games won ${p.wins} · Winnings $${p.winnings.toLocaleString('en-US')}</div></div>` : ''}
+    ${p ? `<div class="who"><div style="text-align:left"><b>${p.name}</b><br>${tx(59, 'Rank' + rankOf(p.winnings))}<br>Shows ${p.shows} · Games won ${p.wins} · Winnings $${p.winnings.toLocaleString('en-US')}</div></div>` : ''}
     <div class="col"><input id="pname" maxlength="14" placeholder="Enter a name" value="">${btn('create', tx(67, 'Create', 'CREATE') + ' / ' + tx(67, 'Select', 'SELECT'))}
-    <div class="avrow">${AV.map((c, i) => `<span class="avc ${p && p.avatar === i ? 'sel' : ''}" data-a="${i}" style="background:${c}"></span>`).join('')}</div>
     ${names.length ? `<p class="small">${tx(67, 'ChangePlayer', 'CHANGE PLAYER')}:</p>${names.map((n) => `<button class="game pl" data-n="${n}">${n}</button>`).join('')}` : ''}
     ${save.current ? btn('back', tx(67, 'Back', 'BACK')) : ''}</div>`);
-  let av = p ? p.avatar : 0; document.querySelectorAll('.avc').forEach((a) => { a.onclick = () => { av = +a.dataset.a; document.querySelectorAll('.avc').forEach((x) => x.classList.toggle('sel', x === a)); if (p) { p.avatar = av; persist(); } }; });
   document.querySelectorAll('.pl').forEach((b) => { b.onclick = () => { save.current = b.dataset.n; persist(); mainMenu(); }; });
-  bind('create', () => { const n = $('pname').value.trim(); if (!n) return; if (save.profiles[n] && save.current !== n && !names.includes(n)) { toast(tx(67, 'DuplicateProfileName')); return; } if (!save.profiles[n]) save.profiles[n] = blank(n); save.profiles[n].avatar = av; save.current = n; persist(); mainMenu(); });
+  bind('create', () => { const n = $('pname').value.trim(); if (!n) return; if (save.profiles[n] && save.current !== n && !names.includes(n)) { toast(tx(67, 'DuplicateProfileName')); return; } if (!save.profiles[n]) save.profiles[n] = blank(n); save.current = n; persist(); mainMenu(); });
   bind('back', mainMenu);
 }
 async function optionsMenu() {   // real screen 025: Options window (89e7 > d817 sliders, 1b87 full-screen checkbox + Done/About)
@@ -232,7 +231,7 @@ async function tutorial(mode) {
   $('ov').onclick = null; hide(); $('scap').textContent = '';
 }
 async function playGame(name) {
-  const G = GAMES[name]; await loadModule(name); await until(() => { const s = window[G.key]; return s && G.done(s) ? s : null; }); const s = window[G.key]; const won = G.won(s); const extra = G.extra ? G.extra(s) : false; const cash = G.cash ? G.cash(s) : 0; await wait(3500); return { won, extra, cash };
+  const G = GAMES[name]; await loadModule(name); await until(() => { const s = window[G.key]; return s && G.done(s) ? s : null; }); const s = window[G.key]; const won = G.won(s); const extra = G.extra ? G.extra(s) : false; const cash = gameWinnings(name, s, won); await wait(3500); return { won, extra, cash };
 }
 async function runShow(mode) {
   const p = me(); Object.assign(state, { mode, strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 }); inShow = true; quitting = false; hud(); await tutorial(mode);
@@ -244,12 +243,14 @@ async function runShow(mode) {
       await loadModule('contestantsrow'); const cr = await until(() => window.__cr && window.__cr.done ? window.__cr : null);
       if (!cr.won) { if (mode === 'classic') { state.chances--; hud(); if (state.chances <= 0) { await gate('Game over', 'You ran out of chances at Contestants\' Row.'); break; } await gate('Not this time', `You have ${state.chances} chance${state.chances === 1 ? '' : 's'} left.`); }
         else { state.strikes++; hud(); await gate('Strike ' + state.strikes, state.strikes >= 3 ? 'That was your third strike — the show is over.' : tx(59, 'StrikeTutorial', "You didn't win Contestants' Row.").split('.')[0] + '.', 9000, 'strike'); if (state.strikes >= 3) break; } state.round++; continue; }
-      if (cr.diff != null && cr.diff <= 50) unlock('ContestantsRow'); state.winnings += cr.bonus; hud();
+      if (cr.diff != null && cr.diff <= 50) unlock('ContestantsRow'); state.winnings += rowWinnings(cr); hud();
       const avail = PRICING.filter((k) => !GAMES[k].unlock || me().unlocked[GAMES[k].unlock] || true); const name = avail[(Math.random() * avail.length) | 0];
       await banner(tx(59, 'HostIntro', 'Pricing Game'), `You're playing ${GAMES[name].name}!`); const g = await playGame(name);
-      const prize = g.cash > 0 ? g.cash : cr.price;   // cash games (Punch a Bunch) pay what the game paid, otherwise the Contestants' Row prize
-      if (g.won) { state.winnings += prize; state.won++; me().wins++; if (GAMES[name].unlock) unlock(GAMES[name].unlock); if (name === 'shellgame' && g.extra) unlock('ShellGame'); } hud();
-      await gate(g.won ? 'You won the prize!' : 'Not this time…', g.won ? `$${prize.toLocaleString('en-US')} added to your winnings.` : 'On to the Showcase Showdown.', 9000, g.won ? 'win' : null);
+      const prize = g.cash; // null means this game's prize value is not connected yet
+      if (g.won) { state.winnings += prize ?? 0; state.won++; me().wins++; if (GAMES[name].unlock) unlock(GAMES[name].unlock); if (name === 'shellgame' && g.extra) unlock('ShellGame'); }
+      else if (g.cash > 0) state.winnings += g.cash;
+      hud();
+      await gate(g.won ? 'You won the prize!' : 'Not this time…', g.won ? (prize == null ? 'On to the Showcase Showdown.' : `$${prize.toLocaleString('en-US')} added to your winnings.`) : g.cash > 0 ? `$${g.cash.toLocaleString('en-US')} in prizes added to your winnings.` : 'On to the Showcase Showdown.', 9000, g.won ? 'win' : null);
       await banner(tx(59, 'ShowcaseShowdown', 'Showcase Showdown'), 'Spin the wheel — closest to $1.00 without going over wins!'); await loadModule('bigwheel'); const bw = await until(() => window.__bw && window.__bw.phase === 6 ? window.__bw : null); await wait(3500);
       if (bw.totals && bw.totals[0] === 100) unlock('ShowcaseShowdown'); const wheelWon = bw.win === 0;
       if (!wheelWon) { if (mode === 'classic') { await gate('Game over', 'Another contestant took the wheel. In Classic mode that ends your show.'); break; } await gate('Not this time', "Another contestant took the wheel. Back to Contestants' Row!"); state.round++; continue; }
@@ -272,6 +273,7 @@ async function playArcade(k) {
 
 // ------------------------------------------------------------------ boot
 applyOptions(); window.__show = state; window.__save = () => save;
-$('go').onclick = () => { au.unlock(); mainMenu().catch(fail); };
+if (!save.current) { save.current = 'Player'; save.profiles.Player ||= blank('Player'); persist(); }
+mainMenu().catch(fail);
 function fail(e) { console.error(e); $('err').style.display = 'flex'; $('err').textContent = 'Something went wrong: ' + e + ' (the retail game files must be placed next to this page)'; }
 window.addEventListener('unhandledrejection', (e) => { if (!String(e.reason).includes('quit')) fail(e.reason); });

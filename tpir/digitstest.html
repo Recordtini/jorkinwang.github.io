@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><body style="background:#345;margin:0"><canvas id="c" width="800" height="200"></canvas>
+<script type="module">
+import { Sprite } from './video.js';
+const ex = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports; const g = document.getElementById('c').getContext('2d');
+const files = ['026/002396_0', '075/001821_0', '075/001841_0'];
+let y = 0; for (const f of files) { const s = await Sprite.load(ex, 'zip/' + f + '.GWVideo'); for (let i = 0; i < s.frames; i++) s.frame(g, i, 10 + i * 60, y, 56, 64); y += 66; }
+window.__ready = true;
+</script>

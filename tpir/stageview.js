@@ -39,10 +39,10 @@ void main(){ vec3 N = normalize(vn); float l;
       const hp = ex.tp_draw_info(i); const h = new Float32Array(this.mem().slice(hp, hp + 96)); const vc = h[19], ic = h[20];
       const vp = ex.tp_draw_verts(i); const verts = new Float32Array(this.mem().slice(vp, vp + vc * 32)); const ip = ex.tp_draw_indices(i); const idx = new Uint16Array(this.mem().slice(ip, ip + ic * 2));
       const tp = ex.tp_draw_texture(i); const mm = new Uint8Array(this.mem()); let tn = ''; for (let k = tp; mm[k]; k++) tn += String.fromCharCode(mm[k]);
-      const m = h.slice(0, 16);
+      const m = h.slice(0, 16), partLo = [Infinity,Infinity,Infinity], partHi = [-Infinity,-Infinity,-Infinity];
       for (let v = 0; v < vc; v++) { const x = verts[v*8], y = verts[v*8+1], z = verts[v*8+2];
         const X = x*m[0]+y*m[4]+z*m[8]+m[12], Y = x*m[1]+y*m[5]+z*m[9]+m[13], Z = x*m[2]+y*m[6]+z*m[10]+m[14];
-        lo = [Math.min(lo[0], X), Math.min(lo[1], Y), Math.min(lo[2], Z)]; hi = [Math.max(hi[0], X), Math.max(hi[1], Y), Math.max(hi[2], Z)]; }
+        lo = [Math.min(lo[0], X), Math.min(lo[1], Y), Math.min(lo[2], Z)]; hi = [Math.max(hi[0], X), Math.max(hi[1], Y), Math.max(hi[2], Z)]; for (const [i,v] of [X,Y,Z].entries()) { partLo[i]=Math.min(partLo[i],v); partHi[i]=Math.max(partHi[i],v); } }
       const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
       const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
       for (const [loc, sz, off] of [[0, 3, 0], [1, 3, 12], [2, 2, 24]]) { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 32, off); }
@@ -50,7 +50,7 @@ void main(){ vec3 N = normalize(vn); float l;
       const ap = ex.tp_draw_anim(i); let anim = null;   // .tan texture animation (lightanim_* bulbs, hologram lights): swap frames over time
       if (ap) { const m8 = new Uint8Array(this.mem()); let e = ap; while (m8[e]) e++; const a = JSON.parse(new TextDecoder().decode(m8.slice(ap, e))); anim = { fps: a.fps, start: a.start, tex: await Promise.all(a.frames.map((f) => this.loadTex(f))) }; }
       const mp = ex.tp_draw_model(i); const m8b = new Uint8Array(this.mem()); let mn = ''; for (let k = mp; m8b[k]; k++) mn += String.fromCharCode(m8b[k]);
-      this.draws.push({ vao, count: ic, m, diff: h.slice(16, 19), tex: anim ? anim.tex[0] : await this.loadTex(tn), tn, anim, mn });
+      this.draws.push({ vao, count: ic, m, center: partLo.map((x,i)=>(x+partHi[i])/2), diff: h.slice(16, 19), tex: anim ? anim.tex[0] : await this.loadTex(tn), tn, anim, mn });
     }
     this.bounds = { lo, hi }; return n;
   }
@@ -64,7 +64,7 @@ void main(){ vec3 N = normalize(vn); float l;
   }
   camAt(name, t) { const nb = new TextEncoder().encode(name), p = this.ex.tp_camera(this.put(nb), nb.length, t); return p ? new Float32Array(this.mem().slice(p, p + 32)) : null; }
   /** Draw with eye/target/fov in D3D world space. `xform(draw)` may return a row-major 4x4 (applied before the model matrix) or null. */
-  render({ eye, target, fov = 0.9, near = 0.05, far = 200, xform = null, cull = true, time = 0 }) {
+  render({ eye, target, fov = 0.9, near = 0.05, far = 200, xform = null, cull = true, time = 0, filter = null, additiveFilter = null, alphaBlend = false, transparentSort = false }) {
     const { gl, cv } = this; const dpr = devicePixelRatio || 1, w = cv.clientWidth * dpr | 0, h = cv.clientHeight * dpr | 0;
     if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } gl.viewport(0, 0, w, h);
     gl.clearColor(0.02, 0.02, 0.04, this.transparent ? 0 : 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); gl.enable(gl.DEPTH_TEST);
@@ -72,17 +72,20 @@ void main(){ vec3 N = normalize(vn); float l;
     const e = [eye[0], eye[1], -eye[2]], tg = [target[0], target[1], -target[2]];
     const view = look(e, tg, [0, 1, 0]), proj = persp(fov, w / h, near, far); const flipZ = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,-1,0, 0,0,0,1]);
     const sp = this.spot; gl.uniform1f(this.U('useSpot'), sp ? 1 : 0); if (sp) { gl.uniform3fv(this.U('spotPos'), sp.pos); gl.uniform3fv(this.U('spotDir'), sp.dir); gl.uniform2fv(this.U('spotCos'), sp.cos); gl.uniform1f(this.U('ambient'), sp.ambient); }
+    const direction = target.map((v,i)=>v-eye[i]); const depth = d=>d.center.reduce((sum,v,i)=>sum+(v-eye[i])*direction[i],0);
+    const draws = transparentSort ? [...this.draws].sort((a,b)=>depth(b)-depth(a)) : this.draws;
     for (const pass of [0, 1]) {   // pass 0: solid; pass 1: animated light sprites, additive, no depth write
-    gl.uniform1f(this.U('mode'), pass); if (pass) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.depthMask(false); }
-    for (const d of this.draws) {
-      if (!!d.anim !== !!pass) continue; let m = d.m; const x = xform && xform(d); if (x) m = rowmul(x, d.m);
+    gl.uniform1f(this.U('mode'), pass); if (pass) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.depthMask(false); } else if (alphaBlend) { gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); if (transparentSort) gl.depthMask(false); }
+    for (const d of draws) {
+      const additive = !!d.anim && (!additiveFilter || additiveFilter(d));
+      if (additive !== !!pass || (filter && !filter(d))) continue; let m = d.m; const x = xform && xform(d); if (x) m = rowmul(x, d.m);
       const mdl = mul(flipZ, m); gl.uniformMatrix4fv(this.U('model'), false, mdl); gl.uniformMatrix4fv(this.U('mvp'), false, mul(proj, mul(view, mdl)));
       gl.uniform3fv(this.U('diff'), d.diff); gl.uniform1f(this.U('hasTex'), d.tex ? 1 : 0);
       const tx = d.anim ? d.anim.tex[(d.anim.start + Math.floor(time * d.anim.fps)) % d.anim.tex.length] : d.tex;
       gl.uniform1f(this.U('hasTex'), tx ? 1 : 0); if (tx) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tx); gl.uniform1i(this.U('tex'), 0); }
       gl.bindVertexArray(d.vao); gl.drawElements(gl.TRIANGLES, d.count, gl.UNSIGNED_SHORT, 0);
     }
-    if (pass) { gl.disable(gl.BLEND); gl.depthMask(true); }
+    if (pass || alphaBlend) { gl.disable(gl.BLEND); gl.depthMask(true); }
     }
   }
 }

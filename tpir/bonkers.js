@@ -1,5 +1,5 @@
 // Bonkers on the game's own screen 029 (drawn by ui.js: background, BonkersBoard, ClockArrow, chips, Start/Check buttons); rules from tpir::bonkers (Rust/WASM, engine/src/bonkers.rs).
-import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg, UI } from './ui.js'; import { Sprite } from './video.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js'; import { Sprite } from './video.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 29).preload();
@@ -44,7 +44,7 @@ function frame(now) {
   if (arrow) { const frac = ph === 2 ? 1 - left / 30000 : ph === 3 ? 1 - left / 30000 : 0; g.save(); g.translate(741 + 35, 175 + 35); g.rotate(frac * Math.PI * 2); g.drawImage(arrow, -35, -35, 70, 70); g.restore(); }
   if (ph === 2) { const t = Math.ceil(left / 1000) + 's'; font2.draw(g, t, 776 - font2.width(t) / 2, 262, '#fff'); }
   if (ph === 3) { const won = verdict === 1 || verdict === 2; const msg = won ? 'YOU WIN!' : 'SORRY — NOT THIS TIME'; font2.draw(g, msg, 20, 150, won ? '#7f7' : '#f77'); if (!doneAt) doneAt = now; }
-  if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  if (caption) font.caption(g, caption);
   window.__bk = { ph, won: verdict === 1 || verdict === 2 ? 1 : 0, verdict, left, placed, real, shown, choice, idle: !au.speaking && !au.speechQ.length };
 }
 requestAnimationFrame(frame); window.__ready = true;

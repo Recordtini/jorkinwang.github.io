@@ -1,5 +1,5 @@
 // Small shared toolkit for the simpler pricing games: wasm + the game's own screen assets (by name) + audio events + number entry.
-import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg } from './ui.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg } from './ui.js';
 export async function kit(screen) {
   const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
   const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d'); const reg = await Reg.load(ex, idx);
@@ -13,7 +13,7 @@ export async function kit(screen) {
   K.pump = (fn) => { const p = fn(); if (!p) return; const m = new Uint8Array(mem()); let o = p; for (;;) { let e = o; while (m[e]) e++; if (e === o) break; au.say(new TextDecoder().decode(m.slice(o, e))); o = e + 1; } };
   K.f32 = (fn, n = 24) => { const p = fn(); return new Float32Array(mem().slice(p, p + 4 * n)); };
   K.idle = () => !au.speaking && !au.speechQ.length;
-  K.drawCaption = () => { if (!K.caption) return; g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = K.caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); };
+  K.drawCaption = () => { if (K.caption) font.caption(g, K.caption); };
   K.contain = (im, x, y, w, h) => { const sc = Math.min(w / im.width, h / im.height); g.drawImage(im, x + (w - im.width * sc) / 2, y + (h - im.height * sc) / 2, im.width * sc, im.height * sc); };
   K.text = (t, x, y, col = '#fff', big = false) => (big ? font2 : font).draw(g, t, x, y, col);
   K.center = (t, y, col = '#fff', big = false) => { const f = big ? font2 : font; f.draw(g, t, 400 - f.width(t) / 2, y, col); };

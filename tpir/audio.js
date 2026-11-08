@@ -3,7 +3,7 @@
 export class Audio {
   static all = [];
   static stopAll(keep) { for (const a of Audio.all) if (a !== keep) a.shutdown(); Audio.all = keep ? [keep] : []; }
-  shutdown() { this.speechQ.length = 0; this.onIdle = null; this.onCaption = null; this.dead = true; for (const n of this.live || []) { try { n.stop(); } catch (e) { /* ignore */ } } if (this.ctx && this.ctx.state !== 'closed') this.ctx.close().catch(() => {}); }
+  shutdown() { this.speechQ.length = 0; this.onIdle = null; this.onCaption = null; this.onSpeechStart = null; this.onSpeechEnd = null; this.dead = true; for (const n of this.live || []) { try { n.stop(); } catch (e) { /* ignore */ } } if (this.ctx && this.ctx.state !== 'closed') this.ctx.close().catch(() => {}); }
   constructor(ex, idx) { Audio.all.push(this); this.live = new Set(); this.ex = ex; this.idx = idx; this.names = new Map(); this.bufs = new Map(); this.ctx = null; this.speechQ = []; this.speaking = false; this.captions = null; this.volume = Audio.defaultVolume ?? 0.8; this.muted = false; }
   mem() { return this.ex.memory.buffer; }
   /** Register every audio entry of the given screen manifests so names can be played. */
@@ -16,10 +16,20 @@ export class Audio {
       for (const x of S.entries) if (x.type === 5) (this.text ||= new Map()).set(x.name, x.text);
     }
   }
-  unlock() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); }
+  addProduct(product) {
+    const name = `Product_${String(product.id).padStart(6, '0')}`;
+    this.names.set(name, { file: `retail-audio/${name}.vorbis`, caption: product.en });
+    return name;
+  }
+  async unlock() {
+    if (this.dead) return;
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx.state === 'suspended') await this.ctx.resume();
+    if (!this.speaking && this.speechQ.length) this.next();
+  }
   async buffer(name) {
-    if (this.bufs.has(name)) return this.bufs.get(name); const nm = this.names.get(name); const f = nm && this.idx[nm.id]; if (!f) { this.bufs.set(name, null); return null; }
-    let buf = null; const data = await (await fetch('zip/' + f)).arrayBuffer();
+    if (this.bufs.has(name)) return this.bufs.get(name); const nm = this.names.get(name); const f = nm && (nm.file || this.idx[nm.id]); if (!f) { this.bufs.set(name, null); return null; }
+    let buf = null; const data = await (await fetch(nm.file || 'zip/' + f)).arrayBuffer();
     if (f.endsWith('.vorbis') || f.endsWith('.opus')) buf = await this.ctx.decodeAudioData(data.slice(0)).catch(() => null);
     else if (f.endsWith('.GWSample')) {
       const b = new Uint8Array(data); const p = this.ex.tp_alloc(b.length); new Uint8Array(this.mem(), p, b.length).set(b); const o = this.ex.tp_gwsample(p, b.length);
@@ -34,15 +44,27 @@ export class Audio {
   }
   sfx(name) { return this.start(name, 0.8); }
   /** Speech lines play one after another. */
-  say(name) { this.speechQ.push(name); if (!this.speaking) this.next(); }
+  say(name) {
+    if (this.dead) return;
+    if (name.startsWith('Sfx_')) { this.sfx(name); return; }
+    this.speechQ.push(name);
+    // A locked browser must retain the intro instead of silently dropping each line
+    // after the old 600ms fallback. A gesture on the shell also permits new segments.
+    if (!this.ctx && navigator.userActivation?.hasBeenActive) this.unlock();
+    else if (!this.speaking && this.ctx?.state === 'running') this.next();
+  }
   async next() {
+    if (this.dead || !this.ctx || this.ctx.state !== 'running') { this.speaking = false; return; }
     const name = this.speechQ.shift(); if (!name) { const was = this.speaking; this.speaking = false; if (this.onCaption) this.onCaption(''); if (was && this.onIdle) this.onIdle(); return; }
     this.speaking = true; const src = await this.start(name);
-    if (this.onCaption && !Audio.captionsOff) this.onCaption(this.captionFor(name));
-    if (!src) { setTimeout(() => this.next(), 600); return; } src.onended = () => this.next();
+    const duration = src?.buffer?.duration || (this.names.get(name)?.ms || 0) / 1000;
+    if (this.onCaption && !Audio.captionsOff) this.onCaption(this.captionFor(name), { name, duration });
+    if (this.onSpeechStart) this.onSpeechStart(name, { duration, source: src });
+    if (!src) { setTimeout(() => { if (this.onSpeechEnd) this.onSpeechEnd(name); this.next(); }, 600); return; }
+    src.onended = () => { if (this.onSpeechEnd) this.onSpeechEnd(name); this.next(); };
   }
   /** Caption = the manifest text of the line's base name (Speech_ShowcaseShowdown_Welcome_A -> Welcome). */
-  captionFor(name) { const base = name.replace(/^Speech_[A-Za-z0-9]+_/, '').replace(/_(A|B|C|D)$/, ''); return this.text?.get(base) || this.text?.get(name.replace(/^Speech_/, '').replace(/_(A|B|C|D)$/, '')) || ''; }
+  captionFor(name) { if (this.names.get(name)?.caption) return this.names.get(name).caption; const base = name.replace(/^Speech_[A-Za-z0-9]+_/, '').replace(/_(A|B|C|D)$/, ''); return this.text?.get(base) || this.text?.get(name.replace(/^Speech_/, '').replace(/_(A|B|C|D)$/, '')) || ''; }
   /** Looping music (e.g. Music_ComeOnDown.loop). */
   async music(name, gain = 0.35) { if (!this.ctx) return null; const buf = await this.buffer(name); if (!buf || this.dead) return null; const src = this.ctx.createBufferSource(); src.buffer = buf; src.loop = true; const g = this.ctx.createGain(); g.gain.value = gain * this.volume; src.connect(g).connect(this.ctx.destination); src.start(); this.live.add(src); return src; }
   clearSpeech() { this.speechQ.length = 0; }

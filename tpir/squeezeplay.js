@@ -1,5 +1,5 @@
 // Squeeze Play on the original screen 057 art; logic from tpir::squeezeplay (Rust/WASM).
-import { Audio } from './audio.js'; import { Font } from './font.js';
+import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -25,7 +25,7 @@ function frame() {
   showDigits.forEach((v, i) => { const x = ph >= 2 ? 180 + i * 110 : BX(i); const mid = ph < 2 && i >= 1 && i <= 3; g.fillStyle = mid ? '#ffd84a' : '#e8e8f0'; g.fillRect(x, 320, 100, 100); g.strokeStyle = '#123'; g.lineWidth = 3; g.strokeRect(x, 320, 100, 100); font2.draw(g, String(v), x + 50 - font2.width(String(v)) / 2, 390, '#123'); });
   font2.draw(g, ph === 1 ? 'Remove one of the three middle numbers' : ph === 3 ? (won === 1 ? 'YOU WIN!' : 'SORRY, YOU LOSE') : ph === 2 ? 'Squeezing…' : '', 40, 60, won === 0 ? '#f77' : '#fff');
   if (ph >= 2) font2.draw(g, '$' + Math.round(prod.price).toLocaleString('en-US'), 290, 480, '#ffd84a');
-  if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  if (caption) font.caption(g, caption);
   window.__sq = { ph, rem, won, result, shown: d, real: Math.round(prod.price) };
 }
 requestAnimationFrame(frame); window.__ready = true;

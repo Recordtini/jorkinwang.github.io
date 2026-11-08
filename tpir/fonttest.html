@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#224"><canvas id="c" width="640" height="200"></canvas>
+<script type="module">
+import { Font } from './font.js';
+const w = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = w.instance.exports;
+const f = await Font.load(ex, 'zip/059/004161_0.GWFont'); const g = document.getElementById('c').getContext('2d');
+f.draw(g, 'THE PRICE IS RIGHT 0123456789', 10, 40, '#ffd84a'); f.draw(g, 'Come on down! $1,000 Showcase Showdown', 10, 80, '#fff');
+const f2 = await Font.load(ex, 'zip/059/004162_0.GWFont'); f2.draw(g, 'Bigger Font: SPIN 100 $25,000', 10, 140, '#6cf'); window.__ready = true;
+</script>

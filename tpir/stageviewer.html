@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TPIR stage viewer</title>
+<style>html,body{margin:0;height:100%;background:#111;color:#ddd;font:13px system-ui}canvas{width:100%;height:100%;display:block}
+#ui{position:fixed;left:8px;top:8px;background:#000a;padding:6px 10px;border-radius:6px}#ui select,#ui label{margin-right:8px}</style></head>
+<body><canvas id="c"></canvas><div id="ui"><select id="stage"></select><select id="cam"></select><label><input type="checkbox" id="flipx">flip X</label><label><input type="checkbox" id="cull">cull</label><span id="info"></span></div>
+<script type="module" src="viewer.js"></script></body></html>

@@ -1,7 +1,7 @@
 // The final Showcase. Rules: tpir::showcase (Rust/WASM) ported from the retail exe (ShowcaseShowdownScreen: Bid or Pass, AI bid, outcome table, $250 double - engine/src/showcase.rs, docs/GHIDRA.md).
 // Look: the game's own showcase stage (camera `camcloseupp01top02.cam` from the stage archive) with the screen-075 overlay (Bid / Pass / OK buttons from the widget tree, SSpodium art, five digit slots per podium at their real positions, the WinDoubleShowcase banner).
 // The showcases are the product database's `showcase-prize-S-N-...-TOTAL` groups: entries that share a TOTAL form one showcase (S = which of the two sets).
-import { StageView } from './stageview.js'; import { Audio } from './audio.js'; import { Font } from './font.js'; import { Reg, UI } from './ui.js';
+import { StageView } from './stageview.js'; import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const ex = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports, exS = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports; const mem = () => ex.memory.buffer;
 const bytes = async (u) => new Uint8Array(await (await fetch(u)).arrayBuffer()); const idx = await (await fetch('zip-index.json')).json(); const DEG = Math.PI / 180;
 const sv = new StageView(document.getElementById('stage3d'), exS); await sv.load(await bytes('stage/showcase/showcase_stage.dir'), await bytes('stage/showcase/showcase_stage.scn')); sv.loadLight('database/stage/showcase/spotlight.lgt');
@@ -55,7 +55,7 @@ function frame(now) {
   if (revealed && s[7] === 1 && banner) { g.drawImage(banner, 64, 140, 670, 317 * 0.6); }
   if (revealed) { const won = s[9] === 1; const t = s[6] === 3 ? T('TwoWinner') : won ? (s[7] ? T('DoubleShowcaseWinner') : T('Winner')) : T('Lose'); big.draw(g, t.slice(0, 40), 400 - big.width(t.slice(0, 40)) / 2, 120, won ? '#7f7' : '#f77'); }
   if (msg) { const m = msg.length > 76 ? msg.slice(0, 76) : msg; g.fillStyle = 'rgba(0,0,0,.7)'; g.fillRect(0, 480, 800, 36); font.draw(g, m, 400 - font.width(m) / 2, 504, '#ffd84a'); }
-  ui.draw(g, ptr.x, ptr.y, 'btn'); if (caption) { g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, 548, 800, 52); const t = caption.slice(0, 90); font.draw(g, t, 400 - font.width(t) / 2, 580, '#fff'); }
+  ui.draw(g, ptr.x, ptr.y, 'btn'); if (caption) font.caption(g, caption);
   if (!doneFlag) window.__sc2 = { done: false, editing, deciding, state: Array.from(s) };
 }
 requestAnimationFrame(frame); window.__ready = true; run();
