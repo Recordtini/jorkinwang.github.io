@@ -4,7 +4,7 @@
 //   Show (Single): Come On Down -> Contestants' Row -> pricing game -> Showcase Showdown (the wheel) -> the Showcase.
 // Saves (profiles, high scores, unlocks, options) live in localStorage.
 import { gameWinnings, rowWinnings } from './show-results.js';
-import { Audio } from './audio.js?v=2'; import { Sprite } from './video.js'; import { Reg, UI } from './ui.js?v=2';
+import { Audio } from './audio.js?v=2'; import { Reg, UI } from './ui.js?v=2';
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const idx = await (await fetch('zip-index.json')).json();
@@ -46,7 +46,7 @@ const GAMES = {
   squeezeplay: { key: '__sq', name: 'Squeeze Play', done: (s) => s.ph === 3, won: (s) => s.won === 1 },
   flipflop: { key: '__ff', name: 'Flip Flop', done: (s) => s.ph === 3, won: (s) => s.won === 1, unlock: 'FlipFlop', gated: true },
   clockgame: { key: '__ck', name: 'Clock Game', done: (s) => s.ph >= 3 && s.idle, won: (s) => s.ph === 3 },
-  grocerygame: { key: '__gr', name: 'Grocery Game', done: (s) => s.ph >= 2, won: (s) => s.ph === 2 },
+  grocerygame: { key: '__gr', name: 'Grocery Game', done: (s) => s.ph >= 2 && s.idle, won: (s) => s.ph === 2 },
   safecrackers: { key: '__sc', name: 'Safe Crackers', done: (s) => (s.ph === 2 || s.ph === 3) && s.idle, won: (s) => s.ph === 2 },
   luckyseven: { key: '__l7', name: 'Lucky Seven', done: (s) => s.ph === 2 && s.idle, won: (s) => s.won === 1 },
   checkgame: { key: '__cg', name: 'Check Game', done: (s) => s.done && s.idle, won: (s) => s.won === 1 },
@@ -70,7 +70,7 @@ async function loadModule(name) {
   teardown(); const html = await (await fetch(`${name}.html`)).text(); const doc = new DOMParser().parseFromString(html, 'text/html');
   for (const st of doc.querySelectorAll('style')) { const e = document.createElement('style'); e.textContent = st.textContent.replace(/html,\s*body\s*\{[^}]*\}/, ''); document.head.appendChild(e); styleEls.push(e); }
   for (const n of [...doc.body.children]) if (n.tagName !== 'SCRIPT') $('stage').appendChild(document.importNode(n, true));
-  await import(`./${name}.js?v=${++version}`); applyOptions();
+  await import(`./${name}.js?build=show6&v=${++version}`); applyOptions();
 }
 const until = async (fn, ms = 900000) => { const t0 = performance.now(); while (performance.now() - t0 < ms) { if (quitting) throw new Error('quit'); try { const v = fn(); if (v) return v; } catch (e) { /* not ready */ } await wait(150); } return null; };
 
@@ -190,9 +190,8 @@ async function optionsMenu() {   // real screen 025: Options window (89e7 > d817
 function helpMenu() {   // reached from Options > About: how to play (the game's own tutorial text), captions, tutorial replay, erase data
   const o = save.options; const lines = ['Single_1', 'Single_2', 'Single_3', 'Single_4', 'Single_5', 'Single_6', 'Single_7'].map((k) => `<p>${tx(27, 'Transition_' + k)}</p>`).join('');
   panel(`<h1>${tx(25, 'About', 'ABOUT').toUpperCase()} / HOW TO PLAY</h1><div class="list" style="text-align:left">${lines}<p>${tx(27, 'Transition_Classic_3')}</p><p>${tx(27, 'Transition_Classic_5')}</p></div>
-    <div class="col"><label><input id="oc" type="checkbox" ${o.captions ? 'checked' : ''}> Captions</label>${btn('tut', 'REPLAY THE TUTORIAL')}${btn('reset', 'ERASE SAVED DATA')}${btn('back', tx(25, 'Done', 'DONE'))}</div>`);
+    <div class="col"><label><input id="oc" type="checkbox" ${o.captions ? 'checked' : ''}> Captions</label>${btn('reset', 'ERASE SAVED DATA')}${btn('back', tx(25, 'Done', 'DONE'))}</div>`);
   $('oc').onchange = (e) => { o.captions = e.target.checked; persist(); applyOptions(); };
-  bind('tut', async () => { await tutorial('strikes'); optionsMenu(); });
   bind('reset', () => { if (confirm('Erase all profiles, scores and unlocks?')) { save = { profiles: {}, current: null, options: o, scores: [] }; persist(); mainMenu(); } });
   bind('back', optionsMenu);
 }
@@ -204,70 +203,45 @@ async function credits() {
 // ------------------------------------------------------------------ the show
 const state = { mode: 'strikes', strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 };
 function hud() { const h = $('shud'); h.style.display = 'block'; h.innerHTML = `<span>${state.mode === 'classic' ? `Chances ${state.chances}` : `Strikes ${'✖'.repeat(state.strikes)}${'·'.repeat(3 - state.strikes)}`}</span> · <span>Winnings $${state.winnings.toLocaleString('en-US')}</span> <button id="hmenu">MENU</button>`;
-  $('hmenu').onclick = () => { if (confirm('Quit this show and return to the main menu?')) { quitting = true; } }; }
+  $('hmenu').onclick = () => { quitting = true; }; }
 
-// ---- FX layer: the original's GWVideo sprite animations (Strike, RewardBill, RewardConfetti, ParticulesWin, WiningLight) drawn over the result screens. EVIDENCE: docs/FORMATS.md (.GWVideo).
-const fxc = document.createElement('canvas'); fxc.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:35;pointer-events:none'; document.body.appendChild(fxc);
-const SPR = {}; const sprUrl = (scr, id) => `zip/${String(scr).padStart(3, "0")}/${String(id).padStart(6, '0')}_0.GWVideo`;
-async function spr(k) { const m = { strike: [22, 4190], bill: [11, 4198], confetti: [11, 4199], win: [80, 3322], light: [22, 4195] }[k]; return SPR[k] ||= await Sprite.load(ex, sprUrl(...m)).catch(() => null); }
-let fxGen = 0;
-async function fx(kind) {   // 'win' | 'strike'; returns a stop function
-  const gen = ++fxGen; const g = fxc.getContext('2d'); const W = fxc.width = innerWidth, H = fxc.height = innerHeight; const t0 = performance.now();
-  const [strike, bill, conf, win] = await Promise.all([spr('strike'), spr('bill'), spr('confetti'), spr('win')]);
-  const bills = Array.from({ length: 22 }, () => ({ x: Math.random() * W, y: -Math.random() * H, v: 90 + Math.random() * 160, s: 40 + Math.random() * 40, ph: Math.random() * 1500, c: Math.random() < 0.4 }));
-  (function f() { if (gen !== fxGen) return; requestAnimationFrame(f); g.clearRect(0, 0, W, H); const t = performance.now() - t0;
-    if (kind === 'strike' && strike) { const sz = Math.min(W, H) * 0.6; strike.draw(g, t, W / 2 - sz / 2, H / 2 - sz / 2, sz, sz); }
-    if (kind === 'win') { if (win) win.draw(g, t, W / 2 - 300, 20, 600, 600 * win.h / win.w, true);
-      for (const b of bills) { const sp = b.c ? conf : bill; if (!sp) continue; const y = (b.y + b.v * t / 1000) % (H + 120) - 60; sp.draw(g, t + b.ph, b.x + Math.sin(t / 700 + b.ph) * 30, y, b.s, b.s, true); } } })();
-  return () => { if (gen === fxGen) { fxGen++; fxc.getContext('2d').clearRect(0, 0, fxc.width, fxc.height); } };
-}
-const banner = (h, p) => new Promise((res) => { panel(`<h1>${h}</h1><p>${p || ''}</p>`, { clear: true }); setTimeout(() => { hide(); res(); }, 1700); });
-async function gate(title, msg, ms = 9000, fxk) { const stop = fxk ? await fx(fxk).catch(() => () => {}) : () => {}; return new Promise((res) => { panel(`<h1>${title}</h1><p>${msg}</p><div class="col">${btn('go', 'Continue ▶')}</div>`, { clear: true }); const t = setTimeout(() => $('go')?.click(), ms); $('go').onclick = () => { clearTimeout(t); au.unlock(); stop(); hide(); res(); }; }); }
-async function tutorial(mode) {
-  au.unlock(); startMusic(); const lines = ['Speech_Transition_Welcome', ...['1', '2', '3', '4', '5', '6', '7'].map((n) => `Speech_Transition_${mode === 'classic' ? 'Classic' : 'Single'}_${n}`)];
-  panel(`<h1>${tx(27, 'Transition_Welcome', 'Welcome to The Price Is Right!')}</h1><p>${tx(27, 'Transition_ClickAnywhereToSkip', 'Click anywhere to skip this tutorial.')}</p>`, { clear: true });
-  let skipped = false; $('ov').onclick = () => { skipped = true; au.clearSpeech(); au.speaking = false; }; for (const l of lines) au.say(l);
-  await new Promise((r) => { au.onIdle = () => { au.onIdle = null; r(); }; const t = setInterval(() => { if (skipped) { clearInterval(t); r(); } }, 200); });
-  $('ov').onclick = null; hide(); $('scap').textContent = '';
-}
 async function playGame(name) {
   const G = GAMES[name]; await loadModule(name); await until(() => { const s = window[G.key]; return s && G.done(s) ? s : null; }); const s = window[G.key]; const won = G.won(s); const extra = G.extra ? G.extra(s) : false; const cash = gameWinnings(name, s, won); await wait(3500); return { won, extra, cash };
 }
 async function runShow(mode) {
-  const p = me(); Object.assign(state, { mode, strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 }); inShow = true; quitting = false; hud(); await tutorial(mode);
+  const p = me(); Object.assign(state, { mode, strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 }); inShow = true; quitting = false; hud(); uiOff(); hide(); await au.unlock(); startMusic();
   let ended = 'over'; const ob = { gotShowcase: false };
   try {
     for (;;) {
       hud(); if (mode === 'classic' && state.chances < 6) { au.say(`Speech_ContestantsRow_ClassicChance${Math.max(1, state.chances)}`); }
-      await banner("Contestants' Row", mode === 'classic' ? `${state.chances} chance${state.chances === 1 ? '' : 's'} left` : 'Closest to the retail price without going over wins.');
       await loadModule('contestantsrow'); const cr = await until(() => window.__cr && window.__cr.done ? window.__cr : null);
-      if (!cr.won) { if (mode === 'classic') { state.chances--; hud(); if (state.chances <= 0) { await gate('Game over', 'You ran out of chances at Contestants\' Row.'); break; } await gate('Not this time', `You have ${state.chances} chance${state.chances === 1 ? '' : 's'} left.`); }
-        else { state.strikes++; hud(); await gate('Strike ' + state.strikes, state.strikes >= 3 ? 'That was your third strike — the show is over.' : tx(59, 'StrikeTutorial', "You didn't win Contestants' Row.").split('.')[0] + '.', 9000, 'strike'); if (state.strikes >= 3) break; } state.round++; continue; }
+      if (!cr.won) {
+        if (mode === 'classic') { state.chances--; hud(); if (state.chances <= 0) break; }
+        else { state.strikes++; hud(); if (state.strikes >= 3) break; }
+        state.round++; continue;
+      }
       if (cr.diff != null && cr.diff <= 50) unlock('ContestantsRow'); state.winnings += rowWinnings(cr); hud();
       const avail = PRICING.filter((k) => !GAMES[k].unlock || me().unlocked[GAMES[k].unlock] || true); const name = avail[(Math.random() * avail.length) | 0];
-      await banner(tx(59, 'HostIntro', 'Pricing Game'), `You're playing ${GAMES[name].name}!`); const g = await playGame(name);
+      const g = await playGame(name);
       const prize = g.cash; // null means this game's prize value is not connected yet
       if (g.won) { state.winnings += prize ?? 0; state.won++; me().wins++; if (GAMES[name].unlock) unlock(GAMES[name].unlock); if (name === 'shellgame' && g.extra) unlock('ShellGame'); }
       else if (g.cash > 0) state.winnings += g.cash;
       hud();
-      await gate(g.won ? 'You won the prize!' : 'Not this time…', g.won ? (prize == null ? 'On to the Showcase Showdown.' : `$${prize.toLocaleString('en-US')} added to your winnings.`) : g.cash > 0 ? `$${g.cash.toLocaleString('en-US')} in prizes added to your winnings.` : 'On to the Showcase Showdown.', 9000, g.won ? 'win' : null);
-      await banner(tx(59, 'ShowcaseShowdown', 'Showcase Showdown'), 'Spin the wheel — closest to $1.00 without going over wins!'); await loadModule('bigwheel'); const bw = await until(() => window.__bw && window.__bw.phase === 6 ? window.__bw : null); await wait(3500);
+      await loadModule('bigwheel'); const bw = await until(() => window.__bw && window.__bw.phase === 6 ? window.__bw : null); await wait(3500);
       if (bw.totals && bw.totals[0] === 100) unlock('ShowcaseShowdown'); const wheelWon = bw.win === 0;
-      if (!wheelWon) { if (mode === 'classic') { await gate('Game over', 'Another contestant took the wheel. In Classic mode that ends your show.'); break; } await gate('Not this time', "Another contestant took the wheel. Back to Contestants' Row!"); state.round++; continue; }
-      await banner(tx(59, 'Showcase', 'Showcase'), 'Bid on your showcase — closest without going over!'); await loadModule('showcase'); const sc = await until(() => window.__sc2 && window.__sc2.done ? window.__sc2 : null); state.winnings += sc.prize; hud();
+      if (!wheelWon) { if (mode === 'classic') break; state.round++; continue; }
+      await loadModule('showcase'); const sc = await until(() => window.__sc2 && window.__sc2.done ? window.__sc2 : null); state.winnings += sc.prize; hud();
       if (sc.won && sc.diff != null && sc.diff <= 1000) unlock('Showcase'); if (sc.won && mode === 'strikes') unlock('ThreeStrikes'); ob.gotShowcase = true;
-      await gate(sc.won ? (sc.double ? 'You won BOTH showcases!' : 'You won the Showcase!') : 'You lost the Showcase', sc.won ? `+$${sc.prize.toLocaleString('en-US')}` : 'Better luck next time.', 11000, sc.won ? 'win' : null);
       if (mode === 'classic') { ended = 'done'; break; } state.round++;
     }
   } catch (e) { if (e.message !== 'quit') throw e; ended = 'quit'; }
   teardown(); $('shud').style.display = 'none'; inShow = false; if (ended === 'quit') return mainMenu();
   const pr = me(); pr.shows++; pr.winnings += state.winnings; const prev = pr.high[mode]; const newHigh = state.winnings > prev; if (newHigh) pr.high[mode] = state.winnings; save.scores.push({ name: pr.name, mode, score: state.winnings, t: Date.now() }); save.scores = save.scores.sort((a, b) => b.score - a.score).slice(0, 50); persist();
-  panel(`<h1>That's the end of the show!</h1><p>You won ${state.won} pricing game${state.won === 1 ? '' : 's'} and $${state.winnings.toLocaleString('en-US')} in prizes.</p><p>${tx(67, 'YourScore', 'Your Score')}: <b>$${state.winnings.toLocaleString('en-US')}</b> · ${tx(67, 'HighScore', 'Highscore')}: <b>$${pr.high[mode].toLocaleString('en-US')}</b></p>${newHigh && state.winnings > 0 ? `<p>${tx(67, 'NewHighScore', 'New high score!').split('/')[0]}</p>` : ''}<p>${tx(59, 'Rank' + rankOf(pr.winnings))}</p><div class="col">${btn('again', 'Play again')}${btn('menu', tx(59, 'Menu', 'MENU'))}</div>`, { clear: true });
-  bind('again', () => runShow(mode)); bind('menu', mainMenu);
+  mainMenu();
 }
 async function playArcade(k) {
   quitting = false; inShow = true; $('shud').style.display = 'block'; $('shud').innerHTML = `<span>Arcade — ${GAMES[k].name}</span> <button id="hmenu">MENU</button>`; $('hmenu').onclick = () => { quitting = true; };
-  try { hide(); const g = await playGame(k); if (g.won && GAMES[k].unlock) unlock(GAMES[k].unlock); await gate(g.won ? 'You won!' : 'Not this time…', '', 6000, g.won ? 'win' : null); } catch (e) { if (e.message !== 'quit') throw e; }
+  try { uiOff(); hide(); const g = await playGame(k); if (g.won && GAMES[k].unlock) unlock(GAMES[k].unlock); } catch (e) { if (e.message !== 'quit') throw e; }
   teardown(); $('shud').style.display = 'none'; inShow = false; arcadeMenu();
 }
 
