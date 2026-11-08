@@ -1,5 +1,5 @@
 // Most Expensive on the original screen 046 art; logic from tpir::mostexpensive (Rust/WASM).
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };

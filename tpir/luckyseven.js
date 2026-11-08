@@ -1,5 +1,5 @@
 // Lucky Seven on the original screen 043 art; logic from tpir::luckyseven (Rust/WASM). Click a digit 1-9 to guess the next number.
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js'; import { decodeJ32 } from './video.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js'; import { decodeJ32 } from './video.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };

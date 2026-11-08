@@ -1,5 +1,5 @@
 // Safe Crackers: screen 053 assets and the retail three-position dial rules.
-import { Audio } from './audio.js?v=2';
+import { Audio } from './audio.js?v=3';
 import { Reg, UI } from './ui.js';
 import { Sprite } from './video.js';
 import { Font } from './font.js?v=2';

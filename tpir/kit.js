@@ -1,5 +1,5 @@
 // Small shared toolkit for the simpler pricing games: wasm + the game's own screen assets (by name) + audio events + number entry.
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg } from './ui.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg } from './ui.js';
 export async function kit(screen) {
   const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
   const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d'); const reg = await Reg.load(ex, idx);

@@ -4,7 +4,7 @@
 //   Show (Single): Come On Down -> Contestants' Row -> pricing game -> Showcase Showdown (the wheel) -> the Showcase.
 // Saves (profiles, high scores, unlocks, options) live in localStorage.
 import { gameWinnings, rowWinnings } from './show-results.js';
-import { Audio } from './audio.js?v=2'; import { Reg, UI } from './ui.js?v=2';
+import { Audio } from './audio.js?v=3'; import { Reg, UI } from './ui.js?v=2';
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const idx = await (await fetch('zip-index.json')).json();
@@ -26,14 +26,25 @@ const blank = (name) => ({ name, avatar: (name.charCodeAt(0) || 0) % 8, high: { 
 let save = (() => { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.profiles) return s; } catch (e) { /* none */ } return { profiles: {}, current: null, options: { music: 0.4, speech: 0.9, captions: true }, scores: [] }; })();
 const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { /* storage unavailable */ } };
 const me = () => save.profiles[save.current];
-function applyOptions() { Audio.defaultVolume = save.options.speech; Audio.captionsOff = !save.options.captions; if (music) music.volume = save.options.music; }
+function applyOptions() { Audio.defaultVolume = save.options.speech; Audio.captionsOff = !save.options.captions; if (musicSrc?.musicGain) musicSrc.musicGain.gain.value = save.options.music; }
 
 // ------------------------------------------------------------------ audio of the shell
 const au = new Audio(ex, idx); await au.addScreens([27, 24, 10, 3]); au.onCaption = (t) => { $('scap').textContent = t; };
 const reg = await Reg.load(ex, idx);   // all GWScreen manifests (resource ids -> art/fonts/styles) for the real-UI runtime (ui.js)
-let music = null, musicSrc = null, musicStarting = null;
-async function startMusic() { if (musicSrc || !navigator.userActivation?.hasBeenActive) return; if (musicStarting) return musicStarting; musicStarting = (async () => { await au.unlock(); musicSrc = await au.music('Music_ComeOnDown.loop', save.options.music); })(); try { await musicStarting; } finally { musicStarting = null; } }
-function setMusicVolume() { au.volume = 1; /* speech uses module volume; music gain follows below */ }
+let musicSrc = null, musicStarting = null, musicEpoch = 0;
+function stopMusic() { musicEpoch++; if (musicSrc) { try { musicSrc.stop(); } catch {} musicSrc = null; } }
+async function startMusic() {
+  if (inShow || musicSrc || !navigator.userActivation?.hasBeenActive) return;
+  if (musicStarting) return musicStarting;
+  const epoch = musicEpoch; let stale = false;
+  musicStarting = (async () => {
+    await au.unlock();
+    const src = await au.music('Music_ComeOnDown.loop', save.options.music);
+    if (epoch !== musicEpoch || inShow) { stale = true; if (src) { try { src.stop(); } catch {} } }
+    else musicSrc = src;
+  })();
+  try { await musicStarting; } finally { musicStarting = null; if (stale && !inShow) startMusic(); }
+}
 
 // ------------------------------------------------------------------ module loader (only the active module animates)
 let gen = 0; const raf = window.requestAnimationFrame.bind(window);
@@ -70,7 +81,7 @@ async function loadModule(name) {
   teardown(); const html = await (await fetch(`${name}.html`)).text(); const doc = new DOMParser().parseFromString(html, 'text/html');
   for (const st of doc.querySelectorAll('style')) { const e = document.createElement('style'); e.textContent = st.textContent.replace(/html,\s*body\s*\{[^}]*\}/, ''); document.head.appendChild(e); styleEls.push(e); }
   for (const n of [...doc.body.children]) if (n.tagName !== 'SCRIPT') $('stage').appendChild(document.importNode(n, true));
-  await import(`./${name}.js?build=show6&v=${++version}`); applyOptions();
+  await import(`./${name}.js?build=show7&v=${++version}`); applyOptions();
 }
 const until = async (fn, ms = 900000) => { const t0 = performance.now(); while (performance.now() - t0 < ms) { if (quitting) throw new Error('quit'); try { const v = fn(); if (v) return v; } catch (e) { /* not ready */ } await wait(150); } return null; };
 
@@ -209,7 +220,7 @@ async function playGame(name) {
   const G = GAMES[name]; await loadModule(name); await until(() => { const s = window[G.key]; return s && G.done(s) ? s : null; }); const s = window[G.key]; const won = G.won(s); const extra = G.extra ? G.extra(s) : false; const cash = gameWinnings(name, s, won); await wait(3500); return { won, extra, cash };
 }
 async function runShow(mode) {
-  const p = me(); Object.assign(state, { mode, strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 }); inShow = true; quitting = false; hud(); uiOff(); hide(); await au.unlock(); startMusic();
+  const p = me(); Object.assign(state, { mode, strikes: 0, winnings: 0, round: 1, won: 0, chances: 6 }); inShow = true; quitting = false; stopMusic(); hud(); uiOff(); hide(); await au.unlock();
   let ended = 'over'; const ob = { gotShowcase: false };
   try {
     for (;;) {
@@ -240,7 +251,7 @@ async function runShow(mode) {
   mainMenu();
 }
 async function playArcade(k) {
-  quitting = false; inShow = true; $('shud').style.display = 'block'; $('shud').innerHTML = `<span>Arcade — ${GAMES[k].name}</span> <button id="hmenu">MENU</button>`; $('hmenu').onclick = () => { quitting = true; };
+  quitting = false; inShow = true; stopMusic(); $('shud').style.display = 'block'; $('shud').innerHTML = `<span>Arcade — ${GAMES[k].name}</span> <button id="hmenu">MENU</button>`; $('hmenu').onclick = () => { quitting = true; };
   try { uiOff(); hide(); const g = await playGame(k); if (g.won && GAMES[k].unlock) unlock(GAMES[k].unlock); } catch (e) { if (e.message !== 'quit') throw e; }
   teardown(); $('shud').style.display = 'none'; inShow = false; arcadeMenu();
 }

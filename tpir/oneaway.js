@@ -1,5 +1,5 @@
 // One Away on the game's own screen 047 (ui.js: background, panels, Up/Down arrow buttons, OK; digit tiles from the game's Block/Black/Blue/Red images); rules from tpir::oneaway (Rust/WASM).
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 47).preload();

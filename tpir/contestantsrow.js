@@ -1,6 +1,6 @@
 // Contestants' Row. Rules: tpir::row (Rust/WASM), ported from the retail code (engine/src/row.rs, docs/GHIDRA.md). Look: the game's own two 3D stages (crowd/drapes behind, boxes + microphones in front,
 // camera `camera_contestantrow_4_3.cam` from the stage archive) with the screen-026 overlay on top (OK button from the widget tree, four digit slots at their real positions; click the upper half of a digit to raise it, the lower half to lower it).
-import { StageView } from './stageview.js?v=5'; import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=3'; import { Reg, UI } from './ui.js?v=2'; import { Sprite } from './video.js';
+import { StageView } from './stageview.js?v=5'; import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=3'; import { Reg, UI } from './ui.js?v=2'; import { Sprite } from './video.js';
 import { retail } from './retail.js';
 const inst = async () => (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports;
 const ex = await inst(), exF = await inst(), exB = await inst(); const mem = () => ex.memory.buffer;

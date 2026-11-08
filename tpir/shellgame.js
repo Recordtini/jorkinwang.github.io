@@ -1,5 +1,5 @@
 // Shell Game on the original screen 055 art (layout from the GWScreen widget tree), logic from tpir::shellgame (Rust/WASM).
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2';
 import { retail } from './retail.js';
 import { decodeJ32 } from './video.js';
 import { Reg, UI } from './ui.js';

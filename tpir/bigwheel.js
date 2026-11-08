@@ -1,6 +1,6 @@
 // Big Wheel: the real stage + wheel model driven by the Rust game logic (tpir::bigwheel).
 import { StageView } from './stageview.js';
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const cv = document.getElementById('c'); const sv = new StageView(cv, ex);
 const bytes = async (u) => new Uint8Array(await (await fetch(u)).arrayBuffer());

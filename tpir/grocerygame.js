@@ -1,5 +1,5 @@
 // Grocery Game: retail screen 039 controls; podium placement is provisional.
-import { Audio } from './audio.js?v=2';
+import { Audio } from './audio.js?v=3';
 import { Font } from './font.js?v=3';
 import { retail } from './retail.js';
 import { Reg, UI } from './ui.js';

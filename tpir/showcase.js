@@ -1,7 +1,7 @@
 // The final Showcase. Rules: tpir::showcase (Rust/WASM) ported from the retail exe (ShowcaseShowdownScreen: Bid or Pass, AI bid, outcome table, $250 double - engine/src/showcase.rs, docs/GHIDRA.md).
 // Look: the game's own showcase stage (camera `camcloseupp01top02.cam` from the stage archive) with the screen-075 overlay (Bid / Pass / OK buttons from the widget tree, SSpodium art, five digit slots per podium at their real positions, the WinDoubleShowcase banner).
 // The showcases are the product database's `showcase-prize-S-N-...-TOTAL` groups: entries that share a TOTAL form one showcase (S = which of the two sets).
-import { StageView } from './stageview.js'; import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
+import { StageView } from './stageview.js'; import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const ex = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports, exS = (await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {})).instance.exports; const mem = () => ex.memory.buffer;
 const bytes = async (u) => new Uint8Array(await (await fetch(u)).arrayBuffer()); const idx = await (await fetch('zip-index.json')).json(); const DEG = Math.PI / 180;
 const sv = new StageView(document.getElementById('stage3d'), exS); await sv.load(await bytes('stage/showcase/showcase_stage.dir'), await bytes('stage/showcase/showcase_stage.scn')); sv.loadLight('database/stage/showcase/spotlight.lgt');

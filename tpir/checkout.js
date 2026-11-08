@@ -1,5 +1,5 @@
 // Check Out on the original screen 031 art; rules from tpir::checkout (Rust/WASM). EVIDENCE: the game's own text (see engine/src/checkout.rs).
-import { kit } from './kit.js';
+import { kit } from './kit.js?v=3';
 const K = await kit(31); const { ex, g } = K;
 const gro = await (await fetch('grocery/index.json')).json(); const items = [...gro].sort(() => Math.random() - 0.5).slice(0, 4); const imgs = await Promise.all(items.map((p) => K.product('grocery', p)));
 const top = await K.img('BoardTop'), bottom = await K.img('BoardBottom'), bag = await K.img('Bag');

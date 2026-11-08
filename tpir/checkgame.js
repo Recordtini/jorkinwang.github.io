@@ -1,5 +1,5 @@
 // Check Game on the original screen 030 art; rules from tpir::checkgame (Rust/WASM). EVIDENCE: the game's own text (see engine/src/checkgame.rs).
-import { kit } from './kit.js';
+import { kit } from './kit.js?v=3';
 const K = await kit(30); const { ex, g } = K;
 const all = (await (await fetch('products/all.json')).json()).filter((p) => p.price >= 1000 && p.price <= 6500); const prod = all[(Math.random() * all.length) | 0];
 const pimg = await K.product('products', prod); const board = await K.img('Check_Game(1220x1200)'), check = await K.img('Check_Game_Check');

@@ -1,6 +1,6 @@
 // Flip Flop on the original screen 036 art; logic from tpir::flipflop (Rust/WASM).
 import { retail } from './retail.js';
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };

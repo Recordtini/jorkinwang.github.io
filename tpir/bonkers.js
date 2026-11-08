@@ -1,5 +1,5 @@
 // Bonkers on the game's own screen 029 (drawn by ui.js: background, BonkersBoard, ClockArrow, chips, Start/Check buttons); rules from tpir::bonkers (Rust/WASM, engine/src/bonkers.rs).
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js'; import { Sprite } from './video.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js'; import { Sprite } from './video.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 29).preload();

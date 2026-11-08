@@ -1,5 +1,5 @@
 // Punch a Bunch on the game's own screen 049 (ui.js: background, podium, Higher/Lower/Keep/Continue buttons; the punch board is the game's `punchBoardFull` art, a 10 x 5 grid of coin holes); rules from tpir::punchabunch (Rust/WASM).
-import { Audio } from './audio.js?v=2'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
+import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { Reg, UI } from './ui.js';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const reg = await Reg.load(ex, idx); const ui = await new UI(reg, 49).preload();

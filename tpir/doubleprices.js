@@ -1,5 +1,5 @@
 // Double Prices on the original screen 035 art; rules from tpir::doubleprices (Rust/WASM). EVIDENCE: the game's own text (see engine/src/doubleprices.rs).
-import { kit } from './kit.js';
+import { kit } from './kit.js?v=3';
 const K = await kit(35); const { ex, g } = K;
 const all = (await (await fetch('products/all.json')).json()).filter((p) => p.price >= 200 && p.price <= 60000); const prod = all[(Math.random() * all.length) | 0];
 const pimg = await K.product('products', prod); const main = await K.img('Double_Prices_Main'), glow = await K.img('Card_Glow'), pod = await K.img('DoublePricePodium');

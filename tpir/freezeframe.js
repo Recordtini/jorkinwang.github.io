@@ -1,5 +1,5 @@
 // Freeze Frame on the original screen 037 art; rules from tpir::freezeframe (Rust/WASM). EVIDENCE: the game's own text (see engine/src/freezeframe.rs). Click anywhere (or Space) to freeze the price.
-import { kit } from './kit.js';
+import { kit } from './kit.js?v=3';
 const K = await kit(37); const { ex, g } = K;
 const all = (await (await fetch('products/all.json')).json()).filter((p) => p.price >= 300 && p.price <= 50000); const prod = all[(Math.random() * all.length) | 0];
 const pimg = await K.product('products', prod); const board = await K.img('Board'), frameIm = await K.img('Frame'), panel = await K.img('Panel');
