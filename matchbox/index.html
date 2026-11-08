@@ -164,6 +164,7 @@ OPT.cells=Math.min(12,Math.max(1,OPT.cells|0));
 // fog (0x402410 mode 0 / 0x402b35, on unless -nofog): colour 88 A3 FF, linear, start S*(n-2) (S*(n-0.5) below 3 cells), end S*n,
 // S = the BPK's cell size (header +0x34 via partition vtable +4 = 1000 BPK units)
 const FOG_COL=[0x88/255,0xa3/255,1];let CITY_CELLS,FOG_START,FOG_END;
+const UW_FOG=[0x32/255,0x64/255,0xb4/255];let fishMesh;
 function applyOpts(){CITY_CELLS=OPT.cells;FOG_START=OPT.fog?(CITY_CELLS<3?1000*(CITY_CELLS-0.5):1000*(CITY_CELLS-2)):1e9;FOG_END=OPT.fog?1000*CITY_CELLS:1e9+1;
  try{localStorage.setItem('mep.options',JSON.stringify(OPT))}catch(e){}}
 applyOpts();
@@ -337,9 +338,15 @@ function frame(now){
  const nh=M.g_hud(),hud=new Float32Array(M.memory.buffer,M.g_inst_ptr(),nh).slice();
  const vh=(hud[0]&&OPT.hud=='orig')?Math.trunc(h*0.85*0.95):h;   // DAT_004964e8: 3D view height with the icon bar
  M.g_set_view(w,vh);
+ // Underwater view (src/underwater.rs, docs/underwater.md): while the CAMERA is under water (DAT_00497ad4) the exe switches fog to
+ // mode 1 of FUN_00402410 (colour 32 64 B4, linear 0..1500, only when fog is on) and the sun light (0x49815c) to ambient (0.1,0.5,0.2) /
+ // diffuse (0.5,0.7,0.7) (FUN_0045e900); leaving restores mode 0 and ambient 0.5 / diffuse 5 (FUN_0045e940).
+ const uw=M.g_uw_state(),uwc=!!(uw&1);const uwf=uwc&&OPT.fog;
+ const FC=uwf?UW_FOG:FOG_COL,FS_=uwf?0:FOG_START,FE_=uwf?1500:FOG_END;
+ gl.useProgram(prog);if(uwc){gl.uniform3f(loc.sunAmb,0.1,0.5,0.2);gl.uniform3f(loc.sunDif,0.5,0.7,0.7)}else{gl.uniform3f(loc.sunAmb,0.5,0.5,0.5);gl.uniform3f(loc.sunDif,5,5,5)}
  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
- gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FOG_COL[0],FOG_COL[1],FOG_COL[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
- gl.uniform3f(loc.fog,FOG_COL[0],FOG_COL[1],FOG_COL[2]);gl.uniform1f(loc.fogStart,FOG_START);gl.uniform1f(loc.fogEnd,FOG_END);
+ gl.viewport(0,h-vh,w,vh);gl.enable(gl.SCISSOR_TEST);gl.scissor(0,h-vh,w,vh);gl.clearColor(FC[0],FC[1],FC[2],1);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.SCISSOR_TEST);
+ gl.uniform3f(loc.fog,FC[0],FC[1],FC[2]);gl.uniform1f(loc.fogStart,FS_);gl.uniform1f(loc.fogEnd,FE_);
  {gl.uniform1f(loc.boost,OPT.beacon?1:0);M.g_siren_lights();const sl=new Float32Array(M.memory.buffer,M.g_inst_ptr(),22).slice();
   gl.uniform4fv(loc.spP,new Float32Array([sl[1],sl[2],sl[3],sl[0], sl[12],sl[13],sl[14],sl[11]]));
   gl.uniform3fv(loc.spD,new Float32Array([sl[4],sl[5],sl[6], sl[15],sl[16],sl[17]]));
@@ -359,7 +366,7 @@ function frame(now){
  // Also flagged: drawn without face culling - its faces point outwards, so the viewer inside sees their backs.
  if(skyMesh&&OPT.sky){gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,1e9);
   drawMesh(skyMesh,mul(vp,new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, eye[0],eye[1],eye[2],1])));
-  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FOG_END)}
+  gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);gl.uniform1f(loc.fogEnd,FE_)}
  // APPROXIMATION (flagged): a square of CITY_CELLS cells around the camera's cell (the renderer's own cell selection not traced;
  // the fog is complete at CITY_CELLS cells)
  const cxw=free?free.pos[0]:x,czw=free?free.pos[2]:z,ccx=Math.floor(cxw/1000)-city.cmin,ccz=Math.floor(czw/1000)-city.cmin,R=CITY_CELLS;
@@ -378,6 +385,10 @@ function frame(now){
   tireMeshes=[0,1].map(i=>{const l=M.g_car_tire_model(i);if(!l)return null;const n=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l));return loadModel(n)})}}
  {const n=M.g_car_tires(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=tireMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)),d.subarray(k*17+1,k*17+17))}}
+ // the school of fish (F1.bor shape Fish, skin 0, one frame; scale rand(2,8) in the matrix), drawn only while the PLAYER is under water
+ if(uw&2){if(fishMesh===undefined){const b=new TextEncoder().encode('objects/fish.ms2|Fish01');const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);fishMesh=M.g_model_prepare_set(q,b.length,0,0)?takeMesh():null}
+  const n=M.g_fish(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*16).slice();
+  if(fishMesh)for(let k=0;k<n;k++){const mm=d.subarray(k*16,k*16+16);drawMesh(fishMesh,mul(vp,mm),mm)}}
  drawShadow(vp,[0,h-vh,w,vh]);
  // lamps (texture set = lamp frame: unlit 0 / lit 1) and the upgraded ambulance's doors (Rust car/parts.rs)
  {const n=M.g_car_parts(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18).slice();
