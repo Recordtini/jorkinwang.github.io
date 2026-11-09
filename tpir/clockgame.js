@@ -1,6 +1,7 @@
 // Clock Game on the original screen 033 art; logic from tpir::clockgame (Rust/WASM).
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 import { changeClockDigit } from './clock-input.js?v=1';
+import { clockMediaGate } from './clock-media.js?v=1';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -20,28 +21,29 @@ const au = new Audio(ex, idx); await au.addScreens([33, 3]); const font = await 
 const pick = (await retail()).take('ClockGame', 1);
 const productSpeech = pick.map(p => au.addProduct(p));
 const prizeVideo = document.createElement('video'); prizeVideo.muted = true; prizeVideo.playsInline = true; prizeVideo.preload = 'auto';
-let presentedProduct = -1, videoStarted = false, videoEpoch = 0;
-function stopPrizeVideo() { videoEpoch++; videoStarted = false; prizeVideo.pause(); }
-au.skipButton?.addEventListener('click', stopPrizeVideo);
+let presentedProduct = -1;
+const prizeGate = clockMediaGate({ video: prizeVideo, audio: au, advance: () => ex.tp_ck_act(10, 0) });
 au.onSpeechStart = name => {
   const i = productSpeech.indexOf(name); if (i < 0) return;
-  presentedProduct = i; stopPrizeVideo();
-  prizeVideo.src = `retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`;
-  prizeVideo.currentTime = 0; videoStarted = true; const epoch = videoEpoch;
-  prizeVideo.play().catch(() => { if (videoEpoch === epoch) videoStarted = false; });
+  presentedProduct = i;
+  prizeGate.start(`retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`);
 };
-window.__disposeSegment = () => { stopPrizeVideo(); prizeVideo.removeAttribute('src'); prizeVideo.load(); };
+window.__disposeSegment = () => prizeGate.dispose();
 const pimg = await Promise.all(pick.map(async (p) => createImageBitmap(await (await fetch(`products/Product_${String(p.id).padStart(6, '0')}.jpg`)).blob())));
 ex.tp_ck_new(pick[0].price, pick[1].price);
-for (const e of ['pointerdown', 'keydown']) addEventListener(e, () => au.unlock()); au.onIdle = () => ex.tp_ck_act(10, 0);
+for (const e of ['pointerdown', 'keydown']) addEventListener(e, () => au.unlock());
+au.onIdle = () => {
+  if (statePhase() !== 0 || !prizeGate.wait()) ex.tp_ck_act(10, 0);
+};
 let caption = ''; au.onCaption = (t) => { caption = t; };
 const ST = () => { const p = ex.tp_ck_state(); return new Float32Array(mem().slice(p, p + 20)); };
+const statePhase = () => ST()[0];
 let bid=[0,0,0,0], ptr={x:-1,y:-1}, lastItem=0;
 const point=e=>{const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*800/r.width,y:(e.clientY-r.top)*600/r.height};};
 cv.onpointermove=e=>{ptr=point(e);};
 cv.onpointerdown=e=>{ptr=point(e);ui.down=ui.hit(ptr.x,ptr.y);};
 cv.onpointerup=e=>{ptr=point(e); const b=ui.hit(ptr.x,ptr.y), down=ui.down; ui.down=null; const s=ST();
-  if(b && b===down && b.inst===actionId) { if(s[0]===1 && (au.speaking || au.speechQ.length)) return; if(s[0]===1) ex.tp_ck_act(0,0); else if(s[0]===2) ex.tp_ck_act(1,Number(bid.join(''))); return; }
+  if(b && b===down && b.inst===actionId) { if(s[0]===1 && (au.speaking || au.speechQ.length || prizeGate.pending())) return; if(s[0]===1) ex.tp_ck_act(0,0); else if(s[0]===2) ex.tp_ck_act(1,Number(bid.join(''))); return; }
   if(s[0]===2) changeClockDigit(bid,ptr.x,ptr.y,digitBoxes);
 };
 let last = performance.now();
@@ -65,7 +67,7 @@ function frame(now) {
   // still be visible when the contestant reaches the Start prompt.
   if (presentedProduct >= 0 || ph >= 1) {
     const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)];
-    const media = videoStarted && prizeVideo.readyState >= 2 ? prizeVideo : pi;
+    const media = prizeGate.showingVideo() ? prizeVideo : pi;
     const w = media.videoWidth || media.width, h = media.videoHeight || media.height, sc = Math.min(158 / w, 133 / h);
     g.drawImage(media, 108 + (158 - w * sc) / 2, 178 + (133 - h * sc) / 2, w * sc, h * sc);
   }
