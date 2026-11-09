@@ -2,6 +2,7 @@
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 import { changeClockDigit } from './clock-input.js?v=1';
 import { clockMediaGate } from './clock-media.js?v=4';
+import { ClockPrizeView } from './clock-prize.js?v=1';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -21,14 +22,15 @@ const au = new Audio(ex, idx); await au.addScreens([33, 3]); const font = await 
 const pick = (await retail()).take('ClockGame', 1);
 const productSpeech = pick.map(p => au.addProduct(p));
 const prizeVideo = document.createElement('video'); prizeVideo.muted = true; prizeVideo.playsInline = true; prizeVideo.preload = 'auto';
-let presentedProduct = -1, caption = '', productCaption = false, captionStart = 0;
+const prizeView = new ClockPrizeView();
+let caption = '', productCaption = false, captionStart = 0;
 const prizeGate = clockMediaGate({
   video: prizeVideo, audio: au, advance: () => ex.tp_ck_act(10, 0),
   onRelease: () => { if (productCaption && !au.speaking) { caption = ''; productCaption = false; } },
 });
 au.onSpeechStart = name => {
   const i = productSpeech.indexOf(name); if (i < 0) return;
-  presentedProduct = i; captionStart = performance.now();
+  prizeView.present(i); captionStart = performance.now();
   prizeGate.start(`retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`, pick[i].en.length * 50);
 };
 au.onSpeechEnd = name => { if (productSpeech.includes(name)) prizeGate.deferNextSpeech(); };
@@ -58,6 +60,7 @@ let last = performance.now();
 function frame(now) {
   requestAnimationFrame(frame); const dt = Math.max(0, now - last); last = now; ex.tp_ck_tick(dt); const s = ST(); const [ph, item, left, hint, prizes] = s;
   { const p = ex.tp_ck_events(); if (p) { const m = new Uint8Array(mem()); let o = p; for (;;) { let e = o; while (m[e]) e++; if (e === o) break; const name = new TextDecoder().decode(m.slice(o, e)); au.say(name); if (name === 'Speech_ClockGame_Reveal-1_A') au.say(productSpeech[0]); if (name === 'Speech_ClockGame_Reveal-2_A') au.say(productSpeech[1]); o = e + 1; } } }
+  prizeView.update(ph, item);
   if(item!==lastItem) { bid=[0,0,0,0]; lastItem=item; }
   g.fillStyle = '#123'; g.fillRect(0, 0, 800, 600);
   if (background) g.drawImage(background, -4, 0, 946, 588);
@@ -71,10 +74,8 @@ function frame(now) {
     g.drawImage(im.CLockGameClockPointer, -pw / 2, -ph, pw, ph); g.restore();
   }
   if (prizeFrame) g.drawImage(prizeFrame, 98, 168, 176, 150);
-  // Skipping the intro can bypass the product-VO callback; the first prize must
-  // still be visible when the contestant reaches the Start prompt.
-  if (presentedProduct >= 0 || ph >= 1) {
-    const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)];
+  if (prizeView.visible) {
+    const pi = pimg[prizeView.product];
     const media = prizeGate.showingVideo() ? prizeVideo : pi;
     const w = media.videoWidth || media.width, h = media.videoHeight || media.height, sc = Math.min(158 / w, 133 / h);
     g.drawImage(media, 108 + (158 - w * sc) / 2, 178 + (133 - h * sc) / 2, w * sc, h * sc);
