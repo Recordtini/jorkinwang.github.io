@@ -1,11 +1,12 @@
 // The retail prize presenter completes after its audio and video are done.
-export function clockMediaGate({ video, audio, advance, onTextDone = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
+export function clockMediaGate({ video, audio, advance, onTextDone = () => {}, onRelease = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
   let started = false, epoch = 0, waiting = false, held = [], heldIntro = false, textPending = false, textTimer = null;
   const pending = () => textPending || (started && !video.ended && !video.error);
   function release() {
     if (!waiting || pending()) return;
     waiting = false;
     if (audio.skipButton) audio.skipButton.style.display = 'none';
+    onRelease();
     const queued = held; held = [];
     if (queued.length) {
       if (heldIntro) audio.introActive = true;

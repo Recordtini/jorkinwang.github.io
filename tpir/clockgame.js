@@ -1,7 +1,7 @@
 // Clock Game on the original screen 033 art; logic from tpir::clockgame (Rust/WASM).
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 import { changeClockDigit } from './clock-input.js?v=1';
-import { clockMediaGate } from './clock-media.js?v=3';
+import { clockMediaGate } from './clock-media.js?v=4';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -24,7 +24,7 @@ const prizeVideo = document.createElement('video'); prizeVideo.muted = true; pri
 let presentedProduct = -1, caption = '', productCaption = false, captionStart = 0;
 const prizeGate = clockMediaGate({
   video: prizeVideo, audio: au, advance: () => ex.tp_ck_act(10, 0),
-  onTextDone: () => { if (productCaption && !au.speaking) { caption = ''; productCaption = false; } },
+  onRelease: () => { if (productCaption && !au.speaking) { caption = ''; productCaption = false; } },
 });
 au.onSpeechStart = name => {
   const i = productSpeech.indexOf(name); if (i < 0) return;
@@ -40,7 +40,7 @@ au.onIdle = () => {
   if (statePhase() !== 0 || !prizeGate.wait()) ex.tp_ck_act(10, 0);
 };
 au.onCaption = (t, timing) => {
-  if (!t && productCaption && prizeGate.textPending()) return;
+  if (!t && productCaption && prizeGate.pending()) return;
   caption = t; productCaption = !!t && productSpeech.includes(timing?.name);
 };
 au.skipButton?.addEventListener('click', () => { caption = ''; productCaption = false; });
