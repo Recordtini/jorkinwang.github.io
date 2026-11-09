@@ -19,8 +19,18 @@ const au = new Audio(ex, idx); await au.addScreens([33, 3]); const font = await 
 // 0x4ad610 requests category 1 of the Clock Game product script.
 const pick = (await retail()).take('ClockGame', 1);
 const productSpeech = pick.map(p => au.addProduct(p));
-let presentedProduct = -1;
-au.onSpeechStart = name => { const i = productSpeech.indexOf(name); if (i >= 0) presentedProduct = i; };
+const prizeVideo = document.createElement('video'); prizeVideo.muted = true; prizeVideo.playsInline = true; prizeVideo.preload = 'auto';
+let presentedProduct = -1, videoStarted = false, videoEpoch = 0;
+function stopPrizeVideo() { videoEpoch++; videoStarted = false; prizeVideo.pause(); }
+au.skipButton?.addEventListener('click', stopPrizeVideo);
+au.onSpeechStart = name => {
+  const i = productSpeech.indexOf(name); if (i < 0) return;
+  presentedProduct = i; stopPrizeVideo();
+  prizeVideo.src = `retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`;
+  prizeVideo.currentTime = 0; videoStarted = true; const epoch = videoEpoch;
+  prizeVideo.play().catch(() => { if (videoEpoch === epoch) videoStarted = false; });
+};
+window.__disposeSegment = () => { stopPrizeVideo(); prizeVideo.removeAttribute('src'); prizeVideo.load(); };
 const pimg = await Promise.all(pick.map(async (p) => createImageBitmap(await (await fetch(`products/Product_${String(p.id).padStart(6, '0')}.jpg`)).blob())));
 ex.tp_ck_new(pick[0].price, pick[1].price);
 for (const e of ['pointerdown', 'keydown']) addEventListener(e, () => au.unlock()); au.onIdle = () => ex.tp_ck_act(10, 0);
@@ -53,7 +63,12 @@ function frame(now) {
   if (prizeFrame) g.drawImage(prizeFrame, 98, 168, 176, 150);
   // Skipping the intro can bypass the product-VO callback; the first prize must
   // still be visible when the contestant reaches the Start prompt.
-  if (presentedProduct >= 0 || ph >= 1) { const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)]; const sc = Math.min(158 / pi.width, 133 / pi.height); g.drawImage(pi, 108 + (158 - pi.width * sc) / 2, 178 + (133 - pi.height * sc) / 2, pi.width * sc, pi.height * sc); }
+  if (presentedProduct >= 0 || ph >= 1) {
+    const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)];
+    const media = videoStarted && prizeVideo.readyState >= 2 ? prizeVideo : pi;
+    const w = media.videoWidth || media.width, h = media.videoHeight || media.height, sc = Math.min(158 / w, 133 / h);
+    g.drawImage(media, 108 + (158 - w * sc) / 2, 178 + (133 - h * sc) / 2, w * sc, h * sc);
+  }
   if(ph===1 || ph===2) { ui.show(actionId); ui.setText(actionId,ph===1?'START':'BID'); } else ui.hide(actionId);
   if(ph===2) bid.forEach((n,i)=>{const b=digitBoxes[i]; digits.frame(g,n,b.x,b.y,b.w,b.h);});
   ui.draw(g,ptr.x,ptr.y,'btn');
