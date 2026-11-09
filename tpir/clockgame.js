@@ -1,5 +1,6 @@
 // Clock Game on the original screen 033 art; logic from tpir::clockgame (Rust/WASM).
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
+import { changeClockDigit } from './clock-input.js?v=1';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -7,6 +8,10 @@ const jb = new Uint8Array(await (await fetch('zip/033/GWScreen')).arrayBuffer())
 const S = JSON.parse(new TextDecoder().decode(m8.slice(jp, je))); const byName = Object.fromEntries(S.entries.filter((e) => e.type === 3).map((e) => [e.name, e.id]));
 const im = {}; for (const [n, id] of Object.entries(byName)) { const f = idx[id]; if (!f) continue; const b = new Uint8Array(await (await fetch('zip/' + f)).arrayBuffer()); im[n] = await (f.endsWith('.j32') ? decodeJ32(b) : createImageBitmap(new Blob([b]))).catch(() => null); }
 const reg=await Reg.load(ex,idx), ui=await new UI(reg,33).preload(), digits=await Sprite.load(ex,'zip/033/001865_0.GWVideo');
+const digitContainer = ui.all.get('492255b4');
+const digitBoxes = ['92bf7d1e','2d114d16','c6d898e0','de0e7e0b'].map(id => {
+  const n = ui.all.get(id); return { x: digitContainer.x + n.x, y: digitContainer.y + n.y, w: n.w, h: n.h };
+});
 const background = await reg.img(0x0b63), prizeFrame = await reg.img(0x101d);
 for (const n of ui.all.values()) if (n.class==='container') ui.show(n.inst); else ui.hide(n.inst);
 const actionId='efd3bdf6';
@@ -27,7 +32,7 @@ cv.onpointermove=e=>{ptr=point(e);};
 cv.onpointerdown=e=>{ptr=point(e);ui.down=ui.hit(ptr.x,ptr.y);};
 cv.onpointerup=e=>{ptr=point(e); const b=ui.hit(ptr.x,ptr.y), down=ui.down; ui.down=null; const s=ST();
   if(b && b===down && b.inst===actionId) { if(s[0]===1 && (au.speaking || au.speechQ.length)) return; if(s[0]===1) ex.tp_ck_act(0,0); else if(s[0]===2) ex.tp_ck_act(1,Number(bid.join(''))); return; }
-  if(s[0]!==2) return; for(let i=0;i<4;i++) { const x=235+i*90; if(ptr.x>=x && ptr.x<x+80 && ptr.y>=344 && ptr.y<424) { bid[i]=(bid[i]+(ptr.y<384?1:9))%10; return; } }
+  if(s[0]===2) changeClockDigit(bid,ptr.x,ptr.y,digitBoxes);
 };
 let last = performance.now();
 function frame(now) {
@@ -48,7 +53,7 @@ function frame(now) {
   if (prizeFrame) g.drawImage(prizeFrame, 98, 168, 176, 150);
   if (presentedProduct >= 0 || ph >= 2) { const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)]; const sc = Math.min(158 / pi.width, 133 / pi.height); g.drawImage(pi, 108 + (158 - pi.width * sc) / 2, 178 + (133 - pi.height * sc) / 2, pi.width * sc, pi.height * sc); }
   if(ph===1 || ph===2) { ui.show(actionId); ui.setText(actionId,ph===1?'START':'BID'); } else ui.hide(actionId);
-  if(ph===2) bid.forEach((n,i)=>digits.frame(g,n,235+i*90,344,80,80));
+  if(ph===2) bid.forEach((n,i)=>{const b=digitBoxes[i]; digits.frame(g,n,b.x,b.y,b.w,b.h);});
   ui.draw(g,ptr.x,ptr.y,'btn');
   if (caption) font.caption(g, caption);
   window.__ck = { ph, item, left, hint, prizes, real: pick.map((p) => Math.round(p.price)), idle: !au.speaking && !au.speechQ.length };
