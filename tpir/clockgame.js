@@ -51,7 +51,9 @@ function frame(now) {
     g.drawImage(im.CLockGameClockPointer, -pw / 2, -ph, pw, ph); g.restore();
   }
   if (prizeFrame) g.drawImage(prizeFrame, 98, 168, 176, 150);
-  if (presentedProduct >= 0 || ph >= 2) { const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)]; const sc = Math.min(158 / pi.width, 133 / pi.height); g.drawImage(pi, 108 + (158 - pi.width * sc) / 2, 178 + (133 - pi.height * sc) / 2, pi.width * sc, pi.height * sc); }
+  // Skipping the intro can bypass the product-VO callback; the first prize must
+  // still be visible when the contestant reaches the Start prompt.
+  if (presentedProduct >= 0 || ph >= 1) { const pi = pimg[presentedProduct >= 0 ? presentedProduct : Math.min(item, 1)]; const sc = Math.min(158 / pi.width, 133 / pi.height); g.drawImage(pi, 108 + (158 - pi.width * sc) / 2, 178 + (133 - pi.height * sc) / 2, pi.width * sc, pi.height * sc); }
   if(ph===1 || ph===2) { ui.show(actionId); ui.setText(actionId,ph===1?'START':'BID'); } else ui.hide(actionId);
   if(ph===2) bid.forEach((n,i)=>{const b=digitBoxes[i]; digits.frame(g,n,b.x,b.y,b.w,b.h);});
   ui.draw(g,ptr.x,ptr.y,'btn');
