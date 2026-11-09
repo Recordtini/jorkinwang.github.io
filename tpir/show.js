@@ -81,7 +81,7 @@ async function loadModule(name) {
   teardown(); const html = await (await fetch(`${name}.html`)).text(); const doc = new DOMParser().parseFromString(html, 'text/html');
   for (const st of doc.querySelectorAll('style')) { const e = document.createElement('style'); e.textContent = st.textContent.replace(/html,\s*body\s*\{[^}]*\}/, ''); document.head.appendChild(e); styleEls.push(e); }
   for (const n of [...doc.body.children]) if (n.tagName !== 'SCRIPT') $('stage').appendChild(document.importNode(n, true));
-  await import(`./${name}.js?build=show7&v=${++version}`); applyOptions();
+  await import(`./${name}.js?build=show8&v=${++version}`); applyOptions();
 }
 const until = async (fn, ms = 900000) => { const t0 = performance.now(); while (performance.now() - t0 < ms) { if (quitting) throw new Error('quit'); try { const v = fn(); if (v) return v; } catch (e) { /* not ready */ } await wait(150); } return null; };
 
