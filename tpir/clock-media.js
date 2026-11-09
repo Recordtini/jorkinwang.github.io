@@ -1,9 +1,9 @@
 // The retail prize presenter completes after its audio and video are done.
-export function clockMediaGate({ video, audio, advance }) {
-  let started = false, epoch = 0, waiting = false, held = [], heldIntro = false;
-  const pending = () => started && !video.ended && !video.error;
+export function clockMediaGate({ video, audio, advance, onTextDone = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
+  let started = false, epoch = 0, waiting = false, held = [], heldIntro = false, textPending = false, textTimer = null;
+  const pending = () => textPending || (started && !video.ended && !video.error);
   function release() {
-    if (!waiting) return;
+    if (!waiting || pending()) return;
     waiting = false;
     if (audio.skipButton) audio.skipButton.style.display = 'none';
     const queued = held; held = [];
@@ -13,7 +13,7 @@ export function clockMediaGate({ video, audio, advance }) {
       for (const name of queued) audio.say(name);
     } else { heldIntro = false; advance(); }
   }
-  function stop() { epoch++; started = false; video.pause(); }
+  function stop() { epoch++; started = false; video.pause(); if (textTimer !== null) cancel(textTimer); textTimer = null; textPending = false; }
   video.addEventListener('ended', release);
   video.addEventListener('error', () => { started = false; release(); });
   audio.skipButton?.addEventListener('click', () => { held = []; heldIntro = false; stop(); release(); });
@@ -30,9 +30,14 @@ export function clockMediaGate({ video, audio, advance }) {
       if (audio.skipButton) audio.skipButton.style.display = 'block';
       return true;
     },
-    start(src) {
+    textPending: () => textPending,
+    start(src, textMs = 0) {
       stop(); video.src = src; video.currentTime = 0; started = true;
       const current = epoch;
+      if (textMs > 0) {
+        textPending = true;
+        textTimer = schedule(() => { if (epoch !== current) return; textTimer = null; textPending = false; onTextDone(); release(); }, textMs);
+      }
       video.play().catch(() => { if (epoch === current) { started = false; release(); } });
     },
     dispose() { waiting = false; held = []; heldIntro = false; stop(); video.removeAttribute('src'); video.load(); },

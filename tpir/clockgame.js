@@ -1,7 +1,7 @@
 // Clock Game on the original screen 033 art; logic from tpir::clockgame (Rust/WASM).
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 import { changeClockDigit } from './clock-input.js?v=1';
-import { clockMediaGate } from './clock-media.js?v=2';
+import { clockMediaGate } from './clock-media.js?v=3';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -21,12 +21,15 @@ const au = new Audio(ex, idx); await au.addScreens([33, 3]); const font = await 
 const pick = (await retail()).take('ClockGame', 1);
 const productSpeech = pick.map(p => au.addProduct(p));
 const prizeVideo = document.createElement('video'); prizeVideo.muted = true; prizeVideo.playsInline = true; prizeVideo.preload = 'auto';
-let presentedProduct = -1;
-const prizeGate = clockMediaGate({ video: prizeVideo, audio: au, advance: () => ex.tp_ck_act(10, 0) });
+let presentedProduct = -1, caption = '', productCaption = false, captionStart = 0;
+const prizeGate = clockMediaGate({
+  video: prizeVideo, audio: au, advance: () => ex.tp_ck_act(10, 0),
+  onTextDone: () => { if (productCaption && !au.speaking) { caption = ''; productCaption = false; } },
+});
 au.onSpeechStart = name => {
   const i = productSpeech.indexOf(name); if (i < 0) return;
-  presentedProduct = i;
-  prizeGate.start(`retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`);
+  presentedProduct = i; captionStart = performance.now();
+  prizeGate.start(`retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`, pick[i].en.length * 50);
 };
 au.onSpeechEnd = name => { if (productSpeech.includes(name)) prizeGate.deferNextSpeech(); };
 window.__disposeSegment = () => prizeGate.dispose();
@@ -36,7 +39,11 @@ for (const e of ['pointerdown', 'keydown']) addEventListener(e, () => au.unlock(
 au.onIdle = () => {
   if (statePhase() !== 0 || !prizeGate.wait()) ex.tp_ck_act(10, 0);
 };
-let caption = ''; au.onCaption = (t) => { caption = t; };
+au.onCaption = (t, timing) => {
+  if (!t && productCaption && prizeGate.textPending()) return;
+  caption = t; productCaption = !!t && productSpeech.includes(timing?.name);
+};
+au.skipButton?.addEventListener('click', () => { caption = ''; productCaption = false; });
 const ST = () => { const p = ex.tp_ck_state(); return new Float32Array(mem().slice(p, p + 20)); };
 const statePhase = () => ST()[0];
 let bid=[0,0,0,0], ptr={x:-1,y:-1}, lastItem=0;
@@ -75,7 +82,10 @@ function frame(now) {
   if(ph===1 || ph===2) { ui.show(actionId); ui.setText(actionId,ph===1?'START':'BID'); } else ui.hide(actionId);
   if(ph===2) bid.forEach((n,i)=>{const b=digitBoxes[i]; digits.frame(g,n,b.x,b.y,b.w,b.h);});
   ui.draw(g,ptr.x,ptr.y,'btn');
-  if (caption) font.caption(g, caption);
+  if (caption) {
+    const visible = productCaption ? caption.slice(0, Math.floor((now - captionStart) / 50)) : caption;
+    if (visible) font.caption(g, visible);
+  }
   window.__ck = { ph, item, left, hint, prizes, real: pick.map((p) => Math.round(p.price)), idle: !au.speaking && !au.speechQ.length };
 }
 requestAnimationFrame(frame); window.__ready = true;
