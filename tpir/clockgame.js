@@ -1,7 +1,7 @@
 // Clock Game on the original screen 033 art; logic from tpir::clockgame (Rust/WASM).
 import { Audio } from './audio.js?v=3'; import { Font } from './font.js?v=2'; import { retail } from './retail.js'; import { Sprite, decodeJ32 } from './video.js'; import { Reg, UI } from './ui.js';
 import { changeClockDigit } from './clock-input.js?v=1';
-import { clockMediaGate } from './clock-media.js?v=1';
+import { clockMediaGate } from './clock-media.js?v=2';
 const wasm = await WebAssembly.instantiateStreaming(fetch('tpir.wasm'), {}); const ex = wasm.instance.exports; const mem = () => ex.memory.buffer;
 const idx = await (await fetch('zip-index.json')).json(); const cv = document.getElementById('c'), g = cv.getContext('2d');
 const put = (b) => { const p = ex.tp_alloc(b.length); new Uint8Array(mem(), p, b.length).set(b); return p; };
@@ -28,6 +28,7 @@ au.onSpeechStart = name => {
   presentedProduct = i;
   prizeGate.start(`retail-video/Product_${String(pick[i].id).padStart(6,'0')}.mp4`);
 };
+au.onSpeechEnd = name => { if (productSpeech.includes(name)) prizeGate.deferNextSpeech(); };
 window.__disposeSegment = () => prizeGate.dispose();
 const pimg = await Promise.all(pick.map(async (p) => createImageBitmap(await (await fetch(`products/Product_${String(p.id).padStart(6, '0')}.jpg`)).blob())));
 ex.tp_ck_new(pick[0].price, pick[1].price);
