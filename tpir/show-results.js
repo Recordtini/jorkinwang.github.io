@@ -14,6 +14,7 @@ export function gameWinnings(name, s, won) {
     case 'luckyseven': return won ? s.price + s.dollars - 1 : 0;
     case 'checkgame': return won ? s.cash + s.price : 0;
     case 'punchabunch': return s.cash;
+    case 'plinko-dev': return s.cash + s.smallPrizes;
     default: return null;
   }
 }

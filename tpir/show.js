@@ -4,6 +4,7 @@
 //   Show (Single): Come On Down -> Contestants' Row -> pricing game -> Showcase Showdown (the wheel) -> the Showcase.
 // Saves (profiles, high scores, unlocks, options) live in localStorage.
 import { gameWinnings, rowWinnings } from './show-results.js';
+import { arcadeCatalog } from './arcade-catalog.js';
 import { Audio } from './audio.js?v=3'; import { Reg, UI } from './ui.js?v=2';
 const $ = (id) => document.getElementById(id);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -67,9 +68,10 @@ const GAMES = {
   punchabunch: { key: '__pb', name: 'Punch a Bunch', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1 },
   oneaway: { key: '__oa', name: 'One Away', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1 },
   bonkers: { key: '__bk', name: 'Bonkers', done: (s) => s.ph === 3 && s.idle, won: (s) => s.won === 1, unlock: 'Bonkers' },
+  'plinko-dev': { key: '__plinko', name: 'Plinko', done: (s) => s.phase === 3 && s.idle, won: (s) => s.cash > 0 || s.smallPrizes > 0, unlock: 'Plinko', arcadeOnly: true },
 };
-const PRICING = Object.keys(GAMES);
-const NOT_PORTED = ['Dice Game', 'Golden Road', 'Half Off', 'Hole in One', "It's in the Bag", 'Master Key', 'Money Game', 'Plinko', 'Push Over', 'Race Game', 'Secret X', 'Spelling Bee', 'Three Strikes'];
+const PRICING = Object.keys(GAMES).filter(k => !GAMES[k].arcadeOnly);
+const NOT_PORTED = ['Dice Game', 'Golden Road', 'Half Off', 'Hole in One', "It's in the Bag", 'Master Key', 'Money Game', 'Push Over', 'Race Game', 'Secret X', 'Spelling Bee', 'Three Strikes'];
 let styleEls = [], version = 0, inShow = false, quitting = false;
 function teardown() {
   window.__disposeSegment?.(); delete window.__disposeSegment; gen++; Audio.stopAll(au);
@@ -145,9 +147,7 @@ function profileCard(ui) {   // no avatars in this port: the avatar frame (067 f
 }
 let arcadePage = 0;
 async function arcadeMenu(page = arcadePage) {   // real art: screen 069's 2x2 tile layout (Button_Locked tiles, Game_Background) + the game logos from screen 001; paged, since there are more games than tiles
-  const p = me(); const norm = (x) => x.toLowerCase().replace(/[^a-z]/g, '');
-  const logos = {}; for (const e of Object.values(reg.by)) if (e.type === 3 && e.name.startsWith('Logo')) logos[norm(e.name.slice(4))] = e.id;
-  const list = [...PRICING.map((k) => ({ k, name: GAMES[k].name, lock: GAMES[k].gated && !p.unlocked[GAMES[k].unlock], hint: GAMES[k].unlock ? tx(59, 'ToUnlock' + GAMES[k].unlock, '') : '' })), ...NOT_PORTED.map((n) => ({ k: null, name: n, lock: true, hint: 'not yet ported' }))].map((g) => ({ ...g, logo: logos[norm(g.name)] }));
+  const list = arcadeCatalog(GAMES, NOT_PORTED);
   const pages = Math.ceil(list.length / 4); arcadePage = Math.max(0, Math.min(pages - 1, page));
   const ui = await getUI(69); const pick = (pre) => ui.all.get([...ui.all.keys()].find((k) => k.startsWith(pre)));
   const tiles = [['5b4f', '74be'], ['2c48', '8eb1'], ['b541', '6826'], ['c246', '9229']].map(([b, im]) => ({ btn: pick(b), img: pick(im) }));

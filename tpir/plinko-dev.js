@@ -63,6 +63,6 @@ function frame(now) {
     g.drawImage(disc,x+(m?.x||0)*sx,y+(m?.y||0)*sy,disc.width*sx,disc.height*sy); };
   if(disc && s[0]===2) drawDisc(s[7],s[8],s[12]);
   if(disc && dragged) drawDisc(dragged.px,dragged.py,80);
-  K.drawCaption(); window.__plinko={phase:s[0],item:s[1],chips:s[2],cash:s[3],shown:s[5],dragging:!!dragged};
+  K.drawCaption(); window.__plinko={phase:s[0],item:s[1],chips:s[2],cash:s[3],smallPrizes:s[4],shown:s[5],dragging:!!dragged,idle:K.idle() && !reveal};
 }
 requestAnimationFrame(frame); window.__ready=true;
