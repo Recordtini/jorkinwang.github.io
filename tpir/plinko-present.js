@@ -9,6 +9,9 @@ export function configurePlinko(ui, state, reveal = null, draggedId = null, cove
   const node = id => ui.all.get(id);
   const pricing = state[0] === 0, item = Math.min(3,state[1]|0), offset = [0,453,906,1360][item];
   ui.vis.set('9efeb6ff',pricing); ui.vis.set('6224f135',!pricing);
+  // Retail shows the board winnings label at 0x50e6fb and updates it on landing.
+  ui.vis.set('005bc389',!pricing);
+  ui.setText('005bc389',`$${Math.round(state[3]).toLocaleString('en-US')}`);
   node('54f13e88').x = pricing ? -offset : 0;
   ['ba2b4dcf','75a3b087'].forEach((id,i) => {
     const n=node(id); n.x=(i?158:75)+offset;
