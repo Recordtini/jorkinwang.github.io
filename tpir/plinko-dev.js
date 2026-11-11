@@ -52,8 +52,11 @@ function frame(now) {
   requestAnimationFrame(frame); const dt=Math.min(100,now-last); last=now;
   let s=state();
   if(reveal && now>=reveal.until && K.idle()) { reveal=null; if(s[0]===0) itemCue(s[1]); else { au.say('Speech_Plinko_Pricing-Summary_A'); au.say('Speech_Plinko_Board-Rules_A'); } }
-  if(s[0]===2) { accumulator+=dt; while(accumulator>=20&&s[0]===2) { const status=ex.tp_pl_step(Math.floor(Math.random()*101),Math.random()<.5?0:1); accumulator-=20;
-      if(status===1) au.sfx('Sfx_Plinko_ChipCollision_01'); if(status===5) { const amount=state()[11]; au.say(`Speech_Plinko_Board-Chip${amount}_A`); } s=state(); } }
+  if(s[0]===2) { accumulator+=dt; while(accumulator>=20) { const status=ex.tp_pl_step(Math.floor(Math.random()*101),Math.random()<.5?0:1); accumulator-=20;
+      if(status===1) au.sfx('Sfx_Plinko_ChipCollision_01'); }
+    const status=ex.tp_pl_present(); s=state();
+    if(status===5) au.say(`Speech_Plinko_Board-Chip${s[11]}_A`);
+  }
   else accumulator=0;
   configure(reveal?.state ?? s); g.clearRect(0,0,800,600); ui.draw(g);
   const drawDisc=(x,y,size)=>{ const m=reg.meta?.get(3154), sx=size/(m?.w||80), sy=size/(m?.h||80);
