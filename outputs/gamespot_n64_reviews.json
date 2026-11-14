@@ -47,7 +47,8 @@
         "Castlevania",
         "Top Gear OverDrive",
         "Milo's Astro Lanes",
-        "Twisted Edge Snowboarding"
+        "Twisted Edge Snowboarding",
+        "Rush 2: Extreme Racing"
       ],
       "total_games_after": 272,
       "accessories_file": "outputs/gamespot_n64_accessories.json"
@@ -6589,7 +6590,7 @@
       "capture_timestamp": "20031002070914",
       "review": {
         "blurb": "Rush 2 attempts to embody the spirit of San Francisco Rush but fails to deliver as a sequel and a game.",
-        "reviewer": "Staff",
+        "reviewer": "Chieh Chou",
         "full_review_url": "https://web.archive.org/web/20031002070914/http://www.gamespot.com:80/n64/driving/rush2extremeracing/review.html"
       },
       "score": {
@@ -6605,7 +6606,17 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "at_a_glance": "https://web.archive.org/web/19990210084659/http://www.videogames.com/n64/drvfly/rush2/index.html"
+        },
+        "note": "Credited to Chieh Chou in Feb 1999; later changed to Staff."
+      }
     },
     {
       "title": "S.C.A.R.S.",
