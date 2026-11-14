@@ -1,0 +1,213 @@
+{
+  "metadata": {
+    "generated_at": "2026-11-13T23:54:10.098193+00:00",
+    "description": "VideoGameSpot Nintendo 64 accessory reviews recovered from 1997-1998 Wayback Machine captures. Not shown on the site.",
+    "source_indices": [
+      "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+      "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html"
+    ],
+    "total": 7
+  },
+  "accessories": [
+    {
+      "title": "Interact Sharkpad Pro",
+      "index_title": "Interact Sharkpad Pro",
+      "category": "Accessories",
+      "manufacturer": "Interact Accessories",
+      "release_date_as_listed": "November, 1996",
+      "review_date": "12/01/1996",
+      "original_path": "/n64/access/intcntrl/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/intcntrl/index.html",
+      "index_url": "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19970227195013/http://www.videogamespot.com:80/n64/access/intcntrl/index.html",
+      "capture_timestamp": "19970227195013",
+      "review": {
+        "blurb": "The Sharkpad Pro is a good first attempt at a third party controller.",
+        "reviewer": "Glenn Rubenstein",
+        "full_review_url": "https://web.archive.org/web/19970228041912/http://www.videogamespot.com:80/n64/access/intcntrl/review.html"
+      },
+      "score": {
+        "gamespot": 5.7,
+        "label": "mediocre",
+        "components": {
+          "comfort": 4,
+          "responsiveness": 7,
+          "gamesupport": 10,
+          "durability": 6,
+          "reviewers_tilt": 5
+        }
+      },
+      "notes": []
+    },
+    {
+      "title": "Nintendo 64 Controller",
+      "index_title": "Nintendo 64 Controller",
+      "category": "Accessories",
+      "manufacturer": "Nintendo",
+      "release_date_as_listed": null,
+      "review_date": "12/01/1996",
+      "original_path": "/n64/access/controlr/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/controlr/index.html",
+      "index_url": "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19970227195000/http://www.videogamespot.com:80/n64/access/controlr/index.html",
+      "capture_timestamp": "19970227195000",
+      "review": {
+        "blurb": "The Nintendo 64 controller is perhaps the only standard-issue gamepad worth hyping.",
+        "reviewer": "Glenn Rubenstein",
+        "full_review_url": "https://web.archive.org/web/19970228041628/http://www.videogamespot.com:80/n64/access/controlr/review.html"
+      },
+      "score": {
+        "gamespot": 8.9,
+        "label": "great",
+        "components": {
+          "comfort": 9,
+          "responsiveness": 8,
+          "gamesupport": 10,
+          "durability": 7,
+          "reviewers_tilt": 10
+        }
+      },
+      "notes": []
+    },
+    {
+      "title": "TremorPak",
+      "index_title": "TremorPak",
+      "category": "Accessories",
+      "manufacturer": "Interact",
+      "release_date_as_listed": "September, 1997",
+      "review_date": "10/08/1997",
+      "original_path": "/n64/access/tremorpk/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/tremorpk/index.html",
+      "index_url": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19971026021319/http://www.videogames.com:80/n64/access/tremorpk/index.html",
+      "capture_timestamp": "19971026021319",
+      "review": {
+        "blurb": "On high, it really cranks out the vibrations.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "https://web.archive.org/web/19971120063140/http://www.videogames.com:80/n64/access/tremorpk/review.html"
+      },
+      "score": {
+        "gamespot": 6.9,
+        "label": "fair",
+        "components": {
+          "comfort": 6,
+          "responsiveness": 8,
+          "gamesupport": 4,
+          "durability": 7,
+          "reviewers_tilt": 8
+        }
+      },
+      "notes": [
+        "At-a-glance capture showed 6.8; index and review page show 6.9."
+      ]
+    },
+    {
+      "title": "Game Shark",
+      "index_title": "Game Shark",
+      "category": "Accessories",
+      "manufacturer": "Interact",
+      "release_date_as_listed": "August, 1997",
+      "review_date": "09/11/1997",
+      "original_path": "/n64/access/gameshrk/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/gameshrk/index.html",
+      "index_url": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19971021040038/http://www.videogames.com:80/n64/access/gameshrk/index.html",
+      "capture_timestamp": "19971021040038",
+      "review": {
+        "blurb": "Since new codes should be slow in coming, you may wish to wait until more are developed before buying a Game Shark.",
+        "reviewer": "Jeff Gerstmann",
+        "full_review_url": "https://web.archive.org/web/19971028070817/http://www.videogames.com:80/n64/access/gameshrk/review.html"
+      },
+      "score": {
+        "gamespot": 6.1,
+        "label": "fair",
+        "components": {
+          "comfort": 6,
+          "responsiveness": 6,
+          "gamesupport": 5,
+          "durability": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "notes": []
+    },
+    {
+      "title": "The Rock",
+      "index_title": "Rock, The",
+      "category": "Accessories",
+      "manufacturer": "Nuby",
+      "release_date_as_listed": "July, 1997",
+      "review_date": "07/16/1997",
+      "original_path": "/n64/access/therock/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/therock/index.html",
+      "index_url": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19970811192420/http://www.videogames.com:80/n64/access/therock/index.html",
+      "capture_timestamp": "19970811192420",
+      "review": {
+        "blurb": "This Rock is Nuby's first entry into the N64 controller market.",
+        "reviewer": "Ryan Mac Donald",
+        "full_review_url": null
+      },
+      "score": {
+        "gamespot": 7.3,
+        "label": "good",
+        "components": null
+      },
+      "notes": [
+        "Review page not archived; sub-scores unknown."
+      ]
+    },
+    {
+      "title": "Rumble Pak",
+      "index_title": "Rumble Pak",
+      "category": "Accessories",
+      "manufacturer": "Nintendo",
+      "release_date_as_listed": "June, 1997",
+      "review_date": "07/10/1997",
+      "original_path": "/n64/access/rumblepk/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/rumblepk/index.html",
+      "index_url": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19970812042034/http://www.videogames.com:80/n64/access/rumblepk/index.html",
+      "capture_timestamp": "19970812042034",
+      "review": {
+        "blurb": "The Rumble Pak has no real downside, aside from the repetitive nature of its shakes.",
+        "reviewer": "Glenn Rubenstein",
+        "full_review_url": null
+      },
+      "score": {
+        "gamespot": 6.7,
+        "label": "fair",
+        "components": null
+      },
+      "notes": [
+        "Review page not archived; sub-scores unknown."
+      ]
+    },
+    {
+      "title": "GX-TV",
+      "index_title": "GX-TV",
+      "category": "Accessories",
+      "manufacturer": "Samsung",
+      "release_date_as_listed": "November, 1996",
+      "review_date": "06/05/1997",
+      "original_path": "/n64/access/gxtv/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/access/gxtv/index.html",
+      "index_url": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+      "at_a_glance_url": "https://web.archive.org/web/19970812042227/http://www.videogames.com:80/n64/access/gxtv/index.html",
+      "capture_timestamp": "19970812042227",
+      "review": {
+        "blurb": "In the end, the GX TV is great for playing games, and it's also a terrific TV.",
+        "reviewer": "Ryan Mac Donald",
+        "full_review_url": null
+      },
+      "score": {
+        "gamespot": 8.9,
+        "label": "great",
+        "components": null
+      },
+      "notes": [
+        "Review page not archived; sub-scores unknown."
+      ]
+    }
+  ]
+}

@@ -25,6 +25,32 @@
     "vigilante8_supplemental_sources": {
       "index": "https://web.archive.org/web/20040905033753/http://www.gamespot.com/n64/action/vigilante8/index.html",
       "review": "https://web.archive.org/web/20040905033813/http://www.gamespot.com/n64/action/vigilante8/review.html"
+    },
+    "videogamespot_supplement": {
+      "applied_at": "2026-11-13T23:54:10.098193+00:00",
+      "indices": [
+        "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+        "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html"
+      ],
+      "recovered_reviews_added": [
+        "J League Perfect Striker"
+      ],
+      "corrected_entries": [
+        "Cruis'n USA",
+        "Killer Instinct Gold",
+        "Super Mario 64",
+        "Aero Fighters Assault",
+        "ClayFighter 63 1/3",
+        "Multi-Racing Championship",
+        "War Gods",
+        "Extreme-G",
+        "Castlevania",
+        "Top Gear OverDrive",
+        "Milo's Astro Lanes",
+        "Twisted Edge Snowboarding"
+      ],
+      "total_games_after": 272,
+      "accessories_file": "outputs/gamespot_n64_accessories.json"
     }
   },
   "games": [
@@ -110,7 +136,7 @@
         "full_review_url": "https://web.archive.org/web/20030618131900/http://www.gamespot.com:80/n64/driving/aerofightersassault/review.html"
       },
       "score": {
-        "gamespot": 5.4,
+        "gamespot": 5.3,
         "label": "mediocre",
         "components": {
           "gameplay": 6,
@@ -122,7 +148,19 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 5.4
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19980131091656/http://www.videogamespot.com:80/n64/drvfly/sonwings/index.html",
+          "review": "https://web.archive.org/web/19980111070559/http://videogamespot.com:80/n64/drvfly/sonwings/review.html"
+        },
+        "note": "Overall score later changed by 0.1 on gamespot.com with identical sub-scores; original restored."
+      }
     },
     {
       "title": "AeroGauge",
@@ -1194,7 +1232,7 @@
       "capture_timestamp": "20030404141619",
       "review": {
         "blurb": "Let's just hope this doesn't mark the end of the 2D era of Castlevania games.",
-        "reviewer": "Staff",
+        "reviewer": "John Morris",
         "full_review_url": "https://web.archive.org/web/20030404141619/http://www.gamespot.com:80/n64/adventure/castlevania/review.html"
       },
       "score": {
@@ -1210,7 +1248,17 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "review": "https://web.archive.org/web/19990503035734/http://www.videogamespot.com:80/n64/adventure/castle64/review.html"
+        },
+        "note": "Credited to John Morris in May 1999; later changed to Staff."
+      }
     },
     {
       "title": "Castlevania: Legacy of Darkness",
@@ -1390,7 +1438,7 @@
         "full_review_url": "https://web.archive.org/web/20030618160527/http://www.gamespot.com:80/n64/action/clayfighter6313/review.html"
       },
       "score": {
-        "gamespot": 3.1,
+        "gamespot": 3.0,
         "label": "bad",
         "components": {
           "gameplay": 3,
@@ -1402,7 +1450,19 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 3.1
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19980131091722/http://www.videogamespot.com:80/n64/fight/clayfigh/index.html",
+          "review": "https://web.archive.org/web/19990203160136/http://www.videogamespot.com:80/n64/fight/clayfigh/review.html"
+        },
+        "note": "3.0 on the Jan 1998 index and at-a-glance page; 3.1 by Feb 1999 with identical sub-scores."
+      }
     },
     {
       "title": "Command & Conquer",
@@ -1518,7 +1578,7 @@
         "full_review_url": "https://web.archive.org/web/20030413015315/http://www.gamespot.com:80/n64/driving/cruisnusa/review.html"
       },
       "score": {
-        "gamespot": 6.1,
+        "gamespot": 6.0,
         "label": "fair",
         "components": {
           "gameplay": 6,
@@ -1530,7 +1590,20 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 6.1
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19970227162624/http://www.videogamespot.com:80/n64/drvfly/cruisn/index.html",
+          "review": "https://web.archive.org/web/19970227221937/http://www.videogamespot.com:80/n64/drvfly/cruisn/review.html",
+          "later_index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html"
+        },
+        "note": "Overall score later changed by 0.1 on gamespot.com with identical sub-scores; original restored."
+      }
     },
     {
       "title": "Cruis'n World",
@@ -2158,19 +2231,32 @@
         "full_review_url": "https://web.archive.org/web/20030418045032/http://www.gamespot.com:80/n64/driving/extremeg/review.html"
       },
       "score": {
-        "gamespot": 8.2,
+        "gamespot": 8.3,
         "label": "great",
         "components": {
           "gameplay": 8,
           "graphics": 9,
           "sound": 8,
-          "value": 8,
+          "value": 9,
           "reviewers_tilt": 8
         }
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 8.2,
+          "value": 8
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19980131092124/http://www.videogamespot.com:80/n64/drvfly/extremeg/index.html",
+          "review": "https://web.archive.org/web/19980111070506/http://videogamespot.com:80/n64/drvfly/extremeg/review.html"
+        },
+        "note": "Originally 8.3 with Value 9; later shown as 8.2 with Value 8."
+      }
     },
     {
       "title": "F-1 World Grand Prix",
@@ -3206,6 +3292,46 @@
       "parse_issues": []
     },
     {
+      "title": "J League Perfect Striker",
+      "index_title": "J League Perfect Striker",
+      "genre": "Sports",
+      "publisher": "Konami",
+      "developer": "Konami",
+      "release_date": "12/01/1996",
+      "original_path": "/n64/sports/perfstrk/index.html",
+      "original_url": "http://www.videogamespot.com:80/n64/sports/perfstrk/index.html",
+      "requested_wayback_url": "https://web.archive.org/web/19970227162601/http://www.videogamespot.com:80/n64/sports/perfstrk/index.html",
+      "final_wayback_url": "https://web.archive.org/web/19970227162601/http://www.videogamespot.com:80/n64/sports/perfstrk/index.html",
+      "capture_timestamp": "19970227162601",
+      "review": {
+        "blurb": "Since the N64's launch, N64 owners have been waiting for a sports game like this to hit the system.",
+        "reviewer": "Glenn Rubenstein",
+        "full_review_url": "https://web.archive.org/web/19970227221531/http://www.videogamespot.com:80/n64/sports/perfstrk/review.html",
+        "review_date": "02/13/1997"
+      },
+      "score": {
+        "gamespot": 7.1,
+        "label": "good",
+        "components": {
+          "gameplay": 8,
+          "graphics": 8,
+          "sound": 6,
+          "value": 7,
+          "reviewers_tilt": 6
+        }
+      },
+      "status": "ok",
+      "error": null,
+      "parse_issues": [],
+      "videogamespot_recovered": {
+        "index": "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+        "original_genre": "Sports",
+        "release_date_as_listed": "December, 1996",
+        "superseded_by": null,
+        "note": "Review removed from later GameSpot listings."
+      }
+    },
+    {
       "title": "Jeremy McGrath Supercross 2000",
       "index_title": "Jeremy McGrath Supercross 2000",
       "genre": "Driving",
@@ -3319,7 +3445,7 @@
         "full_review_url": "https://web.archive.org/web/20040218230112/http://www.gamespot.com:80/n64/action/killerinstinctgold/review.html"
       },
       "score": {
-        "gamespot": 7.4,
+        "gamespot": 7.3,
         "label": "good",
         "components": {
           "gameplay": 6,
@@ -3334,6 +3460,19 @@
       "parse_issues": [],
       "manual_fix": {
         "source": "New folder/New Text Document.txt"
+      },
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 7.4
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19970228041718/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19970227194323/http://www.videogamespot.com:80/n64/fight/kigold/index.html",
+          "review": "https://web.archive.org/web/19970228012034/http://www.videogamespot.com:80/n64/fight/kigold/review.html",
+          "later_index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html"
+        },
+        "note": "Overall score later changed by 0.1 on gamespot.com with identical sub-scores; original restored."
       }
     },
     {
@@ -4182,7 +4321,7 @@
       "capture_timestamp": "20030618163801",
       "review": {
         "blurb": "While Milo's Astro Lanes gets a resounding nod of approval for its daring immersion into subculture (albeit, three years too late), there's very little here to recommend a purchase.",
-        "reviewer": "Staff",
+        "reviewer": "Chieh Chou",
         "full_review_url": "https://web.archive.org/web/20030618163801/http://www.gamespot.com:80/n64/sports/milosastrolanes/review.html"
       },
       "score": {
@@ -4198,7 +4337,17 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "review": "https://web.archive.org/web/19990916114207/http://www.videogames.com:80/n64/sports/milos/review4.html"
+        },
+        "note": "Credited to Chieh Chou in Sept 1999; later changed to Staff."
+      }
     },
     {
       "title": "Mischief Makers",
@@ -4474,7 +4623,7 @@
         "full_review_url": "https://web.archive.org/web/20030403224145/http://www.gamespot.com:80/n64/driving/multiracingchampionship/review.html"
       },
       "score": {
-        "gamespot": 4.1,
+        "gamespot": 4.0,
         "label": "poor",
         "components": {
           "gameplay": 4,
@@ -4486,7 +4635,19 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 4.1
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19971026021649/http://www.videogames.com:80/n64/drvfly/mrc/index.html",
+          "review": "https://web.archive.org/web/19971120065229/http://www.videogames.com:80/n64/drvfly/mrc/review.html"
+        },
+        "note": "Overall score later changed by 0.1 on gamespot.com with identical sub-scores; original restored."
+      }
     },
     {
       "title": "Mystical Ninja starring Goemon",
@@ -7138,11 +7299,11 @@
       "capture_timestamp": "20030401191550",
       "review": {
         "blurb": "With realms so vast and detailed, and yet so graphically clean and simple, one instinctively wants to go exploring.",
-        "reviewer": "Staff",
+        "reviewer": "Chris Hudak",
         "full_review_url": "https://web.archive.org/web/20030401191550/http://www.gamespot.com:80/n64/action/supermario64/review.html"
       },
       "score": {
-        "gamespot": 9.4,
+        "gamespot": 9.3,
         "label": "superb",
         "components": {
           "gameplay": 9,
@@ -7154,7 +7315,20 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 9.4,
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19981205005725/http://www.videogames.com:80/n64/pltfrm/mario64/index.html",
+          "review": "https://web.archive.org/web/19981203101030/http://www.videogames.com:80/n64/pltfrm/mario64/review.html"
+        },
+        "note": "Originally 9.3 by Chris Hudak (1997 and Jan 1998 indices); shown as 9.4 by Dec 1998 and later credited to Staff."
+      }
     },
     {
       "title": "Super Smash Bros.",
@@ -7490,7 +7664,7 @@
       "capture_timestamp": "20030404134946",
       "review": {
         "blurb": "The multiplayer aspect alone raises the score, but Top Gear Overdrive's rough edges really keep this game from maximizing on all Snowblind's hard work.",
-        "reviewer": "Staff",
+        "reviewer": "Chieh Chou",
         "full_review_url": "https://web.archive.org/web/20030404134946/http://www.gamespot.com:80/n64/driving/topgearoverdrive/review.html"
       },
       "score": {
@@ -7506,7 +7680,17 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "review": "https://web.archive.org/web/19990916105513/http://www.videogames.com:80/n64/drvfly/tgoverdrive/review.html"
+        },
+        "note": "Credited to Chieh Chou in Sept 1999; later changed to Staff."
+      }
     },
     {
       "title": "Top Gear Rally",
@@ -7778,7 +7962,7 @@
       "capture_timestamp": "20030415194755",
       "review": {
         "blurb": "In the end, Twisted Edge turned out to be too little, too late.",
-        "reviewer": "Staff",
+        "reviewer": "Chieh Chou",
         "full_review_url": "https://web.archive.org/web/20030415194755/http://www.gamespot.com:80/n64/sports/twistededgesnowboarding/review.html"
       },
       "score": {
@@ -7794,7 +7978,17 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "review": "https://web.archive.org/web/19990916060208/http://www.videogames.com:80/n64/sports/twistede/review3.html"
+        },
+        "note": "Credited to Chieh Chou in Sept 1999; later changed to Staff."
+      }
     },
     {
       "title": "V-Rally Edition '99",
@@ -8014,7 +8208,7 @@
         "full_review_url": "https://web.archive.org/web/20030415193647/http://www.gamespot.com:80/n64/action/wargods/review.html"
       },
       "score": {
-        "gamespot": 6.1,
+        "gamespot": 6.0,
         "label": "fair",
         "components": {
           "gameplay": 6,
@@ -8026,7 +8220,19 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "earliest archived VideoGameSpot/videogames.com capture",
+        "previous_values": {
+          "gamespot": 6.1
+        },
+        "sources": {
+          "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
+          "at_a_glance": "https://web.archive.org/web/19970812042341/http://www.videogames.com:80/n64/fight/wargods/index.html",
+          "review": "https://web.archive.org/web/19981202092259/http://www.videogames.com:80/n64/fight/wargods/review.html"
+        },
+        "note": "6.0 on the Aug 1997 at-a-glance page and Jan 1998 index; 6.1 by Dec 1998 with identical sub-scores."
+      }
     },
     {
       "title": "Wave Race",
