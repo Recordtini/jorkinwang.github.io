@@ -34,12 +34,7 @@
       ],
       "recovered_reviews_added": [
         "J League Perfect Striker",
-        "Yoshi's Story (Import)",
-        "Wild Choppers (Import)",
-        "Baku Bomberman 64 (Import)",
-        "Ganbare Goemon 5 (Import)",
-        "Yuke Yuke!! Troublemakers (Import)",
-        "Human Grand Prix: The New Generation (Import)"
+        "Yoshi's Story (Import)"
       ],
       "corrected_entries": [
         "Cruis'n USA",
@@ -55,7 +50,7 @@
         "Milo's Astro Lanes",
         "Twisted Edge Snowboarding"
       ],
-      "total_games_after": 278,
+      "total_games_after": 273,
       "accessories_file": "outputs/gamespot_n64_accessories.json"
     }
   },
@@ -551,46 +546,6 @@
       "status": "ok",
       "error": null,
       "parse_issues": []
-    },
-    {
-      "title": "Baku Bomberman 64 (Import)",
-      "index_title": "Baku Bomberman 64",
-      "genre": "Action",
-      "publisher": "Hudson Soft",
-      "developer": "Hudson Soft",
-      "release_date": "10/01/1997",
-      "original_path": "/n64/pltfrm/bomber64/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/pltfrm/bomber64/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19971021034427/http://www.videogames.com:80/n64/pltfrm/bomber64/index.html",
-      "final_wayback_url": "https://web.archive.org/web/19971021034427/http://www.videogames.com:80/n64/pltfrm/bomber64/index.html",
-      "capture_timestamp": "19971021034427",
-      "review": {
-        "blurb": "The game just doesn't seem like Bomberman anymore.",
-        "reviewer": "Joe Fielder",
-        "full_review_url": "https://web.archive.org/web/19971026032549/http://www.videogames.com:80/n64/pltfrm/bomber64/review.html",
-        "review_date": "10/17/1997"
-      },
-      "score": {
-        "gamespot": 4.3,
-        "label": "poor",
-        "components": {
-          "gameplay": 4,
-          "graphics": 5,
-          "sound": 4,
-          "value": 5,
-          "reviewers_tilt": 4
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Platform",
-        "release_date_as_listed": "October, 1997",
-        "superseded_by": "Bomberman 64",
-        "note": "Import review (4.3); overwritten at the same URL by the US Bomberman 64 review (4.6)."
-      }
     },
     {
       "title": "Bakuretsu Muteki Bangaioh",
@@ -2724,46 +2679,6 @@
       "parse_issues": []
     },
     {
-      "title": "Ganbare Goemon 5 (Import)",
-      "index_title": "Ganbare Goemon 5",
-      "genre": "Action",
-      "publisher": "Konami",
-      "developer": "Konami",
-      "release_date": "08/01/1997",
-      "original_path": "/n64/advrpg/goemon5/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/advrpg/goemon5/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19971026021426/http://www.videogames.com:80/n64/advrpg/goemon5/index.html",
-      "final_wayback_url": "https://web.archive.org/web/19971026021426/http://www.videogames.com:80/n64/advrpg/goemon5/index.html",
-      "capture_timestamp": "19971026021426",
-      "review": {
-        "blurb": "Goemon 5 is a solid, if mostly rehashed, title.",
-        "reviewer": "Peter Bartholow",
-        "full_review_url": "https://web.archive.org/web/19971120063735/http://www.videogames.com:80/n64/advrpg/goemon5/review.html",
-        "review_date": "09/04/1997"
-      },
-      "score": {
-        "gamespot": 6.7,
-        "label": "fair",
-        "components": {
-          "gameplay": 7,
-          "graphics": 7,
-          "sound": 7,
-          "value": 7,
-          "reviewers_tilt": 6
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Adventure/RPG",
-        "release_date_as_listed": "August, 1997",
-        "superseded_by": "Mystical Ninja starring Goemon",
-        "note": "Import review; replaced by a reworded US review with the same scores."
-      }
-    },
-    {
       "title": "Gauntlet Legends",
       "index_title": "Gauntlet Legends",
       "genre": "Puzzle",
@@ -3114,46 +3029,6 @@
       "status": "ok",
       "error": null,
       "parse_issues": []
-    },
-    {
-      "title": "Human Grand Prix: The New Generation (Import)",
-      "index_title": "Human Grand Prix",
-      "genre": "Driving",
-      "publisher": "Human",
-      "developer": "Human",
-      "release_date": "03/01/1997",
-      "original_path": "/n64/drvfly/humangp/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/drvfly/humangp/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19970812042614/http://www.videogames.com:80/n64/drvfly/humangp/index.html",
-      "final_wayback_url": "https://web.archive.org/web/19970812042614/http://www.videogames.com:80/n64/drvfly/humangp/index.html",
-      "capture_timestamp": "19970812042614",
-      "review": {
-        "blurb": "Overall, Human Grand Prix is a mediocre racing title.",
-        "reviewer": "Glenn Rubenstein",
-        "full_review_url": null,
-        "review_date": "04/29/1997"
-      },
-      "score": {
-        "gamespot": 4.2,
-        "label": "poor",
-        "components": {
-          "gameplay": null,
-          "graphics": null,
-          "sound": null,
-          "value": null,
-          "reviewers_tilt": null
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Driving/Flying",
-        "release_date_as_listed": "March, 1997",
-        "superseded_by": "F1 Pole Position 64",
-        "note": "Import review; listed separately from F1 Pole Position 64 on the Jan 1998 index. Review page not archived, so sub-scores are unknown."
-      }
     },
     {
       "title": "Hybrid Heaven",
@@ -8809,46 +8684,6 @@
       "parse_issues": []
     },
     {
-      "title": "Wild Choppers (Import)",
-      "index_title": "Wild Choppers (Import)",
-      "genre": "Action",
-      "publisher": "Seta",
-      "developer": "Seta Corporation",
-      "release_date": null,
-      "original_path": "/n64/shoot/wildchop/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/shoot/wildchop/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19980111070359/http://videogamespot.com:80/n64/shoot/wildchop/review.html",
-      "final_wayback_url": "https://web.archive.org/web/19980111070359/http://videogamespot.com:80/n64/shoot/wildchop/review.html",
-      "capture_timestamp": "19980111070359",
-      "review": {
-        "blurb": null,
-        "reviewer": "Ryan Mac Donald",
-        "full_review_url": "https://web.archive.org/web/19980111070359/http://videogamespot.com:80/n64/shoot/wildchop/review.html",
-        "review_date": "12/17/1997"
-      },
-      "score": {
-        "gamespot": 5.8,
-        "label": "mediocre",
-        "components": {
-          "gameplay": 5,
-          "graphics": 6,
-          "sound": 5,
-          "value": 7,
-          "reviewers_tilt": 6
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Shooter",
-        "release_date_as_listed": null,
-        "superseded_by": "Chopper Attack",
-        "note": "Import review; the US release was re-reviewed as Chopper Attack (6.4). At-a-glance page not archived, so no blurb; developer taken from the Chopper Attack entry."
-      }
-    },
-    {
       "title": "Worms Armageddon",
       "index_title": "Worms Armageddon",
       "genre": "Puzzle",
@@ -9142,46 +8977,6 @@
         "release_date_as_listed": "December, 1997",
         "superseded_by": "Yoshi's Story",
         "note": "Import review; replaced by a rewritten US review with the same scores credited to Joe Fielder alone."
-      }
-    },
-    {
-      "title": "Yuke Yuke!! Troublemakers (Import)",
-      "index_title": "Yuke Yuke Troublemakers",
-      "genre": "Action",
-      "publisher": "Enix",
-      "developer": "Treasure",
-      "release_date": "07/01/1997",
-      "original_path": "/n64/pltfrm/yukeyuke/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/pltfrm/yukeyuke/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19980131093007/http://www.videogamespot.com:80/n64/pltfrm/yukeyuke/index.html",
-      "final_wayback_url": "https://web.archive.org/web/19980131093007/http://www.videogamespot.com:80/n64/pltfrm/yukeyuke/index.html",
-      "capture_timestamp": "19980131093007",
-      "review": {
-        "blurb": "Yuke Yuke!! Troublemakers is a good game that will leave players wanting more.",
-        "reviewer": "Peter Bartholow",
-        "full_review_url": null,
-        "review_date": "08/28/1997"
-      },
-      "score": {
-        "gamespot": 7.0,
-        "label": "good",
-        "components": {
-          "gameplay": null,
-          "graphics": null,
-          "sound": null,
-          "value": null,
-          "reviewers_tilt": null
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Platform",
-        "release_date_as_listed": "July, 1997",
-        "superseded_by": "Mischief Makers",
-        "note": "Import review (7.0); the US release was re-scored as Mischief Makers (6.7). Review page not archived, so sub-scores are unknown."
       }
     }
   ]
