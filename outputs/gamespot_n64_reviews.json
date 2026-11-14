@@ -33,8 +33,7 @@
         "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html"
       ],
       "recovered_reviews_added": [
-        "J League Perfect Striker",
-        "Yoshi's Story (Import)"
+        "J League Perfect Striker"
       ],
       "corrected_entries": [
         "Cruis'n USA",
@@ -50,7 +49,7 @@
         "Milo's Astro Lanes",
         "Twisted Edge Snowboarding"
       ],
-      "total_games_after": 273,
+      "total_games_after": 272,
       "accessories_file": "outputs/gamespot_n64_accessories.json"
     }
   },
@@ -8938,46 +8937,6 @@
       "status": "ok",
       "error": null,
       "parse_issues": []
-    },
-    {
-      "title": "Yoshi's Story (Import)",
-      "index_title": "Yoshi's Story (Import)",
-      "genre": "Action",
-      "publisher": "Nintendo",
-      "developer": "Nintendo",
-      "release_date": "12/01/1997",
-      "original_path": "/n64/pltfrm/yoshi64/index.html",
-      "original_url": "http://www.videogamespot.com:80/n64/pltfrm/yoshi64/index.html",
-      "requested_wayback_url": "https://web.archive.org/web/19980131082839/http://www.videogamespot.com:80/n64/pltfrm/yoshi64/index.html",
-      "final_wayback_url": "https://web.archive.org/web/19980131082839/http://www.videogamespot.com:80/n64/pltfrm/yoshi64/index.html",
-      "capture_timestamp": "19980131082839",
-      "review": {
-        "blurb": "Yoshi's Story comes off as a very disappointing experience indeed.",
-        "reviewer": "Ryan Mac Donald, Joe Fielder",
-        "full_review_url": "https://web.archive.org/web/19980131104844/http://www.videogamespot.com:80/n64/pltfrm/yoshi64/review.html",
-        "review_date": "01/23/1998"
-      },
-      "score": {
-        "gamespot": 5.3,
-        "label": "mediocre",
-        "components": {
-          "gameplay": 5,
-          "graphics": 7,
-          "sound": 5,
-          "value": 7,
-          "reviewers_tilt": 4
-        }
-      },
-      "status": "ok",
-      "error": null,
-      "parse_issues": [],
-      "videogamespot_recovered": {
-        "index": "https://web.archive.org/web/19980131084907/http://www.videogamespot.com/n64/indices/index.html",
-        "original_genre": "Platform",
-        "release_date_as_listed": "December, 1997",
-        "superseded_by": "Yoshi's Story",
-        "note": "Import review; replaced by a rewritten US review with the same scores credited to Joe Fielder alone."
-      }
     }
   ]
 }
