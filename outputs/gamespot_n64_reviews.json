@@ -48,7 +48,8 @@
         "Top Gear OverDrive",
         "Milo's Astro Lanes",
         "Twisted Edge Snowboarding",
-        "Rush 2: Extreme Racing"
+        "Rush 2: Extreme Racing",
+        "Dual Heroes"
       ],
       "total_games_after": 272,
       "accessories_file": "outputs/gamespot_n64_accessories.json"
@@ -2036,7 +2037,7 @@
       "capture_timestamp": "20030618175956",
       "review": {
         "blurb": "It's not often a game this bad is released in the industry.",
-        "reviewer": "Staff",
+        "reviewer": "Chieh Chou",
         "full_review_url": "https://web.archive.org/web/20030618175956/http://www.gamespot.com:80/n64/action/dualheroes/review.html"
       },
       "score": {
@@ -2052,7 +2053,18 @@
       },
       "status": "ok",
       "error": null,
-      "parse_issues": []
+      "parse_issues": [],
+      "historical_correction": {
+        "restored_from": "GameSpot review syndicated on the Amazon product listing",
+        "previous_values": {
+          "reviewer": "Staff"
+        },
+        "sources": {
+          "amazon_listing": "https://www.amazon.com/dp/B00002STF0",
+          "archived_review": "https://web.archive.org/web/20001019190946/http://www.videogames.com:80/n64/fight/dualheroes/review.html"
+        },
+        "note": "Amazon's syndicated copy of the GameSpot review (copyright 1999) is signed Chieh Chou and its closing paragraph matches the archived review, whose earliest capture (Oct 2000) already says Staff."
+      }
     },
     {
       "title": "Duck Dodgers Starring Daffy Duck",
