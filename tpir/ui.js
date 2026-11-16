@@ -3,6 +3,7 @@
 // (Button.res = a Style entry: 4 x 38-byte state records {u16 image, ffffffff, 8 zero, u16 font, rgba} = normal, pressed, over, disabled); ids are file numbers.
 import { Font } from './font.js?v=2';
 import { decodeJ32 } from './video.js';
+import { projectContainer, unprojectContainer, containerMatrix } from './ui-container.js';
 const SCREENS = Array.from({ length: 80 }, (_, i) => i + 1);
 // Extracted GW image frames retain their 16-byte big-endian crop rectangle
 // after the PNG IEND. x/y locate the trimmed pixels in the original canvas.
@@ -42,22 +43,57 @@ export class UI {
     const roots = []; while (i < W.length) roots.push(node()); const root = { class: 'container', inst: 'root', x: 0, y: 0, w: 800, h: 600, vis: true, children: roots }; this.all = new Map(); const walk = (n) => { this.all.set(n.inst, n); n.children.forEach(walk); }; walk(root); return root;
   }
   addButton(parent, { inst, x, y, w, h, res }) { const n = { class: 'button', inst, x, y, w, h, vis: true, res, text: 0, kids: 0, children: [], abs: [0, 0] }; parent.children.push(n); this.all.set(inst, n); return n; }
+  parentOf(node) { for(const parent of this.all.values()) if(parent.children.includes(node)) return parent; return null; }
+  reparent(node,parent) {
+    const old=this.parentOf(node); if(old===parent)return;
+    if(old) old.children.splice(old.children.indexOf(node),1);
+    parent.children.push(node);
+  }
+  moveBefore(node,before) {
+    const parent=this.parentOf(node);
+    if(!parent || node===before || this.parentOf(before)!==parent)return false;
+    parent.children.splice(parent.children.indexOf(node),1);
+    parent.children.splice(parent.children.indexOf(before),0,node); return true;
+  }
   find(pred) { const out = []; for (const n of this.all.values()) if (pred(n)) out.push(n); return out; }
   buttons(textName) { return this.find((n) => n.class === 'button' && this.reg.by[n.text]?.name === textName); }
   isVisible(n) { return this.vis.has(n.inst) ? this.vis.get(n.inst) : n.vis; }
   show(...insts) { insts.forEach((i) => this.vis.set(i, true)); } hide(...insts) { insts.forEach((i) => this.vis.set(i, false)); }
   setText(inst, s) { this.txt.set(inst, s); }
+  // Opt in only after tracing a game's view selection. Other screens keep
+  // their existing presentation until their runtime state has been recovered.
+  setView(camera = null, viewport = [800, 600]) { this.camera = camera; this.viewport = viewport; }
+  localPoint(n, x, y) {
+    if (!this.camera) return [x, y];
+    let p = [Math.trunc(x), Math.trunc(y)];
+    for (const step of n.inputPath || []) p = unprojectContainer(p, step.projection, step.position);
+    return p;
+  }
+  contains(n, x, y) {
+    if (!this.camera) return x >= n.abs[0] && x < n.abs[0] + n.w && y >= n.abs[1] && y < n.abs[1] + n.h;
+    const p = this.localPoint(n, x, y);
+    return p[0] >= n.x && p[0] < n.x + n.w && p[1] >= n.y && p[1] < n.y + n.h;
+  }
   async preload() { const ids = new Set(), fonts = new Set(); for (const n of this.all.values()) { if (n.class === 'image' && n.res) ids.add(n.res); if (n.class === 'button') { const st = this.reg.style(n.res); if (st) st.forEach((s) => { ids.add(s.img); fonts.add(s.font); }); } if (n.class === 'label' && n.res) fonts.add(n.res); }
     await Promise.all([...[...ids].map(async (i) => this.reg.imgs.set(i, await this.reg.img(i))), ...[...fonts].map(async (f) => this.reg.fonts.set(f, await this.reg.font(f)))]); return this; }
   draw(g, mx = -1, my = -1, mode = 'all') {   // mode: 'all' | 'nobtn' (everything but buttons) | 'btn' (only buttons) - lets a game draw its own art between the two
-    if (mode !== 'nobtn') this.hover = null; const walk = (n, ox, oy) => { if (!this.isVisible(n) && n !== this.root) return; const x = ox + n.x, y = oy + n.y; n.abs = [x, y];
+    if (mode !== 'nobtn') this.hover = null; const walk = (n, ox, oy, matrix = [1,0,0,1,0,0], inputPath = []) => { if (!this.isVisible(n) && n !== this.root) return;
+      if (this.camera && n.class === 'container') {
+        const projection = projectContainer({...(n.transform || {offset:[0,0],depth:0,scale:[1,1]}), camera:this.camera, world_width:this.S.size[0], viewport:this.viewport});
+        const local = containerMatrix(projection, [n.x,n.y]);
+        const [a,b,c,d,e,f] = matrix, [A,B,C,D,E,F] = local;
+        n.matrix = [a*A+c*B,b*A+d*B,a*C+c*D,b*C+d*D,a*E+c*F+e,b*E+d*F+f];
+        n.abs = n.matrix.slice(4); n.inputPath = [...inputPath,{projection,position:[n.x,n.y]}];
+        g.save(); g.transform(...local); n.children.forEach(child=>walk(child,0,0,n.matrix,n.inputPath)); g.restore(); return;
+      }
+      const x = ox + n.x, y = oy + n.y; n.abs = this.camera ? [matrix[0]*x+matrix[2]*y+matrix[4],matrix[1]*x+matrix[3]*y+matrix[5]] : [x,y]; n.inputPath = inputPath;
       if (n.class === 'image' && mode !== 'btn') { const im = this.reg.imgs.get(n.res); const b = im && im.then ? null : im; if (b) { if (n.crop != null) g.drawImage(b, 0, 0, Math.max(1, b.width * n.crop), b.height, x, y, (n.w || b.width) * n.crop, n.h || b.height); else drawPlaced(g,b,x,y,n.w || b.width,n.h || b.height,this.reg.meta?.get(n.res)); } else if (im && im.then) im.then((v) => this.reg.imgs.set(n.res, v)); }
-      else if (n.class === 'button' && mode !== 'nobtn') { const st = this.reg.style(n.res); const inside = mx >= x && mx < x + n.w && my >= y && my < y + n.h; const dis = this.disabled.has(n.inst); if (inside && !dis) this.hover = n;
+      else if (n.class === 'button' && mode !== 'nobtn') { const st = this.reg.style(n.res); const inside = this.contains(n,mx,my); const dis = this.disabled.has(n.inst); if (inside && !dis) this.hover = n;
         const si = dis ? 3 : (inside && this.down === n) ? 1 : inside ? 2 : 0; const s = st && st[si]; const b = s && this.reg.imgs.get(s.img); if (b && !b.then) drawPlaced(g,b,x,y,n.w,n.h,this.reg.meta?.get(s.img)); else if (b && b.then) b.then((v) => this.reg.imgs.set(s.img, v));
         const label = this.txt.get(n.inst) ?? this.reg.by[n.text]?.text ?? ''; if (label && s) { const f = this.reg.fonts.get(s.font); if (f && !f.then) { const c = s.rgba; const col = `rgba(${c[0]},${c[1]},${c[2]},${c[3] / 255})`; const lines = label.toUpperCase().split(/\r?\n/).map(t=>t.trim()).filter(Boolean); const lineHeight=f.lineHeight || 20; const widest=Math.max(1,...lines.map(t=>f.width(t))); const scale=Math.min(1,(n.w-16)/widest,(n.h-12)/(lineHeight*lines.length)); g.save(); g.translate(x+n.w/2,y+n.h/2); g.scale(scale,scale); lines.forEach((t,i)=>f.draw(g,t,-f.width(t)/2,(i-(lines.length-1)/2)*lineHeight+7,col)); g.restore(); } } }
       else if (n.class === 'rect' && mode !== 'btn' && this.fills.has(n.inst)) { const f = this.fills.get(n.inst); g.save(); g.fillStyle = f.fill; g.strokeStyle = f.stroke || 'transparent'; g.lineWidth = 3; g.beginPath(); g.roundRect(x, y, n.w, n.h, f.r ?? 18); g.fill(); if (f.stroke) g.stroke(); g.restore(); }
       else if (n.class === 'label' && mode !== 'btn') { const f = this.reg.fonts.get(n.res); const t = this.txt.get(n.inst); if (t && f && !f.then) f.draw(g, t, x + (this.labelCenter ? (n.w - f.width(t)) / 2 : 0), y + n.h / 2 + 10, this.labelColor || '#fff'); }
-      n.children.forEach((c) => walk(c, x, y)); }; walk(this.root, 0, 0); if (this.overlay && mode !== 'nobtn') this.overlay(g);
+      n.children.forEach((c) => walk(c, x, y, matrix, inputPath)); }; walk(this.root, 0, 0); if (this.overlay && mode !== 'nobtn') this.overlay(g);
   }
-  hit(x, y) { let best = null; const walk = (n) => { if (!this.isVisible(n) && n !== this.root) return; if (n.class === 'button' && !this.disabled.has(n.inst) && x >= n.abs[0] && x < n.abs[0] + n.w && y >= n.abs[1] && y < n.abs[1] + n.h) best = n; n.children.forEach(walk); }; walk(this.root); return best; }
+  hit(x, y) { let best = null; const walk = (n) => { if (!this.isVisible(n) && n !== this.root) return; if (n.class === 'button' && !this.disabled.has(n.inst) && this.contains(n,x,y)) best = n; n.children.forEach(walk); }; walk(this.root); return best; }
 }
