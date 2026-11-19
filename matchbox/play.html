@@ -173,7 +173,7 @@ let free=null;
 const IDENT=new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 // set by the New game button: no save writes until the reload
 let noSave=false;
-const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[],heliMeshes=[];
+const cells=new Map();let city={n:0,cmin:0},skyMesh=null,carModel,water=[],waterSet=null,props=[],propAt=[],guyFrames=[],objFrames=new Map(),arrowMesh=null,markerMesh=null,iconMeshes=[],carKey='',loadModel=null,tireMeshes=[],setMeshes=new Map(),carBody='',gateMeshes=[],heliMeshes=[];
 // a model drawn with texture set `set` (digit-prefixed materials, g_model_prepare_set), cached per name and set
 function modelSet(nm,set){const key=nm+'#'+set;let m=setMeshes.get(key);if(m!==undefined)return m;
  const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
@@ -247,7 +247,8 @@ async function init(){
  const nm=new TextEncoder().encode(model);const np=M.g_alloc(nm.length);new Uint8Array(M.memory.buffer,np,nm.length).set(nm);
  if(!M.g_model_prepare(np,nm.length))throw model+' not decoded';carModel=takeMesh();
  // water objects (FUN_0045f080 creates riv*/doriv*/farm_riv/pool_riv at the world origin; model space == BPK space)
- for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare(i))water.push(takeMesh());
+ // their texture animates (TotalTex 10: `0waterE` .. `9waterE`), so the meshes are kept per texture set, built on first use
+ waterSet=s=>{if(!water[s]){water[s]=[];for(let i=0;i<M.g_water_count();i++)if(M.g_water_prepare_set(i,s))water[s].push(takeMesh())}return water[s]};waterSet(0);
  // mission arrow `Arrow` (DAT_00498ffc) and target marker `ArrowDown` (DAT_00499000), created by FUN_0045f5e0
  loadModel=nm=>{const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);return M.g_model_prepare(q,b.length)?takeMesh():null};
  arrowMesh=loadModel('objects/arrow.ms2');
@@ -372,7 +373,7 @@ function frame(now){
  const cxw=free?free.pos[0]:x,czw=free?free.pos[2]:z,ccx=Math.floor(cxw/1000)-city.cmin,ccz=Math.floor(czw/1000)-city.cmin,R=CITY_CELLS;
  for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const cx=ccx+dx,cz=ccz+dz;if(cx<0||cz<0||cx>=city.n||cz>=city.n)continue;
   const m=cellMesh(cz*city.n+cx);if(m)drawMesh(m,vp,IDENT)}
- for(const wm of water)drawMesh(wm,vp,IDENT);
+ for(const wm of waterSet(Math.min(M.g_water_frame(),9)))drawMesh(wm,vp,IDENT);
  {const n=M.g_props_dynamic(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*18);
   for(let k=0;k<n;k++){const e=propAt[d[k*18]];if(e){e[1]=d.slice(k*18+2,k*18+18);e[2]=d[k*18+1]!=0}}}
  for(const[me,mm,vis]of props){if(!vis)continue;const dx=mm[12]-x,dz=mm[14]-z;if(dx*dx+dz*dz<12000*12000)drawMesh(me,mul(vp,mm),mm)}
@@ -401,8 +402,9 @@ function frame(now){
  // the mission's scripted objects (Fire4 ambient, patients, runners, robber, cows): frames prepared on first use per model and frame
  {const n=M.g_mission_objects(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const l=M.g_mission_object_name(k),nm=new TextDecoder().decode(new Uint8Array(M.memory.buffer,M.g_scratch_ptr(),l)),fr=Math.floor(d[k*17]),key=nm+'#'+fr;
-   let g=objFrames.get(key);if(g===undefined){const b=new TextEncoder().encode(nm);const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
-    g=M.g_model_prepare_frame(q,b.length,fr)?takeMesh():null;objFrames.set(key,g)}
+   let g=objFrames.get(key);if(g===undefined){const at=nm.indexOf('@'),set=at<0?0:+nm.slice(at+1);   // `model@set`: texture set (neon signs)
+    const b=new TextEncoder().encode(at<0?nm:nm.slice(0,at));const q=M.g_alloc(b.length);new Uint8Array(M.memory.buffer,q,b.length).set(b);
+    g=(at<0?M.g_model_prepare_frame(q,b.length,fr):M.g_model_prepare_set(q,b.length,fr,set))?takeMesh():null;objFrames.set(key,g)}
    if(g)drawMesh(g,mul(vp,d.subarray(k*17+1,k*17+17)),d.subarray(k*17+1,k*17+17))}}
  {const n=M.g_station_icons(),d=new Float32Array(M.memory.buffer,M.g_inst_ptr(),n*17).slice();
   for(let k=0;k<n;k++){const me=iconMeshes[d[k*17]];if(me)drawMesh(me,mul(vp,d.subarray(k*17+1,k*17+17)),d.subarray(k*17+1,k*17+17))}}
